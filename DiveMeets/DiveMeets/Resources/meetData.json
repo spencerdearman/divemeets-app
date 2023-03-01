@@ -1,0 +1,51 @@
+[
+    {
+        "id": 1001,
+        "meetName": "UCHI vs HOPC vs UWEC",
+        "meetEvents": ["Men 1m Championship (6 Dives) - (Final)"],
+        "meetPlaces": [1],
+        "meetScores": [300.05]
+    },
+    {
+        "id": 1002,
+        "meetName": "UIC vs UCHI",
+        "meetEvents": ["Men 1m Championship (6 Dives) - (Final)",  "Men 3m Championship (6 Dives) - (Final)"],
+        "meetPlaces": [3, 4],
+        "meetScores": [276.83, 278.78]
+    },
+    {
+        "id": 1003,
+        "meetName": "UCHI vs UWMI",
+        "meetEvents": ["Men 1m Championship (6 Dives) - (Final)",  "Men 3m Championship (6 Dives) - (Final)"],
+        "meetPlaces": [5, 2],
+        "meetScores": [264.53, 278.93]
+    },
+    {
+        "id": 1004,
+        "meetName": "UCHI vs LU",
+        "meetEvents": ["Men 1m Championship (6 Dives) - (Final)",  "Men 3m Championship (6 Dives) - (Final)"],
+        "meetPlaces": [2, 2],
+        "meetScores": [310.35, 297.08]
+    },
+    {
+        "id": 1005,
+        "meetName": "Phoenix Fall Classic @ UChicago",
+        "meetEvents": ["Men 1m Championship (11Div Vol 1st.) - (Final)", "Men 3m Championship (11Div Vol 1st.) - (Final)"],
+        "meetPlaces": [2, 1],
+        "meetScores": [484.55, 517.75]
+    },
+    {
+        "id": 1006,
+        "meetName": "NVSL All-Star Meet",
+        "meetEvents": ["Seniors 15-18 Boys 1m - (Final)"],
+        "meetPlaces": [2],
+        "meetScores": [237.90]
+    },
+    {
+        "id": 1007,
+        "meetName": "2022 USA Diving Zone A Championships",
+        "meetEvents": ["16-18 Boys 1m J.O - (Final)", "16-18 Boys 3m J.O - (Final)"],
+        "meetPlaces": [17, 20],
+        "meetScores": [397.86, 414.90]
+    }
+]
