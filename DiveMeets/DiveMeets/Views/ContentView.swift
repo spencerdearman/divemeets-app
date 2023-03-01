@@ -2,45 +2,51 @@
 //  ContentView.swift
 //  DiveMeets
 //
-//  Created by Spencer Dearman on 2/28/23.
+//  Created by Logan Sherwin on 3/1/23.
 //
 
 import SwiftUI
 
 struct ContentView: View {
+    @State private var selectedTab: Tab = .house
+    
+    /*
+     * Unclear if this init is necessary
+     */
+    init() {
+        UITabBar.appearance().isHidden = true
+    }
+    
     var body: some View {
-        VStack {
-            VStack {
-                BackgroundView()
-                    .offset(y: -40)
-                    .ignoresSafeArea(edges: .top)
-                    .frame(height: 50)
-
-                ProfileImage()
-                    .offset(y: -20)
-
-                VStack(alignment: .leading) {
-                    Text("Spencer Dearman")
-                        .font(.title)
-
-                    HStack {
-                        Text("University of Chicago")
-                        Spacer()
-                        Text("Oakton, VA")
+        ZStack {
+            VStack{
+                TabView(selection: $selectedTab) {
+                    ForEach(Tab.allCases, id: \.rawValue) { tab in
+                        HStack {
+                            /*
+                             * Add different page views here for different tabs
+                             */
+                            switch tab {
+                                case .house:
+                                    ProfileView()
+                                case .gearshape:
+                                    Image(systemName: tab.rawValue)
+                                case .magnifyingglass:
+                                    Text("\(tab.rawValue.capitalized)")
+                                        .bold()
+                                        .animation(nil, value: selectedTab)
+                            }
+                        }
+                        .tag(tab)
+                        
                     }
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-
-                    Divider()
                 }
-                .offset(y: -70)
-                .padding()
-
             }
             
-            MeetList()
-                .offset(y: -100)
-                .frame(height: 400)
+            VStack {
+                Spacer()
+                FloatingMenuBar(selectedTab: $selectedTab)
+            }
         }
     }
 }
