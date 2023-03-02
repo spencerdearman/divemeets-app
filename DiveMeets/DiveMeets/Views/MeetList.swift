@@ -8,6 +8,10 @@
 import SwiftUI
 
 struct MeetList: View {
+    @Binding var hideTabBar: Bool
+    @State var offset: CGFloat = 0
+    @State var lastOffset: CGFloat = 0
+    
     private let frameWidth: CGFloat = 350
     private let frameHeight: CGFloat = 50
     private let cornerRadius: CGFloat = 15
@@ -46,7 +50,49 @@ struct MeetList: View {
                             }
                         }
                     }
+                    .overlay(
+                    
+                        GeometryReader {proxy -> Color in
+                            
+                            let minY = proxy.frame(in: .named("SCROLL")).minY
+                            
+                            /*
+                             * Duration to hide TabBar
+                             */
+                            let durationOffset: CGFloat = 0
+                            
+                            DispatchQueue.main.async {
+                                if minY < offset {
+                                    print("down")
+                                    
+                                    if offset < 0 && -minY > (lastOffset + durationOffset) {
+                                        withAnimation(.easeOut.speed(1.5)) {
+                                            hideTabBar = true
+                                        }
+                                        lastOffset = -offset
+                                    }
+                                }
+                                if offset < minY {
+                                    print("up")
+                                    
+                                    if offset < 0 && -minY < (lastOffset - durationOffset) {
+                                        withAnimation(.easeIn.speed(1.5)) {
+                                            hideTabBar = false
+                                        }
+                                        lastOffset = -offset
+                                    }
+                                }
+                                
+                                self.offset = minY
+                            }
+                            
+                            return Color.clear
+                        }
+                    
+                    )
+                    .padding()
                 }
+                .coordinateSpace(name: "SCROLL")
                 .navigationTitle("Meets")
             }
         }
@@ -55,6 +101,6 @@ struct MeetList: View {
 
 struct MeetList_Previews: PreviewProvider {
     static var previews: some View {
-        MeetList()
+        MeetList(hideTabBar: .constant(false))
     }
 }

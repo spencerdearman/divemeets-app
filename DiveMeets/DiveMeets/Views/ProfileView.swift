@@ -41,7 +41,7 @@ struct ProfileView: View {
 
             }
             
-            MeetList()
+            MeetList(hideTabBar: $hideTabBar)
                 .offset(y: -100)
                 .frame(height: 400)
         }
