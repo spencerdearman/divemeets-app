@@ -12,6 +12,7 @@ struct MeetList: View {
     @State var offset: CGFloat = 0
     @State var lastOffset: CGFloat = 0
     
+    /// Style adjustments for elements of list
     private let frameWidth: CGFloat = 350
     private let frameHeight: CGFloat = 50
     private let cornerRadius: CGFloat = 15
@@ -24,6 +25,7 @@ struct MeetList: View {
     var body: some View {
         NavigationView {
             ZStack {
+                /// Background color for View
                 Color(red: grayValue, green: grayValue, blue: grayValue)
                     .ignoresSafeArea()
                 
@@ -50,6 +52,7 @@ struct MeetList: View {
                             }
                         }
                     }
+                    /// Scroll tracking to hide/show tab bar when scrolling down/up
                     .overlay(
                     
                         GeometryReader {proxy -> Color in
