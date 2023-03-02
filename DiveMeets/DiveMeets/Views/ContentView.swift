@@ -11,9 +11,7 @@ struct ContentView: View {
     @State private var selectedTab: Tab = .house
     @State var hideTabBar = false
     
-    /*
-     * Unclear if this init is necessary
-     */
+    /// Necessary to hide gray navigation bar from behind floating tab bar
     init() {
         UITabBar.appearance().isHidden = true
     }
@@ -24,24 +22,21 @@ struct ContentView: View {
                 TabView(selection: $selectedTab) {
                     ForEach(Tab.allCases, id: \.rawValue) { tab in
                         HStack {
-                            /*
-                             * Add different page views here for different tabs
-                             */
+                            /// Add different page views here for different tabs
                             switch tab {
                                 case .house:
                                     ProfileView(hideTabBar: $hideTabBar)
                                 case .gearshape:
                                     Image(systemName: tab.rawValue)
-                                    Button(action: {
-                                        hideTabBar.toggle()
-                                    }, label: {
-                                        Text("Toggle")
-                                    })
+                                    Text("Settings")
+                                        .bold()
+                                        .animation(nil, value: selectedTab)
                                 case .magnifyingglass:
-//                                    Text("\(tab.rawValue.capitalized)")
-//                                        .bold()
-//                                        .animation(nil, value: selectedTab)
-                                    HidingScrollView(hideTabBar: $hideTabBar)
+                                    Image(systemName: tab.rawValue)
+                                    Text("Search")
+                                        .bold()
+                                        .animation(nil, value: selectedTab)
+                                    //                                                                        HidingScrollView(hideTabBar: $hideTabBar)
                             }
                         }
                         .tag(tab)
@@ -55,7 +50,6 @@ struct ContentView: View {
                 FloatingMenuBar(selectedTab: $selectedTab)
             }
             .offset(y: hideTabBar ? 110 : 20)
-            .animation(.easeOut, value: hideTabBar)
         }
     }
 }
