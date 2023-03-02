@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		001A9B9029B075A6007C7BE5 /* HidingScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001A9B8F29B075A6007C7BE5 /* HidingScrollView.swift */; };
 		00F9665F29AEEF0900F3720B /* FloatingMenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */; };
 		00F9667B29AFDA1500F3720B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9667A29AFDA1500F3720B /* ContentView.swift */; };
 		4D74FE9729AE7B9800401178 /* DiveMeetsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FE9629AE7B9800401178 /* DiveMeetsApp.swift */; };
@@ -26,6 +27,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		001A9B8F29B075A6007C7BE5 /* HidingScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HidingScrollView.swift; sourceTree = "<group>"; };
 		00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingMenuBar.swift; sourceTree = "<group>"; };
 		00F9667A29AFDA1500F3720B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		4D74FE9329AE7B9800401178 /* DiveMeets.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DiveMeets.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -106,6 +108,7 @@
 				4D74FEC529AEC95500401178 /* MeetPage.swift */,
 				00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */,
 				00F9667A29AFDA1500F3720B /* ContentView.swift */,
+				001A9B8F29B075A6007C7BE5 /* HidingScrollView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -209,6 +212,7 @@
 				4D74FEA929AEA5AD00401178 /* MapView.swift in Sources */,
 				4D74FEA529AE7C2B00401178 /* ProfileImage.swift in Sources */,
 				4D74FEB129AEB3BE00401178 /* MeetData.swift in Sources */,
+				001A9B9029B075A6007C7BE5 /* HidingScrollView.swift in Sources */,
 				00F9665F29AEEF0900F3720B /* FloatingMenuBar.swift in Sources */,
 				4D74FE9729AE7B9800401178 /* DiveMeetsApp.swift in Sources */,
 			);

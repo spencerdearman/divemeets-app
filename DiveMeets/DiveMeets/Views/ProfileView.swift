@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ProfileView: View {
+    @Binding var hideTabBar: Bool
     
     var body: some View {
         
@@ -49,6 +50,6 @@ struct ProfileView: View {
 
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
-        ProfileView()
+        ProfileView(hideTabBar: .constant(false))
     }
 }

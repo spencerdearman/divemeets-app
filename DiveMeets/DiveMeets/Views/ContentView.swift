@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab: Tab = .house
+    @State var hideTabBar = false
     
     /*
      * Unclear if this init is necessary
@@ -28,13 +29,19 @@ struct ContentView: View {
                              */
                             switch tab {
                                 case .house:
-                                    ProfileView()
+                                    ProfileView(hideTabBar: $hideTabBar)
                                 case .gearshape:
                                     Image(systemName: tab.rawValue)
+                                    Button(action: {
+                                        hideTabBar.toggle()
+                                    }, label: {
+                                        Text("Toggle")
+                                    })
                                 case .magnifyingglass:
-                                    Text("\(tab.rawValue.capitalized)")
-                                        .bold()
-                                        .animation(nil, value: selectedTab)
+//                                    Text("\(tab.rawValue.capitalized)")
+//                                        .bold()
+//                                        .animation(nil, value: selectedTab)
+                                    HidingScrollView(hideTabBar: $hideTabBar)
                             }
                         }
                         .tag(tab)
@@ -47,6 +54,8 @@ struct ContentView: View {
                 Spacer()
                 FloatingMenuBar(selectedTab: $selectedTab)
             }
+            .offset(y: hideTabBar ? 110 : 20)
+            .animation(.easeOut, value: hideTabBar)
         }
     }
 }
