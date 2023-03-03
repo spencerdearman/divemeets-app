@@ -20,12 +20,18 @@ struct SearchView: View {
     var body: some View {
         /// Submit button doesn't switch pages in preview, but it works in Simulator
         if searchSubmitted {
-            SearchResultsView(selection: $selection, firstName: $firstName, lastName: $lastName, meetName: $meetName, orgName: $orgName, meetYear: $meetYear, searchSubmitted: $searchSubmitted)
-                .onDisappear {
-                    searchSubmitted = false
-                }
+            SearchResultsView(selection: $selection, firstName: $firstName,
+                              lastName: $lastName, meetName: $meetName,
+                              orgName: $orgName, meetYear: $meetYear,
+                              searchSubmitted: $searchSubmitted)
+            .onDisappear {
+                searchSubmitted = false
+            }
         } else {
-            SearchInputView(selection: $selection, firstName: $firstName, lastName: $lastName, meetName: $meetName, orgName: $orgName, meetYear: $meetYear, searchSubmitted: $searchSubmitted)
+            SearchInputView(selection: $selection, firstName: $firstName,
+                            lastName: $lastName, meetName: $meetName,
+                            orgName: $orgName, meetYear: $meetYear,
+                            searchSubmitted: $searchSubmitted)
         }
     }
 }
@@ -43,7 +49,7 @@ struct SearchResultsView: View {
         VStack {
             /// Temporary for testing purposes before we scrape
             Text("Sending...")
-//            let items = [firstName, lastName, meetName, orgName, String(meetYear)]
+            //            let items = [firstName, lastName, meetName, orgName, String(meetYear)]
             if selection == "Meet" {
                 Text(meetName)
                 Text(orgName)
@@ -52,14 +58,14 @@ struct SearchResultsView: View {
                 Text(firstName)
                 Text(lastName)
             }
-//            ForEach(items, id: \.self) { i in
-//                if selection == "Meet" && type(of: i) == Int {
-//                    Text(i)
-//                } else {
-//                    Text(i)
-//                }
-//
-//            }
+            //            ForEach(items, id: \.self) { i in
+            //                if selection == "Meet" && type(of: i) == Int {
+            //                    Text(i)
+            //                } else {
+            //                    Text(i)
+            //                }
+            //
+            //            }
             Button(action: {
                 searchSubmitted = false
             }, label: {
@@ -81,11 +87,13 @@ struct SearchInputView: View {
     @Binding var searchSubmitted: Bool
     private let cornerRadius: CGFloat = 10
     private let selectedBGColor: Color = Color.blue
-    private let deselectedBGColor: Color = Color(red: 0.94, green: 0.94, blue: 0.94)
+    /// Light gray
+    private let deselectedBGColor: Color = Color(red: 0.94, green: 0.94,
+                                                 blue: 0.94)
     private let selectedTextColor: Color = Color.white
     private let deselectedTextColor: Color = Color.blue
     
-//    let options = ["Diver, Coach, or Judge", "Meet"]
+    //    let options = ["Diver, Coach, or Judge", "Meet"]
     
     var body: some View {
         VStack {
@@ -104,8 +112,12 @@ struct SearchInputView: View {
                                 .animation(nil, value: selection)
                         })
                         .buttonStyle(.bordered)
-                        .foregroundColor(selection != "Meet" ? selectedTextColor : deselectedTextColor)
-                        .background(selection != "Meet" ? selectedBGColor : deselectedBGColor)
+                        .foregroundColor(selection != "Meet"
+                                         ? selectedTextColor
+                                         : deselectedTextColor)
+                        .background(selection != "Meet"
+                                    ? selectedBGColor
+                                    : deselectedBGColor)
                         .cornerRadius(cornerRadius)
                         Button(action: {
                             selection = "Meet"
@@ -114,22 +126,27 @@ struct SearchInputView: View {
                                 .animation(nil, value: selection)
                         })
                         .buttonStyle(.bordered)
-                        .foregroundColor(selection == "Meet" ? selectedTextColor : deselectedTextColor)
-                        .background(selection == "Meet" ? selectedBGColor : deselectedBGColor)
+                        .foregroundColor(selection == "Meet"
+                                         ? selectedTextColor
+                                         : deselectedTextColor)
+                        .background(selection == "Meet"
+                                    ? selectedBGColor
+                                    : deselectedBGColor)
                         .cornerRadius(cornerRadius)
                     }
                 }
-//                Picker("Search Type:", selection: $selection) {
-//                    ForEach(options, id: \.self) {
-//                        Text($0)
-//                    }
-//                }
-//                .pickerStyle(.wheel)
-//                .frame(width: 275, height: 100)
+                //                Picker("Search Type:", selection: $selection) {
+                //                    ForEach(options, id: \.self) {
+                //                        Text($0)
+                //                    }
+                //                }
+                //                .pickerStyle(.wheel)
+                //                .frame(width: 275, height: 100)
             }
             
             if selection == "Meet" {
-                MeetSearchView(meetName: $meetName, orgName: $orgName, meetYear: $meetYear)
+                MeetSearchView(meetName: $meetName, orgName: $orgName,
+                               meetYear: $meetYear)
             } else {
                 DiverSearchView(firstName: $firstName, lastName: $lastName)
             }
@@ -202,14 +219,14 @@ struct DiverSearchView: View {
                     .padding(.leading)
                 TextField("First Name", text: $firstName)
                     .textFieldStyle(.roundedBorder)
-                .padding(.trailing)
+                    .padding(.trailing)
             }
             HStack {
                 Text("Last Name:")
                     .padding(.leading)
                 TextField("Last Name", text: $lastName)
                     .textFieldStyle(.roundedBorder)
-                .padding(.trailing)
+                    .padding(.trailing)
             }
         }
         .padding()
