@@ -33,7 +33,7 @@ struct MeetList: View {
                     VStack(spacing: rowSpacing) {
                         ForEach(meets) { meet in
                             NavigationLink(
-                                destination: MeetPage(meetInstance: meet)) {
+                                destination: MeetPage(meetInstance: meet, hidingTabBar: $hideTabBar)) {
                                     GeometryReader { geometry in
                                         HStack {
                                             MeetElement(meet0: meet)
