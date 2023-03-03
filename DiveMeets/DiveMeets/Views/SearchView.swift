@@ -8,34 +8,57 @@
 import SwiftUI
 
 struct SearchView: View {
-    @State private var selection: String = "Meet"
+    @State private var selection: String = "Diver, Coach, or Judge"
     @State private var firstName: String = ""
     @State private var lastName: String = ""
     @State private var meetName: String = ""
     @State private var orgName: String = ""
-    @State private var meetYear: Int = 0
+    @State private var meetYear: Int = 2023
     @State private var searchSubmitted: Bool = false
-    
-    let options = ["Diver, Coach, or Judge", "Meet"]
     
     @ViewBuilder
     var body: some View {
+        /// Submit button doesn't switch pages in preview, but it works in Simulator
         if searchSubmitted {
-            SearchResultsView()
+            SearchResultsView(selection: $selection, firstName: $firstName, lastName: $lastName, meetName: $meetName, orgName: $orgName, meetYear: $meetYear, searchSubmitted: $searchSubmitted)
+                .onDisappear {
+                    searchSubmitted = false
+                }
         } else {
-            SearchInputView(firstName: $firstName, lastName: $lastName, meetName: $meetName, orgName: $orgName, meetYear: $meetYear, searchSubmitted: $searchSubmitted)
+            SearchInputView(selection: $selection, firstName: $firstName, lastName: $lastName, meetName: $meetName, orgName: $orgName, meetYear: $meetYear, searchSubmitted: $searchSubmitted)
         }
     }
 }
 
 struct SearchResultsView: View {
+    @Binding var selection: String
+    @Binding var firstName: String
+    @Binding var lastName: String
+    @Binding var meetName: String
+    @Binding var orgName: String
+    @Binding var meetYear: Int
+    @Binding var searchSubmitted: Bool
+    
     var body: some View {
-        Text("Hello")
+        VStack {
+            Text("Sending...")
+            let items = [firstName, lastName, meetName, orgName, String(meetYear)]
+            ForEach(items, id: \.self) { i in
+                Text(i)
+            }
+            Button(action: {
+                searchSubmitted = false
+            }, label: {
+                Text("Back")
+            })
+            .buttonStyle(.bordered)
+            .padding()
+        }
     }
 }
 
 struct SearchInputView: View {
-    @State private var selection: String = "Meet"
+    @Binding var selection: String
     @Binding var firstName: String
     @Binding var lastName: String
     @Binding var meetName: String
@@ -52,8 +75,6 @@ struct SearchInputView: View {
                 .bold()
             Spacer()
             VStack {
-                //                Text("Search Type")
-                //                    .font(.headline)
                 Picker("Search Type:", selection: $selection) {
                     ForEach(options, id: \.self) {
                         Text($0)
@@ -70,10 +91,11 @@ struct SearchInputView: View {
             }
             
             Button(action: {
-                searchSubmitted = true
+                searchSubmitted.toggle()
             }, label: {
                 Text("Submit")
             })
+            .buttonStyle(.bordered)
             Spacer()
             Spacer()
         }
@@ -113,6 +135,11 @@ struct MeetSearchView: View {
             }
         }
         .padding()
+        .onAppear {
+            meetName = ""
+            orgName = ""
+            meetYear = 2023
+        }
     }
 }
 
@@ -130,6 +157,10 @@ struct DiverSearchView: View {
                 .padding(.trailing)
         }
         .padding()
+        .onAppear {
+            firstName = ""
+            lastName = ""
+        }
     }
 }
 
