@@ -32,29 +32,34 @@ struct MeetList: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: rowSpacing) {
                         ForEach(meets) { meet in
-                            NavigationLink(destination: MeetPage(meetInstance: meet)) {
-                                GeometryReader { geometry in
-                                    HStack {
-                                        MeetElement(meet0: meet)
-                                            .foregroundColor(textColor)
-                                            .font(.system(size: fontSize))
-                                            .padding()
-                                        Spacer()
-                                        Image(systemName: "chevron.right")
-                                            .foregroundColor(Color.gray)
-                                            .padding()
+                            NavigationLink(
+                                destination: MeetPage(meetInstance: meet)) {
+                                    GeometryReader { geometry in
+                                        HStack {
+                                            MeetElement(meet0: meet)
+                                                .foregroundColor(textColor)
+                                                .font(.system(size: fontSize))
+                                                .padding()
+                                            
+                                            Spacer()
+                                            
+                                            Image(systemName: "chevron.right")
+                                                .foregroundColor(Color.gray)
+                                                .padding()
+                                        }
+                                        .frame(width: frameWidth,
+                                               height: frameHeight)
+                                        .background(rowColor)
+                                        .cornerRadius(cornerRadius)
                                     }
-                                    .frame(width: frameWidth, height: frameHeight)
-                                    .background(rowColor)
-                                    .cornerRadius(cornerRadius)
+                                    .frame(width: frameWidth,
+                                           height: frameHeight)
                                 }
-                                .frame(width: frameWidth, height: frameHeight)
-                            }
                         }
                     }
                     /// Scroll tracking to hide/show tab bar when scrolling down/up
                     .overlay(
-                    
+                        
                         GeometryReader {proxy -> Color in
                             
                             let minY = proxy.frame(in: .named("SCROLL")).minY
@@ -68,7 +73,8 @@ struct MeetList: View {
                                 if minY < offset {
                                     print("down")
                                     
-                                    if offset < 0 && -minY > (lastOffset + durationOffset) {
+                                    if (offset < 0 &&
+                                        -minY > (lastOffset + durationOffset)) {
                                         withAnimation(.easeOut.speed(1.5)) {
                                             hideTabBar = true
                                         }
@@ -78,7 +84,8 @@ struct MeetList: View {
                                 if offset < minY {
                                     print("up")
                                     
-                                    if offset < 0 && -minY < (lastOffset - durationOffset) {
+                                    if (offset < 0 &&
+                                        -minY < (lastOffset - durationOffset)) {
                                         withAnimation(.easeIn.speed(1.5)) {
                                             hideTabBar = false
                                         }
@@ -91,7 +98,7 @@ struct MeetList: View {
                             
                             return Color.clear
                         }
-                    
+                        
                     )
                     .padding()
                 }

@@ -32,11 +32,7 @@ struct ContentView: View {
                                         .bold()
                                         .animation(nil, value: selectedTab)
                                 case .magnifyingglass:
-                                    Image(systemName: tab.rawValue)
-                                    Text("Search")
-                                        .bold()
-                                        .animation(nil, value: selectedTab)
-                                    //                                                                        HidingScrollView(hideTabBar: $hideTabBar)
+                                    SearchView()
                             }
                         }
                         .tag(tab)

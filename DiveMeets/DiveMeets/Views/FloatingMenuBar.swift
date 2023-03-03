@@ -16,19 +16,19 @@ enum Tab: String, CaseIterable {
 struct FloatingMenuBar: View {
     @Binding var selectedTab: Tab
     private let selectedColor: Color = .black
-    private let unselectedColor: Color = .gray
+    private let deselectedColor: Color = .gray
     private let cornerRadius: CGFloat = 20
     private let frameHeight: CGFloat = 60
     
-    /*
-     * Add custom multipliers for selected tabs here, defaults to 1.25
-     */
+    /// Add custom multipliers for selected tabs here, defaults to 1.25
     private let sizeMults: [String: Double] = [
         "magnifyingglass": 1.5
     ]
     
     private var fillImage: String {
-        selectedTab.rawValue == "magnifyingglass" ? selectedTab.rawValue + ".circle.fill" : selectedTab.rawValue + ".fill"
+        selectedTab.rawValue == "magnifyingglass"
+        ? selectedTab.rawValue + ".circle.fill"
+        : selectedTab.rawValue + ".fill"
     }
     
     var body: some View {
@@ -36,9 +36,15 @@ struct FloatingMenuBar: View {
             HStack {
                 ForEach(Tab.allCases, id: \.rawValue) { tab in
                     Spacer()
-                    Image(systemName: selectedTab == tab ? fillImage : tab.rawValue)
-                        .scaleEffect(tab == selectedTab ? sizeMults[tab.rawValue] ?? 1.25 : 1.0)
-                        .foregroundColor(selectedTab == tab ? selectedColor : unselectedColor)
+                    Image(systemName: selectedTab == tab
+                          ? fillImage
+                          : tab.rawValue)
+                        .scaleEffect(tab == selectedTab
+                                     ? sizeMults[tab.rawValue] ?? 1.25
+                                     : 1.0)
+                        .foregroundColor(selectedTab == tab
+                                         ? selectedColor
+                                         : deselectedColor)
                         .font(.system(size: 22))
                         .onTapGesture() {
                             withAnimation(.easeIn(duration: 0.1)) {
