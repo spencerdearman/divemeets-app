@@ -7,8 +7,26 @@
 
 import SwiftUI
 
+enum SearchType: String, CaseIterable {
+    case person = "Diver, Coach, or Judge"
+    case meet = "Meet"
+}
+
+/// Checks that for a given SearchType, at least one of the relevant fields has a value, and returns true if so.
+/// If all relevant fields are empty, returns false
+private func checkFields(selection: SearchType, firstName: String = "",
+                         lastName: String = "", meetName: String = "",
+                         orgName: String = "", meetYear: String = "") -> Bool {
+    switch selection {
+        case .person:
+            return firstName != "" || lastName != ""
+        case .meet:
+            return meetName != "" || orgName != "" || meetYear != ""
+    }
+}
+
 struct SearchView: View {
-    @State private var selection: String = "Diver, Coach, or Judge"
+    @State private var selection: SearchType = .person
     @State private var firstName: String = ""
     @State private var lastName: String = ""
     @State private var meetName: String = ""
@@ -36,8 +54,9 @@ struct SearchView: View {
     }
 }
 
+/// Currently just for testing that the results are being captured before scraping
 struct SearchResultsView: View {
-    @Binding var selection: String
+    @Binding var selection: SearchType
     @Binding var firstName: String
     @Binding var lastName: String
     @Binding var meetName: String
@@ -49,23 +68,14 @@ struct SearchResultsView: View {
         VStack {
             /// Temporary for testing purposes before we scrape
             Text("Sending...")
-            //            let items = [firstName, lastName, meetName, orgName, String(meetYear)]
-            if selection == "Meet" {
+            if selection == .meet {
                 Text(meetName)
                 Text(orgName)
-                Text(String(meetYear))
+                Text(meetYear)
             } else {
                 Text(firstName)
                 Text(lastName)
             }
-            //            ForEach(items, id: \.self) { i in
-            //                if selection == "Meet" && type(of: i) == Int {
-            //                    Text(i)
-            //                } else {
-            //                    Text(i)
-            //                }
-            //
-            //            }
             Button(action: {
                 searchSubmitted = false
             }, label: {
@@ -78,7 +88,8 @@ struct SearchResultsView: View {
 }
 
 struct SearchInputView: View {
-    @Binding var selection: String
+    @State private var showError: Bool = false
+    @Binding var selection: SearchType
     @Binding var firstName: String
     @Binding var lastName: String
     @Binding var meetName: String
@@ -93,58 +104,56 @@ struct SearchInputView: View {
     private let selectedTextColor: Color = Color.white
     private let deselectedTextColor: Color = Color.blue
     
-    //    let options = ["Diver, Coach, or Judge", "Meet"]
-    
     var body: some View {
         VStack {
-            Text("Search")
-                .font(.title)
-                .bold()
-            Spacer()
             VStack {
-                HStack {
-                    Text("Search Type:")
+                Text("Search")
+                    .font(.title)
+                    .bold()
+                    .padding(.bottom, 155)
                     HStack {
-                        Button(action: {
-                            selection = "Diver, Coach, or Judge"
-                        }, label: {
-                            Text("Diver, Coach, or Judge")
-                                .animation(nil, value: selection)
-                        })
-                        .buttonStyle(.bordered)
-                        .foregroundColor(selection != "Meet"
-                                         ? selectedTextColor
-                                         : deselectedTextColor)
-                        .background(selection != "Meet"
-                                    ? selectedBGColor
-                                    : deselectedBGColor)
-                        .cornerRadius(cornerRadius)
-                        Button(action: {
-                            selection = "Meet"
-                        }, label: {
-                            Text("Meet")
-                                .animation(nil, value: selection)
-                        })
-                        .buttonStyle(.bordered)
-                        .foregroundColor(selection == "Meet"
-                                         ? selectedTextColor
-                                         : deselectedTextColor)
-                        .background(selection == "Meet"
-                                    ? selectedBGColor
-                                    : deselectedBGColor)
-                        .cornerRadius(cornerRadius)
+                        Text("Type:")
+                        HStack {
+                            Button(action: {
+                                if selection != .person {
+                                    showError = false
+                                    selection = .person
+                                }
+                            }, label: {
+                                Text(SearchType.person.rawValue)
+                                    .animation(nil, value: selection)
+                            })
+                            .buttonStyle(.bordered)
+                            .foregroundColor(selection == .person
+                                             ? selectedTextColor
+                                             : deselectedTextColor)
+                            .background(selection == .person
+                                        ? selectedBGColor
+                                        : deselectedBGColor)
+                            .cornerRadius(cornerRadius)
+                            Button(action: {
+                                if selection != .meet {
+                                    showError = false
+                                    selection = .meet
+                                }
+                            }, label: {
+                                Text(SearchType.meet.rawValue)
+                                    .animation(nil, value: selection)
+                            })
+                            .buttonStyle(.bordered)
+                            .foregroundColor(selection == .meet
+                                             ? selectedTextColor
+                                             : deselectedTextColor)
+                            .background(selection == .meet
+                                        ? selectedBGColor
+                                        : deselectedBGColor)
+                            .cornerRadius(cornerRadius)
+                        }
                     }
-                }
-                //                Picker("Search Type:", selection: $selection) {
-                //                    ForEach(options, id: \.self) {
-                //                        Text($0)
-                //                    }
-                //                }
-                //                .pickerStyle(.wheel)
-                //                .frame(width: 275, height: 100)
+                    .padding([.leading, .trailing])
             }
             
-            if selection == "Meet" {
+            if selection == .meet {
                 MeetSearchView(meetName: $meetName, orgName: $orgName,
                                meetYear: $meetYear)
             } else {
@@ -152,14 +161,64 @@ struct SearchInputView: View {
             }
             
             Button(action: {
-                searchSubmitted.toggle()
+                /// Only submits a search if one of the relevant fields is filled, otherwise toggles error
+                if checkFields(selection: selection, firstName: firstName,
+                               lastName: lastName, meetName: meetName,
+                               orgName: orgName, meetYear: meetYear) {
+                    searchSubmitted = true
+                    showError = false
+                } else {
+                    showError = true
+                }
             }, label: {
                 Text("Submit")
+                    .animation(nil, value: selection)
             })
             .buttonStyle(.bordered)
             .cornerRadius(cornerRadius)
+            .animation(nil, value: selection)
+            if showError {
+                Text("You must enter at least one field to search")
+                    .foregroundColor(Color.red)
+                
+            } else {
+                Text("")
+            }
+            
             Spacer()
             Spacer()
+        }
+        .onAppear {
+            showError = false
+        }
+    }
+}
+
+struct DiverSearchView: View {
+    @Binding var firstName: String
+    @Binding var lastName: String
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Text("First Name:")
+                    .padding(.leading)
+                TextField("First Name", text: $firstName)
+                    .textFieldStyle(.roundedBorder)
+                    .padding(.trailing)
+            }
+            HStack {
+                Text("Last Name:")
+                    .padding(.leading)
+                TextField("Last Name", text: $lastName)
+                    .textFieldStyle(.roundedBorder)
+                    .padding(.trailing)
+            }
+        }
+        .padding()
+        .onAppear {
+            firstName = ""
+            lastName = ""
         }
     }
 }
@@ -192,47 +251,20 @@ struct MeetSearchView: View {
                     Text("")
                     ForEach((2004...2023).reversed(), id: \.self) {
                         Text(String($0))
+                            .tag(String($0))
                     }
                 }
                 .pickerStyle(.wheel)
-                .frame(width: 150, height: 100)
+                .frame(width: 150, height: 85)
                 .padding(.trailing)
             }
+            .offset(y: -10)
         }
-        .padding()
+        .padding([.top, .leading, .trailing])
         .onAppear {
             meetName = ""
             orgName = ""
             meetYear = ""
-        }
-    }
-}
-
-struct DiverSearchView: View {
-    @Binding var firstName: String
-    @Binding var lastName: String
-    
-    var body: some View {
-        VStack {
-            HStack {
-                Text("First Name:")
-                    .padding(.leading)
-                TextField("First Name", text: $firstName)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.trailing)
-            }
-            HStack {
-                Text("Last Name:")
-                    .padding(.leading)
-                TextField("Last Name", text: $lastName)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.trailing)
-            }
-        }
-        .padding()
-        .onAppear {
-            firstName = ""
-            lastName = ""
         }
     }
 }
