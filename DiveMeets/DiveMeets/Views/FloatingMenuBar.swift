@@ -31,6 +31,10 @@ struct FloatingMenuBar: View {
         : selectedTab.rawValue + ".fill"
     }
     
+    func simpleSuccess(){
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+    }
     var body: some View {
         VStack {
             HStack {
@@ -48,6 +52,7 @@ struct FloatingMenuBar: View {
                         .font(.system(size: 22))
                         .onTapGesture() {
                             withAnimation(.easeIn(duration: 0.1)) {
+                                simpleSuccess()
                                 selectedTab = tab
                             }
                         }

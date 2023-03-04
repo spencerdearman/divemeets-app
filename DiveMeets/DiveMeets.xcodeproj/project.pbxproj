@@ -27,6 +27,7 @@
 		4D74FEC629AEC95500401178 /* MeetPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FEC529AEC95500401178 /* MeetPage.swift */; };
 		4D74FEDC29B1D31200401178 /* EventPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FEDB29B1D31200401178 /* EventPage.swift */; };
 		4D74FEDE29B2B34100401178 /* One-Meet.json in Resources */ = {isa = PBXBuildFile; fileRef = 4D74FEDD29B2B34100401178 /* One-Meet.json */; };
+		4D74FEE129B2EC6200401178 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 4D74FEE029B2EC6200401178 /* SwiftSoup */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,6 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D74FEE129B2EC6200401178 /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -155,6 +157,9 @@
 			dependencies = (
 			);
 			name = DiveMeets;
+			packageProductDependencies = (
+				4D74FEE029B2EC6200401178 /* SwiftSoup */,
+			);
 			productName = DiveMeets;
 			productReference = 4D74FE9329AE7B9800401178 /* DiveMeets.app */;
 			productType = "com.apple.product-type.application";
@@ -183,6 +188,9 @@
 				Base,
 			);
 			mainGroup = 4D74FE8A29AE7B9800401178;
+			packageReferences = (
+				4D74FEDF29B2EC6200401178 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+			);
 			productRefGroup = 4D74FE9429AE7B9800401178 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -355,6 +363,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"DiveMeets/Preview Content\"";
+				DEVELOPMENT_TEAM = WY8V5FPBV9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -383,6 +392,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"DiveMeets/Preview Content\"";
+				DEVELOPMENT_TEAM = WY8V5FPBV9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -425,6 +435,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4D74FEDF29B2EC6200401178 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4D74FEE029B2EC6200401178 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4D74FEDF29B2EC6200401178 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4D74FE8B29AE7B9800401178 /* Project object */;
 }
