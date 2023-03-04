@@ -16,9 +16,7 @@
     {
         "id": 1003,
         "meetName": "UCHI vs UWMI",
-        "meetEvents": ["Men 1m Championship (6 Dives) - (Final)",  "Men 3m Championship (6 Dives) - (Final)"],
-        "meetPlaces": [5, 2],
-        "meetScores": [264.53, 278.93]
+        "meetEvents": [{"meetEvent": "Men 1m Championship (6 Dives) - (Final)", "meetPlace": 5, "meetScore": 264.53}, {"meetEvent": "Men 3m Championship (6 Dives) - (Final)", "meetPlace": 2, "meetScore": 278.93}]
     },
     {
         "id": 1004,

@@ -1,0 +1,27 @@
+[
+    {
+        "id": 1003,
+        "meetName": "UCHI vs UWMI",
+        "meetEvents": [{"meetEvent": "Men 1m Championship (6 Dives) - (Final)", "meetPlace": 5, "meetScore": 264.53}, {"meetEvent": "Men 3m Championship (6 Dives) - (Final)", "meetPlace": 2, "meetScore": 278.93}]
+    },
+    {
+        "id": 1002,
+        "meetName": "UIC vs UCHI",
+        "meetEvents":[{"meetEvent": "Men 1m Championship (6 Dives) - (Final)", "meetPlace": 3, "meetScore": 276.83}, {"meetEvent": "Men 3m Championship (6 Dives) - (Final)", "meetPlace": 4, "meetScore": 278.78}]
+    },
+    {
+        "id": 1001,
+        "meetName": "UCHI vs HOPC vs UWEC",
+        "meetEvents": [{"meetEvent": "Men 1m Championship (6 Dives) - (Final)", "meetPlace": 1, "meetScore": 300.05}],
+    },
+    {
+        "id": 1004,
+        "meetName": "UCHI vs LU",
+        "meetEvents":[{"meetEvent": "Men 1m Championship (6 Dives) - (Final)", "meetPlace": 2, "meetScore": 310.35}, {"meetEvent": "Men 3m Championship (6 Dives) - (Final)", "meetPlace": 2, "meetScore": 297.08}]
+    },
+    {
+        "id": 1005,
+        "meetName": "Phoenix Fall Classic @ UChicago",
+        "meetEvents": [{"meetEvent": "Men 1m Championship (11Div Vol 1st.) - (Final)", "meetPlace": 2, "meetScore": 484.55}, {"meetEvent": "Men 3m Championship (11Div Vol 1st.) - (Final)", "meetPlace": 1, "meetScore": 517.75}]
+    }
+]

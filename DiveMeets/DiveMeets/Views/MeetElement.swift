@@ -21,7 +21,6 @@ struct LandmarkRow_Previews: PreviewProvider {
     static var previews: some View {
         Group{
             MeetElement(meet0: meets[0])
-            MeetElement(meet0: meets[1])
         }
         .previewLayout(.fixed(width: 300, height: 70))
     }

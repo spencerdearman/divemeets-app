@@ -7,7 +7,7 @@
 
 import Foundation
 
-var meets: [Meet] = load("meetData.json")
+var meets: [Meet] = load("One-Meet.json")
 
 func load<T: Decodable>(_ filename: String) -> T {
     let data: Data

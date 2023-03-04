@@ -12,7 +12,5 @@ struct Meet: Hashable, Codable, Identifiable {
     
     var id: Int
     var meetName: String
-    var meetEvents: [String]
-    var meetPlaces: [Int]
-    var meetScores: [Double]
+    var meetEvents: [Event]
 }

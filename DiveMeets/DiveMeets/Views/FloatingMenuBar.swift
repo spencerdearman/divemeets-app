@@ -17,7 +17,7 @@ struct FloatingMenuBar: View {
     @Binding var selectedTab: Tab
     private let selectedColor: Color = .black
     private let deselectedColor: Color = .gray
-    private let cornerRadius: CGFloat = 20
+    private let cornerRadius: CGFloat = 50
     private let frameHeight: CGFloat = 60
     
     /// Add custom multipliers for selected tabs here, defaults to 1.25
