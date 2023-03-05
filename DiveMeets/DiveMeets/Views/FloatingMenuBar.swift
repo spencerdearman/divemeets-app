@@ -23,10 +23,13 @@ func IntFromTab(_ t: Tab) -> Int {
         }
         i += 1
     }
+    /// This should not be possible to reach since t is a Tab and we are iterating over all Tabs, so it will
+    /// always reach the inner if statement and return
     return -1
 }
 
 struct FloatingMenuBar: View {
+    @State private var visibleTabs: [Tab] = Tab.allCases
     @Binding var selectedTab: Tab
     private let selectedColor: Color = .white
     private let deselectedColor: Color = .gray
@@ -35,6 +38,7 @@ struct FloatingMenuBar: View {
     private let cornerRadius: CGFloat = 50
     private let frameHeight: CGFloat = 60
     private let padding: CGFloat = 48
+    private let menuBarSleepDelay: CGFloat = 3
     
     /// Add custom multipliers for selected tabs here, defaults to 1.25
     private let sizeMults: [String: Double] = [
@@ -72,23 +76,41 @@ struct FloatingMenuBar: View {
     var body: some View {
         ZStack {
             GeometryReader { geometry in
-                let geoWidth: CGFloat = geometry.size.width
-                let tabWidth: CGFloat = ((geoWidth - padding) /
-                                         CGFloat(Tab.allCases.count))
+                /// Width of menu bar
+                let geoWidth: CGFloat =
+                visibleTabs.count > 1
+                ? geometry.size.width
+                : cornerRadius * 1.2
+                
+                /// Width of bubble for one tab
+                let tabWidth: CGFloat =
+                visibleTabs.count > 1
+                ? ((geoWidth - padding) /
+                   CGFloat(Tab.allCases.count))
+                : geoWidth
+                
+                /// x offset from center of tab bar to selected tab
+                let xOffset: CGFloat =
+                visibleTabs.count > 1
+                ? selectedXOffset(from: tabWidth)
+                : 0
+                
                 ZStack {
                     /// Clear background of menu bar
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .fill(.thinMaterial)
                         .frame(width: geoWidth, height: frameHeight)
+                        .animation(.spring(), value: visibleTabs)
                     /// Moving bubble on menu bar
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .fill(selectedBubbleColor)
                         .frame(width: tabWidth, height: frameHeight)
-                        .offset(x: selectedXOffset(from: tabWidth))
+                        .offset(x: xOffset)
+                        .animation(.spring(), value: visibleTabs)
                         .animation(.spring(), value: selectedTab)
                     /// Line of buttons for each tab
                     HStack {
-                        ForEach(Tab.allCases, id: \.rawValue) { tab in
+                        ForEach(visibleTabs, id: \.rawValue) { tab in
                             Spacer()
                             Image(systemName: selectedTab == tab
                                   ? fillImage
@@ -100,11 +122,24 @@ struct FloatingMenuBar: View {
                                              ? selectedColor
                                              : deselectedColor)
                             .font(.system(size: 22))
+                            /// Adds tab change and visible tabs change on button press
                             .onTapGesture() {
-                                withAnimation(.easeIn(duration: 0.1)) {
+                                withAnimation(.spring()) {
                                     selectedTab = tab
+                                    visibleTabs = [tab]
+                                    
+                                    /// Adds delay for menu bar to grow to full size after
+                                    /// a change
+                                    DispatchQueue.main.asyncAfter(
+                                        deadline: (
+                                            DispatchTime.now() + menuBarSleepDelay)
+                                    ) {
+                                        visibleTabs = Tab.allCases
+                                    }
                                 }
                             }
+                            /// Animation for icon to move after menu bar changes
+                            .animation(.spring(), value: visibleTabs)
                             Spacer()
                         }
                     }
