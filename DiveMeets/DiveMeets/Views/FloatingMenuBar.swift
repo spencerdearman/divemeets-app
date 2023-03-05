@@ -11,6 +11,8 @@ enum Tab: String, CaseIterable {
     case house
     case gearshape
     case magnifyingglass
+    //    case person
+    //    case eraser
 }
 
 func IntFromTab(_ t: Tab) -> Int {
@@ -32,6 +34,7 @@ struct FloatingMenuBar: View {
     private let deselectedBubbleColor: Color = .clear
     private let cornerRadius: CGFloat = 50
     private let frameHeight: CGFloat = 60
+    private let padding: CGFloat = 48
     
     /// Add custom multipliers for selected tabs here, defaults to 1.25
     private let sizeMults: [String: Double] = [
@@ -44,63 +47,72 @@ struct FloatingMenuBar: View {
         : selectedTab.rawValue + ".fill"
     }
     
-    private func selectionBarXOffset(from totalWidth: CGFloat) -> CGFloat {
-        return self.tabWidth(from: totalWidth) * CGFloat(IntFromTab(selectedTab))
-    }
-    
-    private func tabWidth(from totalWidth: CGFloat) -> CGFloat {
-        return totalWidth / CGFloat(Tab.allCases.count)
+    /// This is not that great, doesn't work perfectly beyond 3 icons
+    private func selectedXOffset(from tabWidth: CGFloat) -> CGFloat {
+        let dynamicPad: CGFloat = padding / CGFloat(Tab.allCases.count)
+        let tabInt: CGFloat = CGFloat(IntFromTab(selectedTab))
+        let casesCount: Int = Tab.allCases.count
+        /// Sets midpoint to middle icon index, chooses left of middle if even num of
+        /// choices
+        var menuBarMidpoint: CGFloat {
+            casesCount.isMultiple(of: 2)
+            ? (CGFloat(casesCount)) / 2 - 1
+            : floor(CGFloat(casesCount) / 2)
+        }
+        let enumOffset: CGFloat = tabInt - menuBarMidpoint
+        
+        if casesCount.isMultiple(of: 2) {
+            return ((tabWidth + dynamicPad) * enumOffset -
+                    (tabWidth + dynamicPad / 2) / 2)
+        } else {
+            return (tabWidth + dynamicPad) * enumOffset
+        }
     }
     
     var body: some View {
         ZStack {
             GeometryReader { geometry in
-                let geoWidth: CGFloat = geometry.size.width - 16
-                ZStack(alignment: .leading) {
+                let geoWidth: CGFloat = geometry.size.width
+                let tabWidth: CGFloat = ((geoWidth - padding) /
+                                         CGFloat(Tab.allCases.count))
+                ZStack {
+                    /// Clear background of menu bar
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(.thinMaterial)
+                        .frame(width: geoWidth, height: frameHeight)
+                    /// Moving bubble on menu bar
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .fill(selectedBubbleColor)
-                        .frame(width: self.tabWidth(from: geoWidth - 64), height: frameHeight, alignment: .leading)
-                        .offset(x: self.selectionBarXOffset(from: geoWidth), y: -100)
+                        .frame(width: tabWidth, height: frameHeight)
+                        .offset(x: selectedXOffset(from: tabWidth))
                         .animation(.spring(), value: selectedTab)
-                        .padding()
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(Color.clear)
-                        .frame(width: geoWidth, height: frameHeight, alignment: .leading)
-                        .padding()
-                }.fixedSize(horizontal: false, vertical: true)
-            }.fixedSize(horizontal: false, vertical: true)
-            HStack {
-                ForEach(Tab.allCases, id: \.rawValue) { tab in
-                    Spacer()
-                    ZStack {
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .foregroundColor(selectedTab == tab ? Color.black : Color.clear)
-                            .frame(width: nil, height: frameHeight)
-                            .animation(.linear, value: tab)
-                        Image(systemName: selectedTab == tab
-                              ? fillImage
-                              : tab.rawValue)
-                        .scaleEffect(tab == selectedTab
-                                     ? sizeMults[tab.rawValue] ?? 1.25
-                                     : 1.0)
-                        .foregroundColor(selectedTab == tab
-                                         ? selectedColor
-                                         : deselectedColor)
-                        .font(.system(size: 22))
-                        .onTapGesture() {
-                            withAnimation(.easeIn(duration: 0.1)) {
-                                selectedTab = tab
+                    /// Line of buttons for each tab
+                    HStack {
+                        ForEach(Tab.allCases, id: \.rawValue) { tab in
+                            Spacer()
+                            Image(systemName: selectedTab == tab
+                                  ? fillImage
+                                  : tab.rawValue)
+                            .scaleEffect(tab == selectedTab
+                                         ? sizeMults[tab.rawValue] ?? 1.25
+                                         : 1.0)
+                            .foregroundColor(selectedTab == tab
+                                             ? selectedColor
+                                             : deselectedColor)
+                            .font(.system(size: 22))
+                            .onTapGesture() {
+                                withAnimation(.easeIn(duration: 0.1)) {
+                                    selectedTab = tab
+                                }
                             }
+                            Spacer()
                         }
                     }
-                    Spacer()
                 }
             }
-            .frame(width: nil, height: frameHeight)
-            .background(.thinMaterial)
+            .frame(height: frameHeight)
             .cornerRadius(cornerRadius)
             .padding()
-            
         }
     }
 }

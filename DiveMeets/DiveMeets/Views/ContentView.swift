@@ -33,6 +33,10 @@ struct ContentView: View {
                                         .animation(nil, value: selectedTab)
                                 case .magnifyingglass:
                                     SearchView()
+                                    //                                case .person:
+                                    //                                    HidingScrollView(hideTabBar: $hideTabBar)
+                                    //                                case .eraser:
+                                    //                                    SearchView()
                             }
                         }
                         .tag(tab)
@@ -40,7 +44,6 @@ struct ContentView: View {
                     }
                 }
             }
-            
             VStack {
                 Spacer()
                 FloatingMenuBar(selectedTab: $selectedTab)
