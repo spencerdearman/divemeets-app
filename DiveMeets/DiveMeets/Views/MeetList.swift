@@ -112,6 +112,6 @@ struct MeetList_Previews: PreviewProvider {
     static var previews: some View {
         ForEach(ColorScheme.allCases, id: \.self) {
             MeetList(hideTabBar: .constant(false)).preferredColorScheme($0)
-                }
+        }
     }
 }

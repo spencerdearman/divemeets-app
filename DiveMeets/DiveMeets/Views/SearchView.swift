@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum SearchType: String, CaseIterable {
-    case person = "Diver, Coach, or Judge"
+    case diver = "Person"
     case meet = "Meet"
 }
 
@@ -18,7 +18,7 @@ private func checkFields(selection: SearchType, firstName: String = "",
                          lastName: String = "", meetName: String = "",
                          orgName: String = "", meetYear: String = "") -> Bool {
     switch selection {
-        case .person:
+        case .diver:
             return firstName != "" || lastName != ""
         case .meet:
             return meetName != "" || orgName != "" || meetYear != ""
@@ -26,7 +26,7 @@ private func checkFields(selection: SearchType, firstName: String = "",
 }
 
 struct SearchView: View {
-    @State private var selection: SearchType = .person
+    @State private var selection: SearchType = .diver
     @State private var firstName: String = ""
     @State private var lastName: String = ""
     @State private var meetName: String = ""
@@ -98,47 +98,63 @@ struct SearchInputView: View {
     @Binding var orgName: String
     @Binding var meetYear: String
     @Binding var searchSubmitted: Bool
-    private let cornerRadius: CGFloat = 20
+    private let cornerRadius: CGFloat = 30
     private let selectedBGColor: Color = Color.accentColor
     /// Light gray
-    private let grayValue: CGFloat = 0.99
-    private let grayValueDark: CGFloat = 0.01
-    private let selectedTextColor: Color = Color.white
-    private let deselectedTextColor: Color = Color.accentColor
+    private let grayValue: CGFloat = 0.90
+    private let grayValueDark: CGFloat = 0.10
+    private let textColor: Color = Color.primary
+//    private let deselectedTextColor: Color = Color.primary
+    private let typeBubbleWidth: CGFloat = 100
+    private let typeBubbleHeight: CGFloat = 35
+    
+    private let typeBGWidth: CGFloat = 40
     
     var body: some View {
-        let deselectedBGColor: Color = currentMode == .light
+//        let deselectedBGColor: Color = currentMode == .light
+//        ? Color(red: grayValue, green: grayValue, blue: grayValue)
+//        : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
+        let typeBGColor: Color = currentMode == .light
         ? Color(red: grayValue, green: grayValue, blue: grayValue)
         : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
+        let typeBubbleColor: Color = currentMode == .light
+        ? Color.white
+        : Color.black
         
         VStack {
             VStack {
                 Text("Search")
                     .font(.title)
                     .bold()
-                    .padding(.bottom, 155)
-                    HStack {
-                        Text("Type:")
-                        HStack {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .frame(width: typeBubbleWidth * 2 + 5,
+                                   height: typeBGWidth)
+                            .foregroundColor(typeBGColor)
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .frame(width: typeBubbleWidth,
+                                   height: typeBubbleHeight)
+                            .foregroundColor(typeBubbleColor)
+                            .offset(x: selection == .diver
+                                    ? -typeBubbleWidth / 2
+                                    : typeBubbleWidth / 2)
+                            .animation(.spring(response: 0.2), value: selection)
+                        HStack(spacing: 0) {
                             Button(action: {
-                                if selection != .person {
+                                if selection == .meet {
                                     showError = false
-                                    selection = .person
+                                    selection = .diver
                                 }
                             }, label: {
-                                Text(SearchType.person.rawValue)
+                                Text(SearchType.diver.rawValue)
                                     .animation(nil, value: selection)
                             })
-                            .buttonStyle(.bordered)
-                            .foregroundColor(selection == .person
-                                             ? selectedTextColor
-                                             : deselectedTextColor)
-                            .background(selection == .person
-                                        ? selectedBGColor
-                                        : deselectedBGColor)
+                            .frame(width: typeBubbleWidth,
+                                   height: typeBubbleHeight)
+                            .foregroundColor(textColor)
                             .cornerRadius(cornerRadius)
                             Button(action: {
-                                if selection != .meet {
+                                if selection == .diver {
                                     showError = false
                                     selection = .meet
                                 }
@@ -146,18 +162,19 @@ struct SearchInputView: View {
                                 Text(SearchType.meet.rawValue)
                                     .animation(nil, value: selection)
                             })
-                            .buttonStyle(.bordered)
-                            .foregroundColor(selection == .meet
-                                             ? selectedTextColor
-                                             : deselectedTextColor)
-                            .background(selection == .meet
-                                        ? selectedBGColor
-                                        : deselectedBGColor)
+                            .frame(width: typeBubbleWidth,
+                                   height: typeBubbleHeight)
+                            .foregroundColor(textColor)
+//                            .background(selection == .meet
+//                                        ? selectedBGColor
+//                                        : deselectedBGColor)
                             .cornerRadius(cornerRadius)
                         }
                     }
-                    .padding([.leading, .trailing])
+//                .padding([.leading, .trailing])
             }
+            
+            Spacer()
             
             if selection == .meet {
                 MeetSearchView(meetName: $meetName, orgName: $orgName,
