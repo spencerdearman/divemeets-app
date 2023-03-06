@@ -28,18 +28,14 @@ struct ContentView: View {
                             /// Add different page views here for different tabs
                             switch tab {
                                 case .house:
-                                    ProfileView(hideTabBar: $hideTabBar)
-                                case .gearshape:
                                     Image(systemName: tab.rawValue)
-                                    Text("Settings")
+                                    Text("Home")
                                         .bold()
                                         .animation(nil, value: selectedTab)
                                 case .magnifyingglass:
                                     SearchView()
-                                    //                                case .person:
-                                    //                                    HidingScrollView(hideTabBar: $hideTabBar)
-                                    //                                case .eraser:
-                                    //                                    SearchView()
+                                case .person:
+                                    ProfileView(hideTabBar: $hideTabBar)
                             }
                         }
                         .tag(tab)
@@ -49,9 +45,11 @@ struct ContentView: View {
             }
             VStack {
                 Spacer()
-                FloatingMenuBar(selectedTab: $selectedTab, hideTabBar: $hideTabBar, visibleTabs: $visibleTabs)
-                    .offset(y: hideTabBar ? 110 : 20)
-                    .animation(.spring(), value: hideTabBar)
+                FloatingMenuBar(selectedTab: $selectedTab,
+                                hideTabBar: $hideTabBar,
+                                visibleTabs: $visibleTabs)
+                .offset(y: hideTabBar ? 110 : 20)
+                .animation(.spring(), value: hideTabBar)
             }
             
             /// Safe area tap to retrieve hidden tab bar
@@ -83,6 +81,6 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ForEach(ColorScheme.allCases, id: \.self) {
             ContentView().preferredColorScheme($0)
-                }
+        }
     }
 }

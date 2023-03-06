@@ -67,9 +67,7 @@ struct MeetList: View {
                             
                             let minY = proxy.frame(in: .named("SCROLL")).minY
                             
-                            /*
-                             * Duration to hide TabBar
-                             */
+                            /// Duration to hide TabBar
                             let durationOffset: CGFloat = 0
                             
                             DispatchQueue.main.async {
@@ -91,13 +89,10 @@ struct MeetList: View {
                                         lastOffset = -offset
                                     }
                                 }
-                                
                                 self.offset = minY
                             }
-                            
                             return Color.clear
                         }
-                        
                     )
                     .padding()
                 }

@@ -100,20 +100,15 @@ struct SearchInputView: View {
     @Binding var searchSubmitted: Bool
     private let cornerRadius: CGFloat = 30
     private let selectedBGColor: Color = Color.accentColor
-    /// Light gray
     private let grayValue: CGFloat = 0.90
     private let grayValueDark: CGFloat = 0.10
     private let textColor: Color = Color.primary
-//    private let deselectedTextColor: Color = Color.primary
     private let typeBubbleWidth: CGFloat = 100
     private let typeBubbleHeight: CGFloat = 35
     
     private let typeBGWidth: CGFloat = 40
     
     var body: some View {
-//        let deselectedBGColor: Color = currentMode == .light
-//        ? Color(red: grayValue, green: grayValue, blue: grayValue)
-//        : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
         let typeBGColor: Color = currentMode == .light
         ? Color(red: grayValue, green: grayValue, blue: grayValue)
         : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
@@ -126,52 +121,48 @@ struct SearchInputView: View {
                 Text("Search")
                     .font(.title)
                     .bold()
-                    ZStack {
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .frame(width: typeBubbleWidth * 2 + 5,
-                                   height: typeBGWidth)
-                            .foregroundColor(typeBGColor)
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .frame(width: typeBubbleWidth,
-                                   height: typeBubbleHeight)
-                            .foregroundColor(typeBubbleColor)
-                            .offset(x: selection == .diver
-                                    ? -typeBubbleWidth / 2
-                                    : typeBubbleWidth / 2)
-                            .animation(.spring(response: 0.2), value: selection)
-                        HStack(spacing: 0) {
-                            Button(action: {
-                                if selection == .meet {
-                                    showError = false
-                                    selection = .diver
-                                }
-                            }, label: {
-                                Text(SearchType.diver.rawValue)
-                                    .animation(nil, value: selection)
-                            })
-                            .frame(width: typeBubbleWidth,
-                                   height: typeBubbleHeight)
-                            .foregroundColor(textColor)
-                            .cornerRadius(cornerRadius)
-                            Button(action: {
-                                if selection == .diver {
-                                    showError = false
-                                    selection = .meet
-                                }
-                            }, label: {
-                                Text(SearchType.meet.rawValue)
-                                    .animation(nil, value: selection)
-                            })
-                            .frame(width: typeBubbleWidth,
-                                   height: typeBubbleHeight)
-                            .foregroundColor(textColor)
-//                            .background(selection == .meet
-//                                        ? selectedBGColor
-//                                        : deselectedBGColor)
-                            .cornerRadius(cornerRadius)
-                        }
+                ZStack {
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .frame(width: typeBubbleWidth * 2 + 5,
+                               height: typeBGWidth)
+                        .foregroundColor(typeBGColor)
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .frame(width: typeBubbleWidth,
+                               height: typeBubbleHeight)
+                        .foregroundColor(typeBubbleColor)
+                        .offset(x: selection == .diver
+                                ? -typeBubbleWidth / 2
+                                : typeBubbleWidth / 2)
+                        .animation(.spring(response: 0.2), value: selection)
+                    HStack(spacing: 0) {
+                        Button(action: {
+                            if selection == .meet {
+                                showError = false
+                                selection = .diver
+                            }
+                        }, label: {
+                            Text(SearchType.diver.rawValue)
+                                .animation(nil, value: selection)
+                        })
+                        .frame(width: typeBubbleWidth,
+                               height: typeBubbleHeight)
+                        .foregroundColor(textColor)
+                        .cornerRadius(cornerRadius)
+                        Button(action: {
+                            if selection == .diver {
+                                showError = false
+                                selection = .meet
+                            }
+                        }, label: {
+                            Text(SearchType.meet.rawValue)
+                                .animation(nil, value: selection)
+                        })
+                        .frame(width: typeBubbleWidth,
+                               height: typeBubbleHeight)
+                        .foregroundColor(textColor)
+                        .cornerRadius(cornerRadius)
                     }
-//                .padding([.leading, .trailing])
+                }
             }
             
             Spacer()
@@ -294,6 +285,8 @@ struct MeetSearchView: View {
 
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
-        SearchView()
+        ForEach(ColorScheme.allCases, id: \.self) {
+            SearchView().preferredColorScheme($0)
+        }
     }
 }
