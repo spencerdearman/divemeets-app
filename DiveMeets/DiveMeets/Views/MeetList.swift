@@ -71,8 +71,6 @@ struct MeetList: View {
                             
                             DispatchQueue.main.async {
                                 if minY < offset {
-                                    print("down")
-                                    
                                     if (offset < 0 &&
                                         -minY > (lastOffset + durationOffset)) {
                                         withAnimation(.easeOut.speed(1.5)) {
@@ -82,8 +80,6 @@ struct MeetList: View {
                                     }
                                 }
                                 if offset < minY {
-                                    print("up")
-                                    
                                     if (offset < 0 &&
                                         -minY < (lastOffset - durationOffset)) {
                                         withAnimation(.easeIn.speed(1.5)) {

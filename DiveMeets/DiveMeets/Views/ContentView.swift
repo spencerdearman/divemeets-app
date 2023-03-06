@@ -46,9 +46,11 @@ struct ContentView: View {
             }
             VStack {
                 Spacer()
-                FloatingMenuBar(selectedTab: $selectedTab)
+                FloatingMenuBar(selectedTab: $selectedTab, hideTabBar: $hideTabBar)
+                    .offset(y: hideTabBar ? 110 : 20)
+                    .animation(.spring(), value: hideTabBar)
             }
-            .offset(y: hideTabBar ? 110 : 20)
+            
         }
     }
 }

@@ -31,6 +31,7 @@ func IntFromTab(_ t: Tab) -> Int {
 struct FloatingMenuBar: View {
     @State private var visibleTabs: [Tab] = Tab.allCases
     @Binding var selectedTab: Tab
+    @Binding var hideTabBar: Bool
     private let selectedColor: Color = .white
     private let deselectedColor: Color = .gray
     private let selectedBubbleColor: Color = .black
@@ -38,7 +39,8 @@ struct FloatingMenuBar: View {
     private let cornerRadius: CGFloat = 50
     private let frameHeight: CGFloat = 60
     private let padding: CGFloat = 48
-    private let menuBarSleepDelay: CGFloat = 3
+    private let menuBarExpandDelay: CGFloat = 3
+    private let menuBarHideDelay: CGFloat = 1
     
     /// Add custom multipliers for selected tabs here, defaults to 1.25
     private let sizeMults: [String: Double] = [
@@ -128,11 +130,20 @@ struct FloatingMenuBar: View {
                                     selectedTab = tab
                                     visibleTabs = [tab]
                                     
+                                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + menuBarHideDelay) {
+                                        hideTabBar = true
+                                    }
+                                    
+                                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + menuBarHideDelay + menuBarExpandDelay) {
+                                        hideTabBar = false
+                                    }
+                                    
                                     /// Adds delay for menu bar to grow to full size after
                                     /// a change
                                     DispatchQueue.main.asyncAfter(
                                         deadline: (
-                                            DispatchTime.now() + menuBarSleepDelay)
+                                            DispatchTime.now() + menuBarHideDelay + menuBarExpandDelay
+                                            + menuBarHideDelay)
                                     ) {
                                         visibleTabs = Tab.allCases
                                     }
@@ -154,6 +165,6 @@ struct FloatingMenuBar: View {
 
 struct FloatingMenuBar_Previews: PreviewProvider {
     static var previews: some View {
-        FloatingMenuBar(selectedTab: .constant(.house))
+        FloatingMenuBar(selectedTab: .constant(.house), hideTabBar: .constant(false))
     }
 }
