@@ -118,6 +118,7 @@
 				00F9667A29AFDA1500F3720B /* ContentView.swift */,
 				001A9B8F29B075A6007C7BE5 /* HidingScrollView.swift */,
 				0095BD2C29B1491D004D7EFD /* SearchView.swift */,
+				4D74FEB029AEB3BE00401178 /* MeetData.swift */,
 				4D74FEDB29B1D31200401178 /* EventPage.swift */,
 			);
 			path = Views;
@@ -126,7 +127,6 @@
 		4D74FEB329AEB4B200401178 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				4D74FEB029AEB3BE00401178 /* MeetData.swift */,
 				4D74FEAE29AEB02100401178 /* Meet.swift */,
 			);
 			path = Model;
