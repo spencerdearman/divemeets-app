@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ProfileImage: View {
+    @Environment(\.colorScheme) var currentMode
+    
     var body: some View {
         Image("spencerdearman")
             .resizable()
@@ -15,7 +17,8 @@ struct ProfileImage: View {
             .frame(width:200, height:300)
             .clipShape(Circle())
             .overlay {
-                Circle().stroke(.white, lineWidth: 4)
+                Circle().stroke(currentMode == .light ? .white : .black,
+                                lineWidth: 4)
             }
             .shadow(radius: 7)
         
@@ -24,6 +27,8 @@ struct ProfileImage: View {
 
 struct ProfileImage_Previews: PreviewProvider {
     static var previews: some View {
-        ProfileImage()
+        ForEach(ColorScheme.allCases, id: \.self) {
+            ProfileImage().preferredColorScheme($0)
+        }
     }
 }

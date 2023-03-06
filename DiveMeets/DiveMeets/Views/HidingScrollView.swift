@@ -38,8 +38,6 @@ struct HidingScrollView: View {
                     /// Runs in the background and checks for changes in Y from scrolling up/down
                     DispatchQueue.main.async {
                         if minY < offset {
-                            print("down")
-                            
                             if offset < 0 && -minY > (lastOffset + durationOffset) {
                                 withAnimation(.easeOut.speed(animationSpeed)) {
                                     hideTabBar = true
@@ -48,8 +46,6 @@ struct HidingScrollView: View {
                             }
                         }
                         if offset < minY {
-                            print("up")
-                            
                             if offset < 0 && -minY < (lastOffset - durationOffset) {
                                 withAnimation(.easeIn.speed(animationSpeed)) {
                                     hideTabBar = false

@@ -18,14 +18,14 @@ struct ProfileView: View {
                     .offset(y: -40)
                     .ignoresSafeArea(edges: .top)
                     .frame(height: 50)
-
+                
                 ProfileImage()
                     .offset(y: -20)
-
+                
                 VStack(alignment: .leading) {
                     Text("Spencer Dearman")
                         .font(.title)
-
+                    
                     HStack {
                         Text("University of Chicago")
                         Spacer()
@@ -33,12 +33,12 @@ struct ProfileView: View {
                     }
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-
+                    
                     Divider()
                 }
                 .offset(y: -70)
                 .padding()
-
+                
             }
             
             MeetList(hideTabBar: $hideTabBar)
@@ -50,6 +50,8 @@ struct ProfileView: View {
 
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
-        ProfileView(hideTabBar: .constant(false))
+        ForEach(ColorScheme.allCases, id: \.self) {
+            ProfileView(hideTabBar: .constant(false)).preferredColorScheme($0)
+        }
     }
 }
