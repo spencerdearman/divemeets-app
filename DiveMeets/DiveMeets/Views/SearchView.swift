@@ -88,6 +88,8 @@ struct SearchResultsView: View {
 }
 
 struct SearchInputView: View {
+    @Environment(\.colorScheme) var currentMode
+    
     @State private var showError: Bool = false
     @Binding var selection: SearchType
     @Binding var firstName: String
@@ -97,14 +99,18 @@ struct SearchInputView: View {
     @Binding var meetYear: String
     @Binding var searchSubmitted: Bool
     private let cornerRadius: CGFloat = 20
-    private let selectedBGColor: Color = Color.blue
+    private let selectedBGColor: Color = Color.accentColor
     /// Light gray
-    private let deselectedBGColor: Color = Color(red: 0.94, green: 0.94,
-                                                 blue: 0.94)
+    private let grayValue: CGFloat = 0.99
+    private let grayValueDark: CGFloat = 0.01
     private let selectedTextColor: Color = Color.white
-    private let deselectedTextColor: Color = Color.blue
+    private let deselectedTextColor: Color = Color.accentColor
     
     var body: some View {
+        let deselectedBGColor: Color = currentMode == .light
+        ? Color(red: grayValue, green: grayValue, blue: grayValue)
+        : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
+        
         VStack {
             VStack {
                 Text("Search")
