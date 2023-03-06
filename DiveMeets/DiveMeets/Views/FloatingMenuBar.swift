@@ -75,6 +75,11 @@ struct FloatingMenuBar: View {
         }
     }
     
+    func simpleSuccess(){
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.success)
+        }
+    
     var body: some View {
         ZStack {
             GeometryReader { geometry in
@@ -127,6 +132,7 @@ struct FloatingMenuBar: View {
                             /// Adds tab change and visible tabs change on button press
                             .onTapGesture() {
                                 withAnimation(.spring()) {
+                                    simpleSuccess()
                                     selectedTab = tab
                                     visibleTabs = [tab]
                                     

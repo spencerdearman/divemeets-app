@@ -15,7 +15,7 @@ struct MeetList: View {
     /// Style adjustments for elements of list
     private let frameWidth: CGFloat = 350
     private let frameHeight: CGFloat = 50
-    private let cornerRadius: CGFloat = 15
+    private let cornerRadius: CGFloat = 30
     private let rowSpacing: CGFloat = 3
     private let rowColor: Color = Color.white
     private let textColor: Color = Color.black

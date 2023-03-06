@@ -96,7 +96,7 @@ struct SearchInputView: View {
     @Binding var orgName: String
     @Binding var meetYear: String
     @Binding var searchSubmitted: Bool
-    private let cornerRadius: CGFloat = 10
+    private let cornerRadius: CGFloat = 20
     private let selectedBGColor: Color = Color.blue
     /// Light gray
     private let deselectedBGColor: Color = Color(red: 0.94, green: 0.94,
