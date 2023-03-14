@@ -11,6 +11,8 @@
 		0095BD2D29B1491D004D7EFD /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0095BD2C29B1491D004D7EFD /* SearchView.swift */; };
 		00F9665F29AEEF0900F3720B /* FloatingMenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */; };
 		00F9667B29AFDA1500F3720B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9667A29AFDA1500F3720B /* ContentView.swift */; };
+		4D254F1229C036850033838D /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D254F1129C036840033838D /* Parser.swift */; };
+		4D254F1629C0411C0033838D /* HTMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D254F1529C0411C0033838D /* HTMLParser.swift */; };
 		4D74FE9729AE7B9800401178 /* DiveMeetsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FE9629AE7B9800401178 /* DiveMeetsApp.swift */; };
 		4D74FE9929AE7B9800401178 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FE9829AE7B9800401178 /* ProfileView.swift */; };
 		4D74FE9B29AE7B9800401178 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4D74FE9A29AE7B9800401178 /* Assets.xcassets */; };
@@ -25,6 +27,7 @@
 		4D74FEC029AEBD6F00401178 /* MeetList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FEBF29AEBD6F00401178 /* MeetList.swift */; };
 		4D74FEC229AEBF5500401178 /* meetData.json in Resources */ = {isa = PBXBuildFile; fileRef = 4D74FEC129AEBF5500401178 /* meetData.json */; };
 		4D74FEC629AEC95500401178 /* MeetPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FEC529AEC95500401178 /* MeetPage.swift */; };
+		4DEF7D3629BEE796003EAD70 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 4DEF7D3529BEE796003EAD70 /* SwiftSoup */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +35,8 @@
 		0095BD2C29B1491D004D7EFD /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingMenuBar.swift; sourceTree = "<group>"; };
 		00F9667A29AFDA1500F3720B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		4D254F1129C036840033838D /* Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
+		4D254F1529C0411C0033838D /* HTMLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLParser.swift; sourceTree = "<group>"; };
 		4D74FE9329AE7B9800401178 /* DiveMeets.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DiveMeets.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D74FE9629AE7B9800401178 /* DiveMeetsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiveMeetsApp.swift; sourceTree = "<group>"; };
 		4D74FE9829AE7B9800401178 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
@@ -54,6 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4DEF7D3629BEE796003EAD70 /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,10 +114,12 @@
 				4D74FEBA29AEB57800401178 /* MeetElement.swift */,
 				4D74FEBF29AEBD6F00401178 /* MeetList.swift */,
 				4D74FEC529AEC95500401178 /* MeetPage.swift */,
-				00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */,
 				00F9667A29AFDA1500F3720B /* ContentView.swift */,
 				001A9B8F29B075A6007C7BE5 /* HidingScrollView.swift */,
+				00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */,
 				0095BD2C29B1491D004D7EFD /* SearchView.swift */,
+				4D254F1129C036840033838D /* Parser.swift */,
+				4D254F1529C0411C0033838D /* HTMLParser.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -149,6 +157,9 @@
 			dependencies = (
 			);
 			name = DiveMeets;
+			packageProductDependencies = (
+				4DEF7D3529BEE796003EAD70 /* SwiftSoup */,
+			);
 			productName = DiveMeets;
 			productReference = 4D74FE9329AE7B9800401178 /* DiveMeets.app */;
 			productType = "com.apple.product-type.application";
@@ -177,6 +188,9 @@
 				Base,
 			);
 			mainGroup = 4D74FE8A29AE7B9800401178;
+			packageReferences = (
+				4DEF7D3429BEE796003EAD70 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+			);
 			productRefGroup = 4D74FE9429AE7B9800401178 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -208,10 +222,12 @@
 				4D74FEBB29AEB57800401178 /* MeetElement.swift in Sources */,
 				4D74FEAF29AEB02100401178 /* Meet.swift in Sources */,
 				4D74FEC029AEBD6F00401178 /* MeetList.swift in Sources */,
+				4D254F1229C036850033838D /* Parser.swift in Sources */,
 				4D74FEAB29AEABE900401178 /* BackgroundView.swift in Sources */,
 				4D74FEC629AEC95500401178 /* MeetPage.swift in Sources */,
 				4D74FEAD29AEAE9800401178 /* Profile.swift in Sources */,
 				4D74FE9929AE7B9800401178 /* ProfileView.swift in Sources */,
+				4D254F1629C0411C0033838D /* HTMLParser.swift in Sources */,
 				4D74FEA929AEA5AD00401178 /* MapView.swift in Sources */,
 				4D74FEA529AE7C2B00401178 /* ProfileImage.swift in Sources */,
 				0095BD2D29B1491D004D7EFD /* SearchView.swift in Sources */,
@@ -417,6 +433,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4DEF7D3429BEE796003EAD70 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4DEF7D3529BEE796003EAD70 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4DEF7D3429BEE796003EAD70 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4D74FE8B29AE7B9800401178 /* Project object */;
 }
