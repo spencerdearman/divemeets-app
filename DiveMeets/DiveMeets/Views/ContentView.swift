@@ -32,7 +32,7 @@ struct ContentView: View {
                                         .bold()
                                         .animation(nil, value: selectedTab)
                                 case .magnifyingglass:
-                                    SearchView()
+                                    DiveMeetSearchView()
                                     //                                case .person:
                                     //                                    HidingScrollView(hideTabBar: $hideTabBar)
                                     //                                case .eraser:
