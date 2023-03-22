@@ -9,15 +9,17 @@ import SwiftUI
 import WebKit
 
 struct SwiftUIWebView: View {
+    @Binding var firstName: String
+    @Binding var lastName: String
     @State var request: String =
     "https://secure.meetcontrol.com/divemeets/system/memberlist.php"
     @State var parsedHTML: String = ""
-    @State var parsedLinks: [String: String] = [:]
+    @Binding var parsedLinks: [String: String]
     
     var body: some View {
         VStack {
             WebView(request: $request, parsedHTML: $parsedHTML,
-                    parsedLinks: $parsedLinks)
+                    parsedLinks: $parsedLinks, firstName: $firstName, lastName: $lastName)
         }
     }
 }
@@ -27,6 +29,8 @@ struct WebView: UIViewRepresentable {
     @Binding var request: String
     @Binding var parsedHTML: String
     @Binding var parsedLinks: [String: String]
+    @Binding var firstName: String
+    @Binding var lastName: String
     
     func makeUIView(context: Context) -> WKWebView {
         let webView: WKWebView = {
@@ -52,25 +56,29 @@ struct WebView: UIViewRepresentable {
     
     // From UIKit to SwiftUI
     func makeCoordinator() -> Coordinator {
-        return Coordinator(html: $parsedHTML, links: $parsedLinks)
+        return Coordinator(html: $parsedHTML, links: $parsedLinks, firstName: $firstName, lastName: $lastName)
     }
     
     class Coordinator: NSObject, WKNavigationDelegate {
         let htmlParser: HTMLParser = HTMLParser()
         @Binding var parsedHTML: String
         @Binding var parsedLinks: [String: String]
+        @Binding var firstName: String
+        @Binding var lastName: String
         var submitted: Bool = false
         var linksParsed: Bool = false
         
-        init(html: Binding<String>, links: Binding<[String: String]>) {
+        init(html: Binding<String>, links: Binding<[String: String]>, firstName: Binding<String>, lastName: Binding<String>) {
             self._parsedHTML = html
             self._parsedLinks = links
+            self._firstName = firstName
+            self._lastName = lastName
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            let first = "Logan"
-            let last = "Sherwin"
-            let js = "document.getElementById('first').value = '\(first)'; document.getElementById('last').value = '\(last)'"
+            //let first = "Logan"
+            //let last = "Sherwin"
+            let js = "document.getElementById('first').value = '\(firstName)'; document.getElementById('last').value = '\(lastName)'"
             if !submitted {
                 /// Fill boxes with search values
                 webView.evaluateJavaScript(js, completionHandler: nil)

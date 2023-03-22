@@ -18,10 +18,10 @@ private func checkFields(selection: SearchType, firstName: String = "",
                          lastName: String = "", meetName: String = "",
                          orgName: String = "", meetYear: String = "") -> Bool {
     switch selection {
-        case .person:
-            return firstName != "" || lastName != ""
-        case .meet:
-            return meetName != "" || orgName != "" || meetYear != ""
+    case .person:
+        return firstName != "" || lastName != ""
+    case .meet:
+        return meetName != "" || orgName != "" || meetYear != ""
     }
 }
 
@@ -33,24 +33,23 @@ struct SearchView: View {
     @State private var orgName: String = ""
     @State private var meetYear: String = ""
     @State private var searchSubmitted: Bool = false
+    @State var parsedLinks: [String: String] = [:]
     
     @ViewBuilder
     var body: some View {
-        /// Submit button doesn't switch pages in preview, but it works in Simulator
-        if searchSubmitted {
-            SearchResultsView(selection: $selection, firstName: $firstName,
-                              lastName: $lastName, meetName: $meetName,
-                              orgName: $orgName, meetYear: $meetYear,
-                              searchSubmitted: $searchSubmitted)
-            .onDisappear {
-                searchSubmitted = false
+        ZStack{
+            if searchSubmitted {
+                SwiftUIWebView(firstName: $firstName, lastName: $lastName, parsedLinks: $parsedLinks)
             }
-        } else {
-            SearchInputView(selection: $selection, firstName: $firstName,
-                            lastName: $lastName, meetName: $meetName,
+            
+            Color.white.ignoresSafeArea()
+            
+            /// Submit button doesn't switch pages in preview, but it works in Simulator
+            SearchInputView(selection: $selection, firstName: $firstName, lastName: $lastName, meetName: $meetName,
                             orgName: $orgName, meetYear: $meetYear,
-                            searchSubmitted: $searchSubmitted)
+                            searchSubmitted: $searchSubmitted, parsedLinks: $parsedLinks)
         }
+        
     }
 }
 
@@ -96,6 +95,7 @@ struct SearchInputView: View {
     @Binding var orgName: String
     @Binding var meetYear: String
     @Binding var searchSubmitted: Bool
+    @Binding var parsedLinks: [String: String]
     private let cornerRadius: CGFloat = 20
     private let selectedBGColor: Color = Color.blue
     /// Light gray
@@ -111,46 +111,46 @@ struct SearchInputView: View {
                     .font(.title)
                     .bold()
                     .padding(.bottom, 155)
+                HStack {
+                    Text("Type:")
                     HStack {
-                        Text("Type:")
-                        HStack {
-                            Button(action: {
-                                if selection != .person {
-                                    showError = false
-                                    selection = .person
-                                }
-                            }, label: {
-                                Text(SearchType.person.rawValue)
-                                    .animation(nil, value: selection)
-                            })
-                            .buttonStyle(.bordered)
-                            .foregroundColor(selection == .person
-                                             ? selectedTextColor
-                                             : deselectedTextColor)
-                            .background(selection == .person
-                                        ? selectedBGColor
-                                        : deselectedBGColor)
-                            .cornerRadius(cornerRadius)
-                            Button(action: {
-                                if selection != .meet {
-                                    showError = false
-                                    selection = .meet
-                                }
-                            }, label: {
-                                Text(SearchType.meet.rawValue)
-                                    .animation(nil, value: selection)
-                            })
-                            .buttonStyle(.bordered)
-                            .foregroundColor(selection == .meet
-                                             ? selectedTextColor
-                                             : deselectedTextColor)
-                            .background(selection == .meet
-                                        ? selectedBGColor
-                                        : deselectedBGColor)
-                            .cornerRadius(cornerRadius)
-                        }
+                        Button(action: {
+                            if selection != .person {
+                                showError = false
+                                selection = .person
+                            }
+                        }, label: {
+                            Text(SearchType.person.rawValue)
+                                .animation(nil, value: selection)
+                        })
+                        .buttonStyle(.bordered)
+                        .foregroundColor(selection == .person
+                                         ? selectedTextColor
+                                         : deselectedTextColor)
+                        .background(selection == .person
+                                    ? selectedBGColor
+                                    : deselectedBGColor)
+                        .cornerRadius(cornerRadius)
+                        Button(action: {
+                            if selection != .meet {
+                                showError = false
+                                selection = .meet
+                            }
+                        }, label: {
+                            Text(SearchType.meet.rawValue)
+                                .animation(nil, value: selection)
+                        })
+                        .buttonStyle(.bordered)
+                        .foregroundColor(selection == .meet
+                                         ? selectedTextColor
+                                         : deselectedTextColor)
+                        .background(selection == .meet
+                                    ? selectedBGColor
+                                    : deselectedBGColor)
+                        .cornerRadius(cornerRadius)
                     }
-                    .padding([.leading, .trailing])
+                }
+                .padding([.leading, .trailing])
             }
             
             if selection == .meet {
@@ -185,7 +185,12 @@ struct SearchInputView: View {
                 Text("")
             }
             
-            Spacer()
+            VStack {
+                ForEach(parsedLinks.sorted(by: <), id:\.key) { key, value in
+                    Text(key + ": " + value)
+                }
+            }
+            
             Spacer()
         }
         .onAppear {
