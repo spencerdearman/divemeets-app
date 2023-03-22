@@ -50,6 +50,26 @@ final class HTMLParser: ObservableObject {
             print("Error fetching HTML: \(error)")
         }
     }
+    
+    func getRecords(_ html: String) -> [String: String] {
+        let leadingLink: String = "https://secure.meetcontrol.com/divemeets/system/"
+        var result: [String: String] = [:]
+        do {
+            let document: Document = try SwiftSoup.parse(html)
+            guard let body = document.body() else {
+                return [:]
+            }
+            let content = try body.getElementById("dm_content")
+            let links = try content?.getElementsByClass("showresults").select("a")
+            try links?.forEach({ l in
+                result[try l.text()] = try leadingLink + l.attr("href")
+            })
+        }
+        catch {
+            print("Parsing records failed")
+        }
+        return result
+    }
 }
 
 struct ParsedView: View {
