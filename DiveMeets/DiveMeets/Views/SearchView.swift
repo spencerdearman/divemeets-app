@@ -34,12 +34,15 @@ struct SearchView: View {
     @State private var meetYear: String = ""
     @State private var searchSubmitted: Bool = false
     @State var parsedLinks: [String: String] = [:]
+    @State var dmSearchSubmitted: Bool = false
+    @State var linksParsed: Bool = false
+    @Binding var hideTabBar: Bool
     
     @ViewBuilder
     var body: some View {
         ZStack{
             if searchSubmitted {
-                SwiftUIWebView(firstName: $firstName, lastName: $lastName, parsedLinks: $parsedLinks)
+                SwiftUIWebView(firstName: $firstName, lastName: $lastName, parsedLinks: $parsedLinks, searchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed)
             }
             
             Color.white.ignoresSafeArea()
@@ -47,44 +50,47 @@ struct SearchView: View {
             /// Submit button doesn't switch pages in preview, but it works in Simulator
             SearchInputView(selection: $selection, firstName: $firstName, lastName: $lastName, meetName: $meetName,
                             orgName: $orgName, meetYear: $meetYear,
-                            searchSubmitted: $searchSubmitted, parsedLinks: $parsedLinks)
+                            searchSubmitted: $searchSubmitted, parsedLinks: $parsedLinks, dmSearchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed, hideTabBar: $hideTabBar)
+        }
+        .onDisappear {
+            searchSubmitted = false
         }
         
     }
 }
-
-/// Currently just for testing that the results are being captured before scraping
-struct SearchResultsView: View {
-    @Binding var selection: SearchType
-    @Binding var firstName: String
-    @Binding var lastName: String
-    @Binding var meetName: String
-    @Binding var orgName: String
-    @Binding var meetYear: String
-    @Binding var searchSubmitted: Bool
-    
-    var body: some View {
-        VStack {
-            /// Temporary for testing purposes before we scrape
-            Text("Sending...")
-            if selection == .meet {
-                Text(meetName)
-                Text(orgName)
-                Text(meetYear)
-            } else {
-                Text(firstName)
-                Text(lastName)
-            }
-            Button(action: {
-                searchSubmitted = false
-            }, label: {
-                Text("Back")
-            })
-            .buttonStyle(.bordered)
-            .padding()
-        }
-    }
-}
+//
+///// Currently just for testing that the results are being captured before scraping
+//struct SearchResultsView: View {
+//    @Binding var selection: SearchType
+//    @Binding var firstName: String
+//    @Binding var lastName: String
+//    @Binding var meetName: String
+//    @Binding var orgName: String
+//    @Binding var meetYear: String
+//    @Binding var searchSubmitted: Bool
+//
+//    var body: some View {
+//        VStack {
+//            /// Temporary for testing purposes before we scrape
+//            Text("Sending...")
+//            if selection == .meet {
+//                Text(meetName)
+//                Text(orgName)
+//                Text(meetYear)
+//            } else {
+//                Text(firstName)
+//                Text(lastName)
+//            }
+//            Button(action: {
+//                searchSubmitted = false
+//            }, label: {
+//                Text("Back")
+//            })
+//            .buttonStyle(.bordered)
+//            .padding()
+//        }
+//    }
+//}
 
 struct SearchInputView: View {
     @State private var showError: Bool = false
@@ -96,6 +102,9 @@ struct SearchInputView: View {
     @Binding var meetYear: String
     @Binding var searchSubmitted: Bool
     @Binding var parsedLinks: [String: String]
+    @Binding var dmSearchSubmitted: Bool
+    @Binding var linksParsed: Bool
+    @Binding var hideTabBar: Bool
     private let cornerRadius: CGFloat = 20
     private let selectedBGColor: Color = Color.blue
     /// Light gray
@@ -117,6 +126,12 @@ struct SearchInputView: View {
                         Button(action: {
                             if selection != .person {
                                 showError = false
+                                searchSubmitted = false
+                                linksParsed = false
+                                parsedLinks = [:]
+                                meetName = ""
+                                orgName = ""
+                                meetYear = ""
                                 selection = .person
                             }
                         }, label: {
@@ -134,6 +149,11 @@ struct SearchInputView: View {
                         Button(action: {
                             if selection != .meet {
                                 showError = false
+                                searchSubmitted = false
+                                linksParsed = false
+                                parsedLinks = [:]
+                                firstName = ""
+                                lastName = ""
                                 selection = .meet
                             }
                         }, label: {
@@ -160,23 +180,37 @@ struct SearchInputView: View {
                 DiverSearchView(firstName: $firstName, lastName: $lastName)
             }
             
-            Button(action: {
-                /// Only submits a search if one of the relevant fields is filled, otherwise toggles error
-                if checkFields(selection: selection, firstName: firstName,
-                               lastName: lastName, meetName: meetName,
-                               orgName: orgName, meetYear: meetYear) {
-                    searchSubmitted = true
-                    showError = false
-                } else {
-                    showError = true
-                }
-            }, label: {
-                Text("Submit")
-                    .animation(nil, value: selection)
-            })
-            .buttonStyle(.bordered)
-            .cornerRadius(cornerRadius)
+            VStack {
+                Button(action: {
+                    /// Need to initially set search to false so webView gets recreated
+                    searchSubmitted = false
+                    /// Only submits a search if one of the relevant fields is filled, otherwise toggles error
+                    if checkFields(selection: selection, firstName: firstName,
+                                   lastName: lastName, meetName: meetName,
+                                   orgName: orgName, meetYear: meetYear) {
+                        showError = false
+                        searchSubmitted = true
+                        dmSearchSubmitted = false
+                        linksParsed = false
+                        parsedLinks = [:]
+                    } else {
+                        showError = true
+                        searchSubmitted = false
+                        dmSearchSubmitted = false
+                        linksParsed = false
+                        parsedLinks = [:]
+                    }
+                }, label: {
+                    Text("Submit")
+                        .animation(nil, value: selection)
+                })
+                .buttonStyle(.bordered)
+                .cornerRadius(cornerRadius)
             .animation(nil, value: selection)
+                if searchSubmitted && !linksParsed {
+                    ProgressView()
+                }
+            }
             if showError {
                 Text("You must enter at least one field to search")
                     .foregroundColor(Color.red)
@@ -185,10 +219,8 @@ struct SearchInputView: View {
                 Text("")
             }
             
-            VStack {
-                ForEach(parsedLinks.sorted(by: <), id:\.key) { key, value in
-                    Text(key + ": " + value)
-                }
+            if linksParsed {
+                RecordList(hideTabBar: $hideTabBar, records: $parsedLinks)
             }
             
             Spacer()
@@ -276,6 +308,6 @@ struct MeetSearchView: View {
 
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
-        SearchView()
+        SearchView(hideTabBar: .constant(false))
     }
 }

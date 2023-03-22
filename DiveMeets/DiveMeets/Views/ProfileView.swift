@@ -8,7 +8,13 @@
 import SwiftUI
 
 struct ProfileView: View {
+    var profileLink: String
     @Binding var hideTabBar: Bool
+    
+    init(hideTabBar: Binding<Bool>, link: String = "") {
+        self.profileLink = link
+        self._hideTabBar = hideTabBar
+    }
     
     var body: some View {
         
