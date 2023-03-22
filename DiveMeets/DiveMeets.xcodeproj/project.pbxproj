@@ -11,6 +11,7 @@
 		0095BD2D29B1491D004D7EFD /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0095BD2C29B1491D004D7EFD /* SearchView.swift */; };
 		00F9665F29AEEF0900F3720B /* FloatingMenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */; };
 		00F9667B29AFDA1500F3720B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9667A29AFDA1500F3720B /* ContentView.swift */; };
+		4D1A5C3729CB953300F3DA2B /* SwiftUIWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */; };
 		4D254F1229C036850033838D /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D254F1129C036840033838D /* Parser.swift */; };
 		4D254F1629C0411C0033838D /* HTMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D254F1529C0411C0033838D /* HTMLParser.swift */; };
 		4D254F1829C107980033838D /* NamesCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D254F1729C107980033838D /* NamesCreator.swift */; };
@@ -37,6 +38,7 @@
 		0095BD2C29B1491D004D7EFD /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingMenuBar.swift; sourceTree = "<group>"; };
 		00F9667A29AFDA1500F3720B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIWebView.swift; sourceTree = "<group>"; };
 		4D254F1129C036840033838D /* Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		4D254F1529C0411C0033838D /* HTMLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLParser.swift; sourceTree = "<group>"; };
 		4D254F1729C107980033838D /* NamesCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NamesCreator.swift; sourceTree = "<group>"; };
@@ -126,6 +128,7 @@
 				4D254F1529C0411C0033838D /* HTMLParser.swift */,
 				4D254F1729C107980033838D /* NamesCreator.swift */,
 				4D254F1B29C113240033838D /* DiveMeetProfileView.swift */,
+				4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -227,6 +230,7 @@
 				00F9667B29AFDA1500F3720B /* ContentView.swift in Sources */,
 				4D74FEBB29AEB57800401178 /* MeetElement.swift in Sources */,
 				4D74FEAF29AEB02100401178 /* Meet.swift in Sources */,
+				4D1A5C3729CB953300F3DA2B /* SwiftUIWebView.swift in Sources */,
 				4D74FEC029AEBD6F00401178 /* MeetList.swift in Sources */,
 				4D254F1229C036850033838D /* Parser.swift in Sources */,
 				4D74FEAB29AEABE900401178 /* BackgroundView.swift in Sources */,

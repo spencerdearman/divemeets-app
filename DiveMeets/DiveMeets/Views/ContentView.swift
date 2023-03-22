@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var selectedTab: Tab = .house
+    @State private var selectedTab: Tab = .magnifyingglass
     @State var hideTabBar = false
     
     /// Necessary to hide gray navigation bar from behind floating tab bar

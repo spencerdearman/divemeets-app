@@ -27,12 +27,9 @@ struct WebView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> WKWebView {
         let webView: WKWebView = {
-            //            let prefs = WKPreferences()
-            //            prefs.javaScriptEnabled = true
             let pagePrefs = WKWebpagePreferences()
             pagePrefs.allowsContentJavaScript = true
             let config = WKWebViewConfiguration()
-            //            config.preferences = prefs
             config.defaultWebpagePreferences = pagePrefs
             let webview = WKWebView(frame: .zero,
                                     configuration: config)
@@ -48,7 +45,6 @@ struct WebView: UIViewRepresentable {
     func updateUIView(_ uiView: WKWebView, context: Context) {
         guard let url = URL(string: request) else { return }
         uiView.load(URLRequest(url: url))
-//        parsedHTML = htmlParser.parse(html: request)
     }
     
     // From UIKit to SwiftUI
@@ -59,38 +55,39 @@ struct WebView: UIViewRepresentable {
     class Coordinator: NSObject, WKNavigationDelegate {
         let htmlParser: HTMLParser = HTMLParser()
         @Binding var parsedHTML: String
+        var submitted: Bool = false
         
         init(html: Binding<String>) {
             self._parsedHTML = html
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            // Fill First Name
-            // document.getElementById('first').value = 'Logan'
-            
-            // Fill Last Name
-            // document.getElementById('last').value = 'Sherwin'
-            
-            // Hit Submit button
-            // document.getElementsByTagName('input')[2].click()
-            let first = "Logan"
-            let last = "Sherwin"
-            let js = "document.getElementById('first').value = \(first); document.getElementById('last').value = \(last); document.getElementsByTagName('input')[2].click(); "
-            webView.evaluateJavaScript(js) { res, _ in
-                (res as! WKWebView).evaluateJavaScript("document.body.innerHTML") { result, error in
-                    guard let html = result as? String, error == nil else { print("Failed to get HTML"); return
-                    }
-                    print(self.htmlParser.parse(html: html))
+            let first = "'Logan'"
+            let last = "'Sherwin'"
+            let js = "document.getElementById('first').value = \(first); document.getElementById('last').value = \(last);"
+//            print(submitted)
+            if !submitted {
+                /// Fill boxes with search values
+                webView.evaluateJavaScript(js, completionHandler: nil)
+                
+                /// Click Submit
+                webView.evaluateJavaScript("document.getElementsByTagName('input')[2].click()") { _, _ in
+                    self.submitted = true
+                }
+            } else {
+                /// Gets HTML after submitting request
+                webView.evaluateJavaScript("document.body.innerHTML") { [weak self] result, error in
+                    guard let html = result as? String, error == nil else { return }
+                    self?.parsedHTML = html
+//                    print(html)
                 }
             }
-            
         }
-
     }
 }
 
-struct SwiftUIWebView_Previews: PreviewProvider {
-    static var previews: some View {
-        SwiftUIWebView()
-    }
-}
+//struct SwiftUIWebView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        SwiftUIWebView()
+//    }
+//}
