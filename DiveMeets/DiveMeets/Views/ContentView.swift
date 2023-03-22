@@ -32,7 +32,8 @@ struct ContentView: View {
                                         .bold()
                                         .animation(nil, value: selectedTab)
                                 case .magnifyingglass:
-                                    DiveMeetSearchView()
+//                                    DiveMeetSearchView()
+                                    SwiftUIWebView()
                                     //                                case .person:
                                     //                                    HidingScrollView(hideTabBar: $hideTabBar)
                                     //                                case .eraser:

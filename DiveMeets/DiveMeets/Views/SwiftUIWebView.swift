@@ -39,6 +39,7 @@ struct WebView: UIViewRepresentable {
             webview.translatesAutoresizingMaskIntoConstraints = false
             return webview
         }()
+        webView.navigationDelegate = context.coordinator
         
         return webView
     }
@@ -75,42 +76,18 @@ struct WebView: UIViewRepresentable {
             let first = "Logan"
             let last = "Sherwin"
             let js = "document.getElementById('first').value = \(first); document.getElementById('last').value = \(last); document.getElementsByTagName('input')[2].click(); "
-            webView.evaluateJavaScript(js) { [weak self] result, error in
-                guard let html = result as? String, error == nil else { return }
-                var res = self?.htmlParser.parse(html: html) ?? []
-                
-            }
-            webView.evaluateJavaScript("document.body.innerHTML;") { [weak self] result, error in
-                guard let html = result as? String, error == nil else { print("Failed to get HTML"); return
+            webView.evaluateJavaScript(js) { res, _ in
+                (res as! WKWebView).evaluateJavaScript("document.body.innerHTML") { result, error in
+                    guard let html = result as? String, error == nil else { print("Failed to get HTML"); return
+                    }
+                    print(self.htmlParser.parse(html: html))
                 }
-                self?.htmlParser.parse(html: html)
             }
+            
         }
 
     }
 }
-
-func desktopDirectoryJSONURL() -> URL {
-    do {
-        let documentDirectory = try FileManager.default.url(for: .desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-        return documentDirectory.appendingPathComponent("test.json")
-    } catch {
-        fatalError("Couldn't create URL")
-    }
-}
-
-
-func writeToFile(value: String) {
-    do{
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted
-        let jsonData = try encoder.encode(value)
-        try jsonData.write(to: desktopDirectoryJSONURL())
-    } catch {
-        print(error)
-    }
-}
-
 
 struct SwiftUIWebView_Previews: PreviewProvider {
     static var previews: some View {
