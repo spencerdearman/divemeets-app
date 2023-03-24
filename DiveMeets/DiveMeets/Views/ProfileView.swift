@@ -17,21 +17,19 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        let diverID = String(profileLink.suffix(68))
+        let diverID = profileLink.substring(from: String.Index(encodedOffset: 67))
         VStack {
             VStack {
-                BackgroundView()
-                    .offset(y: -40)
-                    .ignoresSafeArea(edges: .top)
-                    .frame(height: 50)
+//                BackgroundView()
+//                    .offset(y: -40)
+//                    .ignoresSafeArea(edges: .top)
+//                    .frame(height: 50)
 
                 ProfileImage(diverID: diverID)
-                    .offset(y: -20)
-
+                    //.offset(y: -20)
                 VStack(alignment: .leading) {
                     Text("Spencer Dearman")
                         .font(.title)
-
                     HStack {
                         Text("University of Chicago")
                         Spacer()
@@ -42,13 +40,13 @@ struct ProfileView: View {
 
                     Divider()
                 }
-                .offset(y: -70)
+                //.offset(y: -70)
                 .padding()
 
             }
-            
+            Text(diverID)
             MeetList(hideTabBar: $hideTabBar)
-                .offset(y: -100)
+                //.offset(y: -100)
                 .frame(height: 400)
         }
     }
