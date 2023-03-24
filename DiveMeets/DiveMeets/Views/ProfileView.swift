@@ -17,7 +17,7 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        
+        let diverID = String(profileLink.suffix(68))
         VStack {
             VStack {
                 BackgroundView()
@@ -25,7 +25,7 @@ struct ProfileView: View {
                     .ignoresSafeArea(edges: .top)
                     .frame(height: 50)
 
-                ProfileImage()
+                ProfileImage(diverID: diverID)
                     .offset(y: -20)
 
                 VStack(alignment: .leading) {
