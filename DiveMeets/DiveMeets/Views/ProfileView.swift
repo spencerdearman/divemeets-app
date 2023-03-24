@@ -9,15 +9,16 @@ import SwiftUI
 
 struct ProfileView: View {
     var profileLink: String
+    var diverID : String
     @Binding var hideTabBar: Bool
     
-    init(hideTabBar: Binding<Bool>, link: String = "") {
+    init(hideTabBar: Binding<Bool>, link: String = "", diverID: String = "00000") {
         self.profileLink = link
         self._hideTabBar = hideTabBar
+        self.diverID = diverID
     }
     
     var body: some View {
-        let diverID = profileLink.substring(from: String.Index(encodedOffset: 67))
         VStack {
             VStack {
 //                BackgroundView()
