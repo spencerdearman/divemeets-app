@@ -94,6 +94,8 @@ struct SearchView: View {
 
 struct SearchInputView: View {
     @State private var showError: Bool = false
+    @State var fullScreenResults: Bool = false
+    @State var resultSelected: Bool = false
     @Binding var selection: SearchType
     @Binding var firstName: String
     @Binding var lastName: String
@@ -114,116 +116,138 @@ struct SearchInputView: View {
     private let deselectedTextColor: Color = Color.blue
     
     var body: some View {
-        VStack {
+        ZStack {
             VStack {
-                Text("Search")
-                    .font(.title)
-                    .bold()
-                    .padding(.bottom, 155)
-                HStack {
-                    Text("Type:")
+                VStack {
+                    Text("Search")
+                        .font(.title)
+                        .bold()
+                        .padding(.bottom, 155)
                     HStack {
-                        Button(action: {
-                            if selection != .person {
-                                showError = false
-                                searchSubmitted = false
-                                linksParsed = false
-                                parsedLinks = [:]
-                                meetName = ""
-                                orgName = ""
-                                meetYear = ""
-                                selection = .person
-                            }
-                        }, label: {
-                            Text(SearchType.person.rawValue)
-                                .animation(nil, value: selection)
-                        })
-                        .buttonStyle(.bordered)
-                        .foregroundColor(selection == .person
-                                         ? selectedTextColor
-                                         : deselectedTextColor)
-                        .background(selection == .person
-                                    ? selectedBGColor
-                                    : deselectedBGColor)
-                        .cornerRadius(cornerRadius)
-                        Button(action: {
-                            if selection != .meet {
-                                showError = false
-                                searchSubmitted = false
-                                linksParsed = false
-                                parsedLinks = [:]
-                                firstName = ""
-                                lastName = ""
-                                selection = .meet
-                            }
-                        }, label: {
-                            Text(SearchType.meet.rawValue)
-                                .animation(nil, value: selection)
-                        })
-                        .buttonStyle(.bordered)
-                        .foregroundColor(selection == .meet
-                                         ? selectedTextColor
-                                         : deselectedTextColor)
-                        .background(selection == .meet
-                                    ? selectedBGColor
-                                    : deselectedBGColor)
-                        .cornerRadius(cornerRadius)
+                        Text("Type:")
+                        HStack {
+                            Button(action: {
+                                if selection != .person {
+                                    showError = false
+                                    searchSubmitted = false
+                                    linksParsed = false
+                                    parsedLinks = [:]
+                                    meetName = ""
+                                    orgName = ""
+                                    meetYear = ""
+                                    selection = .person
+                                }
+                            }, label: {
+                                Text(SearchType.person.rawValue)
+                                    .animation(nil, value: selection)
+                            })
+                            .buttonStyle(.bordered)
+                            .foregroundColor(selection == .person
+                                             ? selectedTextColor
+                                             : deselectedTextColor)
+                            .background(selection == .person
+                                        ? selectedBGColor
+                                        : deselectedBGColor)
+                            .cornerRadius(cornerRadius)
+                            Button(action: {
+                                if selection != .meet {
+                                    showError = false
+                                    searchSubmitted = false
+                                    linksParsed = false
+                                    parsedLinks = [:]
+                                    firstName = ""
+                                    lastName = ""
+                                    selection = .meet
+                                }
+                            }, label: {
+                                Text(SearchType.meet.rawValue)
+                                    .animation(nil, value: selection)
+                            })
+                            .buttonStyle(.bordered)
+                            .foregroundColor(selection == .meet
+                                             ? selectedTextColor
+                                             : deselectedTextColor)
+                            .background(selection == .meet
+                                        ? selectedBGColor
+                                        : deselectedBGColor)
+                            .cornerRadius(cornerRadius)
+                        }
                     }
+                    .padding([.leading, .trailing])
                 }
-                .padding([.leading, .trailing])
-            }
-            
-            if selection == .meet {
-                MeetSearchView(meetName: $meetName, orgName: $orgName,
-                               meetYear: $meetYear)
-            } else {
-                DiverSearchView(firstName: $firstName, lastName: $lastName)
-            }
-            
-            VStack {
-                Button(action: {
-                    /// Need to initially set search to false so webView gets recreated
-                    searchSubmitted = false
-                    /// Only submits a search if one of the relevant fields is filled, otherwise toggles error
-                    if checkFields(selection: selection, firstName: firstName,
-                                   lastName: lastName, meetName: meetName,
-                                   orgName: orgName, meetYear: meetYear) {
-                        showError = false
-                        searchSubmitted = true
-                        dmSearchSubmitted = false
-                        linksParsed = false
-                        parsedLinks = [:]
-                    } else {
-                        showError = true
-                        searchSubmitted = false
-                        dmSearchSubmitted = false
-                        linksParsed = false
-                        parsedLinks = [:]
-                    }
-                }, label: {
-                    Text("Submit")
-                        .animation(nil, value: selection)
-                })
-                .buttonStyle(.bordered)
-                .cornerRadius(cornerRadius)
-            .animation(nil, value: selection)
-                if searchSubmitted && !linksParsed {
-                    ProgressView()
-                }
-            }
-            if showError {
-                Text("You must enter at least one field to search")
-                    .foregroundColor(Color.red)
                 
-            } else {
-                Text("")
+                if selection == .meet {
+                    MeetSearchView(meetName: $meetName, orgName: $orgName,
+                                   meetYear: $meetYear)
+                } else {
+                    DiverSearchView(firstName: $firstName, lastName: $lastName)
+                }
+                
+                VStack {
+                    Button(action: {
+                        /// Need to initially set search to false so webView gets recreated
+                        searchSubmitted = false
+                        /// Only submits a search if one of the relevant fields is filled, otherwise toggles error
+                        if checkFields(selection: selection, firstName: firstName,
+                                       lastName: lastName, meetName: meetName,
+                                       orgName: orgName, meetYear: meetYear) {
+                            showError = false
+                            searchSubmitted = true
+                            dmSearchSubmitted = false
+                            linksParsed = false
+                            parsedLinks = [:]
+                        } else {
+                            showError = true
+                            searchSubmitted = false
+                            dmSearchSubmitted = false
+                            linksParsed = false
+                            parsedLinks = [:]
+                        }
+                    }, label: {
+                        Text("Submit")
+                            .animation(nil, value: selection)
+                    })
+                    .buttonStyle(.bordered)
+                    .cornerRadius(cornerRadius)
+                    .animation(nil, value: selection)
+                    if searchSubmitted && !linksParsed {
+                        ProgressView()
+                    }
+                }
+                if showError {
+                    Text("You must enter at least one field to search")
+                        .foregroundColor(Color.red)
+                    
+                } else {
+                    Text("")
+                }
+                
+                Spacer()
             }
             
             if linksParsed {
-                RecordList(hideTabBar: $hideTabBar, records: $parsedLinks)
+                ZStack (alignment: .topLeading) {
+                    RecordList(hideTabBar: $hideTabBar, records: $parsedLinks, resultSelected: $resultSelected)
+                        .onAppear{
+                            fullScreenResults = true
+                        }
+                    if !resultSelected{
+                        Image(systemName: "chevron.down")
+                            .rotationEffect(.degrees(fullScreenResults ? 0: 180))
+                            .frame(width:50, height: 50)
+                            .foregroundColor(.black)
+                            .font(.system(size: 22))
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                fullScreenResults.toggle()
+                            }
+                    }
+                }
+                .offset(y: fullScreenResults ? 0 : 425)
+                .animation(.linear(duration: 0.2), value: fullScreenResults)
+//                .animation(.spring(response: 0.3, dampingFraction: 1, blendDuration: 0),  value: fullScreenResults)
             }
             
-            Spacer()
         }
         .onAppear {
             showError = false

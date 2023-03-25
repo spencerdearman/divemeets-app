@@ -45,6 +45,6 @@ struct ProfileImage: View {
 
 struct ProfileImage_Previews: PreviewProvider {
     static var previews: some View {
-        ProfileImage(diverID: "60480")
+        ProfileImage(diverID: "16241")
     }
 }

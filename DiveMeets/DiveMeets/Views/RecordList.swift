@@ -10,6 +10,7 @@ import SwiftUI
 struct RecordList: View {
     @Binding var hideTabBar: Bool
     @Binding var records: [String: String]
+    @Binding var resultSelected: Bool
     @State var offset: CGFloat = 0
     @State var lastOffset: CGFloat = 0
     
@@ -34,7 +35,7 @@ struct RecordList: View {
                     VStack(spacing: rowSpacing) {
                         ForEach(records.sorted(by: <), id: \.key) { key, value in
                             NavigationLink(
-                                destination: ProfileView(hideTabBar: $hideTabBar, link: value, diverID: value.substring(from: String.Index(encodedOffset: 67)))) {
+                                destination: ProfileView(hideTabBar: $hideTabBar, link: value, diverID: value.substring(from: String.Index(encodedOffset: 67))), isActive: $resultSelected) {
                                     GeometryReader { geometry in
                                         HStack {
                                             Text(key)
@@ -56,6 +57,15 @@ struct RecordList: View {
                                     .frame(width: frameWidth,
                                            height: frameHeight)
                                 }
+                                .onDisappear {
+                                    print("Tapped")
+                                    resultSelected = true
+                                }
+                                .onAppear{
+                                    print("Appeared")
+                                    resultSelected = false
+                                }
+                                
                         }
                     }
                     /// Scroll tracking to hide/show tab bar when scrolling down/up
@@ -106,9 +116,9 @@ struct RecordList: View {
     }
 }
 
-struct RecordList_Previews: PreviewProvider {
-    static var previews: some View {
-        RecordList(hideTabBar: .constant(false), records: .constant(["Logan": "google.com"]))
-    }
-}
-
+//struct RecordList_Previews: PreviewProvider {
+//    static var previews: some View {
+//        RecordList(hideTabBar: .constant(false), records: .constant(["Logan": "google.com"]))
+//    }
+//}
+//
