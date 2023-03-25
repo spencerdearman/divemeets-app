@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
+
     @Environment(\.colorScheme) var currentMode
     
     @State private var selectedTab: Tab = .house
@@ -28,14 +29,20 @@ struct ContentView: View {
                             /// Add different page views here for different tabs
                             switch tab {
                                 case .house:
+                                ProfileView(hideTabBar: $hideTabBar, link:"", diverID: "51197")
+                                case .gearshape:
+
                                     Image(systemName: tab.rawValue)
                                     Text("Home")
                                         .bold()
                                         .animation(nil, value: selectedTab)
                                 case .magnifyingglass:
-                                    SearchView()
-                                case .person:
-                                    ProfileView(hideTabBar: $hideTabBar)
+                                    SearchView(hideTabBar: $hideTabBar)
+//                                    SwiftUIWebView()
+                                    //                                case .person:
+                                    //                                    HidingScrollView(hideTabBar: $hideTabBar)
+                                    //                                case .eraser:
+                                    //                                    SearchView()
                             }
                         }
                         .tag(tab)

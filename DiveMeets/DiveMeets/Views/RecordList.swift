@@ -1,5 +1,5 @@
 //
-//  MeetList.swift
+//  RecordList.swift
 //  DiveMeets
 //
 //  Created by Spencer Dearman on 2/28/23.
@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct MeetList: View {
-    @Environment(\.colorScheme) var currentMode
-    
+struct RecordList: View {
     @Binding var hideTabBar: Bool
+    @Binding var records: [String: String]
+    @Binding var resultSelected: Bool
     @State var offset: CGFloat = 0
     @State var lastOffset: CGFloat = 0
     
@@ -19,35 +19,34 @@ struct MeetList: View {
     private let frameHeight: CGFloat = 50
     private let cornerRadius: CGFloat = 30
     private let rowSpacing: CGFloat = 3
+    private let rowColor: Color = Color.white
+    private let textColor: Color = Color.black
     private let fontSize: CGFloat = 20
+    private let grayValue: CGFloat = 0.95
     
     var body: some View {
-        let rowColor: Color = currentMode == .light
-        ? Color.white
-        : Color.black
-        
         NavigationView {
             ZStack {
                 /// Background color for View
-                Color.clear.background(.thinMaterial)
+                Color(red: grayValue, green: grayValue, blue: grayValue)
                     .ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: rowSpacing) {
-                        ForEach(meets) { meet in
+                        ForEach(records.sorted(by: <), id: \.key) { key, value in
                             NavigationLink(
-                                destination: MeetPage(meetInstance: meet)) {
+                                destination: ProfileView(hideTabBar: $hideTabBar, link: value, diverID: value.substring(from: String.Index(encodedOffset: 67))), isActive: $resultSelected) {
                                     GeometryReader { geometry in
                                         HStack {
-                                            MeetElement(meet0: meet)
-                                                .foregroundColor(.primary)
+                                            Text(key)
+                                                .foregroundColor(textColor)
                                                 .font(.system(size: fontSize))
                                                 .padding()
                                             
                                             Spacer()
                                             
                                             Image(systemName: "chevron.right")
-                                                .foregroundColor(.secondary)
+                                                .foregroundColor(Color.gray)
                                                 .padding()
                                         }
                                         .frame(width: frameWidth,
@@ -58,6 +57,15 @@ struct MeetList: View {
                                     .frame(width: frameWidth,
                                            height: frameHeight)
                                 }
+                                .onDisappear {
+                                    print("Tapped")
+                                    resultSelected = true
+                                }
+                                .onAppear{
+                                    print("Appeared")
+                                    resultSelected = false
+                                }
+                                
                         }
                     }
                     /// Scroll tracking to hide/show tab bar when scrolling down/up
@@ -67,7 +75,9 @@ struct MeetList: View {
                             
                             let minY = proxy.frame(in: .named("SCROLL")).minY
                             
-                            /// Duration to hide TabBar
+                            /*
+                             * Duration to hide TabBar
+                             */
                             let durationOffset: CGFloat = 0
                             
                             DispatchQueue.main.async {
@@ -89,25 +99,26 @@ struct MeetList: View {
                                         lastOffset = -offset
                                     }
                                 }
+                                
                                 self.offset = minY
                             }
+                            
                             return Color.clear
                         }
+                        
                     )
                     .padding()
                 }
                 .coordinateSpace(name: "SCROLL")
-                .navigationTitle("Meets")
+                .navigationTitle("Results")
             }
         }
     }
 }
 
-struct MeetList_Previews: PreviewProvider {
-    static var previews: some View {
-        ForEach(ColorScheme.allCases, id: \.self) {
-            MeetList(hideTabBar: .constant(false)).preferredColorScheme($0)
-        }
-    }
-}
-
+//struct RecordList_Previews: PreviewProvider {
+//    static var previews: some View {
+//        RecordList(hideTabBar: .constant(false), records: .constant(["Logan": "google.com"]))
+//    }
+//}
+//
