@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ProfileImage: View {
+    @Environment(\.colorScheme) var currentMode
     let diverID: String
     
     var body: some View {
@@ -45,6 +46,8 @@ struct ProfileImage: View {
 
 struct ProfileImage_Previews: PreviewProvider {
     static var previews: some View {
-        ProfileImage(diverID: "16241")
+        ForEach(ColorScheme.allCases, id: \.self) {
+            ProfileImage(diverID: "16241").preferredColorScheme($0)
+        }
     }
 }

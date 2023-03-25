@@ -8,14 +8,12 @@
 import SwiftUI
 
 enum Tab: String, CaseIterable {
+    case person
     case house
-    case gearshape
     case magnifyingglass
-    //    case person
-    //    case eraser
 }
 
-func IntFromTab(_ t: Tab) -> Int {
+private func IntFromTab(_ t: Tab) -> Int {
     var i: Int = 0
     for e in Tab.allCases {
         if e == t {
@@ -28,19 +26,16 @@ func IntFromTab(_ t: Tab) -> Int {
     return -1
 }
 
+let menuBarHideDelay: CGFloat = 1
+
 struct FloatingMenuBar: View {
-    @State private var visibleTabs: [Tab] = Tab.allCases
+    @Environment(\.colorScheme) var currentMode
+    
     @Binding var selectedTab: Tab
     @Binding var hideTabBar: Bool
-    private let selectedColor: Color = .white
-    private let deselectedColor: Color = .gray
-    private let selectedBubbleColor: Color = .black
-    private let deselectedBubbleColor: Color = .clear
+    @Binding var visibleTabs: [Tab]
     private let cornerRadius: CGFloat = 50
     private let frameHeight: CGFloat = 60
-    private let padding: CGFloat = 48
-    private let menuBarExpandDelay: CGFloat = 3
-    private let menuBarHideDelay: CGFloat = 1
     
     /// Add custom multipliers for selected tabs here, defaults to 1.25
     private let sizeMults: [String: Double] = [
@@ -53,34 +48,39 @@ struct FloatingMenuBar: View {
         : selectedTab.rawValue + ".fill"
     }
     
-    /// This is not that great, doesn't work perfectly beyond 3 icons
     private func selectedXOffset(from tabWidth: CGFloat) -> CGFloat {
-        let dynamicPad: CGFloat = padding / CGFloat(Tab.allCases.count)
         let tabInt: CGFloat = CGFloat(IntFromTab(selectedTab))
         let casesCount: Int = Tab.allCases.count
+        
         /// Sets midpoint to middle icon index, chooses left of middle if even num of
         /// choices
         var menuBarMidpoint: CGFloat {
             casesCount.isMultiple(of: 2)
-            ? (CGFloat(casesCount)) / 2 - 1
+            ? (CGFloat(casesCount) - 1) / 2
             : floor(CGFloat(casesCount) / 2)
         }
-        let enumOffset: CGFloat = tabInt - menuBarMidpoint
         
-        if casesCount.isMultiple(of: 2) {
-            return ((tabWidth + dynamicPad) * enumOffset -
-                    (tabWidth + dynamicPad / 2) / 2)
-        } else {
-            return (tabWidth + dynamicPad) * enumOffset
-        }
+        /// Offset that appears to be necessary when there are more than three tabs
+        let addXOff: CGFloat = casesCount > 3 ? 2 : 0
+        
+        return tabWidth * (tabInt - menuBarMidpoint) + addXOff
     }
     
+    /// Haptic feedback
     func simpleSuccess(){
-            let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.success)
-        }
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+    }
     
     var body: some View {
+        let selectedColor: Color = currentMode == .light
+        ? .white
+        : .black
+        let deselectedColor: Color = Color.gray
+        let selectedBubbleColor: Color = currentMode == .light
+        ? .black
+        : .white
+        
         ZStack {
             GeometryReader { geometry in
                 /// Width of menu bar
@@ -92,7 +92,7 @@ struct FloatingMenuBar: View {
                 /// Width of bubble for one tab
                 let tabWidth: CGFloat =
                 visibleTabs.count > 1
-                ? ((geoWidth - padding) /
+                ? ((geoWidth - 0) /
                    CGFloat(Tab.allCases.count))
                 : geoWidth
                 
@@ -108,6 +108,7 @@ struct FloatingMenuBar: View {
                         .fill(.thinMaterial)
                         .frame(width: geoWidth, height: frameHeight)
                         .animation(.spring(), value: visibleTabs)
+                    
                     /// Moving bubble on menu bar
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .fill(selectedBubbleColor)
@@ -115,8 +116,9 @@ struct FloatingMenuBar: View {
                         .offset(x: xOffset)
                         .animation(.spring(), value: visibleTabs)
                         .animation(.spring(), value: selectedTab)
+                    
                     /// Line of buttons for each tab
-                    HStack {
+                    HStack(spacing: 0) {
                         ForEach(visibleTabs, id: \.rawValue) { tab in
                             Spacer()
                             Image(systemName: selectedTab == tab
@@ -136,23 +138,11 @@ struct FloatingMenuBar: View {
                                     selectedTab = tab
                                     visibleTabs = [tab]
                                     
-                                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + menuBarHideDelay) {
-                                        hideTabBar = true
-                                    }
-                                    
-                                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + menuBarHideDelay + menuBarExpandDelay) {
-                                        hideTabBar = false
-                                    }
-                                    
-                                    /// Adds delay for menu bar to grow to full size after
-                                    /// a change
                                     DispatchQueue.main.asyncAfter(
-                                        deadline: (
-                                            DispatchTime.now() + menuBarHideDelay + menuBarExpandDelay
-                                            + menuBarHideDelay)
-                                    ) {
-                                        visibleTabs = Tab.allCases
-                                    }
+                                        deadline: (DispatchTime.now() +
+                                                   menuBarHideDelay)) {
+                                                       hideTabBar = true
+                                                   }
                                 }
                             }
                             /// Animation for icon to move after menu bar changes
@@ -171,6 +161,11 @@ struct FloatingMenuBar: View {
 
 struct FloatingMenuBar_Previews: PreviewProvider {
     static var previews: some View {
-        FloatingMenuBar(selectedTab: .constant(.house), hideTabBar: .constant(false))
+        ForEach(ColorScheme.allCases, id: \.self) {
+            FloatingMenuBar(selectedTab: .constant(.house),
+                            hideTabBar: .constant(false),
+                            visibleTabs: .constant(Tab.allCases))
+            .preferredColorScheme($0)
+        }
     }
 }

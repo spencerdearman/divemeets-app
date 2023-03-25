@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct MeetList: View {
+    @Environment(\.colorScheme) var currentMode
+    
     @Binding var hideTabBar: Bool
     @State var offset: CGFloat = 0
     @State var lastOffset: CGFloat = 0
@@ -17,16 +19,17 @@ struct MeetList: View {
     private let frameHeight: CGFloat = 50
     private let cornerRadius: CGFloat = 30
     private let rowSpacing: CGFloat = 3
-    private let rowColor: Color = Color.white
-    private let textColor: Color = Color.black
     private let fontSize: CGFloat = 20
-    private let grayValue: CGFloat = 0.95
     
     var body: some View {
+        let rowColor: Color = currentMode == .light
+        ? Color.white
+        : Color.black
+        
         NavigationView {
             ZStack {
                 /// Background color for View
-                Color(red: grayValue, green: grayValue, blue: grayValue)
+                Color.clear.background(.thinMaterial)
                     .ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
@@ -37,14 +40,14 @@ struct MeetList: View {
                                     GeometryReader { geometry in
                                         HStack {
                                             MeetElement(meet0: meet)
-                                                .foregroundColor(textColor)
+                                                .foregroundColor(.primary)
                                                 .font(.system(size: fontSize))
                                                 .padding()
                                             
                                             Spacer()
                                             
                                             Image(systemName: "chevron.right")
-                                                .foregroundColor(Color.gray)
+                                                .foregroundColor(.secondary)
                                                 .padding()
                                         }
                                         .frame(width: frameWidth,
@@ -64,9 +67,7 @@ struct MeetList: View {
                             
                             let minY = proxy.frame(in: .named("SCROLL")).minY
                             
-                            /*
-                             * Duration to hide TabBar
-                             */
+                            /// Duration to hide TabBar
                             let durationOffset: CGFloat = 0
                             
                             DispatchQueue.main.async {
@@ -88,13 +89,10 @@ struct MeetList: View {
                                         lastOffset = -offset
                                     }
                                 }
-                                
                                 self.offset = minY
                             }
-                            
                             return Color.clear
                         }
-                        
                     )
                     .padding()
                 }
@@ -107,7 +105,9 @@ struct MeetList: View {
 
 struct MeetList_Previews: PreviewProvider {
     static var previews: some View {
-        MeetList(hideTabBar: .constant(false))
+        ForEach(ColorScheme.allCases, id: \.self) {
+            MeetList(hideTabBar: .constant(false)).preferredColorScheme($0)
+        }
     }
 }
 

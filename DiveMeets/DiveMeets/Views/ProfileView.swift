@@ -67,13 +67,12 @@ struct ProfileView: View {
                     }
                     .font(.subheadline)
                     .padding([.leading], 2)
-
                     
                     Divider()
                 }
                 //.offset(y: -70)
                 .padding()
-
+                
             }
             MeetList(hideTabBar: $hideTabBar)
                 //.offset(y: -100)
@@ -84,6 +83,8 @@ struct ProfileView: View {
 
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
-        ProfileView(hideTabBar: .constant(false), link: "")
+        ForEach(ColorScheme.allCases, id: \.self) {
+            ProfileView(hideTabBar: .constant(false), link: "").preferredColorScheme($0)
+        }
     }
 }
