@@ -91,8 +91,8 @@ struct WebView: UIViewRepresentable {
                 webView.evaluateJavaScript(
                     "document.getElementsByTagName('input')[2].click()") {
                         _, _ in
-                    self.searchSubmitted = true
-                }
+                        self.searchSubmitted = true
+                    }
             } else if !linksParsed {
                 /// Gets HTML after submitting request
                 webView.evaluateJavaScript("document.body.innerHTML") {

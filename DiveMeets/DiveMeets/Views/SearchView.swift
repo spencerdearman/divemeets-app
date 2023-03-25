@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum SearchType: String, CaseIterable {
-    case diver = "Person"
+    case person = "Person"
     case meet = "Meet"
 }
 
@@ -18,15 +18,15 @@ private func checkFields(selection: SearchType, firstName: String = "",
                          lastName: String = "", meetName: String = "",
                          orgName: String = "", meetYear: String = "") -> Bool {
     switch selection {
-    case .person:
-        return firstName != "" || lastName != ""
-    case .meet:
-        return meetName != "" || orgName != "" || meetYear != ""
+        case .person:
+            return firstName != "" || lastName != ""
+        case .meet:
+            return meetName != "" || orgName != "" || meetYear != ""
     }
 }
 
 struct SearchView: View {
-    @State private var selection: SearchType = .diver
+    @State private var selection: SearchType = .person
     @State private var firstName: String = ""
     @State private var lastName: String = ""
     @State private var meetName: String = ""
@@ -105,7 +105,7 @@ struct SearchInputView: View {
     @Binding var orgName: String
     @Binding var meetYear: String
     @Binding var searchSubmitted: Bool
-
+    
     @Binding var parsedLinks: [String: String]
     @Binding var dmSearchSubmitted: Bool
     @Binding var linksParsed: Bool
@@ -115,7 +115,7 @@ struct SearchInputView: View {
                                                  blue: 0.94)
     private let selectedTextColor: Color = Color.white
     private let deselectedTextColor: Color = Color.blue
-
+    
     private let cornerRadius: CGFloat = 30
     private let selectedBGColor: Color = Color.accentColor
     private let grayValue: CGFloat = 0.90
@@ -134,60 +134,59 @@ struct SearchInputView: View {
         ? Color.white
         : Color.black
         
-        VStack {
+        ZStack {
             VStack {
-                Text("Search")
-                    .font(.title)
-                    .bold()
-                ZStack {
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .frame(width: typeBubbleWidth * 2 + 5,
-                               height: typeBGWidth)
-                        .foregroundColor(typeBGColor)
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .frame(width: typeBubbleWidth,
-                               height: typeBubbleHeight)
-                        .foregroundColor(typeBubbleColor)
-                        .offset(x: selection == .diver
-                                ? -typeBubbleWidth / 2
-                                : typeBubbleWidth / 2)
-                        .animation(.spring(response: 0.2), value: selection)
-                    HStack(spacing: 0) {
-                        Button(action: {
-                            if selection == .meet {
-                                showError = false
-                                selection = .diver
-                            }
-                        }, label: {
-                            Text(SearchType.diver.rawValue)
-                                .animation(nil, value: selection)
-                        })
-                        .frame(width: typeBubbleWidth,
-                               height: typeBubbleHeight)
-                        .foregroundColor(textColor)
-                        .cornerRadius(cornerRadius)
-                        Button(action: {
-                            if selection == .diver {
-                                showError = false
-                                selection = .meet
-                            }
-                        }, label: {
-                            Text(SearchType.meet.rawValue)
-                                .animation(nil, value: selection)
-                        })
-                        .frame(width: typeBubbleWidth,
-                               height: typeBubbleHeight)
-                        .foregroundColor(textColor)
-                        .cornerRadius(cornerRadius)
+                VStack {
+                    Text("Search")
+                        .font(.title)
+                        .bold()
+                    ZStack {
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .frame(width: typeBubbleWidth * 2 + 5,
+                                   height: typeBGWidth)
+                            .foregroundColor(typeBGColor)
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .frame(width: typeBubbleWidth,
+                                   height: typeBubbleHeight)
+                            .foregroundColor(typeBubbleColor)
+                            .offset(x: selection == .person
+                                    ? -typeBubbleWidth / 2
+                                    : typeBubbleWidth / 2)
+                            .animation(.spring(response: 0.2), value: selection)
+                        HStack(spacing: 0) {
+                            Button(action: {
+                                if selection == .meet {
+                                    showError = false
+                                    selection = .person
+                                }
+                            }, label: {
+                                Text(SearchType.person.rawValue)
+                                    .animation(nil, value: selection)
+                            })
+                            .frame(width: typeBubbleWidth,
+                                   height: typeBubbleHeight)
+                            .foregroundColor(textColor)
+                            .cornerRadius(cornerRadius)
+                            Button(action: {
+                                if selection == .person {
+                                    showError = false
+                                    selection = .meet
+                                }
+                            }, label: {
+                                Text(SearchType.meet.rawValue)
+                                    .animation(nil, value: selection)
+                            })
+                            .frame(width: typeBubbleWidth,
+                                   height: typeBubbleHeight)
+                            .foregroundColor(textColor)
+                            .cornerRadius(cornerRadius)
+                        }
                     }
                 }
-            }
-            
-            Spacer()
-            
+                
                 if selection == .meet {
                     MeetSearchView(meetName: $meetName, orgName: $orgName,
-                               meetYear: $meetYear)
+                                   meetYear: $meetYear)
                 } else {
                     DiverSearchView(firstName: $firstName, lastName: $lastName)
                 }
@@ -232,6 +231,8 @@ struct SearchInputView: View {
                 }
                 
                 Spacer()
+                Spacer()
+                Spacer()
             }
             
             if linksParsed {
@@ -252,16 +253,16 @@ struct SearchInputView: View {
                             }
                     }
                 }
-                .offset(y: fullScreenResults ? 0 : 425)
+                .offset(y: fullScreenResults ? 0 : 350)
                 .animation(.linear(duration: 0.2), value: fullScreenResults)
-//                .animation(.spring(response: 0.3, dampingFraction: 1, blendDuration: 0),  value: fullScreenResults)
             }
-            
         }
         .onAppear {
             showError = false
         }
+        
     }
+    
 }
 
 struct DiverSearchView: View {

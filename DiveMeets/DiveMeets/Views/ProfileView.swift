@@ -33,20 +33,12 @@ struct ProfileView: View {
     var body: some View {
         
         ZStack{}
-        .onAppear{
-            print(profileLink)
-            diverData = parser.parse(urlString: profileLink)
-            print(diverData)
-        }
+            .onAppear{
+                diverData = parser.parse(urlString: profileLink)
+            }
         VStack {
             VStack {
-//                BackgroundView()
-//                    .offset(y: -40)
-//                    .ignoresSafeArea(edges: .top)
-//                    .frame(height: 50)
-                
                 ProfileImage(diverID: diverID)
-                    //.offset(y: -20)
                 VStack(alignment: .leading) {
                     HStack (alignment: .firstTextBaseline){
                         diverData != [] ? Text(diverData[0][0].slice(from: "Name: ", to: " City/State") ?? "") .font(.title) : Text("")
@@ -70,12 +62,10 @@ struct ProfileView: View {
                     
                     Divider()
                 }
-                //.offset(y: -70)
                 .padding()
                 
             }
             MeetList(hideTabBar: $hideTabBar)
-                //.offset(y: -100)
                 .frame(height: 400)
         }
     }

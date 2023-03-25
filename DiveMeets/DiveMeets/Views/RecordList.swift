@@ -58,14 +58,12 @@ struct RecordList: View {
                                            height: frameHeight)
                                 }
                                 .onDisappear {
-                                    print("Tapped")
                                     resultSelected = true
                                 }
                                 .onAppear{
-                                    print("Appeared")
                                     resultSelected = false
                                 }
-                                
+                            
                         }
                     }
                     /// Scroll tracking to hide/show tab bar when scrolling down/up
