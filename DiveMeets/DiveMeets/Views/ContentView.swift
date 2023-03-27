@@ -11,7 +11,7 @@ struct ContentView: View {
     
     @Environment(\.colorScheme) var currentMode
     
-    @State private var selectedTab: Tab = .house
+    @State private var selectedTab: Tab = .magnifyingglass
     @State var hideTabBar = false
     @State var visibleTabs: [Tab] = Tab.allCases
     

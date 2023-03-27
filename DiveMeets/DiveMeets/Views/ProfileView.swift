@@ -38,7 +38,9 @@ struct ProfileView: View {
             }
         VStack {
             VStack {
+                Spacer()
                 ProfileImage(diverID: diverID)
+                    .offset(y:25)
                 VStack(alignment: .leading) {
                     HStack (alignment: .firstTextBaseline){
                         diverData != [] ? Text(diverData[0][0].slice(from: "Name: ", to: " City/State") ?? "") .font(.title) : Text("")
@@ -53,9 +55,9 @@ struct ProfileView: View {
                     .font(.subheadline)
                     HStack (alignment: .firstTextBaseline) {
                         Image(systemName: "person.circle")
-                        diverData != [] ? Text(diverData[0][0].slice(from: " Age: ", to: " FINA") ?? "") : Text("")
-                        Text("FINA")
-                        diverData != [] ? Text(diverData[0][0].slice(from: " FINA Age: ", to: " High") ?? "") : Text("")
+                        diverData != [] ? Text("Gender: " + (diverData[0][0].slice(from: " Gender: ", to: " Age") ?? "")) : Text("")
+                        diverData != [] ? Text("Age: " + (diverData[0][0].slice(from: " Age: ", to: " FINA") ?? "")) : Text("")
+                        diverData != [] ? Text("FINA Age: " + (diverData[0][0].slice(from: " FINA Age: ", to: " High") ?? "")) : Text("")
                     }
                     .font(.subheadline)
                     .padding([.leading], 2)
@@ -65,8 +67,11 @@ struct ProfileView: View {
                 .padding()
                 
             }
-            MeetList(hideTabBar: $hideTabBar)
-                .frame(height: 400)
+            MeetList(profileLink: profileLink, hideTabBar: $hideTabBar)
+                .frame(height: 230)
+                .offset(y: -250)
+                .background(Color.white)
+            
         }
     }
 }
