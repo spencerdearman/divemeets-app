@@ -8,6 +8,11 @@
 import SwiftUI
 import SwiftSoup
 
+enum Stage: Int, CaseIterable {
+    case upcoming
+    case past
+}
+
 final class MeetParser: ObservableObject {
     
     func parseMeets(html: String) -> ([String: [String: String]], String?, [String: [String: String]]) {
@@ -22,7 +27,7 @@ final class MeetParser: ObservableObject {
             let menu = try body.getElementById("dm_menu_centered")
             let menuTabs = try menu?.getElementsByTag("ul")[0].getElementsByTag("li")
             print("--------------------MenuTabs!----------------")
-            var stage: Int = 0
+            var stage: Stage?
             var pastYear: String = ""
             for tab in menuTabs! {
                 let tabElem = try tab.getElementsByAttribute("href")[0]
@@ -30,29 +35,29 @@ final class MeetParser: ObservableObject {
                     break
                 }
                 if try tabElem.text() == "Upcoming" {
-                    stage = 1
+                    stage = .upcoming
                     continue
                 }
                 if try tabElem.text() == "Current" {
                     currentMeets = try tabElem.attr("href")
-                    stage = 2
+                    stage = .past
                     continue
                 }
                 if try tabElem.text() == "Past Results & Photos" {
-                    stage = 2
+                    stage = .past
                     continue
                 }
                 
-                if stage == 1 {
+                if stage == .upcoming {
                     if upcomingMeets["2023"] == nil {
                         upcomingMeets["2023"] = [:]
                     }
                     try upcomingMeets["2023"]![tabElem.text()] = tabElem.attr("href")
                 }
-                else if try stage == 2 && tabElem.attr("href") == "#" {
+                else if try stage == .past && tabElem.attr("href") == "#" {
                     pastYear = try tabElem.text()
                 }
-                else if stage == 2 {
+                else if stage == .past {
                     if pastMeets[pastYear] == nil {
                         pastMeets[pastYear] = [:]
                     }
