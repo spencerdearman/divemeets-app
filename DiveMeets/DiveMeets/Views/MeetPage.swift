@@ -17,7 +17,7 @@ struct MeetPage: View {
             Text(meetInstance.meetName)
                 .font(.title)
             Divider()
-            
+            /*
             if meetInstance.meetEvents.count == 1{
                 Text(meetInstance.meetEvents[0])
                     .font(.title3)
@@ -46,7 +46,7 @@ struct MeetPage: View {
                     Text("Score " +
                          String(meetInstance.meetScores[1]))
                 }
-            }
+            }*/
 
         }
     }

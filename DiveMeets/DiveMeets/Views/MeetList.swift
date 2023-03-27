@@ -78,7 +78,19 @@ struct MeetList: View {
             meets.append(meet)
         }
         
-        return meets
+        var updated_meets = [Meet]()
+        meets.forEach{ meet in
+            if meet.meetName == "Dive Statistics" {
+                return
+            }
+            if meet.meetName == "Dive & Height Description High Score Avg Score # of Times" {
+                return
+            }
+            else {
+                updated_meets.append(meet)
+            }
+        }
+        return updated_meets
     }
 
 
@@ -95,9 +107,15 @@ struct MeetList: View {
         NavigationView {
             List {
                 ForEach(createMeets(data: diverData) ?? [], id: \.meetName) { meet in
-                    Text(meet.meetName)
+                    NavigationLink(destination: MeetPage(meetInstance: meet)) {
+                        MeetElement(meet0: meet)
+                            .foregroundColor(.primary)
+                            .font(.system(size: fontSize))
+                            .padding()
+                    }
                 }
             }
+            .navigationBarTitle(Text("Meets"))
         }
     }
 }
