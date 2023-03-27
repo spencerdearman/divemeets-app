@@ -90,8 +90,13 @@ final class MeetParser: ObservableObject {
             //            print(upcomingMeets)
             //            print("Current")
             //            print(currentMeets ?? "")
-            print("Past")
-            print(pastMeets)
+//            print("Past")
+//            print(pastMeets)
+            print("Before:", GlobalCache.profileMeetCache["test"] ?? [[]])
+            GlobalCache.profileMeetCache["test"] = [["Logan", "Sherwin"]]
+            try GlobalCache.profileMeetCache.saveToDisk(withName: "test")
+            print("After:", GlobalCache.profileMeetCache["test"] ?? [[]])
+            
             //            for k in upcomingMeets.keys.sorted(by: >) {
             //                print(k, ":", upcomingMeets[k]!.sorted(by: <).count)
             //            }
