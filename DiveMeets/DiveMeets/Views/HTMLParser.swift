@@ -91,6 +91,7 @@ struct ParsedView: View {
             
             Button("Parse HTML") {
                 parser.parse(urlString: urlString)
+                print(parser.myData)
             }
             .padding()
             
