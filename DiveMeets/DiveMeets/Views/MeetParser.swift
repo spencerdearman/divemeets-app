@@ -10,31 +10,71 @@ import SwiftSoup
 
 final class MeetParser: ObservableObject {
     
-    func parse(html: String) -> String {
-//    func parse(html: String) -> ([String: String], [String: String]) {
-        var upcomingMeets: [String: String] = [:]
-        var pastMeets: [String: String] = [:]
+    func parseMeets(html: String) -> ([String: [String: String]], String?, [String: [String: String]]) {
+        var upcomingMeets: [String: [String: String]] = [:]
+        var currentMeets: String? = nil
+        var pastMeets: [String: [String: String]] = [:]
         do {
             let document: Document = try SwiftSoup.parse(html)
             guard let body = document.body() else {
-                return "hello"
+                return ([:], "Failed to retrieve body", [:])
             }
             let menu = try body.getElementById("dm_menu_centered")
-            let menuTabs = try menu?.getElementsByTag("ul")
+            let menuTabs = try menu?.getElementsByTag("ul")[0].getElementsByTag("li")
             print("--------------------MenuTabs!----------------")
+            var stage: Int = 0
+            var pastYear: String = ""
             for tab in menuTabs! {
-                print(tab)
-                print("\n")
+                let tabElem = try tab.getElementsByAttribute("href")[0]
+                if try tabElem.text() == "Find" {
+                    break
+                }
+                if try tabElem.text() == "Upcoming" {
+                    stage = 1
+                    continue
+                }
+                if try tabElem.text() == "Current" {
+                    currentMeets = try tabElem.attr("href")
+                    stage = 2
+                    continue
+                }
+                if try tabElem.text() == "Past Results & Photos" {
+                    stage = 2
+                    continue
+                }
+                
+                if stage == 1 {
+                    if upcomingMeets["2023"] == nil {
+                        upcomingMeets["2023"] = [:]
+                    }
+                    try upcomingMeets["2023"]![tabElem.text()] = tabElem.attr("href")
+                }
+                else if try stage == 2 && tabElem.attr("href") == "#" {
+                    pastYear = try tabElem.text()
+                }
+                else if stage == 2 {
+                    if pastMeets[pastYear] == nil {
+                        pastMeets[pastYear] = [:]
+                    }
+                    try pastMeets[pastYear]![tabElem.text()] = tabElem.attr("href")
+                }
             }
-//            print(menuTabs!)
+            print("Upcoming")
+            print(upcomingMeets)
+            print("Current")
+            print(currentMeets ?? "")
+            print("Past")
+            print(pastMeets)
+//            for k in upcomingMeets.keys.sorted(by: >) {
+//                print(k, ":", upcomingMeets[k]!.sorted(by: <).count)
+//            }
             print("---------------------------------------------")
             
         } catch {
             print("Error parsing meets")
         }
         
-        return "Hello World"
-//        return (upcomingMeets, pastMeets)
+        return (upcomingMeets, currentMeets, pastMeets)
     }
 }
 
@@ -52,7 +92,7 @@ struct MeetParserView: View {
                 // Load HTML code as string
                 let text = String(data: loadedData, encoding: .utf8)
 //                print(text!)
-                p.parse(html: text!)
+                p.parseMeets(html: text!)
             }
             task.resume()
 //            while text == "" {

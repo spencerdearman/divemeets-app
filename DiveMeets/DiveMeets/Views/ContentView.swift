@@ -11,7 +11,7 @@ struct ContentView: View {
     
     @Environment(\.colorScheme) var currentMode
     
-    @State private var selectedTab: Tab = .house
+    @State private var selectedTab: Tab = .gearshape
     @State var hideTabBar = false
     @State var visibleTabs: [Tab] = Tab.allCases
     
@@ -31,11 +31,11 @@ struct ContentView: View {
                                 case .house:
                                     ProfileView(hideTabBar: $hideTabBar, link:"", diverID: "51197")
                                 case .gearshape:
-                                    
-                                    Image(systemName: tab.rawValue)
-                                    Text("Settings")
-                                        .bold()
-                                        .animation(nil, value: selectedTab)
+                                    MeetParserView()
+//                                    Image(systemName: tab.rawValue)
+//                                    Text("Settings")
+//                                        .bold()
+//                                        .animation(nil, value: selectedTab)
                                 case .magnifyingglass:
                                     SearchView(hideTabBar: $hideTabBar)
                             }
