@@ -8,12 +8,14 @@
 
 import Foundation
 
-func saveAllCaches() {
-    ProfileMeetCache.saveToDisk()
-}
-
-func loadAllCaches() {
-    ProfileMeetCache.loadFromDisk()
+struct GlobalCaches {
+    static func saveAllCaches() {
+        ProfileMeetCache.saveToDisk()
+    }
+    
+    static func loadAllCaches() {
+        ProfileMeetCache.loadFromDisk()
+    }
 }
 
 protocol CustomCache {
@@ -184,7 +186,7 @@ extension Cache where Key: Codable, Value: Codable {
         )
         
         let fileURL = folderURLs[0].appendingPathComponent(name + ".cache")
-//        print(fileURL)
+        //        print(fileURL)
         let decoder = JSONDecoder()
         let data = try Data(contentsOf: fileURL)
         let cacheObject = try decoder.decode(Cache<String, [Array<String>]>.self, from: data)

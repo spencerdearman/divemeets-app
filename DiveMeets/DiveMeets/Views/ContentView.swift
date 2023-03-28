@@ -78,9 +78,9 @@ struct ContentView: View {
         }
         .onChange(of: scenePhase) { newPhase in
             if newPhase == .active {
-                loadAllCaches()
+                GlobalCaches.loadAllCaches()
             } else if scenePhase == .active && newPhase == .inactive {
-                saveAllCaches()
+                GlobalCaches.saveAllCaches()
             }
         }
     }
