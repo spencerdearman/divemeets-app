@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    
     @Environment(\.colorScheme) var currentMode
+    @Environment(\.scenePhase) var scenePhase
     
     @State private var selectedTab: Tab = .gearshape
     @State var hideTabBar = false
@@ -74,6 +74,13 @@ struct ContentView: View {
                         }
                     }
                 
+            }
+        }
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .active {
+                GlobalCaches.loadAllCaches()
+            } else if scenePhase == .active && newPhase == .inactive {
+                GlobalCaches.saveAllCaches()
             }
         }
     }
