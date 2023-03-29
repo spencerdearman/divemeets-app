@@ -88,11 +88,10 @@ final class MeetParser: ObservableObject {
 //            print(GlobalCaches.caches["test"]!["hello"] ?? "")
 //            GlobalCaches.caches["test"]!["hello"] = "hi"
 //            print(GlobalCaches.caches["test"]!["hello"] ?? "")
-//
+
 //            print(GlobalCaches.caches["profileMeets"]!["hello"] ?? [])
 //            GlobalCaches.caches["profileMeets"]!["hello"] = [["hi"]]
-//            print(GlobalCaches.caches["profileMeets"]!["hello"] ?? "")
-            
+//            print(GlobalCaches.caches["profileMeets"]!["hello"] ?? [])
         } catch {
             print("Error parsing meets")
         }

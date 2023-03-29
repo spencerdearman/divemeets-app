@@ -12,17 +12,20 @@ typealias Key = Hashable & Codable
 typealias Value = Codable
 enum CustomCache {
     case profileMeets(ProfileMeetCache)
-    case test(TestCache)
-    case profilePics(ProfilePicCache)
+    //    case test(TestCache)
+    //    case profilePics(ProfilePicCache)
+    
+    func clearCacheFromDisk() throws {
+        switch self {
+            case .profileMeets (let cache):
+                try cache.clearCacheFromDisk()
+        }
+    }
     
     subscript(key: any Key) -> (any Value)? {
         get {
             switch self {
                 case .profileMeets (let cache):
-                    return cache[key as! String]
-                case .test (let cache):
-                    return cache[key as! String]
-                case .profilePics (let cache):
                     return cache[key as! String]
             }
         }
@@ -34,52 +37,20 @@ enum CustomCache {
                     case .profileMeets (let cache):
                         cache.removeValue(forKey: key as! String)
                         return
-                    case .test (let cache):
-                        cache.removeValue(forKey: key as! String)
-                        return
-                    case .profilePics (let cache):
-                        cache.removeValue(forKey: key as! String)
-                        return
                 }
             }
             
             switch self {
                 case .profileMeets (let cache):
                     cache.insert(value as! [Array<String>], forKey: key as! String)
-                case .test (let cache):
-                    cache.insert(value as! String, forKey: key as! String)
-                case .profilePics (let cache):
-                    cache.insert(value as! [Int], forKey: key as! String)
             }
         }
     }
 }
 
 fileprivate var emptyGlobalCaches: [String: CustomCache] = [
-    "profileMeets": CustomCache.profileMeets(ProfileMeetCache()),
-    "test": CustomCache.test(TestCache()),
-    "profilePics": CustomCache.profilePics(ProfilePicCache())
+    "profileMeets": CustomCache.profileMeets(ProfileMeetCache())
 ]
-
-class TestCache: Cache<String, String> {
-    override func saveToDisk() {
-        print("Save Test to disk")
-    }
-    
-    func loadFromDisk() -> TestCache {
-        return TestCache()
-    }
-}
-
-class ProfilePicCache: Cache<String, [Int]> {
-    override func saveToDisk() {
-        print("Profile pic saved to disk")
-    }
-    
-    func loadFromDisk() -> ProfilePicCache {
-        return ProfilePicCache()
-    }
-}
 
 /// Access from any file using 'GlobalCaches.caches[<cacheKey>]
 struct GlobalCaches {
@@ -91,10 +62,6 @@ struct GlobalCaches {
         for (_, cache) in caches {
             if case let .profileMeets(c) = cache {
                 c.saveToDisk()
-            } else if case let .test(c) = cache {
-                c.saveToDisk()
-            } else if case let .profilePics(c) = cache {
-                c.saveToDisk()
             }
         }
     }
@@ -103,10 +70,6 @@ struct GlobalCaches {
         for (key, cache) in caches {
             if case let .profileMeets(c) = cache {
                 caches[key] = CustomCache.profileMeets(c.loadFromDisk())
-            } else if case let .test(c) = cache {
-                caches[key] = CustomCache.test(c.loadFromDisk() )
-            } else if case let .profilePics(c) = cache {
-                caches[key] = CustomCache.profilePics(c.loadFromDisk() )
             }
         }
     }
@@ -114,13 +77,7 @@ struct GlobalCaches {
     static func clearAllCachesFromDisk() {
         for (key, cache) in caches {
             do {
-                if case let .profileMeets(c) = cache {
-                    try c.clearCacheFromDisk()
-                } else if case let .test(c) = cache {
-                    try c.clearCacheFromDisk()
-                } else if case let .profilePics(c) = cache {
-                    try c.clearCacheFromDisk()
-                }
+                try cache.clearCacheFromDisk()
             } catch {
                 print("Cache key \(key) failed to be cleared from disk")
             }
@@ -207,6 +164,7 @@ class Cache<Key: Hashable & Codable, Value: Codable>: Codable {
         let data = try Data(contentsOf: fileURL)
         let cacheObject = try decoder.decode(type(of: instance),
                                              from: data)
+        print("Successfully loaded '\(cacheName + ".cache")' from disk")
         return cacheObject
     }
     
