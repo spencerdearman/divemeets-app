@@ -20,7 +20,7 @@ extension String {
 struct ProfileView: View {
     var profileLink: String
     var diverID : String
-    @State var diverData : [Array<String>] = []
+    @State var diverData : [[String]] = []
     @Binding var hideTabBar: Bool
     @StateObject private var parser = HTMLParser()
     

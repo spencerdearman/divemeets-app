@@ -9,9 +9,9 @@ import SwiftUI
 import SwiftSoup
 
 final class HTMLParser: ObservableObject {
-    @Published var myData = [Array<String>]()
+    @Published var myData = [[String]]()
     
-    func parse(html: String) -> [Array<String>] {
+    func parse(html: String) -> [[String]] {
         do {
             let document: Document = try SwiftSoup.parse(html)
             guard let body = document.body() else {
@@ -21,7 +21,7 @@ final class HTMLParser: ObservableObject {
             let html = main[0]
             let doc: Document = try SwiftSoup.parse(html)
 
-            var myData = [Array<String>]()
+            var myData = [[String]]()
             let myRows: Elements? = try doc.getElementsByTag("tr")
             try myRows?.forEach({ row in
                 let tempString = try row.text()
@@ -39,7 +39,7 @@ final class HTMLParser: ObservableObject {
         return myData
     }
     
-    func parse(urlString: String) -> [Array<String>] {
+    func parse(urlString: String) -> [[String]] {
         print(urlString)
         guard let url = URL(string: urlString) else {
             return []

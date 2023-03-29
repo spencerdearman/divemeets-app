@@ -7,10 +7,10 @@
 
 import Foundation
 
-class ProfileMeetCache: Cache<String, [Array<String>]> {
+class ProfileMeetCache: Cache<String, [[String]]> {
     typealias K = String
     
-    typealias V = [Array<String>]
+    typealias V = [[String]]
     
     override var cacheName: String {
         get {

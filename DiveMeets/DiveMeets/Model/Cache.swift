@@ -42,7 +42,7 @@ enum CustomCache {
             
             switch self {
                 case .profileMeets (let cache):
-                    cache.insert(value as! [Array<String>], forKey: key as! String)
+                    cache.insert(value as! [[String]], forKey: key as! String)
             }
         }
     }
