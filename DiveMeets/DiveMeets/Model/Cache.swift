@@ -8,29 +8,133 @@
 
 import Foundation
 
+typealias Key = Hashable & Codable
+typealias Value = Codable
+enum CustomCache {
+    case profileMeets(ProfileMeetCache)
+    case test(TestCache)
+    case profilePics(ProfilePicCache)
+    
+    subscript(key: any Key) -> (any Value)? {
+        get {
+            switch self {
+                case .profileMeets (let cache):
+                    return cache[key as! String]
+                case .test (let cache):
+                    return cache[key as! String]
+                case .profilePics (let cache):
+                    return cache[key as! String]
+            }
+        }
+        set {
+            guard let value = newValue else {
+                // If nil was assigned using our subscript,
+                // then we remove any value for that key:
+                switch self {
+                    case .profileMeets (let cache):
+                        cache.removeValue(forKey: key as! String)
+                        return
+                    case .test (let cache):
+                        cache.removeValue(forKey: key as! String)
+                        return
+                    case .profilePics (let cache):
+                        cache.removeValue(forKey: key as! String)
+                        return
+                }
+            }
+            
+            switch self {
+                case .profileMeets (let cache):
+                    cache.insert(value as! [Array<String>], forKey: key as! String)
+                case .test (let cache):
+                    cache.insert(value as! String, forKey: key as! String)
+                case .profilePics (let cache):
+                    cache.insert(value as! [Int], forKey: key as! String)
+            }
+        }
+    }
+}
+
+fileprivate var emptyGlobalCaches: [String: CustomCache] = [
+    "profileMeets": CustomCache.profileMeets(ProfileMeetCache()),
+    "test": CustomCache.test(TestCache()),
+    "profilePics": CustomCache.profilePics(ProfilePicCache())
+]
+
+class TestCache: Cache<String, String> {
+    override func saveToDisk() {
+        print("Save Test to disk")
+    }
+    
+    func loadFromDisk() -> TestCache {
+        return TestCache()
+    }
+}
+
+class ProfilePicCache: Cache<String, [Int]> {
+    override func saveToDisk() {
+        print("Profile pic saved to disk")
+    }
+    
+    func loadFromDisk() -> ProfilePicCache {
+        return ProfilePicCache()
+    }
+}
+
+/// Access from any file using 'GlobalCaches.caches[<cacheKey>]
 struct GlobalCaches {
+    /// Internal caches dict, should not be referenced except through subscripting
+    ///  e.g. GlobalCaches.caches["profileMeetCache"]["2023]
+    static var caches: [String: CustomCache] = emptyGlobalCaches
+    
     static func saveAllCaches() {
-        ProfileMeetCache.saveToDisk()
+        for (_, cache) in caches {
+            if case let .profileMeets(c) = cache {
+                c.saveToDisk()
+            } else if case let .test(c) = cache {
+                c.saveToDisk()
+            } else if case let .profilePics(c) = cache {
+                c.saveToDisk()
+            }
+        }
     }
     
     static func loadAllCaches() {
-        ProfileMeetCache.loadFromDisk()
+        for (key, cache) in caches {
+            if case let .profileMeets(c) = cache {
+                caches[key] = CustomCache.profileMeets(c.loadFromDisk())
+            } else if case let .test(c) = cache {
+                caches[key] = CustomCache.test(c.loadFromDisk() )
+            } else if case let .profilePics(c) = cache {
+                caches[key] = CustomCache.profilePics(c.loadFromDisk() )
+            }
+        }
+    }
+    
+    static func clearAllCachesFromDisk() {
+        for (key, cache) in caches {
+            do {
+                if case let .profileMeets(c) = cache {
+                    try c.clearCacheFromDisk()
+                } else if case let .test(c) = cache {
+                    try c.clearCacheFromDisk()
+                } else if case let .profilePics(c) = cache {
+                    try c.clearCacheFromDisk()
+                }
+            } catch {
+                print("Cache key \(key) failed to be cleared from disk")
+            }
+        }
+        caches = emptyGlobalCaches
     }
 }
 
-protocol CustomCache {
-    static var cacheName: String { get }
-    // cache: Cache<String, Codable>
-    static func saveToDisk()
-    static func loadFromDisk()
-    static func clearCacheFromDisk()
-}
-
-final class Cache<Key: Hashable, Value> {
-    private let wrapped = NSCache<WrappedKey, Entry>()
-    private let dateProvider: () -> Date
-    private let entryLifetime: TimeInterval
-    private let keyTracker = KeyTracker()
+class Cache<Key: Hashable & Codable, Value: Codable>: Codable {
+    private var wrapped = NSCache<WrappedKey, Entry>()
+    private var dateProvider: () -> Date
+    private var entryLifetime: TimeInterval
+    private var keyTracker = KeyTracker()
+    var cacheName: String = "default"
     
     init(dateProvider: @escaping () -> Date = Date.init,
          entryLifetime: TimeInterval = 12 * 60 * 60, // 12hr timeout
@@ -39,6 +143,19 @@ final class Cache<Key: Hashable, Value> {
         self.entryLifetime = entryLifetime
         wrapped.countLimit = maximumEntryCount
         wrapped.delegate = keyTracker
+    }
+    
+    required convenience init(from decoder: Decoder) throws {
+        self.init()
+        
+        let container = try decoder.singleValueContainer()
+        let entries = try container.decode([Entry].self)
+        entries.forEach(insert)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(keyTracker.keys.compactMap(entry))
     }
     
     func insert(_ value: Value, forKey key: Key) {
@@ -65,9 +182,56 @@ final class Cache<Key: Hashable, Value> {
     func removeValue(forKey key: Key) {
         wrapped.removeObject(forKey: WrappedKey(key))
     }
+    
+    func saveToDisk() throws {
+        let fileManager: FileManager = .default
+        let folderURLs = fileManager.urls(
+            for: .cachesDirectory,
+            in: .userDomainMask
+        )
+        
+        let fileURL = folderURLs[0].appendingPathComponent(cacheName + ".cache")
+        let data = try JSONEncoder().encode(self)
+        try data.write(to: fileURL)
+    }
+    
+    func loadFromDisk(instance: Cache = Cache()) throws -> Cache<Key, Value> {
+        let fileManager: FileManager = .default
+        let folderURLs = fileManager.urls(
+            for: .cachesDirectory,
+            in: .userDomainMask
+        )
+        
+        let fileURL = folderURLs[0].appendingPathComponent(cacheName + ".cache")
+        let decoder = JSONDecoder()
+        let data = try Data(contentsOf: fileURL)
+        let cacheObject = try decoder.decode(type(of: instance),
+                                             from: data)
+        return cacheObject
+    }
+    
+    func clearCacheFromDisk() throws {
+        let fileManager: FileManager = .default
+        let folderURLs = fileManager.urls(
+            for: .cachesDirectory,
+            in: .userDomainMask
+        )
+        
+        let fileURL = folderURLs[0].appendingPathComponent(cacheName + ".cache")
+        if fileManager.fileExists(atPath: fileURL.path) {
+            do {
+                try fileManager.removeItem(at: fileURL)
+                print("Successfully removed '\(cacheName + ".cache")' from disk")
+            } catch {
+                print("Failed to remove '\(cacheName + ".cache")' from disk")
+            }
+        } else {
+            print("Cache file '\(cacheName + ".cache")' does not exist")
+        }
+    }
 }
 
-private extension Cache {
+extension Cache {
     final class WrappedKey: NSObject {
         let key: Key
         
@@ -126,9 +290,7 @@ private extension Cache {
             keys.remove(entry.key)
         }
     }
-}
-
-extension Cache {
+    
     subscript(key: Key) -> Value? {
         get { return value(forKey: key) }
         set {
@@ -145,51 +307,3 @@ extension Cache {
 }
 
 extension Cache.Entry: Codable where Key: Codable, Value: Codable {}
-
-extension Cache: Codable where Key: Codable, Value: Codable {
-    convenience init(from decoder: Decoder) throws {
-        self.init()
-        
-        let container = try decoder.singleValueContainer()
-        let entries = try container.decode([Entry].self)
-        entries.forEach(insert)
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(keyTracker.keys.compactMap(entry))
-    }
-}
-
-extension Cache where Key: Codable, Value: Codable {
-    func saveToDisk(
-        withName name: String,
-        using fileManager: FileManager = .default
-    ) throws {
-        let folderURLs = fileManager.urls(
-            for: .cachesDirectory,
-            in: .userDomainMask
-        )
-        
-        let fileURL = folderURLs[0].appendingPathComponent(name + ".cache")
-        let data = try JSONEncoder().encode(self)
-        try data.write(to: fileURL)
-    }
-    
-    static func loadFromDisk(
-        withName name: String,
-        using fileManager: FileManager = .default
-    ) throws -> Cache<String, [Array<String>]> {
-        let folderURLs = fileManager.urls(
-            for: .cachesDirectory,
-            in: .userDomainMask
-        )
-        
-        let fileURL = folderURLs[0].appendingPathComponent(name + ".cache")
-        //        print(fileURL)
-        let decoder = JSONDecoder()
-        let data = try Data(contentsOf: fileURL)
-        let cacheObject = try decoder.decode(Cache<String, [Array<String>]>.self, from: data)
-        return cacheObject
-    }
-}

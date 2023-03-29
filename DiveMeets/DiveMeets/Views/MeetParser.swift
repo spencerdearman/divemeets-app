@@ -27,7 +27,6 @@ final class MeetParser: ObservableObject {
             }
             let menu = try body.getElementById("dm_menu_centered")
             let menuTabs = try menu?.getElementsByTag("ul")[0].getElementsByTag("li")
-            print("--------------------MenuTabs!----------------")
             var stage: Stage?
             var pastYear: String = ""
             for tab in menuTabs! {
@@ -86,20 +85,13 @@ final class MeetParser: ObservableObject {
             /// Adds years that were not parsed from loadedPastMeets
             pastMeets = pastMeets.merging(loadedPastMeets) { (current, _) in current }
             
-            //            print("Upcoming")
-            //            print(upcomingMeets)
-            //            print("Current")
-            //            print(currentMeets ?? "")
-//            print("Past")
-//            print(pastMeets)
-            print("Before:", ProfileMeetCache["test"] ?? [[]])
-            ProfileMeetCache["test"] = [["Logan", "Sherwin"]]
-            print("After:", ProfileMeetCache["test"] ?? [[]])
-            
-            //            for k in upcomingMeets.keys.sorted(by: >) {
-            //                print(k, ":", upcomingMeets[k]!.sorted(by: <).count)
-            //            }
-            print("---------------------------------------------")
+//            print(GlobalCaches.caches["test"]!["hello"] ?? "")
+//            GlobalCaches.caches["test"]!["hello"] = "hi"
+//            print(GlobalCaches.caches["test"]!["hello"] ?? "")
+//
+//            print(GlobalCaches.caches["profileMeets"]!["hello"] ?? [])
+//            GlobalCaches.caches["profileMeets"]!["hello"] = [["hi"]]
+//            print(GlobalCaches.caches["profileMeets"]!["hello"] ?? "")
             
         } catch {
             print("Error parsing meets")
@@ -156,7 +148,6 @@ struct MeetParserView: View {
                 guard let loadedData = data else { return }
                 // Load HTML code as string
                 let text = String(data: loadedData, encoding: .utf8)
-                //                print(text!)
                 
                 (upcoming, current, past) = p.parseMeets(html: text!)
                 //                p.writeToFile(dict: past, filename: "past_meets.json")

@@ -7,69 +7,34 @@
 
 import Foundation
 
-class ProfileMeetCache: CustomCache {
-    static let cacheName = "profileMeets"
+class ProfileMeetCache: Cache<String, [Array<String>]> {
+    typealias K = String
     
-    static var cache: Cache<String, [Array<String>]> = {
-        do {
-            return try Cache<String, [Array<String>]>.loadFromDisk(withName: cacheName)
-        } catch {
-            return Cache<String, [Array<String>]>()
+    typealias V = [Array<String>]
+    
+    override var cacheName: String {
+        get {
+            return "profileMeets"
         }
-    }()
+        set {}
+    }
     
-    static func saveToDisk() {
+    override func saveToDisk() {
         do {
-            try cache.saveToDisk(withName: ProfileMeetCache.cacheName)
-            print("Save succeeded")
+            try super.saveToDisk()
+            print("Successfully saved '\(cacheName + ".cache")' to disk")
         } catch {
-            print("Failed to save profileMeets cache to disk")
+            print("Failed to save '\(cacheName + ".cache")' to disk")
         }
     }
     
-    static func loadFromDisk() {
+    /// Needs to be copied and rewritten so decoder.decode can receive correct class
+    func loadFromDisk() -> ProfileMeetCache {
         do {
-            ProfileMeetCache.cache = try Cache<String, [Array<String>]>.loadFromDisk(withName: cacheName)
-            print("Load succeeded")
+            return try super.loadFromDisk(instance: self) as! ProfileMeetCache
         } catch {
-            ProfileMeetCache.cache = Cache<String, [Array<String>]>()
-            print("Load failed")
-        }
-    }
-    
-    static func clearCacheFromDisk() {
-        let fileManager: FileManager = .default
-        let name = ProfileMeetCache.cacheName
-        let folderURLs = fileManager.urls(
-            for: .cachesDirectory,
-            in: .userDomainMask
-        )
-        
-        let fileURL = folderURLs[0].appendingPathComponent(name + ".cache")
-        if fileManager.fileExists(atPath: fileURL.absoluteString) {
-            do {
-                try fileManager.removeItem(atPath: fileURL.absoluteString)
-            } catch {
-                print("File removal failed")
-            }
-        } else {
-            print("Cache file does not exist")
-        }
-    }
-}
-
-extension ProfileMeetCache {
-    static subscript(key: String) -> [Array<String>]? {
-        get { return ProfileMeetCache.cache.value(forKey: key) }
-        set {
-            guard let value = newValue else {
-                // If nil was assigned using our subscript,
-                // then we remove any value for that key:
-                ProfileMeetCache.cache.removeValue(forKey: key)
-                return
-            }
-            
-            ProfileMeetCache.cache.insert(value, forKey: key)
+            print("Failed to load '\(cacheName + ".cache")' from disk")
+            return ProfileMeetCache()
         }
     }
 }
