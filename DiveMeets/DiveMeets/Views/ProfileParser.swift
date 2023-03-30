@@ -48,27 +48,35 @@ final class ProfileParser: ObservableObject {
         
         return ""
     }
-    
-    private func getFirstHeader(text: String) -> String? {
-        let range = text.range(of: "[0-9]{5} Diving:|Coaching:|Judging:",
-                               options: .regularExpression)
-        let res: Substring
-        if range != nil {
-            res = text[range!]
-        } else {
-            return nil
+//
+//    private func getFirstHeader(text: String) -> String? {
+//        guard let range = text.range(of: "[0-9]{5} Diving:|Coaching:|Judging:",
+//                                     options: .regularExpression) else { return nil }
+//        let res = text[range]
+//
+//        if res.hasSuffix("Diving:") {
+//            return "Diving:"
+//        } else if res == "Coaching:" || res == "Judging:" {
+//            return String(res)
+//        }
+//
+//        return nil
+//    }
+    private func isHeader(_ elem: Element) -> Bool {
+        let headers: Set<String> = Set<String>(["Diving:", "Coaching:", "Judging:"])
+        do {
+            return try elem.tagName() == "strong" && headers.contains(elem.text())
+        } catch {
+            return false
         }
-        
-        if res.hasSuffix("Diving:") {
-            return "Diving:"
-        } else if res == "Coaching:" || res == "Judging:" {
-            return String(res)
-        }
-        
-        return nil
     }
     
     func parseProfile(html: String) -> (DivingDict?, CoachingDict?, JudgingDict?, DiverList?) {
+        var diving: DivingDict?
+        var coaching: CoachingDict?
+        var judging: JudgingDict?
+        var diverList: DiverList?
+        
         do {
             let document: Document = try SwiftSoup.parse(html)
             guard let body = document.body() else {
@@ -78,9 +86,9 @@ final class ProfileParser: ObservableObject {
             let rows = try body.getElementsByTag("td")
             let first = rows.first()!
             var firstText = try first.text()
-            guard let firstHeader = getFirstHeader(text: firstText) else {
-                return (nil, nil, nil, nil)
-            }
+//            guard let firstHeader = getFirstHeader(text: firstText) else {
+//                return (nil, nil, nil, nil)
+//            }
             
             let doc: Document = try SwiftSoup.parseBodyFragment(wrapLooseText(text: try first.html()))
             guard let wrappedText = doc.body()?.children() else {
@@ -88,6 +96,7 @@ final class ProfileParser: ObservableObject {
             }
             
             var keepRows: [Element] = []
+            var addDivers: Bool = false
             for r in wrappedText {
                 let tag = r.tagName()
                 if tag == "table" {
@@ -101,23 +110,34 @@ final class ProfileParser: ObservableObject {
             
             for r in keepRows {
                 let tag = r.tagName()
-                if try !foundHeader && tag == "strong" && r.text() == firstHeader {
+                if !foundHeader && isHeader(r) {
                     foundHeader = true
-                    continue
                 }
                 else if !foundHeader {
                     continue
                 }
                 
-                print(r.tagName())
-                if tag == "div" || tag == "strong" {
-                    print(try r.text().trimmingCharacters(in: .whitespacesAndNewlines))
-                } else if tag == "a" {
-                    var link = try r.attr("href")
-                    let delIndex = link.index(link.startIndex, offsetBy: 7)
-                    link = "https://secure.meetcontrol.com/divemeets/system/" +
-                    link.replacingCharacters(in: delIndex...delIndex, with: "")
-                    print((try r.text(), link))
+                print(tag)
+                switch tag {
+                    case "center":
+                        addDivers = true
+                    case "div", "strong":
+                        print(try r.text().trimmingCharacters(in: .whitespacesAndNewlines))
+                    case "a":
+                        var link = try r.attr("href")
+                        let delIndex = link.index(link.startIndex, offsetBy: 7)
+                        link = "https://secure.meetcontrol.com/divemeets/system/" +
+                        link.replacingCharacters(in: delIndex...delIndex, with: "")
+                        let tuple = (try r.text(), link)
+                        print(tuple)
+                        if addDivers {
+                            if diverList == nil {
+                                diverList = []
+                            }
+                            diverList?.append(tuple)
+                        }
+                    default:
+                        continue
                 }
                 print("-------------------")
             }
@@ -125,7 +145,7 @@ final class ProfileParser: ObservableObject {
             print("Error parsing profile")
         }
         
-        return (nil, nil, nil, nil)
+        return (diving, coaching, judging, diverList)
     }
 }
 
@@ -136,7 +156,7 @@ struct ProfileParserView: View {
         
         Button("Button") {
             let session = URLSession.shared
-            let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961")!
+            let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/profile.php?number=20617")!
             var diving: DivingDict?
             var coaching: CoachingDict?
             var judging: JudgingDict?
