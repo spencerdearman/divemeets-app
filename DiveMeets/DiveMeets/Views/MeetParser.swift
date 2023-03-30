@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftSoup
 
-enum Stage: Int, CaseIterable {
+private enum Stage: Int, CaseIterable {
     case upcoming
     case past
 }

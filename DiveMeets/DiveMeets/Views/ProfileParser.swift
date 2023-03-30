@@ -13,6 +13,14 @@ typealias CoachingDict = [String: [String: String]]
 typealias JudgingDict = [String]
 typealias DiverList = [(String, String)]
 
+private enum Stage {
+    case diving
+    case coaching
+    case judging
+    case diverList
+    case notSet
+}
+
 final class ProfileParser: ObservableObject {
     
     private func wrapLooseText(text: String) -> String {
@@ -48,20 +56,7 @@ final class ProfileParser: ObservableObject {
         
         return ""
     }
-//
-//    private func getFirstHeader(text: String) -> String? {
-//        guard let range = text.range(of: "[0-9]{5} Diving:|Coaching:|Judging:",
-//                                     options: .regularExpression) else { return nil }
-//        let res = text[range]
-//
-//        if res.hasSuffix("Diving:") {
-//            return "Diving:"
-//        } else if res == "Coaching:" || res == "Judging:" {
-//            return String(res)
-//        }
-//
-//        return nil
-//    }
+
     private func isHeader(_ elem: Element) -> Bool {
         let headers: Set<String> = Set<String>(["Diving:", "Coaching:", "Judging:"])
         do {
@@ -71,11 +66,34 @@ final class ProfileParser: ObservableObject {
         }
     }
     
+    private func getStage(_ elem: Element) -> Stage? {
+        if !isHeader(elem) {
+            return nil
+        }
+        do {
+            switch try elem.text() {
+                case "Diving:":
+                    return .diving
+                case "Coaching:":
+                    return .coaching
+                case "Judging:":
+                    return .judging
+                default:
+                    return nil
+            }
+        } catch {
+            print("Error getting element text")
+        }
+        
+        return nil
+    }
+    
     func parseProfile(html: String) -> (DivingDict?, CoachingDict?, JudgingDict?, DiverList?) {
         var diving: DivingDict?
         var coaching: CoachingDict?
         var judging: JudgingDict?
         var diverList: DiverList?
+        var stage: Stage = .notSet
         
         do {
             let document: Document = try SwiftSoup.parse(html)
@@ -85,10 +103,6 @@ final class ProfileParser: ObservableObject {
             var foundHeader = false
             let rows = try body.getElementsByTag("td")
             let first = rows.first()!
-            var firstText = try first.text()
-//            guard let firstHeader = getFirstHeader(text: firstText) else {
-//                return (nil, nil, nil, nil)
-//            }
             
             let doc: Document = try SwiftSoup.parseBodyFragment(wrapLooseText(text: try first.html()))
             guard let wrappedText = doc.body()?.children() else {
@@ -96,7 +110,6 @@ final class ProfileParser: ObservableObject {
             }
             
             var keepRows: [Element] = []
-            var addDivers: Bool = false
             for r in wrappedText {
                 let tag = r.tagName()
                 if tag == "table" {
@@ -112,6 +125,7 @@ final class ProfileParser: ObservableObject {
                 let tag = r.tagName()
                 if !foundHeader && isHeader(r) {
                     foundHeader = true
+                    stage = getStage(r)!
                 }
                 else if !foundHeader {
                     continue
@@ -120,7 +134,7 @@ final class ProfileParser: ObservableObject {
                 print(tag)
                 switch tag {
                     case "center":
-                        addDivers = true
+                        stage = .diverList
                     case "div", "strong":
                         print(try r.text().trimmingCharacters(in: .whitespacesAndNewlines))
                     case "a":
@@ -130,7 +144,7 @@ final class ProfileParser: ObservableObject {
                         link.replacingCharacters(in: delIndex...delIndex, with: "")
                         let tuple = (try r.text(), link)
                         print(tuple)
-                        if addDivers {
+                        if stage == .diverList {
                             if diverList == nil {
                                 diverList = []
                             }
