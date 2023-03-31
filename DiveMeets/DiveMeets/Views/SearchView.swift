@@ -58,39 +58,6 @@ struct SearchView: View {
         
     }
 }
-//
-///// Currently just for testing that the results are being captured before scraping
-//struct SearchResultsView: View {
-//    @Binding var selection: SearchType
-//    @Binding var firstName: String
-//    @Binding var lastName: String
-//    @Binding var meetName: String
-//    @Binding var orgName: String
-//    @Binding var meetYear: String
-//    @Binding var searchSubmitted: Bool
-//
-//    var body: some View {
-//        VStack {
-//            /// Temporary for testing purposes before we scrape
-//            Text("Sending...")
-//            if selection == .meet {
-//                Text(meetName)
-//                Text(orgName)
-//                Text(meetYear)
-//            } else {
-//                Text(firstName)
-//                Text(lastName)
-//            }
-//            Button(action: {
-//                searchSubmitted = false
-//            }, label: {
-//                Text("Back")
-//            })
-//            .buttonStyle(.bordered)
-//            .padding()
-//        }
-//    }
-//}
 
 struct SearchInputView: View {
     @Environment(\.colorScheme) var currentMode
@@ -135,6 +102,8 @@ struct SearchInputView: View {
         : Color.black
         
         ZStack {
+            typeBubbleColor
+                .ignoresSafeArea()
             VStack {
                 VStack {
                     Text("Search")

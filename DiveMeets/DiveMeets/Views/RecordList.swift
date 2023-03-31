@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct RecordList: View {
+    @Environment(\.colorScheme) var currentMode
+    
     @Binding var hideTabBar: Bool
     @Binding var records: [String: String]
     @Binding var resultSelected: Bool
@@ -19,17 +21,22 @@ struct RecordList: View {
     private let frameHeight: CGFloat = 50
     private let cornerRadius: CGFloat = 30
     private let rowSpacing: CGFloat = 3
-    private let rowColor: Color = Color.white
-    private let textColor: Color = Color.black
     private let fontSize: CGFloat = 20
     private let grayValue: CGFloat = 0.95
+    private let grayValueDark: CGFloat = 0.10
     
     var body: some View {
+        let rowColor: Color = currentMode == .light ? Color.white : Color.black
+        let textColor: Color = currentMode == .light ? Color.black : Color.white
         NavigationView {
             ZStack {
                 /// Background color for View
-                Color(red: grayValue, green: grayValue, blue: grayValue)
-                    .ignoresSafeArea()
+                (
+                    currentMode == .light
+                    ? Color(red: grayValue, green: grayValue, blue: grayValue)
+                    : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
+                )
+                .ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: rowSpacing) {
