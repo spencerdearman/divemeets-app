@@ -45,6 +45,8 @@ struct ContentView: View {
                                                isFinishedCounting: $p.isFinishedCounting,
                                                meetsParsedCount: $p.meetsParsedCount,
                                                totalMeetsParsedCount: $p.totalMeetsParsedCount)
+                                case .person:
+                                    ParsedView()
                             }
                         }
                         .tag(tab)

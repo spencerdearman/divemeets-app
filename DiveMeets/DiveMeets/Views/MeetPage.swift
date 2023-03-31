@@ -15,9 +15,9 @@ struct MeetPage: View {
         VStack {
             Divider()
             Text(meetInstance.meetName)
-                .font(.title)
+                .font(.title2)
             Divider()
-            /*
+            
             if meetInstance.meetEvents.count == 1{
                 Text(meetInstance.meetEvents[0])
                     .font(.title3)
@@ -27,6 +27,7 @@ struct MeetPage: View {
                     Text("Score " +
                          String(meetInstance.meetScores[0]))
                 }
+                .font(.subheadline)
             }
             else{
                 Text(meetInstance.meetEvents[0])
@@ -46,7 +47,7 @@ struct MeetPage: View {
                     Text("Score " +
                          String(meetInstance.meetScores[1]))
                 }
-            }*/
+            }
 
         }
     }
