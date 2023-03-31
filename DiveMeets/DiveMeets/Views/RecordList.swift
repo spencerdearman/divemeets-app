@@ -35,7 +35,13 @@ struct RecordList: View {
                     VStack(spacing: rowSpacing) {
                         ForEach(records.sorted(by: <), id: \.key) { key, value in
                             NavigationLink(
-                                destination: ProfileView(hideTabBar: $hideTabBar, link: value, diverID: value.substring(from: String.Index(encodedOffset: 67))), isActive: $resultSelected) {
+                                destination: ProfileView(
+                                    hideTabBar: $hideTabBar,
+                                    link: value,
+                                    diverID: String(
+                                        value[value.index(value.startIndex, offsetBy: 67)...])),
+                                isActive: $resultSelected) {
+                                    
                                     GeometryReader { geometry in
                                         HStack {
                                             Text(key)
