@@ -8,8 +8,8 @@
 import SwiftUI
 import SwiftSoup
 
-typealias DivingDict = [String: [String: [String: String]]]
-typealias CoachingDict = [String: [String: String]]
+typealias DivingDict = [String: [String: (String, String)]]
+typealias CoachingDict = [String: String]
 typealias JudgingDict = [String]
 typealias DiverList = [(String, String)]
 
@@ -26,7 +26,7 @@ final class ProfileParser: ObservableObject {
     private func wrapLooseText(text: String) -> String {
         do {
             var result: String = text
-            let minStringLen = "&nbsp;&nbsp;Coach:".count
+            let minStringLen = "<br>".count
             let pattern = "<br>[a-zA-z0-9\\s&;:]+"
             let regex = try NSRegularExpression(pattern: pattern, options: [])
             let nsrange = NSRange(text.startIndex..<text.endIndex,
@@ -36,10 +36,12 @@ final class ProfileParser: ObservableObject {
                 (match, _, _) in
                 guard let match = match else { return }
                 
-                
                 for i in 0..<match.numberOfRanges {
                     let m = text[Range(match.range(at: i), in: text)!]
-                    if m.count >= minStringLen {
+                    let trimmedM = m.trimmingCharacters(in: .whitespacesAndNewlines)
+                        .replacingOccurrences(of: "&nbsp;", with: "")
+                    
+                    if trimmedM.count > minStringLen {
                         if seen.contains(m) {
                             continue
                         }
@@ -48,7 +50,6 @@ final class ProfileParser: ObservableObject {
                     }
                 }
             }
-            
             return result
         } catch {
             print("Failed to parse text input")
@@ -56,7 +57,7 @@ final class ProfileParser: ObservableObject {
         
         return ""
     }
-
+    
     private func isHeader(_ elem: Element) -> Bool {
         let headers: Set<String> = Set<String>(["Diving:", "Coaching:", "Judging:"])
         do {
@@ -84,8 +85,20 @@ final class ProfileParser: ObservableObject {
         } catch {
             print("Error getting element text")
         }
-        
         return nil
+    }
+    
+    private func partialToFullLink(_ link: String) -> String {
+        return "https://secure.meetcontrol.com/divemeets/system/" + link
+    }
+    
+    private func coachLinkToFullLink(_ link: String) -> String {
+        if !link.hasPrefix("profilec") {
+            print("Link is not a Coach Profile, returning empty string")
+            return ""
+        }
+        let delIndex = link.index(link.startIndex, offsetBy: 7)
+        return partialToFullLink(link.replacingCharacters(in: delIndex...delIndex, with: ""))
     }
     
     func parseProfile(html: String) -> (DivingDict?, CoachingDict?, JudgingDict?, DiverList?) {
@@ -100,11 +113,12 @@ final class ProfileParser: ObservableObject {
             guard let body = document.body() else {
                 return (nil, nil, nil, nil)
             }
-            var foundHeader = false
+
             let rows = try body.getElementsByTag("td")
             let first = rows.first()!
             
-            let doc: Document = try SwiftSoup.parseBodyFragment(wrapLooseText(text: try first.html()))
+            let doc: Document = try SwiftSoup.parseBodyFragment(
+                wrapLooseText(text: try first.html()))
             guard let wrappedText = doc.body()?.children() else {
                 return (nil, nil, nil, nil)
             }
@@ -121,39 +135,84 @@ final class ProfileParser: ObservableObject {
                 }
             }
             
-            for r in keepRows {
-                let tag = r.tagName()
-                if !foundHeader && isHeader(r) {
-                    foundHeader = true
+            var i = 0
+            while i < keepRows.count {
+                let r = keepRows[i]
+                if r.tagName() == "center" {
+                    stage = .diverList
+                    i += 1
+                    continue
+                } else if isHeader(r) {
                     stage = getStage(r)!
-                }
-                else if !foundHeader {
+                    i += 1
+                    continue
+                } else if stage == .notSet {
+                    i += 1
                     continue
                 }
-                
-                print(tag)
-                switch tag {
-                    case "center":
-                        stage = .diverList
-                    case "div", "strong":
-                        print(try r.text().trimmingCharacters(in: .whitespacesAndNewlines))
-                    case "a":
-                        var link = try r.attr("href")
-                        let delIndex = link.index(link.startIndex, offsetBy: 7)
-                        link = "https://secure.meetcontrol.com/divemeets/system/" +
-                        link.replacingCharacters(in: delIndex...delIndex, with: "")
-                        let tuple = (try r.text(), link)
-                        print(tuple)
-                        if stage == .diverList {
+
+                switch stage {
+                    case .diving:
+                        do {
+                            let org = try String(r.text().dropLast())
+                            let team = try keepRows[i+1].text()
+                            let coach = try keepRows[i+3].text()
+                            let link = try coachLinkToFullLink(
+                                keepRows[i+3].attr("href"))
+                            if diving == nil {
+                                diving = [:]
+                            }
+                            if !diving!.keys.contains(org) {
+                                diving![org] = [:]
+                            }
+                            diving![org]![team] = (coach, link)
+                        } catch {
+                            print("Failed to convert Element to String in Diving")
+                        }
+                        i += 4
+                    case .coaching:
+                        do {
+                            let org = try String(r.text().dropLast())
+                                .trimmingCharacters(in: .whitespacesAndNewlines)
+                            let team = try keepRows[i+1].text()
+                                .trimmingCharacters(in: .whitespacesAndNewlines)
+                            if coaching == nil {
+                                coaching = [:]
+                            }
+                            coaching![org] = team
+                        } catch {
+                            print("Failed to convert Element to String in Coaching")
+                        }
+                        i += 3
+                    case .judging:
+                        do {
+                            if judging == nil {
+                                judging = []
+                            }
+                            try judging?.append(r.text()
+                                .trimmingCharacters(in: .whitespacesAndNewlines))
+                        } catch {
+                            print("Failed to convert Element to String in Judging")
+                        }
+                        i += 1
+                    case .diverList:
+                        do {
+                            let name = try r.text()
+                                .trimmingCharacters(in: .whitespacesAndNewlines)
+                            let link = try partialToFullLink(r.attr("href"))
+                            
                             if diverList == nil {
                                 diverList = []
                             }
-                            diverList?.append(tuple)
+                            diverList?.append((name, link))
+                        } catch {
+                            print("Failed to convert Element to String in DiverList")
                         }
-                    default:
-                        continue
+                        i += 1
+                    case .notSet:
+                        print("Reached impossible state, returning nil")
+                        return (nil, nil, nil, nil)
                 }
-                print("-------------------")
             }
         } catch {
             print("Error parsing profile")
