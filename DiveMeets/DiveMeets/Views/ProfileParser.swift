@@ -8,9 +8,13 @@
 import SwiftUI
 import SwiftSoup
 
+// [Organization: [Team: (Coach, CoachLink)]]
 typealias DivingDict = [String: [String: (String, String)]]
+// [Organization: Team]
 typealias CoachingDict = [String: String]
+// [Organization]
 typealias JudgingDict = [String]
+// [(Diver, DiverLink)]
 typealias DiverList = [(String, String)]
 
 private enum Stage {
