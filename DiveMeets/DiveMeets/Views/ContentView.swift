@@ -38,6 +38,8 @@ struct ContentView: View {
                                         .animation(nil, value: selectedTab)
                                 case .magnifyingglass:
                                     SearchView(hideTabBar: $hideTabBar)
+                                case .person:
+                                    ParsedView()
                             }
                         }
                         .tag(tab)

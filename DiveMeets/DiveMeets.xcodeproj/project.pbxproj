@@ -11,6 +11,7 @@
 		0095BD2D29B1491D004D7EFD /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0095BD2C29B1491D004D7EFD /* SearchView.swift */; };
 		00F9665F29AEEF0900F3720B /* FloatingMenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */; };
 		00F9667B29AFDA1500F3720B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9667A29AFDA1500F3720B /* ContentView.swift */; };
+		4D09308529D3A1B7003AAA90 /* LoginScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D09308429D3A1B7003AAA90 /* LoginScreen.swift */; };
 		4D1A5C3729CB953300F3DA2B /* SwiftUIWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */; };
 		4D1A5C3929CCA1B400F3DA2B /* RecordList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1A5C3829CCA1B400F3DA2B /* RecordList.swift */; };
 		4D254F1629C0411C0033838D /* HTMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D254F1529C0411C0033838D /* HTMLParser.swift */; };
@@ -38,6 +39,7 @@
 		0095BD2C29B1491D004D7EFD /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingMenuBar.swift; sourceTree = "<group>"; };
 		00F9667A29AFDA1500F3720B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		4D09308429D3A1B7003AAA90 /* LoginScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginScreen.swift; sourceTree = "<group>"; };
 		4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIWebView.swift; sourceTree = "<group>"; };
 		4D1A5C3829CCA1B400F3DA2B /* RecordList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordList.swift; sourceTree = "<group>"; };
 		4D254F1529C0411C0033838D /* HTMLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLParser.swift; sourceTree = "<group>"; };
@@ -123,6 +125,7 @@
 				00F9667A29AFDA1500F3720B /* ContentView.swift */,
 				001A9B8F29B075A6007C7BE5 /* HidingScrollView.swift */,
 				00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */,
+				4D09308429D3A1B7003AAA90 /* LoginScreen.swift */,
 				0095BD2C29B1491D004D7EFD /* SearchView.swift */,
 				4D254F1529C0411C0033838D /* HTMLParser.swift */,
 				4D254F1729C107980033838D /* NamesCreator.swift */,
@@ -238,6 +241,7 @@
 				4D74FEAD29AEAE9800401178 /* Profile.swift in Sources */,
 				4D74FE9929AE7B9800401178 /* ProfileView.swift in Sources */,
 				4D254F1629C0411C0033838D /* HTMLParser.swift in Sources */,
+				4D09308529D3A1B7003AAA90 /* LoginScreen.swift in Sources */,
 				4D74FEA929AEA5AD00401178 /* MapView.swift in Sources */,
 				4D74FEA529AE7C2B00401178 /* ProfileImage.swift in Sources */,
 				4D254F1C29C113240033838D /* DiveMeetProfileView.swift in Sources */,
@@ -375,7 +379,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"DiveMeets/Preview Content\"";
-				DEVELOPMENT_TEAM = UCV4CFXWW3;
+				DEVELOPMENT_TEAM = WY8V5FPBV9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -404,7 +408,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"DiveMeets/Preview Content\"";
-				DEVELOPMENT_TEAM = UCV4CFXWW3;
+				DEVELOPMENT_TEAM = WY8V5FPBV9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

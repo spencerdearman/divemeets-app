@@ -28,8 +28,8 @@ final class HTMLParser: ObservableObject {
                 let split = tempString.components(separatedBy: "  ")
                 myData.append(split)
             })
-            myData[0] = myData[0][0].components(separatedBy: "History")
-            myData[0].remove(at: 1)
+            //myData[0] = myData[0][0].components(separatedBy: "History")
+            //myData[0].remove(at: 1)
             return myData
         }
         catch {
@@ -40,7 +40,6 @@ final class HTMLParser: ObservableObject {
     }
     
     func parse(urlString: String) -> [Array<String>] {
-        print(urlString)
         guard let url = URL(string: urlString) else {
             return []
         }
@@ -87,7 +86,7 @@ struct ParsedView: View {
             
             Button("Parse HTML") {
                 parser.parse(urlString: urlString)
-                print(parser.myData)
+                //print(parser.myData)
             }
             .padding()
             
