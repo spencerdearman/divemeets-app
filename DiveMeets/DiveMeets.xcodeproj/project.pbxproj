@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		001A9B9029B075A6007C7BE5 /* HidingScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001A9B8F29B075A6007C7BE5 /* HidingScrollView.swift */; };
+		002A1B3429DB7C4700A26FED /* ProfileHTMLCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002A1B3329DB7C4700A26FED /* ProfileHTMLCache.swift */; };
 		0037877929D4F40900D3CD59 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877729D4F40900D3CD59 /* Cache.swift */; };
 		0037877A29D4F40900D3CD59 /* ProfileMeetCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877829D4F40900D3CD59 /* ProfileMeetCache.swift */; };
 		0037877C29D4F41800D3CD59 /* MeetParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877B29D4F41800D3CD59 /* MeetParser.swift */; };
@@ -40,6 +41,7 @@
 
 /* Begin PBXFileReference section */
 		001A9B8F29B075A6007C7BE5 /* HidingScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HidingScrollView.swift; sourceTree = "<group>"; };
+		002A1B3329DB7C4700A26FED /* ProfileHTMLCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHTMLCache.swift; sourceTree = "<group>"; };
 		0037877729D4F40900D3CD59 /* Cache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Cache.swift; path = DiveMeets/Model/Cache.swift; sourceTree = SOURCE_ROOT; };
 		0037877829D4F40900D3CD59 /* ProfileMeetCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProfileMeetCache.swift; path = DiveMeets/Model/ProfileMeetCache.swift; sourceTree = SOURCE_ROOT; };
 		0037877B29D4F41800D3CD59 /* MeetParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeetParser.swift; sourceTree = "<group>"; };
@@ -152,6 +154,7 @@
 				4D74FEAE29AEB02100401178 /* Meet.swift */,
 				0037877729D4F40900D3CD59 /* Cache.swift */,
 				0037877829D4F40900D3CD59 /* ProfileMeetCache.swift */,
+				002A1B3329DB7C4700A26FED /* ProfileHTMLCache.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -256,6 +259,7 @@
 				4D74FE9929AE7B9800401178 /* ProfileView.swift in Sources */,
 				4D254F1629C0411C0033838D /* HTMLParser.swift in Sources */,
 				4D74FEA929AEA5AD00401178 /* MapView.swift in Sources */,
+				002A1B3429DB7C4700A26FED /* ProfileHTMLCache.swift in Sources */,
 				4D74FEA529AE7C2B00401178 /* ProfileImage.swift in Sources */,
 				4D254F1C29C113240033838D /* DiveMeetProfileView.swift in Sources */,
 				0095BD2D29B1491D004D7EFD /* SearchView.swift in Sources */,

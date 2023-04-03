@@ -12,12 +12,13 @@ typealias Key = Hashable & Codable
 typealias Value = Codable
 enum CustomCache {
     case profileMeets(ProfileMeetCache)
-    //    case test(TestCache)
-    //    case profilePics(ProfilePicCache)
+    case profileHTML(ProfileHTMLCache)
     
     func clearCacheFromDisk() throws {
         switch self {
             case .profileMeets (let cache):
+                try cache.clearCacheFromDisk()
+            case .profileHTML (let cache):
                 try cache.clearCacheFromDisk()
         }
     }
@@ -26,6 +27,8 @@ enum CustomCache {
         get {
             switch self {
                 case .profileMeets (let cache):
+                    return cache[key as! String]
+                case .profileHTML (let cache):
                     return cache[key as! String]
             }
         }
@@ -37,19 +40,25 @@ enum CustomCache {
                     case .profileMeets (let cache):
                         cache.removeValue(forKey: key as! String)
                         return
+                    case .profileHTML (let cache):
+                        cache.removeValue(forKey: key as! String)
+                        return
                 }
             }
             
             switch self {
                 case .profileMeets (let cache):
                     cache.insert(value as! [[String]], forKey: key as! String)
+                case .profileHTML (let cache):
+                    cache.insert(value as! String, forKey: key as! String)
             }
         }
     }
 }
 
 fileprivate var emptyGlobalCaches: [String: CustomCache] = [
-    "profileMeets": CustomCache.profileMeets(ProfileMeetCache())
+    "profileMeets": CustomCache.profileMeets(ProfileMeetCache()),
+    "profileHTML": CustomCache.profileHTML(ProfileHTMLCache())
 ]
 
 /// Access from any file using 'GlobalCaches.caches[<cacheKey>]
@@ -70,6 +79,8 @@ struct GlobalCaches {
         for (key, cache) in caches {
             if case let .profileMeets(c) = cache {
                 caches[key] = CustomCache.profileMeets(c.loadFromDisk())
+            } else if case let .profileHTML(c) = cache {
+                caches[key] = CustomCache.profileHTML(c.loadFromDisk());
             }
         }
     }

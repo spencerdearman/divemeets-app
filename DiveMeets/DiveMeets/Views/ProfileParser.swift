@@ -224,6 +224,39 @@ final class ProfileParser: ObservableObject {
         
         return (diving, coaching, judging, diverList)
     }
+    
+    /// Wraps caching functionality into getting profile HTML to avoid network access if not necessary
+    func getProfileHTML(profileLink: String) -> String {
+        let session = URLSession.shared
+        let diverID: String = String(profileLink[profileLink.index(profileLink.endIndex, offsetBy: -5)...])
+        let url = URL(string: profileLink)!
+        
+        var resultText: String?
+        
+        // Checks cache first to see if there is a value already loaded, avoids network
+        guard let cachedData = GlobalCaches.caches["profileHTML"]![diverID] as? String else {
+            print("cachedData is nil")
+            let sem = DispatchSemaphore.init(value: 0)
+            let task = session.dataTask(with: url) { data, response, error in
+                defer { sem.signal() }
+                // Check whether data is not nil
+                guard let loadedData = data else { return }
+                // Load HTML code as string
+                let text = String(data: loadedData, encoding: .utf8)
+                
+                // Adds HTML to cache
+                GlobalCaches.caches["profileHTML"]![diverID] = text!
+                resultText = text!
+            }
+            task.resume()
+            sem.wait()
+            
+            return resultText!
+        }
+        print("cachedData is not nil")
+        return cachedData
+        
+    }
 }
 
 struct ProfileParserView: View {
@@ -233,23 +266,17 @@ struct ProfileParserView: View {
         
         Button("Button") {
             let session = URLSession.shared
-            let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/profile.php?number=20617")!
+            let profileLink: String = "https://secure.meetcontrol.com/divemeets/system/profile.php?number=20617"
+            let url = URL(string: profileLink)!
             var diving: DivingDict?
             var coaching: CoachingDict?
             var judging: JudgingDict?
             var diverList: DiverList?
-            let task = session.dataTask(with: url) { data, response, error in
-                // Check whether data is not nil
-                guard let loadedData = data else { return }
-                // Load HTML code as string
-                let text = String(data: loadedData, encoding: .utf8)
-                
-                (diving, coaching, judging, diverList) = p.parseProfile(html: text!)
-                print(diving ?? [:], coaching ?? [:], judging ?? [], diverList ?? [])
-            }
-            task.resume()
             
+            // Get profile html here instead
+            let html = p.getProfileHTML(profileLink: profileLink)
+            (diving, coaching, judging, diverList) = p.parseProfile(html: html)
+            print(diving ?? [:], coaching ?? [:], judging ?? [], diverList ?? [])
         }
     }
-    
 }

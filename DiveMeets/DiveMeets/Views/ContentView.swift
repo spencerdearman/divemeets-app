@@ -31,11 +31,11 @@ struct ContentView: View {
                                 case .house:
                                     ProfileView(hideTabBar: $hideTabBar, link:"", diverID: "51197")
                                 case .gearshape:
-//                                    ProfileParserView()
-                                    Image(systemName: tab.rawValue)
-                                    Text("Settings")
-                                        .bold()
-                                        .animation(nil, value: selectedTab)
+                                    ProfileParserView()
+//                                    Image(systemName: tab.rawValue)
+//                                    Text("Settings")
+//                                        .bold()
+//                                        .animation(nil, value: selectedTab)
                                 case .magnifyingglass:
                                     SearchView(hideTabBar: $hideTabBar)
                             }
