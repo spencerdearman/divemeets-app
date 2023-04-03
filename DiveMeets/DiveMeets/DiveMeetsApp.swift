@@ -9,9 +9,10 @@ import SwiftUI
 
 @main
 struct DiveMeetsApp: App {
+    @StateObject var pastMeetsDataController = PastMeetsDataController()
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView().environment(\.managedObjectContext, pastMeetsDataController.container.viewContext)
         }
     }
 }
