@@ -117,7 +117,7 @@ final class ProfileParser: ObservableObject {
             guard let body = document.body() else {
                 return (nil, nil, nil, nil)
             }
-
+            
             let rows = try body.getElementsByTag("td")
             let first = rows.first()!
             
@@ -154,7 +154,7 @@ final class ProfileParser: ObservableObject {
                     i += 1
                     continue
                 }
-
+                
                 switch stage {
                     case .diving:
                         do {
@@ -265,15 +265,13 @@ struct ProfileParserView: View {
     var body: some View {
         
         Button("Button") {
-            let session = URLSession.shared
             let profileLink: String = "https://secure.meetcontrol.com/divemeets/system/profile.php?number=20617"
-            let url = URL(string: profileLink)!
             var diving: DivingDict?
             var coaching: CoachingDict?
             var judging: JudgingDict?
             var diverList: DiverList?
             
-            // Get profile html here instead
+            // Get profile html here instead of using URL directly
             let html = p.getProfileHTML(profileLink: profileLink)
             (diving, coaching, judging, diverList) = p.parseProfile(html: html)
             print(diving ?? [:], coaching ?? [:], judging ?? [], diverList ?? [])
