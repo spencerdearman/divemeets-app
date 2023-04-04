@@ -12,7 +12,11 @@ struct PastMeetsResultsView: View {
     @Environment(\.managedObjectContext) var moc
     
     @FetchRequest(sortDescriptors: []) var meets: FetchedResults<DivingMeet>
-    @FetchRequest(sortDescriptors: [], predicate: NSPredicate(format: "year < 2020")) var earlyMeets: FetchedResults<DivingMeet>
+    //    @FetchRequest(sortDescriptors: [], predicate: NSPredicate(format: "year < 2020")) var earlyMeets: FetchedResults<DivingMeet>
+    @FetchRequest(
+        sortDescriptors: [],
+        predicate: PastMeetsDataController.createNSPredicate(predicate: "year < %d AND year > %d", args: 2020, 2017)
+    ) var earlyMeets: FetchedResults<DivingMeet>
     
     func displayDivingMeet(meet: DivingMeet) -> HStack<TupleView<(Text, Text, Text, Text)>> {
         return HStack {
@@ -56,6 +60,10 @@ struct PastMeetsResultsView: View {
                         break
                     }
                 }
+                
+//                Button("Predicate") {
+//                    PastMeetsDataController.createNSPredicate(predicate: "name beginswith %s", args: "Phoenix")
+//                }
                 
             }
             
