@@ -10,94 +10,65 @@ import Foundation
 
 class PastMeetsDataController: ObservableObject {
     let container = NSPersistentContainer(name: "PastMeets")
+    static var instances: Int? = nil
     
     init() {
-        container.loadPersistentStores { description, error in
-            if let error = error {
-                print("Core Data failed to load PastMeets: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    // Replaces all instances of %s with %@, the argument replacement for NSPredicate
-    private static func replaceStrings(predicate: String) -> String {
-        do {
-            var result = predicate
-            let pattern = "%s"
-            let regex = try NSRegularExpression(pattern: pattern, options: [])
-            let nsrange = NSRange(predicate.startIndex..<predicate.endIndex,
-                                  in: predicate)
-            
-            regex.enumerateMatches(in: predicate, range: nsrange) {
-                (match, _, _) in
-                guard let match = match else { return }
-                
-                for i in 0..<match.numberOfRanges {
-                    let m = predicate[Range(match.range(at: i), in: predicate)!]
-                    print(m)
-                    result = result.replacingOccurrences(of: m, with: "%@")
+        // Attempted guard at creating more than one instance of class
+        if PastMeetsDataController.instances == nil {
+            PastMeetsDataController.instances = 1
+            container.loadPersistentStores { description, error in
+                if let error = error {
+                    print("Core Data failed to load PastMeets: \(error.localizedDescription)")
                 }
             }
-            
-            return result
-        } catch {
-            print("String replacement failed")
-            return predicate
         }
     }
     
-    // Replaces all instances of %d with that Int, which is the format for NSPredicate
-    private static func replaceInts(predicate: String, args: [Int]) -> String {
-        do {
-            var result = predicate
-            let pattern = "%d"
-            let regex = try NSRegularExpression(pattern: pattern, options: [])
-            let nsrange = NSRange(predicate.startIndex..<predicate.endIndex,
-                                  in: predicate)
-            var argsIdx = 0
-            let numberOfMatches = regex.numberOfMatches(in: result, range: nsrange)
-            assert(numberOfMatches == args.count)
-            
-            regex.enumerateMatches(in: predicate, range: nsrange) {
-                (match, _, _) in
-                guard let match = match else { return }
-                
-                for i in 0..<match.numberOfRanges {
-                    let m = predicate[Range(match.range(at: i), in: predicate)!]
-                    result = result.replacing(m, with: String(args[argsIdx]), maxReplacements: 1)
-                    argsIdx += 1
-                }
-            }
-            
-            return result
-        } catch {
-            print("Int replacement failed")
-            return predicate
+    // Adds a single record to the CoreData database
+    func addRecord(_ name: String, _ org: String, _ year: Int, _ link: String) {
+        let moc = container.viewContext
+        let meet = DivingMeet(context: moc)
+        meet.id = UUID()
+        meet.name = name
+        meet.organization = org
+        meet.year = Int16(year)
+        meet.link = link
+        
+        try? moc.save()
+    }
+    
+    // Adds a list of records to the CoreData database
+    func addRecords(records: [(String, String, Int, String)]) {
+        for record in records {
+            let (name, org, year, link) = record
+            addRecord(name, org, year, link)
         }
     }
     
-    // Provide predicate string and arguments to provide to generate an NSPredicate
-    // for CoreData querying;
-    // Use %s to sub string, %d to sub int, and this will generate the appropraite
-    // NSPredicate string formatting
-    // Ex: PastMeetsDataController.createNSPredicate(predicate: "name beginswith %s AND year > %d", "Phoenix", 2020)
-    //     --> This will produce an NSPredicate to use inside a @FetchRequest wrapper to get results from CoreData
-    //           where the name starts with Phoenix and whose year is after 2020
-    static func createNSPredicate(predicate: String, args: Any...) -> NSPredicate {
-        var result = replaceStrings(predicate: predicate)
-        var otherArgs: [String] = []
-        var intArgs: [Int] = []
+    // Drops a record from the CoreData database
+    func dropRecord(_ name: String, _ org: String, _ year: Int, _ link: String) {
+        let moc = container.viewContext
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "DivingMeet")
+        let predicate = NSPredicate(
+            format: "name == %@ AND organization == %@ AND year == %d AND link == %@",
+            name, org, year, link)
+        fetchRequest.predicate = predicate
         
-        for arg in args {
-            if arg is Int {
-                intArgs.append(arg as! Int)
-            } else if arg is String {
-                otherArgs.append(arg as! String)
-            }
+        let result = try? moc.fetch(fetchRequest)
+        let resultData = result as! [DivingMeet]
+        
+        for object in resultData {
+            moc.delete(object)
         }
         
-        result = replaceInts(predicate: result, args: intArgs)
-        
-        return NSPredicate(format: result, otherArgs)
+        try? moc.save()
+    }
+    
+    // Drops a list of records from the CoreData database
+    func dropRecords(records: [(String, String, Int, String)]) {
+        for record in records {
+            let (name, org, year, link) = record
+            dropRecord(name, org, year, link)
+        }
     }
 }

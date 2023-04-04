@@ -10,12 +10,13 @@ import CoreData
 
 struct PastMeetsResultsView: View {
     @Environment(\.managedObjectContext) var moc
+    @Environment(\.pastMeetsDB) var db
     
     @FetchRequest(sortDescriptors: []) var meets: FetchedResults<DivingMeet>
-    //    @FetchRequest(sortDescriptors: [], predicate: NSPredicate(format: "year < 2020")) var earlyMeets: FetchedResults<DivingMeet>
+    // Note: predicate formats use %@ for strings instead of %s, still use %d for ints
     @FetchRequest(
         sortDescriptors: [],
-        predicate: PastMeetsDataController.createNSPredicate(predicate: "year < %d AND year > %d", args: 2020, 2017)
+        predicate: NSPredicate(format: "name beginswith %@ AND year > %d", "Phoenix", 2020)
     ) var earlyMeets: FetchedResults<DivingMeet>
     
     func displayDivingMeet(meet: DivingMeet) -> HStack<TupleView<(Text, Text, Text, Text)>> {
@@ -34,14 +35,14 @@ struct PastMeetsResultsView: View {
     }
     
     var body: some View {
+        let testMeets = [("Phoenix Fall Classic", "NCAA", 2022, "https://secure.meetcontrol.com/divemeets/system/meetresultsext.php?meetnum=8410"),
+                         ("Zone A Championships", "USA Diving", 2018, "https://secure.meetcontrol.com/divemeets/system/meetresultsext.php?meetnum=5363"),
+                         ("Alexandria Invite", "AAU", 2017, "https://secure.meetcontrol.com/divemeets/system/meetresultsext.php?meetnum=5105")]
         VStack {
             HStack {
                 Button("Add") {
                     let meet = DivingMeet(context: moc)
                     
-                    let testMeets = [("Phoenix Fall Classic", "NCAA", 2022, "https://secure.meetcontrol.com/divemeets/system/meetresultsext.php?meetnum=8410"),
-                                     ("Zone A Championships", "USA Diving", 2018, "https://secure.meetcontrol.com/divemeets/system/meetresultsext.php?meetnum=5363"),
-                                     ("Alexandria Invite", "AAU", 2017, "https://secure.meetcontrol.com/divemeets/system/meetresultsext.php?meetnum=5105")]
                     let (name, org, year, link) = testMeets.randomElement()!
                     
                     meet.id = UUID()
@@ -61,9 +62,13 @@ struct PastMeetsResultsView: View {
                     }
                 }
                 
-//                Button("Predicate") {
-//                    PastMeetsDataController.createNSPredicate(predicate: "name beginswith %s", args: "Phoenix")
-//                }
+                Button("Add List") {
+                    db.addRecords(records: testMeets)
+                }
+                
+                Button("Drop List") {
+                    db.dropRecords(records: testMeets)
+                }
                 
             }
             
