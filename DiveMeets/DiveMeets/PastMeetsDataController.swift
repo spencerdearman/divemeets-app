@@ -72,6 +72,21 @@ class PastMeetsDataController: ObservableObject {
         }
     }
     
+    // Drops all records from the database
+    func dropAllRecords() {
+        let moc = container.viewContext
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "DivingMeet")
+        
+        let result = try? moc.fetch(fetchRequest)
+        let resultData = result as! [DivingMeet]
+        
+        for object in resultData {
+            moc.delete(object)
+        }
+        
+        try? moc.save()
+    }
+    
     // Turns MeetDict into [(name, org, year, link)]
     func dictToTuple(dict: MeetDict) -> [(String, String, Int, String)] {
         var result: [(String, String, Int, String)] = []
