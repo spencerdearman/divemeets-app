@@ -13,90 +13,176 @@ private enum Stage: Int, CaseIterable {
     case past
 }
 
+//                    Year  :  Org   :  Name  : Link
+typealias MeetDict = [String: [String: [String: String]]]
+
 final class MeetParser: ObservableObject {
     let currentYear = String(Calendar.current.component(.year, from: Date()))
+    @Published private var linkText: String?
+    @Published var upcomingMeets: MeetDict?
+    @Published var currentMeets: String?
+    @Published var pastMeets: MeetDict?
+    @Published private var pastYear: String = ""
+    @Published private var stage: Stage?
+    let loader = GetTextAsyncLoader()
     
-    func parseMeets(html: String) -> ([String: [String: String]], String?, [String: [String: String]]) {
-        var upcomingMeets: [String: [String: String]] = [:]
-        var currentMeets: String? = nil
-        var pastMeets: [String: [String: String]] = [:]
+    private func fetchLinkText(url: URL) async {
+        let text = try? await loader.getText(url: url)
+        await MainActor.run {
+            self.linkText = text
+        }
+    }
+    
+    private func getMeetNamesAndLinks(text: String) -> [String: String]? {
+        var result: [String: String]?
+        let linkHead = "https://secure.meetcontrol.com/divemeets/system/"
+        
+        do {
+            let document: Document = try SwiftSoup.parse(text)
+            guard let body = document.body() else { return [:] }
+            let content = try body.getElementById("dm_content")!
+            let rows = try content.getElementsByTag("td")
+            for row in rows {
+                // Only continues on rows w/o align field and w valign == top
+                if !(try !row.hasAttr("align") && row.hasAttr("valign") && row.attr("valign") == "top") {
+                    continue
+                }
+                
+                /// Gets divs from page (meet name on past meets where link is "Results")
+                let divs = try row.getElementsByTag("div")
+                
+                /// Gets links from list of meets
+                let elem = try row.getElementsByTag("a")
+                for e in elem {
+                    if try e.tagName() == "a" && e.attr("href").starts(with: "meet") {
+                        if result == nil {
+                            result = [:]
+                        }
+                        
+                        let keyText = try divs.isEmpty() ? e.text() : divs[0].text()
+                        result![keyText] = try linkHead + e.attr("href")
+                        break
+                    }
+                }
+            }
+        } catch {
+            print("Parse failed")
+        }
+        
+        if result != nil {
+            print("Result:", result!)
+        }
+        
+        return result
+    }
+    
+    func parseMeets(html: String) async throws {
         do {
             let document: Document = try SwiftSoup.parse(html)
             guard let body = document.body() else {
-                return ([:], "Failed to retrieve body", [:])
+                return
             }
             let menu = try body.getElementById("dm_menu_centered")
             let menuTabs = try menu?.getElementsByTag("ul")[0].getElementsByTag("li")
-            var stage: Stage?
-            var pastYear: String = ""
             for tab in menuTabs! {
                 let tabElem = try tab.getElementsByAttribute("href")[0]
                 if try tabElem.text() == "Find" {
                     break
                 }
                 if try tabElem.text() == "Upcoming" {
-                    stage = .upcoming
+                    await MainActor.run {
+                        stage = .upcoming
+                    }
                     continue
                 }
                 if try tabElem.text() == "Current" {
-                    currentMeets = try tabElem.attr("href")
+                    try await MainActor.run {
+                        currentMeets = try tabElem.attr("href")
+                    }
                     stage = .past
                     continue
                 }
                 if try tabElem.text() == "Past Results & Photos" {
-                    stage = .past
+                    await MainActor.run {
+                        stage = .past
+                    }
                     continue
                 }
                 
                 if stage == .upcoming {
-                    if upcomingMeets[currentYear] == nil {
-                        upcomingMeets[currentYear] = [:]
+                    if upcomingMeets == nil {
+                        await MainActor.run {
+                            upcomingMeets = [:]
+                        }
                     }
-                    try upcomingMeets[currentYear]![tabElem.text()] = tabElem.attr("href")
+                    if upcomingMeets![currentYear] == nil {
+                        await MainActor.run {
+                            upcomingMeets![currentYear] = [:]
+                        }
+                    }
+                    let link = try tabElem.attr("href")
+                        .replacingOccurrences(of: " ", with: "%20")
+                        .replacingOccurrences(of: "\t", with: "")
+                    // Gets HTML from subpage link and sets linkText to HTML
+                    await fetchLinkText(url: URL(string: link)!)
+                    try await MainActor.run {
+                        // Parses subpage and gets meet names and links
+                        if let result = getMeetNamesAndLinks(text: linkText!) {
+                            try upcomingMeets![currentYear]![tabElem.text()] = result
+                        }
+                    }
                 }
                 else if try stage == .past && tabElem.attr("href") == "#" {
-                    pastYear = try tabElem.text()
+                    try await MainActor.run {
+                        pastYear = try tabElem.text()
+                    }
                     /// Only saves last two years of past meets into dictionary, loads rest from static file
                     ///  Loads last two years to prevent any missing links when close to new year
-                    if Int(pastYear) ?? 10000 < Int(currentYear)! - 1 {
-                        break
-                    }
+                    //                    if Int(pastYear) ?? 10000 < Int(currentYear)! - 1 {
+                    //                        break
+                    //                    }
                 }
                 else if stage == .past {
-                    if pastMeets[pastYear] == nil {
-                        pastMeets[pastYear] = [:]
+                    if pastMeets == nil {
+                        await MainActor.run {
+                            pastMeets = [:]
+                        }
                     }
-                    try pastMeets[pastYear]![tabElem.text()] = tabElem.attr("href")
+                    if pastMeets![pastYear] == nil {
+                        await MainActor.run {
+                            pastMeets![pastYear] = [:]
+                        }
+                    }
+                    let link = try tabElem.attr("href")
+                        .replacingOccurrences(of: " ", with: "%20")
+                        .replacingOccurrences(of: "\t", with: "")
+                    // Gets HTML from subpage link and sets linkText to HTML
+                    await fetchLinkText(url: URL(string: link)!)
+                    try await MainActor.run {
+                        // Parses subpage and gets meet names and links
+                        try pastMeets![pastYear]![tabElem.text()] = getMeetNamesAndLinks(text: linkText!)
+                    }
                 }
             }
-            
-            /// Merges parsed pastMeets with static historical data, keeping the parsed version if the
-            /// same key appears
-            let loadedPastMeets = readFromFile(filename: "pastMeets.json")
-            
-            /// Merges years where both pastMeets and loadedPastMeets appear
-            for k in pastMeets.keys {
-                if loadedPastMeets[k] != nil {
-                    pastMeets[k] = pastMeets[k]!.merging(
-                        loadedPastMeets[k]!) { (current, _) in current }
-                }
-            }
-            
-            /// Adds years that were not parsed from loadedPastMeets
-            pastMeets = pastMeets.merging(loadedPastMeets) { (current, _) in current }
-            
-//            print(GlobalCaches.caches["test"]!["hello"] ?? "")
-//            GlobalCaches.caches["test"]!["hello"] = "hi"
-//            print(GlobalCaches.caches["test"]!["hello"] ?? "")
-
-//            print(GlobalCaches.caches["profileMeets"]!["hello"] ?? [])
-//            GlobalCaches.caches["profileMeets"]!["hello"] = [["hi"]]
-//            print(GlobalCaches.caches["profileMeets"]!["hello"] ?? [])
+            /*
+             /// Merges parsed pastMeets with static historical data, keeping the parsed version if the
+             /// same key appears
+             let loadedPastMeets = readFromFile(filename: "pastMeets.json")
+             
+             /// Merges years where both pastMeets and loadedPastMeets appear
+             for k in pastMeets.keys {
+             if loadedPastMeets[k] != nil {
+             pastMeets[k] = pastMeets[k]!.merging(
+             loadedPastMeets[k]!) { (current, _) in current }
+             }
+             }
+             
+             /// Adds years that were not parsed from loadedPastMeets
+             pastMeets = pastMeets.merging(loadedPastMeets) { (current, _) in current }
+             */
         } catch {
             print("Error parsing meets")
         }
-        
-        return (upcomingMeets, currentMeets, pastMeets)
     }
     
     func writeToFile(dict: [String: [String: String]], filename: String = "saved.json") {
@@ -107,7 +193,6 @@ final class MeetParser: ObservableObject {
         do {
             let data = try encoder.encode(dict)
             let bundleURL = Bundle.main.resourceURL!
-            //            print(bundleURL)
             
             let jsonFileURL = bundleURL.appendingPathComponent(filename)
             
@@ -129,30 +214,67 @@ final class MeetParser: ObservableObject {
         }
         return [:]
     }
+    
+    func printPastMeets() {
+        if pastMeets != nil {
+            let keys = Array(pastMeets!.keys)
+            let left = keys[0 ..< keys.count / 2]
+            let right = keys[keys.count / 2 ..< keys.count]
+            
+            print("[")
+            for k in left {
+                print("\(k): \(pastMeets![k]!),")
+            }
+            for k in right {
+                print("\(k): \(pastMeets![k]!),")
+            }
+            print("]")
+        } else {
+            print([String:String]())
+        }
+    }
 }
 
 struct MeetParserView: View {
-    var text: String = ""
-    let p: MeetParser = MeetParser()
+    @StateObject private var getTextModel = GetTextAsyncModel()
+    @StateObject private var p = MeetParser()
+    @State var finishedParsing: Bool = false
     var body: some View {
-        
-        Button("Button") {
-            let session = URLSession.shared
-            let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/index.php")!
-            var upcoming: [String: [String: String]] = [:]
-            var current: String?
-            var past: [String: [String: String]] = [:]
-            let task = session.dataTask(with: url) { data, response, error in
-                // Check whether data is not nil
-                guard let loadedData = data else { return }
-                // Load HTML code as string
-                let text = String(data: loadedData, encoding: .utf8)
-                
-                (upcoming, current, past) = p.parseMeets(html: text!)
-                //                p.writeToFile(dict: past, filename: "past_meets.json")
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                Button("Upcoming") {
+                    print(p.upcomingMeets ?? [:])
+                }
+                Spacer()
+                Button("Current") {
+                    print(p.currentMeets ?? "")
+                }
+                Spacer()
+                Button("Past") {
+                    p.printPastMeets()
+                }
+                Spacer()
             }
-            task.resume()
+            Spacer()
+            Button("Check Parsing") {
+                print(finishedParsing)
+            }
+            Spacer()
+        }
+        .onAppear {
+            let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/index.php")!
             
+            Task {
+                finishedParsing = false
+                // This sets getTextModel's text field equal to the HTML from url
+                await getTextModel.fetchText(url: url)
+                // This sets p's upcoming, current, and past meets fields
+                try await p.parseMeets(html: getTextModel.text!)
+                finishedParsing = true
+                print("Finished parsing")
+            }
         }
     }
     
