@@ -71,4 +71,18 @@ class PastMeetsDataController: ObservableObject {
             dropRecord(name, org, year, link)
         }
     }
+    
+    // Turns MeetDict into [(name, org, year, link)]
+    func dictToTuple(dict: MeetDict) -> [(String, String, Int, String)] {
+        var result: [(String, String, Int, String)] = []
+        for (year, orgDict) in dict {
+            for (org, meetDict) in orgDict {
+                for (name, link) in meetDict {
+                    result.append((name, org, Int(year)!, link))
+                }
+            }
+        }
+        
+        return result
+    }
 }

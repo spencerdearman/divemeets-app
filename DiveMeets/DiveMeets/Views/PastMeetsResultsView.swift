@@ -43,6 +43,7 @@ struct PastMeetsResultsView: View {
                          ("Alexandria Invite", "AAU", 2017, "https://secure.meetcontrol.com/divemeets/system/meetresultsext.php?meetnum=5105")]
         VStack {
             HStack {
+                Spacer()
                 Button("Add") {
                     let meet = DivingMeet(context: moc)
                     
@@ -56,7 +57,7 @@ struct PastMeetsResultsView: View {
                     
                     try? moc.save()
                 }
-                
+                Spacer()
                 Button("Remove") {
                     for meet in meets.reversed() {
                         moc.delete(meet as NSManagedObject)
@@ -64,15 +65,19 @@ struct PastMeetsResultsView: View {
                         break
                     }
                 }
-                
+                Spacer()
                 Button("Add List") {
                     db.addRecords(records: testMeets)
                 }
-                
+                Spacer()
                 Button("Drop List") {
                     db.dropRecords(records: testMeets)
                 }
-                
+                Spacer()
+            }
+            .padding()
+            HStack {
+                Spacer()
                 Button("Run") {
                     let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/index.php")!
                     
@@ -87,12 +92,34 @@ struct PastMeetsResultsView: View {
                     }
                     
                 }
+                Spacer()
                 Button("Print") {
                     print(p.upcomingMeets ?? [:])
                     print(p.currentMeets ?? "")
                     p.printPastMeets()
                 }
-            }
+                Spacer()
+                Button("Tuples") {
+                    if finishedParsing {
+                        print("Upcoming:", db.dictToTuple(dict: p.upcomingMeets!))
+                        let past = db.dictToTuple(dict: p.pastMeets!)
+                        let left = past[0 ..< past.count / 2]
+                        let right = past[past.count / 2 ..< past.count]
+                        
+                        print("Past: [")
+                        for k in left {
+                            print(k, ",")
+                        }
+                        for k in right {
+                            print(k, ",")
+                        }
+                        print("]")
+                    } else {
+                        print([(String, String, Int, String)]())
+                    }
+                }
+                Spacer()
+            }.padding()
             
             List(meets) { meet in
                 displayDivingMeet(meet: meet)
