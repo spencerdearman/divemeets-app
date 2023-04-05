@@ -10,7 +10,6 @@ import SwiftUI
 struct ContentView: View {
     @Environment(\.colorScheme) var currentMode
     @Environment(\.scenePhase) var scenePhase
-    
     @State private var selectedTab: Tab = .gearshape
     @State var hideTabBar = false
     @State var visibleTabs: [Tab] = Tab.allCases
@@ -31,7 +30,8 @@ struct ContentView: View {
                                 case .house:
                                     ProfileView(hideTabBar: $hideTabBar, link:"", diverID: "51197")
                                 case .gearshape:
-                                    ProfileParserView()
+                                    PastMeetsResultsView()
+//                                    MeetParserView()
 //                                    Image(systemName: tab.rawValue)
 //                                    Text("Settings")
 //                                        .bold()
