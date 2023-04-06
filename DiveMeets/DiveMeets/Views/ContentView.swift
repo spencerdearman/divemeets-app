@@ -10,7 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @Environment(\.colorScheme) var currentMode
     @Environment(\.scenePhase) var scenePhase
-    @State private var selectedTab: Tab = .gearshape
+    @State private var selectedTab: Tab = .magnifyingglass
     @State var hideTabBar = false
     @State var visibleTabs: [Tab] = Tab.allCases
     

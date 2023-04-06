@@ -25,6 +25,71 @@ private func checkFields(selection: SearchType, firstName: String = "",
     }
 }
 
+/// Converts the arguments passed into getPredicate into the list of unpacked parameters necessary to init
+/// NSPredicate; returns nil if all fields are empty
+private func argsToPredParams(pred: String, name: String, org: String, year: String) -> NSPredicate? {
+    let haveName = name != ""
+    let haveOrg = org != ""
+    let haveYear = year != ""
+    var castYear: Int16? = nil
+    
+    if haveYear {
+        castYear = Int16(year)!
+    }
+    
+    if haveName && haveOrg && haveYear {
+        return NSPredicate(format: pred, name, org, castYear!)
+    } else if haveName && haveOrg {
+        return NSPredicate(format: pred, name, org)
+    } else if haveName && haveYear {
+        return NSPredicate(format: pred, name, castYear!)
+    } else if haveOrg && haveYear {
+        return NSPredicate(format: pred, org, castYear!)
+    } else if haveName {
+        return NSPredicate(format: pred, name)
+    } else if haveOrg {
+        return NSPredicate(format: pred, org)
+    } else if haveYear {
+        return NSPredicate(format: pred, castYear!)
+    }
+    
+    return nil
+}
+
+/// Produces Optional NSPredicate string based on which values are filled or not filled, returns nil if all fields
+/// are empty
+private func getPredicate(name: String, org: String, year: String) -> NSPredicate? {
+    if name == "" && org == "" && year == "" {
+        return nil
+    }
+    
+    var subqueries: [String] = []
+    
+    if name != "" {
+        subqueries.append("%@ in name")
+    }
+    
+    if org != "" {
+        subqueries.append("%@ in organization")
+    }
+    
+    if year != "" {
+        subqueries.append("year == %d")
+    }
+    
+    var resultString: String = ""
+    
+    /// Joins all the statements together with AND
+    for (idx, query) in subqueries.enumerated() {
+        resultString += query
+        if idx < subqueries.count - 1 {
+            resultString += " AND "
+        }
+    }
+    
+    return argsToPredParams(pred: resultString, name: name, org: org, year: year)
+}
+
 struct SearchView: View {
     @State private var selection: SearchType = .person
     @State private var firstName: String = ""
@@ -77,6 +142,7 @@ struct SearchInputView: View {
     @Binding var dmSearchSubmitted: Bool
     @Binding var linksParsed: Bool
     @Binding var hideTabBar: Bool
+
     /// Light gray
     private let deselectedBGColor: Color = Color(red: 0.94, green: 0.94,
                                                  blue: 0.94)
@@ -267,6 +333,22 @@ struct MeetSearchView: View {
     @Binding var meetName: String
     @Binding var orgName: String
     @Binding var meetYear: String
+    @State var predicate: NSPredicate?
+    @FetchRequest private var items: FetchedResults<DivingMeet>
+    // Updates the filteredItems value dynamically with predicate changes
+    var filteredItems: FetchedResults<DivingMeet> {
+        get {
+            _items.wrappedValue.nsPredicate = predicate
+            return items
+        }
+    }
+    
+    init(meetName: Binding<String>, orgName: Binding<String>, meetYear: Binding<String>) {
+        self._meetName = meetName
+        self._orgName = orgName
+        self._meetYear = meetYear
+        self._items = FetchRequest<DivingMeet>(entity: DivingMeet.entity(), sortDescriptors: [])
+    }
     
     var body: some View {
         VStack{
@@ -288,7 +370,7 @@ struct MeetSearchView: View {
                 Text("Meet Year:")
                     .padding(.leading)
                 Picker("", selection: $meetYear) {
-                    Text("")
+                    Text("").tag("")
                     ForEach((2004...2023).reversed(), id: \.self) {
                         Text(String($0))
                             .tag(String($0))
@@ -305,6 +387,21 @@ struct MeetSearchView: View {
             meetName = ""
             orgName = ""
             meetYear = ""
+        }
+        
+        Button("Get Results") {
+            // Modify the predicate with the new request
+            predicate = getPredicate(name: meetName, org: orgName, year: meetYear)
+            print(predicate ?? "nil")
+        }
+        
+        if predicate != nil {
+            List(filteredItems) { result in
+                Button(result.name!) {
+                    print(result.link!)
+                }
+                .foregroundColor(.primary)
+            }
         }
     }
 }
