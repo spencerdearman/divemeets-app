@@ -142,7 +142,17 @@ struct SearchInputView: View {
     @Binding var dmSearchSubmitted: Bool
     @Binding var linksParsed: Bool
     @Binding var hideTabBar: Bool
-
+    
+    @State var predicate: NSPredicate?
+    @FetchRequest private var items: FetchedResults<DivingMeet>
+    // Updates the filteredItems value dynamically with predicate changes
+    var filteredItems: FetchedResults<DivingMeet> {
+        get {
+            _items.wrappedValue.nsPredicate = predicate
+            return items
+        }
+    }
+    
     /// Light gray
     private let deselectedBGColor: Color = Color(red: 0.94, green: 0.94,
                                                  blue: 0.94)
@@ -158,6 +168,31 @@ struct SearchInputView: View {
     private let typeBubbleHeight: CGFloat = 35
     
     private let typeBGWidth: CGFloat = 40
+    
+    init(selection: Binding<SearchType>, firstName: Binding<String>, lastName: Binding<String>, meetName: Binding<String>, orgName: Binding<String>, meetYear: Binding<String>, searchSubmitted: Binding<Bool>, parsedLinks: Binding<[String : String]>, dmSearchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>, hideTabBar: Binding<Bool>) {
+        self._selection = selection
+        self._firstName = firstName
+        self._lastName = lastName
+        self._meetName = meetName
+        self._orgName = orgName
+        self._meetYear = meetYear
+        self._searchSubmitted = searchSubmitted
+        self._parsedLinks = parsedLinks
+        self._dmSearchSubmitted = dmSearchSubmitted
+        self._linksParsed = linksParsed
+        self._hideTabBar = hideTabBar
+        self._items = FetchRequest<DivingMeet>(entity: DivingMeet.entity(), sortDescriptors: [])
+    }
+    
+    private func clearTypeFlags() {
+        showError = false
+        resultSelected = false
+        searchSubmitted = false
+        dmSearchSubmitted = false
+        linksParsed = false
+        parsedLinks = [:]
+        predicate = nil
+    }
     
     var body: some View {
         let typeBGColor: Color = currentMode == .light
@@ -191,7 +226,7 @@ struct SearchInputView: View {
                         HStack(spacing: 0) {
                             Button(action: {
                                 if selection == .meet {
-                                    showError = false
+                                    clearTypeFlags()
                                     selection = .person
                                 }
                             }, label: {
@@ -204,7 +239,7 @@ struct SearchInputView: View {
                             .cornerRadius(cornerRadius)
                             Button(action: {
                                 if selection == .person {
-                                    showError = false
+                                    clearTypeFlags()
                                     selection = .meet
                                 }
                             }, label: {
@@ -221,7 +256,7 @@ struct SearchInputView: View {
                 
                 if selection == .meet {
                     MeetSearchView(meetName: $meetName, orgName: $orgName,
-                                   meetYear: $meetYear)
+                                   meetYear: $meetYear, predicate: $predicate, items: filteredItems)
                 } else {
                     DiverSearchView(firstName: $firstName, lastName: $lastName)
                 }
@@ -234,17 +269,16 @@ struct SearchInputView: View {
                         if checkFields(selection: selection, firstName: firstName,
                                        lastName: lastName, meetName: meetName,
                                        orgName: orgName, meetYear: meetYear) {
-                            showError = false
+                            clearTypeFlags()
                             searchSubmitted = true
-                            dmSearchSubmitted = false
-                            linksParsed = false
-                            parsedLinks = [:]
+                            
+                            if selection == .meet {
+                                predicate = getPredicate(name: meetName, org: orgName, year: meetYear)
+                                print(predicate ?? "nil")
+                            }
                         } else {
+                            clearTypeFlags()
                             showError = true
-                            searchSubmitted = false
-                            dmSearchSubmitted = false
-                            linksParsed = false
-                            parsedLinks = [:]
                         }
                     }, label: {
                         Text("Submit")
@@ -270,13 +304,14 @@ struct SearchInputView: View {
                 Spacer()
             }
             
-            if linksParsed {
+            if (selection == .person && linksParsed)
+                || (selection == .meet && predicate != nil) {
                 ZStack (alignment: .topLeading) {
-                    RecordList(hideTabBar: $hideTabBar, records: $parsedLinks, resultSelected: $resultSelected)
-                        .onAppear{
+                    (selection == .person ? AnyView(RecordList(hideTabBar: $hideTabBar, records: $parsedLinks, resultSelected: $resultSelected)) : AnyView(MeetResultsView(records: filteredItems)))
+                        .onAppear {
                             fullScreenResults = true
                         }
-                    if !resultSelected{
+                    if !resultSelected {
                         Image(systemName: "chevron.down")
                             .rotationEffect(.degrees(fullScreenResults ? 0: 180))
                             .frame(width:50, height: 50)
@@ -333,21 +368,16 @@ struct MeetSearchView: View {
     @Binding var meetName: String
     @Binding var orgName: String
     @Binding var meetYear: String
-    @State var predicate: NSPredicate?
-    @FetchRequest private var items: FetchedResults<DivingMeet>
-    // Updates the filteredItems value dynamically with predicate changes
-    var filteredItems: FetchedResults<DivingMeet> {
-        get {
-            _items.wrappedValue.nsPredicate = predicate
-            return items
-        }
-    }
+    @Binding private var predicate: NSPredicate?
+    private var filteredItems: FetchedResults<DivingMeet>
     
-    init(meetName: Binding<String>, orgName: Binding<String>, meetYear: Binding<String>) {
+    init(meetName: Binding<String>, orgName: Binding<String>, meetYear: Binding<String>,
+         predicate: Binding<NSPredicate?>, items: FetchedResults<DivingMeet>) {
         self._meetName = meetName
         self._orgName = orgName
         self._meetYear = meetYear
-        self._items = FetchRequest<DivingMeet>(entity: DivingMeet.entity(), sortDescriptors: [])
+        self._predicate = predicate
+        self.filteredItems = items
     }
     
     var body: some View {
@@ -388,19 +418,40 @@ struct MeetSearchView: View {
             orgName = ""
             meetYear = ""
         }
-        
-        Button("Get Results") {
-            // Modify the predicate with the new request
-            predicate = getPredicate(name: meetName, org: orgName, year: meetYear)
-            print(predicate ?? "nil")
-        }
-        
-        if predicate != nil {
-            List(filteredItems) { result in
-                Button(result.name!) {
-                    print(result.link!)
+    }
+}
+
+struct MeetResultsView : View {
+    @Environment(\.colorScheme) var currentMode
+    var records: FetchedResults<DivingMeet>
+    private let grayValue: CGFloat = 0.95
+    private let grayValueDark: CGFloat = 0.10
+    
+    var body: some View {
+        let gray = currentMode == .light ? grayValue : grayValueDark
+        ZStack {
+            Color(red: gray, green: gray, blue: gray)
+                .ignoresSafeArea()
+            VStack(alignment: .leading) {
+                
+                Text("Results")
+                    .bold()
+                    .font(.largeTitle)
+                    .foregroundColor(.primary)
+                    .padding(.leading, 20)
+                    .padding(.top, 50)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                if !records.isEmpty {
+                    List(records) { result in
+                        Button(result.name!) {
+                            print(result.link!)
+                        }
+                        .foregroundColor(.primary)
+                    }
+                    .offset(y: -50)
+                    .scrollContentBackground(.hidden)
                 }
-                .foregroundColor(.primary)
+                Spacer()
             }
         }
     }
