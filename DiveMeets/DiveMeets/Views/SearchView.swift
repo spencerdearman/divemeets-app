@@ -102,11 +102,17 @@ struct SearchView: View {
     @State var dmSearchSubmitted: Bool = false
     @State var linksParsed: Bool = false
     @Binding var hideTabBar: Bool
+    private var personSearchSubmitted: Bool {
+        searchSubmitted && selection == .person
+    }
+    private var meetSearchSubmitted: Bool {
+        searchSubmitted && selection == .meet
+    }
     
     @ViewBuilder
     var body: some View {
         ZStack{
-            if searchSubmitted {
+            if personSearchSubmitted {
                 SwiftUIWebView(firstName: $firstName, lastName: $lastName, parsedLinks: $parsedLinks, searchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed)
             }
             
