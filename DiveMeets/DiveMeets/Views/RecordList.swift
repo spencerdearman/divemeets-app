@@ -12,7 +12,7 @@ struct RecordList: View {
     
     @Binding var hideTabBar: Bool
     @Binding var records: [String: String]
-    @Binding var resultSelected: Bool
+    @Binding var personSelection: String?
     @State var offset: CGFloat = 0
     @State var lastOffset: CGFloat = 0
     
@@ -47,7 +47,8 @@ struct RecordList: View {
                                     link: value,
                                     diverID: String(
                                         value[value.index(value.startIndex, offsetBy: 67)...])),
-                                isActive: $resultSelected) {
+                                tag: key,
+                                selection: $personSelection) {
                                     
                                     GeometryReader { geometry in
                                         HStack {
@@ -70,11 +71,8 @@ struct RecordList: View {
                                     .frame(width: frameWidth,
                                            height: frameHeight)
                                 }
-                                .onDisappear {
-                                    resultSelected = true
-                                }
-                                .onAppear{
-                                    resultSelected = false
+                                .onAppear {
+                                    personSelection = nil
                                 }
                             
                         }
@@ -126,10 +124,3 @@ struct RecordList: View {
         }
     }
 }
-
-//struct RecordList_Previews: PreviewProvider {
-//    static var previews: some View {
-//        RecordList(hideTabBar: .constant(false), records: .constant(["Logan": "google.com"]))
-//    }
-//}
-//

@@ -111,7 +111,7 @@ struct SearchView: View {
     
     @ViewBuilder
     var body: some View {
-        ZStack{
+        ZStack {
             if personSearchSubmitted {
                 SwiftUIWebView(firstName: $firstName, lastName: $lastName, parsedLinks: $parsedLinks, searchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed)
             }
@@ -135,7 +135,7 @@ struct SearchInputView: View {
     
     @State private var showError: Bool = false
     @State var fullScreenResults: Bool = false
-    @State var resultSelected: Bool = false
+    @State var personSelection: String? = nil
     @Binding var selection: SearchType
     @Binding var firstName: String
     @Binding var lastName: String
@@ -159,6 +159,10 @@ struct SearchInputView: View {
         }
     }
     
+    var resultSelected: Bool {
+        personSelection != nil
+    }
+    
     /// Light gray
     private let deselectedBGColor: Color = Color(red: 0.94, green: 0.94,
                                                  blue: 0.94)
@@ -175,6 +179,13 @@ struct SearchInputView: View {
     
     private let typeBGWidth: CGFloat = 40
     
+    private var personResultsReady: Bool {
+        selection == .person && linksParsed
+    }
+    private var meetResultsReady: Bool {
+        selection == .meet && predicate != nil
+    }
+    
     init(selection: Binding<SearchType>, firstName: Binding<String>, lastName: Binding<String>, meetName: Binding<String>, orgName: Binding<String>, meetYear: Binding<String>, searchSubmitted: Binding<Bool>, parsedLinks: Binding<[String : String]>, dmSearchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>, hideTabBar: Binding<Bool>) {
         self._selection = selection
         self._firstName = firstName
@@ -187,12 +198,13 @@ struct SearchInputView: View {
         self._dmSearchSubmitted = dmSearchSubmitted
         self._linksParsed = linksParsed
         self._hideTabBar = hideTabBar
-        self._items = FetchRequest<DivingMeet>(entity: DivingMeet.entity(), sortDescriptors: [])
+        self._items = FetchRequest<DivingMeet>(entity: DivingMeet.entity(),
+                                               sortDescriptors: [])
     }
     
-    private func clearTypeFlags() {
+    private func clearStateFlags() {
         showError = false
-        resultSelected = false
+        personSelection = nil
         searchSubmitted = false
         dmSearchSubmitted = false
         linksParsed = false
@@ -232,7 +244,7 @@ struct SearchInputView: View {
                         HStack(spacing: 0) {
                             Button(action: {
                                 if selection == .meet {
-                                    clearTypeFlags()
+                                    clearStateFlags()
                                     selection = .person
                                 }
                             }, label: {
@@ -245,7 +257,7 @@ struct SearchInputView: View {
                             .cornerRadius(cornerRadius)
                             Button(action: {
                                 if selection == .person {
-                                    clearTypeFlags()
+                                    clearStateFlags()
                                     selection = .meet
                                 }
                             }, label: {
@@ -262,7 +274,8 @@ struct SearchInputView: View {
                 
                 if selection == .meet {
                     MeetSearchView(meetName: $meetName, orgName: $orgName,
-                                   meetYear: $meetYear, predicate: $predicate, items: filteredItems)
+                                   meetYear: $meetYear, predicate: $predicate,
+                                   items: filteredItems)
                 } else {
                     DiverSearchView(firstName: $firstName, lastName: $lastName)
                 }
@@ -275,15 +288,17 @@ struct SearchInputView: View {
                         if checkFields(selection: selection, firstName: firstName,
                                        lastName: lastName, meetName: meetName,
                                        orgName: orgName, meetYear: meetYear) {
-                            clearTypeFlags()
+                            clearStateFlags()
                             searchSubmitted = true
                             
                             if selection == .meet {
-                                predicate = getPredicate(name: meetName, org: orgName, year: meetYear)
+                                predicate = getPredicate(name: meetName,
+                                                         org: orgName,
+                                                         year: meetYear)
                                 print(predicate ?? "nil")
                             }
                         } else {
-                            clearTypeFlags()
+                            clearStateFlags()
                             showError = true
                         }
                     }, label: {
@@ -310,10 +325,13 @@ struct SearchInputView: View {
                 Spacer()
             }
             
-            if (selection == .person && linksParsed)
-                || (selection == .meet && predicate != nil) {
+            if personResultsReady || meetResultsReady {
                 ZStack (alignment: .topLeading) {
-                    (selection == .person ? AnyView(RecordList(hideTabBar: $hideTabBar, records: $parsedLinks, resultSelected: $resultSelected)) : AnyView(MeetResultsView(records: filteredItems)))
+                    (selection == .person
+                     ? AnyView(RecordList(hideTabBar: $hideTabBar,
+                                          records: $parsedLinks,
+                                          personSelection: $personSelection))
+                     : AnyView(MeetResultsView(records: filteredItems)))
                         .onAppear {
                             fullScreenResults = true
                         }
