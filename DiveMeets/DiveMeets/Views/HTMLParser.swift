@@ -20,7 +20,7 @@ final class HTMLParser: ObservableObject {
             let main = try body.getElementsByTag("body").compactMap({try? $0.html()})
             let html = main[0]
             let doc: Document = try SwiftSoup.parse(html)
-
+            
             var myData = [[String]]()
             let myRows: Elements? = try doc.getElementsByTag("tr")
             try myRows?.forEach({ row in
@@ -40,18 +40,21 @@ final class HTMLParser: ObservableObject {
     }
     
     func parse(urlString: String) -> [[String]] {
+        let getTextModel = GetTextAsyncModel()
         print(urlString)
         guard let url = URL(string: urlString) else {
             return []
         }
         
-        do {
-            let html = try String(contentsOf: url)
-            myData = parse(html: html)
+        Task {
+            await getTextModel.fetchText(url: url)
+            let html = getTextModel.text!
+            await MainActor.run {
+                myData = parse(html: html)
+            }
             return myData
-        } catch {
-            print("Error fetching HTML: \(error)")
         }
+        
         return []
     }
     
