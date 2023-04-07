@@ -66,11 +66,11 @@ private func getPredicate(name: String, org: String, year: String) -> NSPredicat
     var subqueries: [String] = []
     
     if name != "" {
-        subqueries.append("%@ in name")
+        subqueries.append("%@ in[cd] name")
     }
     
     if org != "" {
-        subqueries.append("%@ in organization")
+        subqueries.append("%@ in[cd] organization")
     }
     
     if year != "" {

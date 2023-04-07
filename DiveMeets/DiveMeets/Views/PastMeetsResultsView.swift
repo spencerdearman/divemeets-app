@@ -19,7 +19,7 @@ struct PastMeetsResultsView: View {
     // Note: predicate formats use %@ for strings instead of %s, still use %d for ints
     @FetchRequest(
         sortDescriptors: [],
-        predicate: NSPredicate(format: "%@ in name AND year > %d", "Zone", 2019)
+        predicate: NSPredicate(format: "%@ in[cd] name && year < %d", "Big Dive", 2013)
     ) var filteredMeets: FetchedResults<DivingMeet>
     
     func displayDivingMeet(meet: DivingMeet) -> HStack<TupleView<(Text, Text, Text, Text)>> {
