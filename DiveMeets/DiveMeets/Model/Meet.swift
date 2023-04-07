@@ -8,9 +8,8 @@
 import Foundation
 import SwiftUI
 
-struct Meet: Hashable, Codable, Identifiable {
-    
-    var id: Int
+struct Meet: Hashable, Codable {
+
     var meetName: String
     var meetEvents: [String]
     var meetPlaces: [Int]

@@ -9,13 +9,19 @@ import SwiftUI
 import WebKit
 
 struct SwiftUIWebView: View {
-    @State var request: String = "https://secure.meetcontrol.com/divemeets/system/memberlist.php"
-    //    "https://secure.meetcontrol.com/divemeets/system/profile.php?number=51197"
+    @Binding var firstName: String
+    @Binding var lastName: String
+    @State var request: String =
+    "https://secure.meetcontrol.com/divemeets/system/memberlist.php"
     @State var parsedHTML: String = ""
+    @Binding var parsedLinks: [String: String]
+    @Binding var searchSubmitted: Bool
+    @Binding var linksParsed: Bool
     
     var body: some View {
         VStack {
-            WebView(request: $request, parsedHTML: $parsedHTML)
+            WebView(request: $request, parsedHTML: $parsedHTML,
+                    parsedLinks: $parsedLinks, firstName: $firstName, lastName: $lastName, searchSubmitted: $searchSubmitted, linksParsed: $linksParsed)
         }
     }
 }
@@ -24,21 +30,24 @@ struct WebView: UIViewRepresentable {
     let htmlParser: HTMLParser = HTMLParser()
     @Binding var request: String
     @Binding var parsedHTML: String
+    @Binding var parsedLinks: [String: String]
+    @Binding var firstName: String
+    @Binding var lastName: String
+    @Binding var searchSubmitted: Bool
+    @Binding var linksParsed: Bool
     
     func makeUIView(context: Context) -> WKWebView {
         let webView: WKWebView = {
-            //            let prefs = WKPreferences()
-            //            prefs.javaScriptEnabled = true
             let pagePrefs = WKWebpagePreferences()
             pagePrefs.allowsContentJavaScript = true
             let config = WKWebViewConfiguration()
-            //            config.preferences = prefs
             config.defaultWebpagePreferences = pagePrefs
             let webview = WKWebView(frame: .zero,
                                     configuration: config)
             webview.translatesAutoresizingMaskIntoConstraints = false
             return webview
         }()
+        webView.navigationDelegate = context.coordinator
         
         return webView
     }
@@ -47,73 +56,60 @@ struct WebView: UIViewRepresentable {
     func updateUIView(_ uiView: WKWebView, context: Context) {
         guard let url = URL(string: request) else { return }
         uiView.load(URLRequest(url: url))
-//        parsedHTML = htmlParser.parse(html: request)
     }
     
     // From UIKit to SwiftUI
     func makeCoordinator() -> Coordinator {
-        return Coordinator(html: $parsedHTML)
+        return Coordinator(html: $parsedHTML, links: $parsedLinks, firstName: $firstName, lastName: $lastName, searchSubmitted: $searchSubmitted, linksParsed: $linksParsed)
     }
     
     class Coordinator: NSObject, WKNavigationDelegate {
         let htmlParser: HTMLParser = HTMLParser()
         @Binding var parsedHTML: String
+        @Binding var parsedLinks: [String: String]
+        @Binding var firstName: String
+        @Binding var lastName: String
+        @Binding var searchSubmitted: Bool
+        @Binding var linksParsed: Bool
         
-        init(html: Binding<String>) {
+        init(html: Binding<String>, links: Binding<[String: String]>, firstName: Binding<String>, lastName: Binding<String>, searchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>) {
             self._parsedHTML = html
+            self._parsedLinks = links
+            self._firstName = firstName
+            self._lastName = lastName
+            self._searchSubmitted = searchSubmitted
+            self._linksParsed = linksParsed
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            // Fill First Name
-            // document.getElementById('first').value = 'Logan'
-            
-            // Fill Last Name
-            // document.getElementById('last').value = 'Sherwin'
-            
-            // Hit Submit button
-            // document.getElementsByTagName('input')[2].click()
-            let first = "Logan"
-            let last = "Sherwin"
-            let js = "document.getElementById('first').value = \(first); document.getElementById('last').value = \(last); document.getElementsByTagName('input')[2].click(); "
-            webView.evaluateJavaScript(js) { [weak self] result, error in
-                guard let html = result as? String, error == nil else { return }
-                var res = self?.htmlParser.parse(html: html) ?? []
+            let js = "document.getElementById('first').value = '\(firstName)'; document.getElementById('last').value = '\(lastName)'"
+            if !searchSubmitted {
+                /// Fill boxes with search values
+                webView.evaluateJavaScript(js, completionHandler: nil)
                 
-            }
-            webView.evaluateJavaScript("document.body.innerHTML;") { [weak self] result, error in
-                guard let html = result as? String, error == nil else { print("Failed to get HTML"); return
+                /// Click Submit
+                webView.evaluateJavaScript(
+                    "document.getElementsByTagName('input')[2].click()") {
+                        _, _ in
+                        self.searchSubmitted = true
+                    }
+            } else if !linksParsed {
+                /// Gets HTML after submitting request
+                webView.evaluateJavaScript("document.body.innerHTML") {
+                    [weak self] result, error in
+                    guard let html = result as? String, error == nil else { return }
+                    self?.parsedHTML = html
+                    self?.parsedLinks = (self?.htmlParser.getRecords(html))!
+                    self?.linksParsed = true
+                    print((self?.parsedLinks)!)
                 }
-                self?.htmlParser.parse(html: html)
             }
         }
-
     }
 }
 
-func desktopDirectoryJSONURL() -> URL {
-    do {
-        let documentDirectory = try FileManager.default.url(for: .desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-        return documentDirectory.appendingPathComponent("test.json")
-    } catch {
-        fatalError("Couldn't create URL")
-    }
-}
-
-
-func writeToFile(value: String) {
-    do{
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted
-        let jsonData = try encoder.encode(value)
-        try jsonData.write(to: desktopDirectoryJSONURL())
-    } catch {
-        print(error)
-    }
-}
-
-
-struct SwiftUIWebView_Previews: PreviewProvider {
-    static var previews: some View {
-        SwiftUIWebView()
-    }
-}
+//struct SwiftUIWebView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        SwiftUIWebView()
+//    }
+//}

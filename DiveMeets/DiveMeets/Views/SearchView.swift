@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum SearchType: String, CaseIterable {
-    case person = "Diver, Coach, or Judge"
+    case person = "Person"
     case meet = "Meet"
 }
 
@@ -33,29 +33,71 @@ struct SearchView: View {
     @State private var orgName: String = ""
     @State private var meetYear: String = ""
     @State private var searchSubmitted: Bool = false
+    @State var parsedLinks: [String: String] = [:]
+    @State var dmSearchSubmitted: Bool = false
+    @State var linksParsed: Bool = false
+    @Binding var hideTabBar: Bool
     
     @ViewBuilder
     var body: some View {
-        /// Submit button doesn't switch pages in preview, but it works in Simulator
-        if searchSubmitted {
-            SearchResultsView(selection: $selection, firstName: $firstName,
-                              lastName: $lastName, meetName: $meetName,
-                              orgName: $orgName, meetYear: $meetYear,
-                              searchSubmitted: $searchSubmitted)
-            .onDisappear {
-                searchSubmitted = false
+        ZStack{
+            if searchSubmitted {
+                SwiftUIWebView(firstName: $firstName, lastName: $lastName, parsedLinks: $parsedLinks, searchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed)
             }
-        } else {
-            SearchInputView(selection: $selection, firstName: $firstName,
-                            lastName: $lastName, meetName: $meetName,
+            
+            Color.white.ignoresSafeArea()
+            
+            /// Submit button doesn't switch pages in preview, but it works in Simulator
+            SearchInputView(selection: $selection, firstName: $firstName, lastName: $lastName, meetName: $meetName,
                             orgName: $orgName, meetYear: $meetYear,
-                            searchSubmitted: $searchSubmitted)
+                            searchSubmitted: $searchSubmitted, parsedLinks: $parsedLinks, dmSearchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed, hideTabBar: $hideTabBar)
         }
+        .onDisappear {
+            searchSubmitted = false
+        }
+        
     }
 }
+//
+///// Currently just for testing that the results are being captured before scraping
+//struct SearchResultsView: View {
+//    @Binding var selection: SearchType
+//    @Binding var firstName: String
+//    @Binding var lastName: String
+//    @Binding var meetName: String
+//    @Binding var orgName: String
+//    @Binding var meetYear: String
+//    @Binding var searchSubmitted: Bool
+//
+//    var body: some View {
+//        VStack {
+//            /// Temporary for testing purposes before we scrape
+//            Text("Sending...")
+//            if selection == .meet {
+//                Text(meetName)
+//                Text(orgName)
+//                Text(meetYear)
+//            } else {
+//                Text(firstName)
+//                Text(lastName)
+//            }
+//            Button(action: {
+//                searchSubmitted = false
+//            }, label: {
+//                Text("Back")
+//            })
+//            .buttonStyle(.bordered)
+//            .padding()
+//        }
+//    }
+//}
 
-/// Currently just for testing that the results are being captured before scraping
-struct SearchResultsView: View {
+struct SearchInputView: View {
+    @Environment(\.colorScheme) var currentMode
+    
+    @State private var showError: Bool = false
+    @State var fullScreenResults: Bool = false
+    @State var resultSelected: Bool = false
     @Binding var selection: SearchType
     @Binding var firstName: String
     @Binding var lastName: String
@@ -64,58 +106,56 @@ struct SearchResultsView: View {
     @Binding var meetYear: String
     @Binding var searchSubmitted: Bool
     
-    var body: some View {
-        VStack {
-            /// Temporary for testing purposes before we scrape
-            Text("Sending...")
-            if selection == .meet {
-                Text(meetName)
-                Text(orgName)
-                Text(meetYear)
-            } else {
-                Text(firstName)
-                Text(lastName)
-            }
-            Button(action: {
-                searchSubmitted = false
-            }, label: {
-                Text("Back")
-            })
-            .buttonStyle(.bordered)
-            .padding()
-        }
-    }
-}
-
-struct SearchInputView: View {
-    @State private var showError: Bool = false
-    @Binding var selection: SearchType
-    @Binding var firstName: String
-    @Binding var lastName: String
-    @Binding var meetName: String
-    @Binding var orgName: String
-    @Binding var meetYear: String
-    @Binding var searchSubmitted: Bool
-    private let cornerRadius: CGFloat = 20
-    private let selectedBGColor: Color = Color.blue
+    @Binding var parsedLinks: [String: String]
+    @Binding var dmSearchSubmitted: Bool
+    @Binding var linksParsed: Bool
+    @Binding var hideTabBar: Bool
     /// Light gray
     private let deselectedBGColor: Color = Color(red: 0.94, green: 0.94,
                                                  blue: 0.94)
     private let selectedTextColor: Color = Color.white
     private let deselectedTextColor: Color = Color.blue
     
+    private let cornerRadius: CGFloat = 30
+    private let selectedBGColor: Color = Color.accentColor
+    private let grayValue: CGFloat = 0.90
+    private let grayValueDark: CGFloat = 0.10
+    private let textColor: Color = Color.primary
+    private let typeBubbleWidth: CGFloat = 100
+    private let typeBubbleHeight: CGFloat = 35
+    
+    private let typeBGWidth: CGFloat = 40
+    
     var body: some View {
-        VStack {
+        let typeBGColor: Color = currentMode == .light
+        ? Color(red: grayValue, green: grayValue, blue: grayValue)
+        : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
+        let typeBubbleColor: Color = currentMode == .light
+        ? Color.white
+        : Color.black
+        
+        ZStack {
             VStack {
-                Text("Search")
-                    .font(.title)
-                    .bold()
-                    .padding(.bottom, 155)
-                    HStack {
-                        Text("Type:")
-                        HStack {
+                VStack {
+                    Text("Search")
+                        .font(.title)
+                        .bold()
+                    ZStack {
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .frame(width: typeBubbleWidth * 2 + 5,
+                                   height: typeBGWidth)
+                            .foregroundColor(typeBGColor)
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .frame(width: typeBubbleWidth,
+                                   height: typeBubbleHeight)
+                            .foregroundColor(typeBubbleColor)
+                            .offset(x: selection == .person
+                                    ? -typeBubbleWidth / 2
+                                    : typeBubbleWidth / 2)
+                            .animation(.spring(response: 0.2), value: selection)
+                        HStack(spacing: 0) {
                             Button(action: {
-                                if selection != .person {
+                                if selection == .meet {
                                     showError = false
                                     selection = .person
                                 }
@@ -123,16 +163,12 @@ struct SearchInputView: View {
                                 Text(SearchType.person.rawValue)
                                     .animation(nil, value: selection)
                             })
-                            .buttonStyle(.bordered)
-                            .foregroundColor(selection == .person
-                                             ? selectedTextColor
-                                             : deselectedTextColor)
-                            .background(selection == .person
-                                        ? selectedBGColor
-                                        : deselectedBGColor)
+                            .frame(width: typeBubbleWidth,
+                                   height: typeBubbleHeight)
+                            .foregroundColor(textColor)
                             .cornerRadius(cornerRadius)
                             Button(action: {
-                                if selection != .meet {
+                                if selection == .person {
                                     showError = false
                                     selection = .meet
                                 }
@@ -140,58 +176,93 @@ struct SearchInputView: View {
                                 Text(SearchType.meet.rawValue)
                                     .animation(nil, value: selection)
                             })
-                            .buttonStyle(.bordered)
-                            .foregroundColor(selection == .meet
-                                             ? selectedTextColor
-                                             : deselectedTextColor)
-                            .background(selection == .meet
-                                        ? selectedBGColor
-                                        : deselectedBGColor)
+                            .frame(width: typeBubbleWidth,
+                                   height: typeBubbleHeight)
+                            .foregroundColor(textColor)
                             .cornerRadius(cornerRadius)
                         }
                     }
-                    .padding([.leading, .trailing])
-            }
-            
-            if selection == .meet {
-                MeetSearchView(meetName: $meetName, orgName: $orgName,
-                               meetYear: $meetYear)
-            } else {
-                DiverSearchView(firstName: $firstName, lastName: $lastName)
-            }
-            
-            Button(action: {
-                /// Only submits a search if one of the relevant fields is filled, otherwise toggles error
-                if checkFields(selection: selection, firstName: firstName,
-                               lastName: lastName, meetName: meetName,
-                               orgName: orgName, meetYear: meetYear) {
-                    searchSubmitted = true
-                    showError = false
-                } else {
-                    showError = true
                 }
-            }, label: {
-                Text("Submit")
-                    .animation(nil, value: selection)
-            })
-            .buttonStyle(.bordered)
-            .cornerRadius(cornerRadius)
-            .animation(nil, value: selection)
-            if showError {
-                Text("You must enter at least one field to search")
-                    .foregroundColor(Color.red)
                 
-            } else {
-                Text("")
+                if selection == .meet {
+                    MeetSearchView(meetName: $meetName, orgName: $orgName,
+                                   meetYear: $meetYear)
+                } else {
+                    DiverSearchView(firstName: $firstName, lastName: $lastName)
+                }
+                
+                VStack {
+                    Button(action: {
+                        /// Need to initially set search to false so webView gets recreated
+                        searchSubmitted = false
+                        /// Only submits a search if one of the relevant fields is filled, otherwise toggles error
+                        if checkFields(selection: selection, firstName: firstName,
+                                       lastName: lastName, meetName: meetName,
+                                       orgName: orgName, meetYear: meetYear) {
+                            showError = false
+                            searchSubmitted = true
+                            dmSearchSubmitted = false
+                            linksParsed = false
+                            parsedLinks = [:]
+                        } else {
+                            showError = true
+                            searchSubmitted = false
+                            dmSearchSubmitted = false
+                            linksParsed = false
+                            parsedLinks = [:]
+                        }
+                    }, label: {
+                        Text("Submit")
+                            .animation(nil, value: selection)
+                    })
+                    .buttonStyle(.bordered)
+                    .cornerRadius(cornerRadius)
+                    .animation(nil, value: selection)
+                    if searchSubmitted && !linksParsed {
+                        ProgressView()
+                    }
+                }
+                if showError {
+                    Text("You must enter at least one field to search")
+                        .foregroundColor(Color.red)
+                    
+                } else {
+                    Text("")
+                }
+                
+                Spacer()
+                Spacer()
+                Spacer()
             }
             
-            Spacer()
-            Spacer()
+            if linksParsed {
+                ZStack (alignment: .topLeading) {
+                    RecordList(hideTabBar: $hideTabBar, records: $parsedLinks, resultSelected: $resultSelected)
+                        .onAppear{
+                            fullScreenResults = true
+                        }
+                    if !resultSelected{
+                        Image(systemName: "chevron.down")
+                            .rotationEffect(.degrees(fullScreenResults ? 0: 180))
+                            .frame(width:50, height: 50)
+                            .foregroundColor(.black)
+                            .font(.system(size: 22))
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                fullScreenResults.toggle()
+                            }
+                    }
+                }
+                .offset(y: fullScreenResults ? 0 : 350)
+                .animation(.linear(duration: 0.2), value: fullScreenResults)
+            }
         }
         .onAppear {
             showError = false
         }
+        
     }
+    
 }
 
 struct DiverSearchView: View {
@@ -271,6 +342,8 @@ struct MeetSearchView: View {
 
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
-        SearchView()
+        ForEach(ColorScheme.allCases, id: \.self) {
+            SearchView(hideTabBar: .constant(false)).preferredColorScheme($0)
+        }
     }
 }
