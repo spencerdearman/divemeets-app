@@ -42,7 +42,7 @@ struct SearchView: View {
     var body: some View {
         ZStack{
             if searchSubmitted {
-                SwiftUIWebView(firstName: $firstName, lastName: $lastName, parsedLinks: $parsedLinks, searchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed)
+                SwiftUIWebView(firstName: $firstName, lastName: $lastName, parsedLinks: $parsedLinks, dmSearchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed)
             }
             
             Color.white.ignoresSafeArea()

@@ -15,13 +15,13 @@ struct SwiftUIWebView: View {
     "https://secure.meetcontrol.com/divemeets/system/memberlist.php"
     @State var parsedHTML: String = ""
     @Binding var parsedLinks: [String: String]
-    @Binding var searchSubmitted: Bool
+    @Binding var dmSearchSubmitted: Bool
     @Binding var linksParsed: Bool
     
     var body: some View {
         VStack {
             WebView(request: $request, parsedHTML: $parsedHTML,
-                    parsedLinks: $parsedLinks, firstName: $firstName, lastName: $lastName, searchSubmitted: $searchSubmitted, linksParsed: $linksParsed)
+                    parsedLinks: $parsedLinks, firstName: $firstName, lastName: $lastName, dmSearchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed)
         }
     }
 }
@@ -33,7 +33,7 @@ struct WebView: UIViewRepresentable {
     @Binding var parsedLinks: [String: String]
     @Binding var firstName: String
     @Binding var lastName: String
-    @Binding var searchSubmitted: Bool
+    @Binding var dmSearchSubmitted: Bool
     @Binding var linksParsed: Bool
     
     func makeUIView(context: Context) -> WKWebView {
@@ -60,7 +60,7 @@ struct WebView: UIViewRepresentable {
     
     // From UIKit to SwiftUI
     func makeCoordinator() -> Coordinator {
-        return Coordinator(html: $parsedHTML, links: $parsedLinks, firstName: $firstName, lastName: $lastName, searchSubmitted: $searchSubmitted, linksParsed: $linksParsed)
+        return Coordinator(html: $parsedHTML, links: $parsedLinks, firstName: $firstName, lastName: $lastName, dmSearchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed)
     }
     
     class Coordinator: NSObject, WKNavigationDelegate {
@@ -69,21 +69,21 @@ struct WebView: UIViewRepresentable {
         @Binding var parsedLinks: [String: String]
         @Binding var firstName: String
         @Binding var lastName: String
-        @Binding var searchSubmitted: Bool
+        @Binding var dmSearchSubmitted: Bool
         @Binding var linksParsed: Bool
         
-        init(html: Binding<String>, links: Binding<[String: String]>, firstName: Binding<String>, lastName: Binding<String>, searchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>) {
+        init(html: Binding<String>, links: Binding<[String: String]>, firstName: Binding<String>, lastName: Binding<String>, dmSearchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>) {
             self._parsedHTML = html
             self._parsedLinks = links
             self._firstName = firstName
             self._lastName = lastName
-            self._searchSubmitted = searchSubmitted
+            self._dmSearchSubmitted = dmSearchSubmitted
             self._linksParsed = linksParsed
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             let js = "document.getElementById('first').value = '\(firstName)'; document.getElementById('last').value = '\(lastName)'"
-            if !searchSubmitted {
+            if !dmSearchSubmitted {
                 /// Fill boxes with search values
                 webView.evaluateJavaScript(js, completionHandler: nil)
                 
@@ -91,7 +91,7 @@ struct WebView: UIViewRepresentable {
                 webView.evaluateJavaScript(
                     "document.getElementsByTagName('input')[2].click()") {
                         _, _ in
-                        self.searchSubmitted = true
+                        self.dmSearchSubmitted = true
                     }
             } else if !linksParsed {
                 /// Gets HTML after submitting request
