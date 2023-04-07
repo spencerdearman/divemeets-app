@@ -15,12 +15,15 @@ private enum Stage: Int, CaseIterable {
 
 //                    Year  :  Org   :  Name  : Link
 typealias MeetDict = [String: [String: [String: String]]]
+//                           Name  : Link Type ("info" or "results") : Link
+//                                   Note: "results" key not always present
+typealias CurrentMeetDict = [String: [String: String]]
 
 final class MeetParser: ObservableObject {
     let currentYear = String(Calendar.current.component(.year, from: Date()))
     @Published private var linkText: String?
     @Published var upcomingMeets: MeetDict?
-    @Published var currentMeets: String?
+    @Published var currentMeets: CurrentMeetDict?
     @Published var pastMeets: MeetDict?
     @Published private var pastYear: String = ""
     @Published private var stage: Stage?
@@ -44,7 +47,8 @@ final class MeetParser: ObservableObject {
             let rows = try content.getElementsByTag("td")
             for row in rows {
                 // Only continues on rows w/o align field and w valign == top
-                if !(try !row.hasAttr("align") && row.hasAttr("valign") && row.attr("valign") == "top") {
+                if !(try !row.hasAttr("align")
+                     && row.hasAttr("valign") && row.attr("valign") == "top") {
                     continue
                 }
                 
@@ -76,6 +80,48 @@ final class MeetParser: ObservableObject {
         return result
     }
     
+    // Parses current meets from homepage sidebar since "Current" tab is not
+    // reliable
+    private func parseCurrentMeets(html: String) -> CurrentMeetDict? {
+        var result: CurrentMeetDict = [:]
+        let leadingLink: String = "https://secure.meetcontrol.com/divemeets/system/"
+        do {
+            let document: Document = try SwiftSoup.parse(html)
+            guard let body = document.body() else {
+                return nil
+            }
+            let content = try body.getElementById("dm_content")
+            let sidebar = try content?.getElementsByTag("div")[3]
+            // Gets table of all current meet rows
+            let currentTable = try sidebar?.getElementsByTag("table")
+                .first()?.children().first()
+            // Gets list of Elements for each current meet
+            let currentRows = try currentTable?.getElementsByTag("table")
+            for row in currentRows! {
+                let rowRows = try row.getElementsByTag("td")
+                let meetElem = rowRows[0]
+                var meetResults: Element? = nil
+                if rowRows.count > 1 {
+                    meetResults = rowRows[1]
+                }
+                
+                result[try meetElem.text()] = [:]
+                result[try meetElem.text()]!["info"] = try leadingLink +
+                meetElem.getElementsByAttribute("href")[0].attr("href")
+                if meetResults != nil {
+                    result[try meetElem.text()]!["results"] =
+                    try leadingLink + meetResults!.getElementsByAttribute("href")[0]
+                        .attr("href")
+                }
+            }
+            
+            return result
+        } catch {
+            print("Parsing current meets failed")
+            return nil
+        }
+    }
+    
     func parseMeets(html: String) async throws {
         do {
             let document: Document = try SwiftSoup.parse(html)
@@ -96,10 +142,10 @@ final class MeetParser: ObservableObject {
                     continue
                 }
                 if try tabElem.text() == "Current" {
-                    try await MainActor.run {
-                        currentMeets = try tabElem.attr("href")
+                    await MainActor.run {
+                        currentMeets = parseCurrentMeets(html: html)
+                        stage = .past
                     }
-                    stage = .past
                     continue
                 }
                 if try tabElem.text() == "Past Results & Photos" {
@@ -136,11 +182,6 @@ final class MeetParser: ObservableObject {
                     try await MainActor.run {
                         pastYear = try tabElem.text()
                     }
-                    /// Only saves last two years of past meets into dictionary, loads rest from static file
-                    ///  Loads last two years to prevent any missing links when close to new year
-                    //                    if Int(pastYear) ?? 10000 < Int(currentYear)! - 1 {
-                    //                        break
-                    //                    }
                 }
                 else if stage == .past {
                     if pastMeets == nil {
@@ -160,26 +201,11 @@ final class MeetParser: ObservableObject {
                     await fetchLinkText(url: URL(string: link)!)
                     try await MainActor.run {
                         // Parses subpage and gets meet names and links
-                        try pastMeets![pastYear]![tabElem.text()] = getMeetNamesAndLinks(text: linkText!)
+                        try pastMeets![pastYear]![tabElem.text()] =
+                        getMeetNamesAndLinks(text: linkText!)
                     }
                 }
             }
-            /*
-             /// Merges parsed pastMeets with static historical data, keeping the parsed version if the
-             /// same key appears
-             let loadedPastMeets = readFromFile(filename: "pastMeets.json")
-             
-             /// Merges years where both pastMeets and loadedPastMeets appear
-             for k in pastMeets.keys {
-             if loadedPastMeets[k] != nil {
-             pastMeets[k] = pastMeets[k]!.merging(
-             loadedPastMeets[k]!) { (current, _) in current }
-             }
-             }
-             
-             /// Adds years that were not parsed from loadedPastMeets
-             pastMeets = pastMeets.merging(loadedPastMeets) { (current, _) in current }
-             */
         } catch {
             print("Error parsing meets")
         }
@@ -249,7 +275,7 @@ struct MeetParserView: View {
                 }
                 Spacer()
                 Button("Current") {
-                    print(p.currentMeets ?? "")
+                    print(p.currentMeets ?? [:])
                 }
                 Spacer()
                 Button("Past") {
@@ -279,9 +305,3 @@ struct MeetParserView: View {
     }
     
 }
-
-//struct MeetParserView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        MeetParserView()
-//    }
-//}
