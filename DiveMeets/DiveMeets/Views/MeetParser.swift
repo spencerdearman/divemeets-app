@@ -18,16 +18,26 @@ typealias MeetDict = [String: [String: [String: String]]]
 //                           Name  : Link Type ("info" or "results") : Link
 //                                   Note: "results" key not always present
 typealias CurrentMeetDict = [String: [String: String]]
+//                           Meet  :  Event : Link
+typealias LiveResultsDict = [String: [String: String]]
+
 
 final class MeetParser: ObservableObject {
     let currentYear = String(Calendar.current.component(.year, from: Date()))
     @Published private var linkText: String?
+    // Upcoming meets happening in the future
     @Published var upcomingMeets: MeetDict?
+    // Meets that are actively happening during that time period
     @Published var currentMeets: CurrentMeetDict?
+    // Current meets that have live results available on their results page
+    @Published var liveResults: LiveResultsDict?
+    // Meets that have already happened
     @Published var pastMeets: MeetDict?
     @Published private var pastYear: String = ""
     @Published private var stage: Stage?
     let loader = GetTextAsyncLoader()
+    let getTextModel = GetTextAsyncModel()
+    let leadingLink: String = "https://secure.meetcontrol.com/divemeets/system/"
     
     private func fetchLinkText(url: URL) async {
         let text = try? await loader.getText(url: url)
@@ -80,15 +90,55 @@ final class MeetParser: ObservableObject {
         return result
     }
     
+    // Takes in a URL to a meet results page and outputs a mapping of
+    // [Event Name : Live Stats Link] pulled from the results page
+    private func parseLiveEventsLinks(meetName: String, url: URL) async {
+        await getTextModel.fetchText(url: url)
+        
+        var result: [String: String]?
+        
+        do {
+            let document: Document = try SwiftSoup.parse(getTextModel.text!)
+            guard let body = document.body() else {
+                return
+            }
+            let content = try body.getElementById("dm_content")
+            let table = try content?.getElementsByTag("table").first()
+            let rows = try table?.tagName("td").getElementsByAttribute("style")
+            for row in rows! {
+                if try row.attr("style") == "font-size: 10px" {
+                    let eventName = try row.getElementsByTag("strong").first()!.text()
+                    let results = try row.getElementsByTag("a")
+                    if result == nil {
+                        result = [:]
+                    }
+                    result![eventName] = try leadingLink + results.attr("href")
+                }
+            }
+            
+            await MainActor.run { [result] in
+                if result != nil {
+                    if liveResults == nil {
+                        liveResults = [:]
+                    }
+                    liveResults![meetName] = result!
+                }
+            }
+            print("Live Results:", liveResults!)
+        } catch {
+            print("Parsing live results links failed")
+            return
+        }
+    }
+    
     // Parses current meets from homepage sidebar since "Current" tab is not
     // reliable
-    private func parseCurrentMeets(html: String) -> CurrentMeetDict? {
+    private func parseCurrentMeets(html: String) async {
         var result: CurrentMeetDict = [:]
-        let leadingLink: String = "https://secure.meetcontrol.com/divemeets/system/"
         do {
             let document: Document = try SwiftSoup.parse(html)
             guard let body = document.body() else {
-                return nil
+                return
             }
             let content = try body.getElementById("dm_content")
             let sidebar = try content?.getElementsByTag("div")[3]
@@ -104,7 +154,6 @@ final class MeetParser: ObservableObject {
                 if rowRows.count > 1 {
                     meetResults = rowRows[1]
                 }
-                
                 result[try meetElem.text()] = [:]
                 result[try meetElem.text()]!["info"] = try leadingLink +
                 meetElem.getElementsByAttribute("href")[0].attr("href")
@@ -113,12 +162,16 @@ final class MeetParser: ObservableObject {
                     try leadingLink + meetResults!.getElementsByAttribute("href")[0]
                         .attr("href")
                 }
+                await parseLiveEventsLinks(meetName: try meetElem.text(),
+                                           url: URL(
+                    string: result[try meetElem.text()]!["results"]!)!)
             }
             
-            return result
+            await MainActor.run { [result] in
+                currentMeets = result
+            }
         } catch {
             print("Parsing current meets failed")
-            return nil
         }
     }
     
@@ -142,8 +195,8 @@ final class MeetParser: ObservableObject {
                     continue
                 }
                 if try tabElem.text() == "Current" {
+                    await parseCurrentMeets(html: html)
                     await MainActor.run {
-                        currentMeets = parseCurrentMeets(html: html)
                         stage = .past
                     }
                     continue
