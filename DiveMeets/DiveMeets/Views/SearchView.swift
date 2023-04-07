@@ -201,7 +201,7 @@ struct SearchView: View {
         ZStack {
             if personSearchSubmitted {
                 SwiftUIWebView(firstName: $firstName, lastName: $lastName,
-                               parsedLinks: $parsedLinks, searchSubmitted: $dmSearchSubmitted,
+                               parsedLinks: $parsedLinks, dmSearchSubmitted: $dmSearchSubmitted,
                                linksParsed: $linksParsed)
             }
             
