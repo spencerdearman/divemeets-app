@@ -64,14 +64,16 @@ struct ProfileView: View {
                     VStack{
                         VStack(alignment: .leading) {
                             HStack (alignment: .firstTextBaseline){
-                                diverData != [] ? Text(diverData[0][0].slice(from: "Name: ", to: " City/State") ?? "") .font(.title) : Text("")
+                                var firstName = diverData[0][0].slice(from: "Name: ", to: " ") ?? ""
+                                var lastName = diverData[0][0].slice(from: firstName + " ", to: " ") ?? ""
+                                diverData != [] ? Text(firstName + " " + lastName) .font(.title) : Text("")
                                 Text(diverID)
                                     .font(.subheadline).foregroundColor(.secondary)
                             }
                             Divider()
                             HStack (alignment: .firstTextBaseline){
                                 Image(systemName: "house.fill")
-                                diverData != [] ? Text((diverData[0][0].slice(from: " City/State: ", to: " Country")  ?? "") + ", " + (diverData[0][0].slice(from: " Country: ", to: " Gender") ?? "")): Text("")
+                                diverData != [] ? Text((diverData[0][0].slice(from: "State: ", to: " Country")  ?? "") + ", " + (diverData[0][0].slice(from: " Country: ", to: " Gender") ?? "")): Text("")
                             }
                             .font(.subheadline)
                             HStack (alignment: .firstTextBaseline) {
