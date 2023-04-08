@@ -31,7 +31,8 @@ struct ContentView: View {
                                     ProfileView(hideTabBar: $hideTabBar, link:"", diverID: "51197")
                                 case .gearshape:
 //                                    PastMeetsResultsView()
-                                    MeetParserView()
+//                                    MeetParserView()
+                                    LiveResultsView()
 //                                    Image(systemName: tab.rawValue)
 //                                    Text("Settings")
 //                                        .bold()
