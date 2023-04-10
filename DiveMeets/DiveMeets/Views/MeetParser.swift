@@ -18,8 +18,8 @@ typealias MeetDict = [String: [String: [String: String]]]
 //                           Name  : Link Type ("info" or "results") : Link
 //                                   Note: "results" key not always present
 typealias CurrentMeetDict = [String: [String: String]]
-//                           Meet  :  Event : Link
-typealias LiveResultsDict = [String: [String: String]]
+//                           Meet  :  Event : LiveResults object
+typealias LiveResultsDict = [String: [String: LiveResults]]
 
 
 final class MeetParser: ObservableObject {
@@ -39,6 +39,7 @@ final class MeetParser: ObservableObject {
     let getTextModel = GetTextAsyncModel()
     let leadingLink: String = "https://secure.meetcontrol.com/divemeets/system/"
     
+    // Gets html text from async loader
     private func fetchLinkText(url: URL) async {
         let text = try? await loader.getText(url: url)
         await MainActor.run {
@@ -46,9 +47,9 @@ final class MeetParser: ObservableObject {
         }
     }
     
+    // Gets the list of meet names and links to their pages from an org page
     private func getMeetNamesAndLinks(text: String) -> [String: String]? {
         var result: [String: String]?
-        let linkHead = "https://secure.meetcontrol.com/divemeets/system/"
         
         do {
             let document: Document = try SwiftSoup.parse(text)
@@ -68,13 +69,14 @@ final class MeetParser: ObservableObject {
                 /// Gets links from list of meets
                 let elem = try row.getElementsByTag("a")
                 for e in elem {
-                    if try e.tagName() == "a" && e.attr("href").starts(with: "meet") {
+                    if try e.tagName() == "a"
+                        && e.attr("href").starts(with: "meet") {
                         if result == nil {
                             result = [:]
                         }
                         
                         let keyText = try divs.isEmpty() ? e.text() : divs[0].text()
-                        result![keyText] = try linkHead + e.attr("href")
+                        result![keyText] = try leadingLink + e.attr("href")
                         break
                     }
                 }
@@ -90,6 +92,7 @@ final class MeetParser: ObservableObject {
         return result
     }
     
+    // Decomposes a row's children into a list of strings
     private func decomposeRow(row: Element) -> [String] {
         var result: [String] = []
         do {
@@ -97,7 +100,6 @@ final class MeetParser: ObservableObject {
             for child in children {
                 result.append(try child.text())
             }
-            print("Row:", result)
             return result
         } catch {
             print("Decomposing row failed")
@@ -105,11 +107,34 @@ final class MeetParser: ObservableObject {
         }
     }
     
-    func parseActiveLiveEvent(meetName: String, eventName: String, url: String) async {
-        await getTextModel.fetchText(url: URL(string: url)!)
+    // Parses the header from live results with the current and last diver into
+    // LiveResultsDiver objects
+    func parseLiveHeader(elem: Element) -> (LiveResultsDiver?, LiveResultsDiver?) {
         
-        var result: LiveResults = LiveResults(meetName: meetName, eventName: eventName)
-        let rowTemplate: [String] = ["Left to Dive", "Order", "Last Round Place", "Last Round Score", "Current Place", "Current Score", "Diver Name", "Last Dive Avg", "Event Avg Score", "Avg Round Score", "1st", "2nd", "3rd", "Next"]
+        // TODO
+        
+        return (nil, nil)
+    }
+    
+    // Saves a LiveResults object into the liveResults dict
+    func saveLiveResults(meetName: String, eventName: String,
+                         results: LiveResults) async {
+        await MainActor.run {
+            if liveResults == nil {
+                liveResults = [:]
+            }
+            if liveResults![meetName] == nil {
+                liveResults![meetName] = [:]
+            }
+            liveResults![meetName]![eventName]! = results
+        }
+    }
+    
+    // Parses a live event that is in progress and saves the LiveResults object
+    // to the liveResults dict
+    func parseActiveLiveEvent(meetName: String, eventName: String,
+                              url: String) async {
+        await getTextModel.fetchText(url: URL(string: url)!)
         
         do {
             let document: Document = try SwiftSoup.parse(getTextModel.text!)
@@ -120,42 +145,55 @@ final class MeetParser: ObservableObject {
             let rows = try table?.getElementsByTag("tr")
             // Row with last and current diver
             let liveHeader = rows![1]
+            let (currentDiver, lastDiver) = parseLiveHeader(elem: liveHeader)
+            
             // Row with "Current Round: x/6
             let currentRoundRow = rows![2]
             print("Row Text:", try currentRoundRow.text())
             print("Current Round Row:", try currentRoundRow.html())
-//            wrapRoundCounter(currentRoundRow.html())
+            //            wrapRoundCounter(currentRoundRow.html())
+            
+            var result: LiveResults = LiveResults(meetName: meetName,
+                                                  eventName: eventName,
+                                                  link: url,
+                                                  currentRound: 1,
+                                                  currentDiver: currentDiver,
+                                                  lastDiver: lastDiver,
+                                                  isFinished: false)
+            
             // Row with column headers
             let columnsRow = rows![3]
-            var columns: [String] = []
-            for r in columnsRow.children() {
-                columns.append(try r.text())
-            }
-            print("Children:", columns)
+            var columns: [String] = decomposeRow(row: columnsRow)
+            print("Columns:", columns)
             
             for (idx, row) in rows!.enumerated() {
                 if idx < 4 || idx == rows!.count - 1 {
                     continue
                 }
-                var rowVals: [String] = []
-                let children = row.children()
-                for child in children {
-                    rowVals.append(try child.text())
-                }
+                var rowVals: [String] = decomposeRow(row: row)
                 print("Row:", rowVals)
                 
-                result.rows.append(Dictionary(uniqueKeysWithValues: zip(rowTemplate, rowVals)))
+                result.rows.append(Dictionary(
+                    uniqueKeysWithValues: zip(columns, rowVals)))
             }
-            print(result.rows)
             
+            print(result)
+            await saveLiveResults(meetName: meetName, eventName: eventName,
+                                  results: result)
         } catch {
             print("Parsing active live event failed")
         }
     }
     
-    private func parseFinishedLiveEvent(meetName: String, eventName: String, url: String) async {
+    // Parses a live event that has already completed for a current meet and
+    // saves it to the liveResults dict
+    private func parseFinishedLiveEvent(meetName: String, eventName: String,
+                                        url: String) async {
         await getTextModel.fetchText(url: URL(string: url)!)
-        var result: LiveResults = LiveResults(meetName: meetName, eventName: eventName, isFinished: true)
+        var result: LiveResults = LiveResults(meetName: meetName,
+                                              eventName: eventName,
+                                              link: url,
+                                              isFinished: true)
         
         do {
             let document: Document = try SwiftSoup.parse(getTextModel.text!)
@@ -163,32 +201,38 @@ final class MeetParser: ObservableObject {
                 return
             }
             let table = try body.getElementById("Results")
+            print(try table?.text())
             let rows = try table?.getElementsByTag("tr")
             
-            let columnsRow = rows![2]
-            var columns: [String] = []
-            for r in columnsRow.children() {
-                columns.append(try r.text())
+            for row in rows! {
+                print("Row:", try row.text())
             }
+            let columnsRow = rows![2]
+            print("before")
+            let columns: [String] = decomposeRow(row: columnsRow)
+            print("Columns:", columns)
             
             for (idx, row) in rows!.enumerated() {
                 if idx < 3 || idx == rows!.count - 1 {
                     continue
                 }
-                var rowVals: [String] = []
-                let children = row.children()
-                for child in children {
-                    rowVals.append(try child.text())
-                }
+                let rowVals: [String] = decomposeRow(row: row)
                 
-                result.rows.append(Dictionary(uniqueKeysWithValues: zip(columns, rowVals)))
+                result.rows.append(Dictionary(
+                    uniqueKeysWithValues: zip(columns, rowVals)))
             }
+            print(result)
+            await saveLiveResults(meetName: meetName, eventName: eventName,
+                                  results: result)
         } catch  {
             print("Parsing finished live event failed")
         }
     }
     
-    private func parseLiveEventTable(meetName: String, eventName: String, url: String) async {
+    // Parses the live event table from a live event in a current meet, whether
+    // it is in progress or already completed
+    private func parseLiveEventTable(meetName: String, eventName: String,
+                                     url: String) async {
         let eventStatus: String
         // Pulls either -Started or Finished from end of URL
         let suffix = url.suffix(8)
@@ -202,19 +246,19 @@ final class MeetParser: ObservableObject {
         
         if eventStatus == "Started" {
             print("Parsing active live")
-            await parseActiveLiveEvent(meetName: "Test", eventName: "Event Test", url: url)
+            await parseActiveLiveEvent(meetName: meetName, eventName: eventName,
+                                       url: url)
         } else if eventStatus == "Finished" {
             print("Parsing finished live")
-            await parseFinishedLiveEvent(meetName: "Test", eventName: "Event Test Finish", url: url)
+            await parseFinishedLiveEvent(meetName: meetName, eventName: eventName,
+                                         url: url)
         }
     }
     
-    // Takes in a URL to a meet results page and outputs a mapping of
-    // [Event Name : Live Stats Link] pulled from the results page
+    // Takes in a URL to a meet results page and updates the liveResults dict
+    // with LiveResults objects for each event in that meet
     private func parseLiveEventsLinks(meetName: String, url: URL) async {
         await getTextModel.fetchText(url: url)
-        
-        var result: [String: String]?
         
         do {
             let document: Document = try SwiftSoup.parse(getTextModel.text!)
@@ -228,22 +272,12 @@ final class MeetParser: ObservableObject {
                 if try row.attr("style") == "font-size: 10px" {
                     let eventName = try row.getElementsByTag("strong").first()!.text()
                     let results = try row.getElementsByTag("a")
-                    if result == nil {
-                        result = [:]
-                    }
-                    result![eventName] = try leadingLink + results.attr("href")
-                    await parseLiveEventTable(meetName: meetName, eventName: eventName, url: result![eventName]!)
+                    let link = try leadingLink + results.attr("href")
+                    await parseLiveEventTable(meetName: meetName,
+                                              eventName: eventName, url: link)
                 }
             }
             
-            await MainActor.run { [result] in
-                if result != nil {
-                    if liveResults == nil {
-                        liveResults = [:]
-                    }
-                    liveResults![meetName] = result!
-                }
-            }
             print("Live Results:", liveResults!)
         } catch {
             print("Parsing live results links failed")
@@ -284,7 +318,7 @@ final class MeetParser: ObservableObject {
                 }
                 await parseLiveEventsLinks(meetName: try meetElem.text(),
                                            url: URL(
-                    string: result[try meetElem.text()]!["results"]!)!)
+                                            string: result[try meetElem.text()]!["results"]!)!)
             }
             
             await MainActor.run { [result] in
@@ -384,7 +418,8 @@ final class MeetParser: ObservableObject {
         }
     }
     
-    func writeToFile(dict: [String: [String: String]], filename: String = "saved.json") {
+    func writeToFile(dict: [String: [String: String]],
+                     filename: String = "saved.json") {
         let encoder = JSONEncoder()
         encoder.outputFormatting.insert(.sortedKeys)
         encoder.outputFormatting.insert(.prettyPrinted)
@@ -406,7 +441,8 @@ final class MeetParser: ObservableObject {
         let bundleURL = Bundle.main.resourceURL!.appendingPathComponent("pastMeets.json")
         do {
             let data = try Data(contentsOf: bundleURL)
-            let jsonObject = try decoder.decode([String: [String: String]].self, from: data)
+            let jsonObject = try decoder.decode([String: [String: String]].self,
+                                                from: data)
             return jsonObject
         } catch {
             print("Read Error = \(error.localizedDescription)")

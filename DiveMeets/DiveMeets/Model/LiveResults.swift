@@ -6,23 +6,32 @@
 //
 
 import Foundation
-// LeftToDive, Order, Last Rd Pl, Last Rd Score, Place, Cur Score, Name, Last Dv Avg, Event Avg, Rd Avg, 1st, 2nd, 3rd, Nxt
-//typealias LiveResultsRow = (Bool, Int, Int, Double, Int, Double, String, Double, Double, Double, Double, Double, Double, Double)
 
+struct LiveResultsDiver {
+    var name: String
+    var dive: String
+    // TODO
+}
 
-
-class LiveResults {
+struct LiveResults {
     var meetName: String
     var eventName: String
-//    var currentRound: Int
-//    var currentDiver: LiveResultsDiver
-//    var lastDiver: LiveResultsDiver
+    var link: String
+    var currentRound: Int?
+    var currentDiver: LiveResultsDiver?
+    var lastDiver: LiveResultsDiver?
     var rows: [[String: String]]
     var isFinished: Bool
     
-    init(meetName: String, eventName: String, rows: [[String: String]] = [], isFinished: Bool = true) {
+    init(meetName: String, eventName: String, link: String, currentRound: Int? = nil,
+         currentDiver: LiveResultsDiver? = nil, lastDiver: LiveResultsDiver? = nil,
+         rows: [[String: String]] = [], isFinished: Bool) {
         self.meetName = meetName
         self.eventName = eventName
+        self.link = link
+        self.currentRound = currentRound
+        self.currentDiver = currentDiver
+        self.lastDiver = lastDiver
         self.rows = rows
         self.isFinished = isFinished
     }

@@ -20,10 +20,10 @@ struct LiveResultsView: View {
             VStack {
                 Divider()
                 HStack {
-                        ForEach(columns, id: \.self) { col in
-                            Text(col)
-                            Divider()
-                        }
+                    ForEach(columns, id: \.self) { col in
+                        Text(col)
+                        Divider()
+                    }
                 }
                 .frame(height: 50)
                 Divider()
@@ -41,8 +41,11 @@ struct LiveResultsView: View {
         }
         // Test parsing finished live results in this view
         .onChange(of: html) { newValue in
-            let result: LiveResults = LiveResults(meetName: "Test", eventName: "Test Event", isFinished: true)
-            
+            var result: LiveResults = LiveResults(meetName: "Test",
+                                                  eventName: "Test Event",
+                                                  link: request,
+                                                  isFinished: true)
+
             do {
                 let document: Document = try SwiftSoup.parse(newValue)
                 guard let body = document.body() else {
@@ -50,12 +53,12 @@ struct LiveResultsView: View {
                 }
                 let table = try body.getElementById("Results")
                 let rows = try table?.getElementsByTag("tr")
-                
+
                 let columnsRow = rows![2]
                 for r in columnsRow.children() {
                     columns.append(try r.text())
                 }
-                
+
                 for (idx, row) in rows!.enumerated() {
                     if idx < 3 || idx == rows!.count - 1 {
                         continue
@@ -65,12 +68,12 @@ struct LiveResultsView: View {
                     for child in children {
                         rowVals.append(try child.text())
                     }
-                    
+
                     result.rows.append(Dictionary(uniqueKeysWithValues: zip(columns, rowVals)))
                 }
-                
-                print(result.rows)
+
                 self.rows = result.rows
+            
             } catch  {
                 print("Parsing finished live event failed")
             }

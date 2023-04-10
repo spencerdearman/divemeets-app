@@ -28,6 +28,7 @@ struct LRWebView: UIViewRepresentable {
     let htmlParser: HTMLParser = HTMLParser()
     @Binding var request: String
     @Binding var html: String
+    static private var delay: UInt32 = 100_000
     
     func makeUIView(context: Context) -> WKWebView {
         let webView: WKWebView = {
@@ -67,7 +68,7 @@ struct LRWebView: UIViewRepresentable {
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             // Value is in millionths of a second, so 100_000 = 0.1s
             // 0.1s seems to be a safe enough delay to avoid JS not finishing
-            usleep(100_000)
+            usleep(LRWebView.delay)
             webView.evaluateJavaScript("document.body.innerHTML") {
                 [weak self] result, error in
                 guard let html = result as? String, error == nil else { return }
