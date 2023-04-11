@@ -109,7 +109,7 @@ struct PastMeetsResultsView: View {
                             let past = db.dictToTuple(dict: p.pastMeets!)
                             let left = past[0 ..< past.count / 2]
                             let right = past[past.count / 2 ..< past.count]
-                            
+
                             print("Past: [")
                             for k in left {
                                 print(k, ",")

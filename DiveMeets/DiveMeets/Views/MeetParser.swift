@@ -163,14 +163,14 @@ final class MeetParser: ObservableObject {
             
             // Row with column headers
             let columnsRow = rows![3]
-            var columns: [String] = decomposeRow(row: columnsRow)
+            let columns: [String] = decomposeRow(row: columnsRow)
             print("Columns:", columns)
             
             for (idx, row) in rows!.enumerated() {
                 if idx < 4 || idx == rows!.count - 1 {
                     continue
                 }
-                var rowVals: [String] = decomposeRow(row: row)
+                let rowVals: [String] = decomposeRow(row: row)
                 print("Row:", rowVals)
                 
                 result.rows.append(Dictionary(
@@ -201,7 +201,6 @@ final class MeetParser: ObservableObject {
                 return
             }
             let table = try body.getElementById("Results")
-            print(try table?.text())
             let rows = try table?.getElementsByTag("tr")
             
             for row in rows! {
@@ -329,6 +328,69 @@ final class MeetParser: ObservableObject {
         }
     }
     
+    // Parses the results page of an event in a past meet's results page
+    private func parsePastMeetEventResults(eventName: String,
+                                           link: String) async -> PastMeetEvent? {
+        await getTextModel.fetchText(url: URL(string: link)!)
+        var tableRows: [[String: String]] = []
+        do {
+            let document: Document = try SwiftSoup.parse(getTextModel.text!)
+            guard let body = document.body() else { return nil }
+            let content = try body.getElementById("dm_content")
+            let table = try content?.getElementsByTag("table")[0]
+            let rows = try table?.getElementsByTag("tr")
+            let columnsRow = rows![3]
+            let columns = decomposeRow(row: columnsRow)
+            
+            for (idx, row) in rows!.enumerated() {
+                if idx < 5 || idx == rows!.count - 1 {
+                    continue
+                }
+                let rowVals = decomposeRow(row: row)
+                tableRows.append(Dictionary(
+                    uniqueKeysWithValues: zip(columns, rowVals)))
+            }
+            
+            return PastMeetEvent(eventName: eventName, eventLink: link, rows: tableRows)
+        } catch {
+            print("Parsing past meet event results failed")
+        }
+        return nil
+    }
+    
+    // Parses the events of a past meet's results page
+    // Note: This is not implemented in the automatic parsing of the Meets tabs
+    // to avoid slow initial parsing times, but this should be called when a
+    // meet results page is eventually loaded
+    func parsePastMeetResults(meetName: String, link: String
+    ) async -> PastMeetResults? {
+        var events: [PastMeetEvent] = []
+        do {
+            events = []
+            await getTextModel.fetchText(url: URL(string: link)!)
+            let document: Document = try SwiftSoup.parse(getTextModel.text!)
+            guard let body = document.body() else { return nil }
+            let content = try body.getElementById("dm_content")
+            let table = try content?.getElementsByTag("table")[0]
+            let rows = try table?.getElementsByAttribute("bgcolor")
+            
+            for row in rows! {
+                let event = try row.getElementsByTag("td")[0]
+                let eventName = try event.text()
+                let eventLink = try event.getElementsByTag("a")[0].attr("href")
+                
+                await events.append(
+                    parsePastMeetEventResults(eventName: eventName,
+                                              link: leadingLink + eventLink)!)
+            }
+            
+            return PastMeetResults(meetName: meetName, meetLink: link, events: events)
+        } catch {
+            print("Parsing past meet results failed")
+        }
+        return nil
+    }
+    
     func parseMeets(html: String) async throws {
         do {
             let document: Document = try SwiftSoup.parse(html)
@@ -338,6 +400,7 @@ final class MeetParser: ObservableObject {
             let menu = try body.getElementById("dm_menu_centered")
             let menuTabs = try menu?.getElementsByTag("ul")[0].getElementsByTag("li")
             for tab in menuTabs! {
+                // tabElem is one of the links from the tabs in the menu bar
                 let tabElem = try tab.getElementsByAttribute("href")[0]
                 if try tabElem.text() == "Find" {
                     break
@@ -373,10 +436,13 @@ final class MeetParser: ObservableObject {
                             upcomingMeets![currentYear] = [:]
                         }
                     }
+                    
+                    // tabElem.attr("href") is an organization link here
                     let link = try tabElem.attr("href")
                         .replacingOccurrences(of: " ", with: "%20")
                         .replacingOccurrences(of: "\t", with: "")
-                    // Gets HTML from subpage link and sets linkText to HTML
+                    // Gets HTML from subpage link and sets linkText to HTML;
+                    // This pulls the html for an org's page
                     await fetchLinkText(url: URL(string: link)!)
                     try await MainActor.run {
                         // Parses subpage and gets meet names and links
@@ -401,15 +467,20 @@ final class MeetParser: ObservableObject {
                             pastMeets![pastYear] = [:]
                         }
                     }
+                    // tabElem.attr("href") is an organization link here
                     let link = try tabElem.attr("href")
                         .replacingOccurrences(of: " ", with: "%20")
                         .replacingOccurrences(of: "\t", with: "")
-                    // Gets HTML from subpage link and sets linkText to HTML
+                    // Gets HTML from subpage link and sets linkText to HTML;
+                    // This pulls the html for an org's page
                     await fetchLinkText(url: URL(string: link)!)
-                    try await MainActor.run {
-                        // Parses subpage and gets meet names and links
-                        try pastMeets![pastYear]![tabElem.text()] =
-                        getMeetNamesAndLinks(text: linkText!)
+                    // Parses subpage and gets meet names and links
+                    let namesAndLinks = getMeetNamesAndLinks(text: linkText!)
+                    
+                    try await MainActor.run { [namesAndLinks] in
+                        // Assigns year and org to dict of meet names and
+                        // links to results pagse
+                        try pastMeets![pastYear]![tabElem.text()] = namesAndLinks
                     }
                 }
             }
@@ -493,9 +564,23 @@ struct MeetParserView: View {
                 Spacer()
             }
             Spacer()
-            Button("Check Parsing") {
-                print(finishedParsing)
+            
+            if !finishedParsing {
+                ProgressView()
+            } else {
+                Button("Print Past Meet Results") {
+                    let meetName = "Phoenix Fall Classic @ UChicago"
+                    let choice = p.pastMeets!["2022"]![
+                        "National Collegiate Athletic Association (NCAA)"]![meetName]!
+                    Task {
+                        let result = await p.parsePastMeetResults(meetName: meetName,
+                                                                  link: choice)
+                        print(result!)
+                    }
+                    
+                }
             }
+            
             Spacer()
         }
         .onAppear {
