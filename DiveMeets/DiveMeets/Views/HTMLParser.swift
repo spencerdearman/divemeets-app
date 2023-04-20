@@ -39,6 +39,35 @@ final class HTMLParser: ObservableObject {
         return myData
     }
     
+    func parseReturnString(html: String) -> String? {
+        do {
+            let document: Document = try SwiftSoup.parse(html)
+            guard let body = document.body() else {
+                return nil
+            }
+            let main = try body.getElementsByTag("body").compactMap({try? $0.html()})
+            return main.first
+        }
+        catch {
+            print("Error Parsing: " + String(describing: error))
+            return nil
+        }
+    }
+    
+    func testingParser(urlString: String) -> String? {
+        guard let url = URL(string: urlString) else {
+            return ""
+        }
+        do {
+            let html = try String(contentsOf: url)
+            let stringData = parseReturnString(html: html)
+            return stringData
+        } catch {
+            print("Error fetching HTML: \(error)")
+        }
+        return ""
+    }
+    
     func parse(urlString: String) -> [Array<String>] {
         guard let url = URL(string: urlString) else {
             return []

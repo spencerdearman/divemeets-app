@@ -39,7 +39,7 @@ struct ContentView: View {
                                 case .magnifyingglass:
                                     SearchView(hideTabBar: $hideTabBar)
                                 case .person:
-                                    ParsedView()
+                                LoginSearchView(hideTabBar: $hideTabBar)
                             }
                         }
                         .tag(tab)
