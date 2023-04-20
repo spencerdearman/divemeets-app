@@ -46,7 +46,7 @@ struct ContentView: View {
                                                meetsParsedCount: $p.meetsParsedCount,
                                                totalMeetsParsedCount: $p.totalMeetsParsedCount)
                                 case .person:
-                                    ParsedView()
+                                LoginSearchView(hideTabBar: $hideTabBar)
                             }
                         }
                         .tag(tab)

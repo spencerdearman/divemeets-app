@@ -45,6 +45,8 @@
 		4D74FEC029AEBD6F00401178 /* MeetList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FEBF29AEBD6F00401178 /* MeetList.swift */; };
 		4D74FEC229AEBF5500401178 /* meetData.json in Resources */ = {isa = PBXBuildFile; fileRef = 4D74FEC129AEBF5500401178 /* meetData.json */; };
 		4D74FEC629AEC95500401178 /* MeetPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FEC529AEC95500401178 /* MeetPage.swift */; };
+		4DD868ED29F0E69C00FF988D /* keychain-swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DD868EC29F0E69C00FF988D /* keychain-swift.swift */; };
+		4DE6CFC329E25A0D00831D1D /* LoginWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DE6CFC229E25A0D00831D1D /* LoginWebView.swift */; };
 		4DEF7D3629BEE796003EAD70 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 4DEF7D3529BEE796003EAD70 /* SwiftSoup */; };
 /* End PBXBuildFile section */
 
@@ -88,6 +90,8 @@
 		4D74FEBF29AEBD6F00401178 /* MeetList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetList.swift; sourceTree = "<group>"; };
 		4D74FEC129AEBF5500401178 /* meetData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = meetData.json; sourceTree = "<group>"; };
 		4D74FEC529AEC95500401178 /* MeetPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetPage.swift; sourceTree = "<group>"; };
+		4DD868EC29F0E69C00FF988D /* keychain-swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "keychain-swift.swift"; sourceTree = "<group>"; };
+		4DE6CFC229E25A0D00831D1D /* LoginWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginWebView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,6 +169,7 @@
 				4D74FEA429AE7C2B00401178 /* ProfileImage.swift */,
 				0037877F29D501F600D3CD59 /* ProfileParser.swift */,
 				4D74FE9829AE7B9800401178 /* ProfileView.swift */,
+				4DE6CFC229E25A0D00831D1D /* LoginWebView.swift */,
 				4D1A5C3829CCA1B400F3DA2B /* RecordList.swift */,
 				0095BD2C29B1491D004D7EFD /* SearchView.swift */,
 				4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */,
@@ -191,6 +196,7 @@
 			isa = PBXGroup;
 			children = (
 				4D74FEC129AEBF5500401178 /* meetData.json */,
+				4DD868EC29F0E69C00FF988D /* keychain-swift.swift */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -244,6 +250,7 @@
 			mainGroup = 4D74FE8A29AE7B9800401178;
 			packageReferences = (
 				4DEF7D3429BEE796003EAD70 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+				4DD868EB29F0E65A00FF988D /* XCRemoteSwiftPackageReference "keychain-swift" */,
 			);
 			productRefGroup = 4D74FE9429AE7B9800401178 /* Products */;
 			projectDirPath = "";
@@ -301,12 +308,14 @@
 				4D254F1829C107980033838D /* NamesCreator.swift in Sources */,
 				0037877C29D4F41800D3CD59 /* MeetParser.swift in Sources */,
 				0037877A29D4F40900D3CD59 /* ProfileMeetCache.swift in Sources */,
+				4DD868ED29F0E69C00FF988D /* keychain-swift.swift in Sources */,
 				4D74FEB129AEB3BE00401178 /* MeetData.swift in Sources */,
 				0037878029D501F600D3CD59 /* ProfileParser.swift in Sources */,
 				000D28DD29E0EF9100B184E9 /* LiveResults.swift in Sources */,
 				001A9B9029B075A6007C7BE5 /* HidingScrollView.swift in Sources */,
 				00F9665F29AEEF0900F3720B /* FloatingMenuBar.swift in Sources */,
 				4D74FE9729AE7B9800401178 /* DiveMeetsApp.swift in Sources */,
+				4DE6CFC329E25A0D00831D1D /* LoginWebView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -438,6 +447,7 @@
 				DEVELOPMENT_TEAM = WY8V5FPBV9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "We are using Face ID to authenticate users when logging into their account, allowing for a more secure and efficient login process.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -467,6 +477,7 @@
 				DEVELOPMENT_TEAM = WY8V5FPBV9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "We are using Face ID to authenticate users when logging into their account, allowing for a more secure and efficient login process.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -509,6 +520,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		4DD868EB29F0E65A00FF988D /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
 		4DEF7D3429BEE796003EAD70 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/scinfu/SwiftSoup";
