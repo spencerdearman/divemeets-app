@@ -48,9 +48,10 @@ final class HTMLParser: ObservableObject {
         
         Task {
             await getTextModel.fetchText(url: url)
-            let html = getTextModel.text!
-            await MainActor.run {
-                myData = parse(html: html)
+            if let html = getTextModel.text {
+                await MainActor.run {
+                    myData = parse(html: html)
+                }
             }
             return myData
         }

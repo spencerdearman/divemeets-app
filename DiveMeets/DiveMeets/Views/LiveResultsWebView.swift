@@ -11,8 +11,7 @@ import WebKit
 // Wrapper around LRWebView to provide some basic States like would be provided
 // in other outer views
 struct LiveResultsWebView: View {
-    @State var request: String =
-    "https://secure.meetcontrol.com/divemeets/system/livestats.php?event=stats-8960-180-9-Finished"
+    @State var request: String = "https://secure.meetcontrol.com/divemeets/system/index.php"
     @State var html: String = ""
     
     var body: some View {
@@ -28,7 +27,7 @@ struct LRWebView: UIViewRepresentable {
     let htmlParser: HTMLParser = HTMLParser()
     @Binding var request: String
     @Binding var html: String
-    static private var delay: UInt32 = 100_000
+    static private var delay: UInt32 = 1_000_000
     
     func makeUIView(context: Context) -> WKWebView {
         let webView: WKWebView = {

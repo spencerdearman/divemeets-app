@@ -30,13 +30,9 @@ struct ContentView: View {
                                 case .house:
                                     ProfileView(hideTabBar: $hideTabBar, link:"", diverID: "51197")
                                 case .gearshape:
-//                                    PastMeetsResultsView()
-                                    MeetParserView()
-//                                    LiveResultsView()
-//                                    Image(systemName: tab.rawValue)
-//                                    Text("Settings")
-//                                        .bold()
-//                                        .animation(nil, value: selectedTab)
+                                    PastMeetsResultsView()
+                                    //                                    LiveResultsParserView()
+                                    //                                    MeetParserView()
                                 case .magnifyingglass:
                                     SearchView(hideTabBar: $hideTabBar)
                             }
