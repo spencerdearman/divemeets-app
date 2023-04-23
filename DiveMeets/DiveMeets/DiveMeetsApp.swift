@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-private struct PastMeetsDB: EnvironmentKey {
+private struct MeetsDB: EnvironmentKey {
     static var defaultValue: MeetsDataController {
         get {
             MeetsDataController()
@@ -16,15 +16,15 @@ private struct PastMeetsDB: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-    var pastMeetsDB: MeetsDataController {
-        get { self[PastMeetsDB.self] }
-        set { self[PastMeetsDB.self] = newValue }
+    var meetsDB: MeetsDataController {
+        get { self[MeetsDB.self] }
+        set { self[MeetsDB.self] = newValue }
     }
 }
 
 extension View {
-    func pastMeetsDB(_ pastMeetsDB: MeetsDataController) -> some View {
-        environment(\.pastMeetsDB, pastMeetsDB)
+    func meetsDB(_ meetsDB: MeetsDataController) -> some View {
+        environment(\.meetsDB, meetsDB)
     }
 }
 
@@ -32,10 +32,12 @@ extension View {
 struct DiveMeetsApp: App {
     // Only one of these should exist, add @Environment to use variable in views
     // instead of creating a new instance of MeetsDataController()
-    @StateObject var MeetsDataController = MeetsDataController()
+    @StateObject var meetsDataController = MeetsDataController()
     var body: some Scene {
         WindowGroup {
-            ContentView().environment(\.managedObjectContext, MeetsDataController.container.viewContext).environment(\.pastMeetsDB, MeetsDataController)
+            ContentView()
+                .environment(\.managedObjectContext, meetsDataController.container.viewContext)
+                .environment(\.meetsDB, meetsDataController)
         }
     }
 }

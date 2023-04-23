@@ -11,7 +11,7 @@ import Foundation
 typealias MeetRecord = (Int?, String?, String?, Int?, String?)
 
 class MeetsDataController: ObservableObject {
-    let container = NSPersistentContainer(name: "PastMeets")
+    let container = NSPersistentContainer(name: "Meets")
     static var instances: Int? = nil
     
     init() {
@@ -20,7 +20,7 @@ class MeetsDataController: ObservableObject {
             MeetsDataController.instances = 1
             container.loadPersistentStores { description, error in
                 if let error = error {
-                    print("Core Data failed to load PastMeets: \(error.localizedDescription)")
+                    print("Core Data failed to load Meets: \(error.localizedDescription)")
                 }
             }
         }
@@ -73,27 +73,27 @@ class MeetsDataController: ObservableObject {
     // Drops a record from the CoreData database
     func dropRecord(
         _ meetId: Int?, _ name: String?, _ org: String?, _ year: Int?, _ link: String?) {
-        let moc = container.viewContext
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "DivingMeet")
-        
-        // Add formatting here so we can properly format nil if meetId or year is nil
-        let formatPredicate =
-        "meetId == \(meetId == nil ? "%@" : "%d") && name == %@ AND organization == %@ AND "
-        + "year == \(meetId == nil ? "%@" : "%d") AND link == %@"
-        let predicate = NSPredicate(
-            format: formatPredicate, meetId ?? NSNull(), name ?? NSNull(), org ?? NSNull(),
-            year ?? NSNull(), link ?? NSNull())
-        fetchRequest.predicate = predicate
-        print(predicate)
-        let result = try? moc.fetch(fetchRequest)
-        let resultData = result as! [DivingMeet]
-        
-        for object in resultData {
-            moc.delete(object)
+            let moc = container.viewContext
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "DivingMeet")
+            
+            // Add formatting here so we can properly format nil if meetId or year is nil
+            let formatPredicate =
+            "meetId == \(meetId == nil ? "%@" : "%d") && name == %@ AND organization == %@ AND "
+            + "year == \(meetId == nil ? "%@" : "%d") AND link == %@"
+            let predicate = NSPredicate(
+                format: formatPredicate, meetId ?? NSNull(), name ?? NSNull(), org ?? NSNull(),
+                year ?? NSNull(), link ?? NSNull())
+            fetchRequest.predicate = predicate
+            print(predicate)
+            let result = try? moc.fetch(fetchRequest)
+            let resultData = result as! [DivingMeet]
+            
+            for object in resultData {
+                moc.delete(object)
+            }
+            
+            try? moc.save()
         }
-        
-        try? moc.save()
-    }
     
     // Drops a list of records from the CoreData database
     func dropRecords(records: [MeetRecord]) {
