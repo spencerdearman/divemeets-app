@@ -12,6 +12,79 @@ enum SearchType: String, CaseIterable {
     case meet = "Meet"
 }
 
+enum Field: Int, Hashable, CaseIterable {
+    case firstName
+    case lastName
+    case meetName
+    case meetOrg
+}
+
+private extension SearchInputView {
+    var hasReachedPersonStart: Bool {
+        self.focusedField == Field.allCases.first
+    }
+    
+    var hasReachedMeetStart: Bool {
+        self.focusedField == Field.meetName
+    }
+    
+    var hasReachedPersonEnd: Bool {
+        self.focusedField == Field.lastName
+    }
+    
+    var hasReachedMeetEnd: Bool {
+        self.focusedField == Field.allCases.last
+    }
+    
+    func nextPersonField() {
+        guard let currentInput = focusedField else { return }
+        let lastIndex = Field.lastName.rawValue
+        
+        let index = min(currentInput.rawValue + 1, lastIndex)
+        self.focusedField = Field(rawValue: index)
+    }
+    
+    func nextMeetField() {
+        guard let currentInput = focusedField,
+              let lastIndex = Field.allCases.last?.rawValue else { return }
+        
+        let index = min(currentInput.rawValue + 1, lastIndex)
+        self.focusedField = Field(rawValue: index)
+    }
+    
+    func previousPersonField() {
+        guard let currentInput = focusedField,
+              let firstIndex = Field.allCases.first?.rawValue else { return }
+        
+        let index = max(currentInput.rawValue - 1, firstIndex)
+        self.focusedField = Field(rawValue: index)
+    }
+    
+    func previousMeetField() {
+        guard let currentInput = focusedField else { return }
+        let firstIndex = Field.meetName.rawValue
+        
+        let index = max(currentInput.rawValue - 1, firstIndex)
+        self.focusedField = Field(rawValue: index)
+    }
+    
+    func next() {
+        if selection == .person {
+            nextPersonField()
+        } else {
+            nextMeetField()
+        }
+    }
+    
+    func previous() {
+        if selection == .person {
+            previousPersonField()
+        } else {
+            previousMeetField()
+        }
+    }
+}
+
 /// Checks that for a given SearchType, at least one of the relevant fields has a value, and returns true if so.
 /// If all relevant fields are empty, returns false
 private func checkFields(selection: SearchType, firstName: String = "",
@@ -27,34 +100,35 @@ private func checkFields(selection: SearchType, firstName: String = "",
 
 /// Converts the arguments passed into getPredicate into the list of unpacked parameters necessary to init
 /// NSPredicate; returns nil if all fields are empty
-private func argsToPredParams(pred: String, name: String, org: String, year: String) -> NSPredicate? {
-    let haveName = name != ""
-    let haveOrg = org != ""
-    let haveYear = year != ""
-    var castYear: Int16? = nil
-    
-    if haveYear {
-        castYear = Int16(year)!
+private func argsToPredParams(
+    pred: String, name: String, org: String, year: String) -> NSPredicate? {
+        let haveName = name != ""
+        let haveOrg = org != ""
+        let haveYear = year != ""
+        var castYear: Int16? = nil
+        
+        if haveYear {
+            castYear = Int16(year)!
+        }
+        
+        if haveName && haveOrg && haveYear {
+            return NSPredicate(format: pred, name, org, castYear!)
+        } else if haveName && haveOrg {
+            return NSPredicate(format: pred, name, org)
+        } else if haveName && haveYear {
+            return NSPredicate(format: pred, name, castYear!)
+        } else if haveOrg && haveYear {
+            return NSPredicate(format: pred, org, castYear!)
+        } else if haveName {
+            return NSPredicate(format: pred, name)
+        } else if haveOrg {
+            return NSPredicate(format: pred, org)
+        } else if haveYear {
+            return NSPredicate(format: pred, castYear!)
+        }
+        
+        return nil
     }
-    
-    if haveName && haveOrg && haveYear {
-        return NSPredicate(format: pred, name, org, castYear!)
-    } else if haveName && haveOrg {
-        return NSPredicate(format: pred, name, org)
-    } else if haveName && haveYear {
-        return NSPredicate(format: pred, name, castYear!)
-    } else if haveOrg && haveYear {
-        return NSPredicate(format: pred, org, castYear!)
-    } else if haveName {
-        return NSPredicate(format: pred, name)
-    } else if haveOrg {
-        return NSPredicate(format: pred, org)
-    } else if haveYear {
-        return NSPredicate(format: pred, castYear!)
-    }
-    
-    return nil
-}
 
 /// Produces Optional NSPredicate string based on which values are filled or not filled, returns nil if all fields
 /// are empty
@@ -113,15 +187,19 @@ struct SearchView: View {
     var body: some View {
         ZStack {
             if personSearchSubmitted {
-                SwiftUIWebView(firstName: $firstName, lastName: $lastName, parsedLinks: $parsedLinks, searchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed)
+                SwiftUIWebView(firstName: $firstName, lastName: $lastName,
+                               parsedLinks: $parsedLinks, searchSubmitted: $dmSearchSubmitted,
+                               linksParsed: $linksParsed)
             }
             
             Color.white.ignoresSafeArea()
             
             /// Submit button doesn't switch pages in preview, but it works in Simulator
-            SearchInputView(selection: $selection, firstName: $firstName, lastName: $lastName, meetName: $meetName,
-                            orgName: $orgName, meetYear: $meetYear,
-                            searchSubmitted: $searchSubmitted, parsedLinks: $parsedLinks, dmSearchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed, hideTabBar: $hideTabBar)
+            SearchInputView(selection: $selection, firstName: $firstName, lastName: $lastName,
+                            meetName: $meetName, orgName: $orgName, meetYear: $meetYear,
+                            searchSubmitted: $searchSubmitted, parsedLinks: $parsedLinks,
+                            dmSearchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed,
+                            hideTabBar: $hideTabBar)
         }
         .onDisappear {
             searchSubmitted = false
@@ -136,6 +214,8 @@ struct SearchInputView: View {
     @State private var showError: Bool = false
     @State var fullScreenResults: Bool = false
     @State var personSelection: String? = nil
+    // Tracks if the user is inside of a text field to determine when to show the keyboard
+    @FocusState var focusedField: Field?
     @Binding var selection: SearchType
     @Binding var firstName: String
     @Binding var lastName: String
@@ -186,7 +266,10 @@ struct SearchInputView: View {
         selection == .meet && predicate != nil
     }
     
-    init(selection: Binding<SearchType>, firstName: Binding<String>, lastName: Binding<String>, meetName: Binding<String>, orgName: Binding<String>, meetYear: Binding<String>, searchSubmitted: Binding<Bool>, parsedLinks: Binding<[String : String]>, dmSearchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>, hideTabBar: Binding<Bool>) {
+    init(selection: Binding<SearchType>, firstName: Binding<String>, lastName: Binding<String>,
+         meetName: Binding<String>, orgName: Binding<String>, meetYear: Binding<String>,
+         searchSubmitted: Binding<Bool>, parsedLinks: Binding<[String : String]>,
+         dmSearchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>, hideTabBar: Binding<Bool>) {
         self._selection = selection
         self._firstName = firstName
         self._lastName = lastName
@@ -223,6 +306,11 @@ struct SearchInputView: View {
         ZStack {
             typeBubbleColor
                 .ignoresSafeArea()
+            // Allows the user to hide the keyboard when clicking on the background of the page
+                .onTapGesture {
+                    //                    self.hideKeyboard()
+                    focusedField = nil
+                }
             VStack {
                 VStack {
                     Text("Search")
@@ -275,15 +363,21 @@ struct SearchInputView: View {
                 if selection == .meet {
                     MeetSearchView(meetName: $meetName, orgName: $orgName,
                                    meetYear: $meetYear, predicate: $predicate,
+                                   focusedField: $focusedField,
                                    items: filteredItems)
                 } else {
-                    DiverSearchView(firstName: $firstName, lastName: $lastName)
+                    DiverSearchView(firstName: $firstName, lastName: $lastName,
+                                    focusedField: $focusedField)
                 }
                 
                 VStack {
                     Button(action: {
                         /// Need to initially set search to false so webView gets recreated
                         searchSubmitted = false
+                        
+                        /// Resets focusedField so keyboard disappears
+                        focusedField = nil
+                        
                         /// Only submits a search if one of the relevant fields is filled, otherwise toggles error
                         if checkFields(selection: selection, firstName: firstName,
                                        lastName: lastName, meetName: meetName,
@@ -308,7 +402,7 @@ struct SearchInputView: View {
                     .buttonStyle(.bordered)
                     .cornerRadius(cornerRadius)
                     .animation(nil, value: selection)
-                    if searchSubmitted && !linksParsed {
+                    if selection == .person && searchSubmitted && !linksParsed {
                         ProgressView()
                     }
                 }
@@ -324,6 +418,25 @@ struct SearchInputView: View {
                 Spacer()
                 Spacer()
             }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Button(action: previous) {
+                        Image(systemName: "chevron.up")
+                    }
+                    .disabled(hasReachedPersonStart || hasReachedMeetStart)
+                    
+                    Button(action: next) {
+                        Image(systemName: "chevron.down")
+                    }
+                    .disabled(hasReachedPersonEnd || hasReachedMeetEnd)
+                    
+                    Spacer()
+                    
+                    Button("Done") {
+                        focusedField = nil
+                    }
+                }
+            }
             
             if personResultsReady || meetResultsReady {
                 ZStack (alignment: .topLeading) {
@@ -332,9 +445,9 @@ struct SearchInputView: View {
                                           records: $parsedLinks,
                                           personSelection: $personSelection))
                      : AnyView(MeetResultsView(records: filteredItems)))
-                        .onAppear {
-                            fullScreenResults = true
-                        }
+                    .onAppear {
+                        fullScreenResults = true
+                    }
                     if !resultSelected {
                         Image(systemName: "chevron.down")
                             .rotationEffect(.degrees(fullScreenResults ? 0: 180))
@@ -362,6 +475,7 @@ struct SearchInputView: View {
 struct DiverSearchView: View {
     @Binding var firstName: String
     @Binding var lastName: String
+    var focusedField: FocusState<Field?>.Binding
     
     var body: some View {
         VStack {
@@ -371,6 +485,7 @@ struct DiverSearchView: View {
                 TextField("First Name", text: $firstName)
                     .textFieldStyle(.roundedBorder)
                     .padding(.trailing)
+                    .focused(focusedField, equals: .firstName)
             }
             HStack {
                 Text("Last Name:")
@@ -378,6 +493,7 @@ struct DiverSearchView: View {
                 TextField("Last Name", text: $lastName)
                     .textFieldStyle(.roundedBorder)
                     .padding(.trailing)
+                    .focused(focusedField, equals: .lastName)
             }
         }
         .padding()
@@ -393,14 +509,17 @@ struct MeetSearchView: View {
     @Binding var orgName: String
     @Binding var meetYear: String
     @Binding private var predicate: NSPredicate?
+    var focusedField: FocusState<Field?>.Binding
     private var filteredItems: FetchedResults<DivingMeet>
     
     init(meetName: Binding<String>, orgName: Binding<String>, meetYear: Binding<String>,
-         predicate: Binding<NSPredicate?>, items: FetchedResults<DivingMeet>) {
+         predicate: Binding<NSPredicate?>, focusedField: FocusState<Field?>.Binding,
+         items: FetchedResults<DivingMeet>) {
         self._meetName = meetName
         self._orgName = orgName
         self._meetYear = meetYear
         self._predicate = predicate
+        self.focusedField = focusedField
         self.filteredItems = items
     }
     
@@ -412,6 +531,7 @@ struct MeetSearchView: View {
                 TextField("Meet Name", text: $meetName)
                     .textFieldStyle(.roundedBorder)
                     .padding(.trailing)
+                    .focused(focusedField, equals: .meetName)
             }
             HStack {
                 Text("Organization Name:")
@@ -419,6 +539,7 @@ struct MeetSearchView: View {
                 TextField("Organization Name", text: $orgName)
                     .textFieldStyle(.roundedBorder)
                     .padding(.trailing)
+                    .focused(focusedField, equals: .meetOrg)
             }
             HStack {
                 Text("Meet Year:")

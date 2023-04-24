@@ -42,36 +42,40 @@ struct ContentView: View {
                     }
                 }
             }
-            VStack {
-                Spacer()
-                FloatingMenuBar(selectedTab: $selectedTab,
-                                hideTabBar: $hideTabBar,
-                                visibleTabs: $visibleTabs)
-                .offset(y: hideTabBar ? 110 : 20)
-                .animation(.spring(), value: hideTabBar)
-            }
-            
-            /// Safe area tap to retrieve hidden tab bar
-            if hideTabBar {
-                Rectangle()
-                    .foregroundColor(Color.clear)
-                    .contentShape(Rectangle())
-                    .frame(width: 150, height: 90)
-                    .offset(y: 370)
-                    .onTapGesture { _ in
-                        hideTabBar = false
-                        
-                        /// Adds delay for menu bar to grow to full size after
-                        /// a change
-                        DispatchQueue.main.asyncAfter(
-                            deadline: (
-                                DispatchTime.now() + menuBarHideDelay)
-                        ) {
-                            visibleTabs = Tab.allCases
-                        }
-                    }
+            Group {
+                VStack {
+                    Spacer()
+                    FloatingMenuBar(selectedTab: $selectedTab,
+                                    hideTabBar: $hideTabBar,
+                                    visibleTabs: $visibleTabs)
+                    .offset(y: hideTabBar ? 110 : 20)
+                    .animation(.spring(), value: hideTabBar)
+                }
                 
+                /// Safe area tap to retrieve hidden tab bar
+                if hideTabBar {
+                    Rectangle()
+                        .foregroundColor(Color.clear)
+                        .contentShape(Rectangle())
+                        .frame(width: 150, height: 90)
+                        .offset(y: 370)
+                        .onTapGesture { _ in
+                            hideTabBar = false
+                            
+                            /// Adds delay for menu bar to grow to full size after
+                            /// a change
+                            DispatchQueue.main.asyncAfter(
+                                deadline: (
+                                    DispatchTime.now() + menuBarHideDelay)
+                            ) {
+                                visibleTabs = Tab.allCases
+                            }
+                        }
+                    
+                }
             }
+            // Keeps keyboard from pushing menu bar up the page when it appears
+            .ignoresSafeArea(.keyboard)
         }
         .onChange(of: scenePhase) { newPhase in
             if newPhase == .active {
