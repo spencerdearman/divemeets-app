@@ -19,7 +19,6 @@
 		0037877929D4F40900D3CD59 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877729D4F40900D3CD59 /* Cache.swift */; };
 		0037877A29D4F40900D3CD59 /* ProfileMeetCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877829D4F40900D3CD59 /* ProfileMeetCache.swift */; };
 		0037877C29D4F41800D3CD59 /* MeetParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877B29D4F41800D3CD59 /* MeetParser.swift */; };
-		0037877E29D4F4BB00D3CD59 /* pastMeets.json in Resources */ = {isa = PBXBuildFile; fileRef = 0037877D29D4F4BB00D3CD59 /* pastMeets.json */; };
 		0037878029D501F600D3CD59 /* ProfileParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877F29D501F600D3CD59 /* ProfileParser.swift */; };
 		0051C9D129E4CEE300C4C9E7 /* PastMeetResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0051C9D029E4CEE300C4C9E7 /* PastMeetResults.swift */; };
 		0095BD2D29B1491D004D7EFD /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0095BD2C29B1491D004D7EFD /* SearchView.swift */; };
@@ -61,7 +60,6 @@
 		0037877729D4F40900D3CD59 /* Cache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Cache.swift; path = DiveMeets/Model/Cache.swift; sourceTree = SOURCE_ROOT; };
 		0037877829D4F40900D3CD59 /* ProfileMeetCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProfileMeetCache.swift; path = DiveMeets/Model/ProfileMeetCache.swift; sourceTree = SOURCE_ROOT; };
 		0037877B29D4F41800D3CD59 /* MeetParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeetParser.swift; sourceTree = "<group>"; };
-		0037877D29D4F4BB00D3CD59 /* pastMeets.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = pastMeets.json; path = DiveMeets/Resources/pastMeets.json; sourceTree = SOURCE_ROOT; };
 		0037877F29D501F600D3CD59 /* ProfileParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileParser.swift; sourceTree = "<group>"; };
 		0051C9D029E4CEE300C4C9E7 /* PastMeetResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastMeetResults.swift; sourceTree = "<group>"; };
 		0095BD2C29B1491D004D7EFD /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
@@ -190,7 +188,6 @@
 			isa = PBXGroup;
 			children = (
 				4D74FEC129AEBF5500401178 /* meetData.json */,
-				0037877D29D4F4BB00D3CD59 /* pastMeets.json */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -259,7 +256,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0037877E29D4F4BB00D3CD59 /* pastMeets.json in Resources */,
 				4D74FEC229AEBF5500401178 /* meetData.json in Resources */,
 				4D74FE9E29AE7B9800401178 /* Preview Assets.xcassets in Resources */,
 				4D74FE9B29AE7B9800401178 /* Assets.xcassets in Resources */,
