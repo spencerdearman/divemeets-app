@@ -71,6 +71,7 @@
 		00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingMenuBar.swift; sourceTree = "<group>"; };
 		00F9667A29AFDA1500F3720B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		4D09308429D3A1B7003AAA90 /* LoginScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginScreen.swift; sourceTree = "<group>"; };
+		4D1177C729F88B7000850D18 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIWebView.swift; sourceTree = "<group>"; };
 		4D1A5C3829CCA1B400F3DA2B /* RecordList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordList.swift; sourceTree = "<group>"; };
 		4D254F1529C0411C0033838D /* HTMLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLParser.swift; sourceTree = "<group>"; };
@@ -91,7 +92,6 @@
 		4D74FEBF29AEBD6F00401178 /* MeetList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetList.swift; sourceTree = "<group>"; };
 		4D74FEC129AEBF5500401178 /* meetData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = meetData.json; sourceTree = "<group>"; };
 		4D74FEC529AEC95500401178 /* MeetPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetPage.swift; sourceTree = "<group>"; };
-		4DC7ACEB29F3876C008BBB62 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		4DC7ACEC29F38828008BBB62 /* DiveMeets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DiveMeets.entitlements; sourceTree = "<group>"; };
 		4DC7ACED29F398E8008BBB62 /* keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = keychain.swift; sourceTree = "<group>"; };
 		4DD868EC29F0E69C00FF988D /* keychain-swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "keychain-swift.swift"; sourceTree = "<group>"; };
@@ -129,8 +129,8 @@
 		4D74FE9529AE7B9800401178 /* DiveMeets */ = {
 			isa = PBXGroup;
 			children = (
+				4D1177C729F88B7000850D18 /* Info.plist */,
 				4DC7ACEC29F38828008BBB62 /* DiveMeets.entitlements */,
-				4DC7ACEB29F3876C008BBB62 /* Info.plist */,
 				4D74FE9629AE7B9800401178 /* DiveMeetsApp.swift */,
 				4D74FEAC29AEAE9800401178 /* Profile.swift */,
 				4D74FEB229AEB47000401178 /* Views */,

@@ -11,7 +11,8 @@ import SwiftSoup
 final class HTMLParser: ObservableObject {
     @Published var myData = [[String]]()
     
-    func parse(html: String) -> [[String]] {
+    func parse(html: String) async -> [[String]] {
+        print("entering the main parse method")
         do {
             let document: Document = try SwiftSoup.parse(html)
             guard let body = document.body() else {
@@ -30,6 +31,7 @@ final class HTMLParser: ObservableObject {
             })
             //myData[0] = myData[0][0].components(separatedBy: "History")
             //myData[0].remove(at: 1)
+            print("Printing the data", myData)
             return myData
         }
         catch {
@@ -68,24 +70,25 @@ final class HTMLParser: ObservableObject {
         return ""
     }
     
-    func parse(urlString: String) -> [[String]] {
+    func parse(urlString: String) async {
+        print("Entering FIRST parse method")
         let getTextModel = GetTextAsyncModel()
-        print(urlString)
         guard let url = URL(string: urlString) else {
-            return []
+            print("Failing guard")
+            return
         }
-        
-        Task {
-            await getTextModel.fetchText(url: url)
-            if let html = getTextModel.text {
-                await MainActor.run {
-                    myData = parse(html: html)
-                }
+        await getTextModel.fetchText(url: url)
+        if let html = getTextModel.text {
+            print("going into if statement")
+            let data = await parse(html: html)
+            await MainActor.run {
+                myData = data
+                print(myData)
             }
-            return myData
+        } else {
+            print("failed")
         }
-        
-        return []
+        print("Task worked")
     }
     
     func getRecords(_ html: String) -> [String: String] {
@@ -118,11 +121,11 @@ struct ParsedView: View {
             TextField("Enter URL", text: $urlString)
                 .padding()
             
-            Button("Parse HTML") {
-                parser.parse(urlString: urlString)
-                //print(parser.myData)
-            }
-            .padding()
+            //            Button("Parse HTML") {
+            //                parser.parse(urlString: urlString)
+            //                //print(parser.myData)
+            //            }
+            //            .padding()
             
             List(parser.myData, id: \.self) { rowData in
                 HStack {
