@@ -1,5 +1,5 @@
 //
-//  MeetsResultsView.swift
+//  MeetsResultsTestView.swift
 //  DiveMeets
 //
 //  Created by Logan Sherwin on 4/3/23.
@@ -8,7 +8,7 @@
 import SwiftUI
 import CoreData
 
-struct MeetsResultsView: View {
+struct MeetsResultsTestView: View {
     @Environment(\.managedObjectContext) var moc
     @Environment(\.meetsDB) var db
     @State var liveResultsLink: String = ""

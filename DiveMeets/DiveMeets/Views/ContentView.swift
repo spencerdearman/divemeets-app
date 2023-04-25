@@ -10,9 +10,14 @@ import SwiftUI
 struct ContentView: View {
     @Environment(\.colorScheme) var currentMode
     @Environment(\.scenePhase) var scenePhase
+    @Environment(\.meetsDB) var db
     @State private var selectedTab: Tab = .magnifyingglass
     @State var hideTabBar = false
     @State var visibleTabs: [Tab] = Tab.allCases
+    @State var isIndexingMeets: Bool = true
+    @StateObject private var getTextModel = GetTextAsyncModel()
+    @StateObject private var p: MeetParser = MeetParser()
+    @FetchRequest(sortDescriptors: []) private var meets: FetchedResults<DivingMeet>
     
     /// Necessary to hide gray navigation bar from behind floating tab bar
     init() {
@@ -30,11 +35,12 @@ struct ContentView: View {
                                 case .house:
                                     ProfileView(hideTabBar: $hideTabBar, link:"", diverID: "51197")
                                 case .gearshape:
-                                    MeetsResultsView()
+                                    MeetsResultsTestView()
                                     //                                    LiveResultsParserView()
                                     //                                    MeetParserView()
                                 case .magnifyingglass:
-                                    SearchView(hideTabBar: $hideTabBar)
+                                    SearchView(hideTabBar: $hideTabBar,
+                                               isIndexingMeets: $isIndexingMeets)
                             }
                         }
                         .tag(tab)
@@ -77,6 +83,41 @@ struct ContentView: View {
             // Keeps keyboard from pushing menu bar up the page when it appears
             .ignoresSafeArea(.keyboard)
         }
+        // Executes on app launch
+        .onAppear {
+            // Note: isIndexingMeets is set to true by default, set to false at the end of the task
+            
+            // Initialize meet parse from index page
+            let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/index.php")!
+            
+            // Runs this task asynchronously so rest of app can function while this finishes
+            Task {
+                // This sets getTextModel's text field equal to the HTML from url
+                await getTextModel.fetchText(url: url)
+                
+                if let text = getTextModel.text {
+                    // This sets p's upcoming, current, and past meets fields
+                    try await p.parseMeets(html: text, storedMeets: meets)
+                    print("Finished parsing")
+                    
+                    // Check that each set of meets is not nil and add each to the database
+                    if let upcoming = p.upcomingMeets {
+                        db.addRecords(records: db.dictToTuple(dict: upcoming))
+                    }
+                    if let current = p.currentMeets {
+                        db.addRecords(records: db.dictToTuple(dict: current))
+                    }
+                    if let past = p.pastMeets {
+                        db.addRecords(records: db.dictToTuple(dict: past))
+                    }
+                    print("Finished adding meets to database")
+                    isIndexingMeets = false
+                } else {
+                    print("Could not fetch model text")
+                }
+            }
+        }
+        // Executes when other views are opened (notification center, control center, swiped up)
         .onChange(of: scenePhase) { newPhase in
             if newPhase == .active {
                 GlobalCaches.loadAllCaches()

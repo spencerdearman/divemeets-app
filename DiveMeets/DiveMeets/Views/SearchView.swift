@@ -185,6 +185,7 @@ struct SearchView: View {
     @State var dmSearchSubmitted: Bool = false
     @State var linksParsed: Bool = false
     @Binding var hideTabBar: Bool
+    @Binding var isIndexingMeets: Bool
     private var personSearchSubmitted: Bool {
         searchSubmitted && selection == .person
     }
@@ -203,12 +204,11 @@ struct SearchView: View {
             
             Color.white.ignoresSafeArea()
             
-            /// Submit button doesn't switch pages in preview, but it works in Simulator
             SearchInputView(selection: $selection, firstName: $firstName, lastName: $lastName,
                             meetName: $meetName, orgName: $orgName, meetYear: $meetYear,
                             searchSubmitted: $searchSubmitted, parsedLinks: $parsedLinks,
                             dmSearchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed,
-                            hideTabBar: $hideTabBar)
+                            hideTabBar: $hideTabBar, isIndexingMeets: $isIndexingMeets)
         }
         .onDisappear {
             searchSubmitted = false
@@ -237,6 +237,7 @@ struct SearchInputView: View {
     @Binding var dmSearchSubmitted: Bool
     @Binding var linksParsed: Bool
     @Binding var hideTabBar: Bool
+    @Binding var isIndexingMeets: Bool
     
     @State var predicate: NSPredicate?
     @State var filterType: FilterType = .name
@@ -294,7 +295,8 @@ struct SearchInputView: View {
     init(selection: Binding<SearchType>, firstName: Binding<String>, lastName: Binding<String>,
          meetName: Binding<String>, orgName: Binding<String>, meetYear: Binding<String>,
          searchSubmitted: Binding<Bool>, parsedLinks: Binding<[String : String]>,
-         dmSearchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>, hideTabBar: Binding<Bool>) {
+         dmSearchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>, hideTabBar: Binding<Bool>,
+         isIndexingMeets: Binding<Bool>) {
         self._selection = selection
         self._firstName = firstName
         self._lastName = lastName
@@ -306,6 +308,7 @@ struct SearchInputView: View {
         self._dmSearchSubmitted = dmSearchSubmitted
         self._linksParsed = linksParsed
         self._hideTabBar = hideTabBar
+        self._isIndexingMeets = isIndexingMeets
         self._items = FetchRequest<DivingMeet>(entity: DivingMeet.entity(),
                                                sortDescriptors: [])
     }
@@ -387,8 +390,7 @@ struct SearchInputView: View {
                 if selection == .meet {
                     MeetSearchView(meetName: $meetName, orgName: $orgName,
                                    meetYear: $meetYear, predicate: $predicate,
-                                   focusedField: $focusedField,
-                                   items: filteredItems)
+                                   focusedField: $focusedField, items: filteredItems)
                 } else {
                     DiverSearchView(firstName: $firstName, lastName: $lastName,
                                     focusedField: $focusedField)
@@ -439,9 +441,32 @@ struct SearchInputView: View {
                 }
                 
                 Spacer()
+                if selection == .meet && isIndexingMeets {
+                    VStack {
+                        VStack(alignment: .leading) {
+                            Text("Indexing...")
+                                .font(.headline)
+                                .padding(.leading)
+                            HStack {
+                                ProgressView(value: 0.5)
+                                    .progressViewStyle(.linear)
+                                    .frame(width: 250)
+                                    .padding(.leading)
+                            }
+                            Text(String(Int(trunc(0.5 * 100))) + "%")
+                                .foregroundColor(.gray)
+                                .padding(.leading)
+                        }
+                        .padding(.bottom)
+                        Text("Some results may not appear in Search yet")
+                            .foregroundColor(.gray)
+                        Spacer()
+                    }
+                }
                 Spacer()
                 Spacer()
             }
+            // Keyboard toolbar with up/down arrows and Done button
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Button(action: previous) {
@@ -510,7 +535,6 @@ struct SearchInputView: View {
         .onAppear {
             showError = false
         }
-        
     }
     
 }
@@ -648,7 +672,9 @@ struct MeetResultsView : View {
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
         ForEach(ColorScheme.allCases, id: \.self) {
-            SearchView(hideTabBar: .constant(false)).preferredColorScheme($0)
+            SearchView(hideTabBar: .constant(false),
+                       isIndexingMeets: .constant(false))
+            .preferredColorScheme($0)
         }
     }
 }

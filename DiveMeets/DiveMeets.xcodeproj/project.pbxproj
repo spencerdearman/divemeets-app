@@ -14,7 +14,7 @@
 		002A1B3429DB7C4700A26FED /* ProfileHTMLCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002A1B3329DB7C4700A26FED /* ProfileHTMLCache.swift */; };
 		002A1B7C29DB937C00A26FED /* Meets.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 002A1B7A29DB937C00A26FED /* Meets.xcdatamodeld */; };
 		002A1B7E29DB93FC00A26FED /* MeetsDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002A1B7D29DB93FC00A26FED /* MeetsDataController.swift */; };
-		002A1B8029DB94A400A26FED /* MeetsResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002A1B7F29DB94A400A26FED /* MeetsResultsView.swift */; };
+		002A1B8029DB94A400A26FED /* MeetsResultsTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002A1B7F29DB94A400A26FED /* MeetsResultsTestView.swift */; };
 		002A1BB629DCF2F900A26FED /* GetTextAsync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002A1BB529DCF2F900A26FED /* GetTextAsync.swift */; };
 		0037877929D4F40900D3CD59 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877729D4F40900D3CD59 /* Cache.swift */; };
 		0037877A29D4F40900D3CD59 /* ProfileMeetCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877829D4F40900D3CD59 /* ProfileMeetCache.swift */; };
@@ -56,7 +56,7 @@
 		002A1B3329DB7C4700A26FED /* ProfileHTMLCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHTMLCache.swift; sourceTree = "<group>"; };
 		002A1B7B29DB937C00A26FED /* PastMeets.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = PastMeets.xcdatamodel; sourceTree = "<group>"; };
 		002A1B7D29DB93FC00A26FED /* MeetsDataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetsDataController.swift; sourceTree = "<group>"; };
-		002A1B7F29DB94A400A26FED /* MeetsResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetsResultsView.swift; sourceTree = "<group>"; };
+		002A1B7F29DB94A400A26FED /* MeetsResultsTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetsResultsTestView.swift; sourceTree = "<group>"; };
 		002A1BB529DCF2F900A26FED /* GetTextAsync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetTextAsync.swift; sourceTree = "<group>"; };
 		0037877729D4F40900D3CD59 /* Cache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Cache.swift; path = DiveMeets/Model/Cache.swift; sourceTree = SOURCE_ROOT; };
 		0037877829D4F40900D3CD59 /* ProfileMeetCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProfileMeetCache.swift; path = DiveMeets/Model/ProfileMeetCache.swift; sourceTree = SOURCE_ROOT; };
@@ -159,7 +159,7 @@
 				4D74FEBF29AEBD6F00401178 /* MeetList.swift */,
 				4D74FEC529AEC95500401178 /* MeetPage.swift */,
 				0037877B29D4F41800D3CD59 /* MeetParser.swift */,
-				002A1B7F29DB94A400A26FED /* MeetsResultsView.swift */,
+				002A1B7F29DB94A400A26FED /* MeetsResultsTestView.swift */,
 				4D254F1729C107980033838D /* NamesCreator.swift */,
 				4D74FEA429AE7C2B00401178 /* ProfileImage.swift */,
 				0037877F29D501F600D3CD59 /* ProfileParser.swift */,
@@ -290,7 +290,7 @@
 				002A1BB629DCF2F900A26FED /* GetTextAsync.swift in Sources */,
 				000D28E129E122B700B184E9 /* LiveResultsView.swift in Sources */,
 				4D74FE9929AE7B9800401178 /* ProfileView.swift in Sources */,
-				002A1B8029DB94A400A26FED /* MeetsResultsView.swift in Sources */,
+				002A1B8029DB94A400A26FED /* MeetsResultsTestView.swift in Sources */,
 				4D254F1629C0411C0033838D /* HTMLParser.swift in Sources */,
 				002A1B7C29DB937C00A26FED /* Meets.xcdatamodeld in Sources */,
 				4D74FEA929AEA5AD00401178 /* MapView.swift in Sources */,
