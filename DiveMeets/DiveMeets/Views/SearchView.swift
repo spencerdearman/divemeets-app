@@ -19,6 +19,11 @@ enum Field: Int, Hashable, CaseIterable {
     case meetOrg
 }
 
+enum FilterType: String, CaseIterable {
+    case name = "Name"
+    case year = "Year"
+}
+
 private extension SearchInputView {
     var hasReachedPersonStart: Bool {
         self.focusedField == Field.allCases.first
@@ -34,6 +39,10 @@ private extension SearchInputView {
     
     var hasReachedMeetEnd: Bool {
         self.focusedField == Field.allCases.last
+    }
+    
+    func dismissKeyboard() {
+        self.focusedField = nil
     }
     
     func nextPersonField() {
@@ -230,10 +239,26 @@ struct SearchInputView: View {
     @Binding var hideTabBar: Bool
     
     @State var predicate: NSPredicate?
-    @FetchRequest private var items: FetchedResults<DivingMeet>
+    @State var filterType: FilterType = .name
+    @State var isSortedAscending: Bool = true
+    @FetchRequest(sortDescriptors: [])
+    private var items: FetchedResults<DivingMeet>
+    // Potentially useful in the future:
+    // https://stackoverflow.com/questions/61631611/swift-dynamicfetchview-fetchlimit/61632618#61632618
     // Updates the filteredItems value dynamically with predicate changes
     var filteredItems: FetchedResults<DivingMeet> {
         get {
+            let key: String
+            switch(filterType) {
+                case .name:
+                    key = "name"
+                    break
+                case .year:
+                    key = "year"
+                    break
+            }
+            _items.wrappedValue.nsSortDescriptors = [
+                NSSortDescriptor(key: key, ascending: isSortedAscending)]
             _items.wrappedValue.nsPredicate = predicate
             return items
         }
@@ -308,7 +333,6 @@ struct SearchInputView: View {
                 .ignoresSafeArea()
             // Allows the user to hide the keyboard when clicking on the background of the page
                 .onTapGesture {
-                    //                    self.hideKeyboard()
                     focusedField = nil
                 }
             VStack {
@@ -432,8 +456,8 @@ struct SearchInputView: View {
                     
                     Spacer()
                     
-                    Button("Done") {
-                        focusedField = nil
+                    Button(action: dismissKeyboard) {
+                        Text("**Done**")
                     }
                 }
             }
@@ -449,15 +473,34 @@ struct SearchInputView: View {
                         fullScreenResults = true
                     }
                     if !resultSelected {
-                        Image(systemName: "chevron.down")
-                            .rotationEffect(.degrees(fullScreenResults ? 0: 180))
-                            .frame(width:50, height: 50)
-                            .foregroundColor(.black)
-                            .font(.system(size: 22))
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                fullScreenResults.toggle()
+                        Button(action: { () -> () in fullScreenResults.toggle() }) {
+                            Image(systemName: "chevron.down")
+                        }
+                        .rotationEffect(.degrees(fullScreenResults ? 0: -180))
+                        .frame(width:50, height: 50)
+                        .foregroundColor(.primary)
+                        .font(.system(size: 22))
+                        .contentShape(Rectangle())
+                    }
+                    HStack {
+                        Spacer()
+                        Menu {
+                            Picker("", selection: $filterType) {
+                                ForEach(FilterType.allCases, id: \.self) {
+                                    Text($0.rawValue)
+                                        .tag($0)
+                                }
                             }
+                            Button(action: { () -> () in isSortedAscending.toggle() }) {
+                                Label("Sort: \(isSortedAscending ? "Ascending" : "Descending")",
+                                      systemImage: "arrow.up.arrow.down")
+                            }
+                        } label: {
+                            Image(systemName: "line.3.horizontal.decrease.circle")
+                        }
+                        .frame(width: 50, height: 50)
+                        .foregroundColor(.primary)
+                        .font(.system(size: 22))
                     }
                 }
                 .offset(y: fullScreenResults ? 0 : 350)
