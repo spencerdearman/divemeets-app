@@ -8,6 +8,7 @@
 import SwiftUI
 import LocalAuthentication
 
+let keychainManager = KeychainManager()
 
 /// Checks that for a given SearchType, at least one of the relevant fields has a value, and returns true if so.
 /// If all relevant fields are empty, returns false
@@ -27,36 +28,21 @@ struct LoginSearchView: View {
     @State private var isUnlocked = false
     @State var keyChange: Bool = false
     @Binding var hideTabBar: Bool
-    private let keychain = KeychainSwift()
     @ViewBuilder
     var body: some View {
+        
+        ZStack{}
+        .onAppear{
+            if createdKey || !keyChange {
+                keychainManager.createKeychainItem(divemeetsID: divemeetsID, password: password)
+                keyChange = true
+            }
+        }
+        
         ZStack{
-//            if createdKey || !keyChange {
-//                keychain.set(password, forKey: divemeetsID, withAccess: .accessibleAfterFirstUnlock)
-//            }
-//            if createdKey {
-//                VStack {
-//                    if isUnlocked {
-//                        Text("Hello")
-//                        Text(keychain.allKeys)
-//                        //put keychain stuff in here
-//                    } else {
-//                        Text("Please authenticate to sign in")
-//                    }
-//                }
-//                .onAppear(perform: authenticate)
-//            }
-//                //check biometrics
-//                VStack {
-//                    if isUnlocked {
-//                        Text("Hello")
-//                        Text(keychain.allKeys)
-//                        //put keychain stuff in here
-//                    } else {
-//                        Text("Please authenticate to sign in")
-//                    }
-//                }
-//                .onAppear(perform: authenticate)
+            
+            if searchSubmitted || keyChange {
+            }
             
             if searchSubmitted {
                 LoginUIWebView(divemeetsID: $divemeetsID, password: $password, parsedUserHTML: $parsedUserHTML, loginSearchSubmitted: $loginSearchSubmitted, loginSuccessful: $loginSuccessful)
@@ -126,88 +112,67 @@ struct LoginSearchInputView: View {
     private let typeBGWidth: CGFloat = 40
     
     var body: some View {
-        let typeBGColor: Color = currentMode == .light
-        ? Color(red: grayValue, green: grayValue, blue: grayValue)
-        : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
-        let typeBubbleColor: Color = currentMode == .light
-        ? Color.white
-        : Color.black
-        
         ZStack {
             VStack {
-                VStack {
+                
+                if loginSuccessful {
+                    ProfileView(hideTabBar: $hideTabBar, link: "https://secure.meetcontrol.com/divemeets/system/profile.php?number=" + divemeetsID, diverID: divemeetsID)
+                        .zIndex(1)
+                        .offset(y: 90)
+                } else {
                     Text("Login")
                         .font(.title)
                         .bold()
-                }
-                
-                LoginPageSearchView(divemeetsID: $divemeetsID, password: $password)
-                
-                VStack {
-                    Button(action: {
-                        /// Need to initially set search to false so webView gets recreated
-                        searchSubmitted = false
-                        /// Only submits a search if one of the relevant fields is filled, otherwise toggles error
-                        if checkFields(divemeetsID: divemeetsID,
-                                       password: password) {
-                            showError = false
-                            searchSubmitted = true
-                            loginSearchSubmitted = false
-                            loginSuccessful = false
-                            parsedUserHTML = ""
-                        } else {
-                            showError = true
-                            searchSubmitted = false
-                            loginSearchSubmitted = false
-                            loginSuccessful = false
-                            parsedUserHTML = ""
-                        }
-                    }, label: {
-                        Text("Submit")
-                            .animation(nil)
-                    })
-                    .buttonStyle(.bordered)
-                    .cornerRadius(cornerRadius)
-                    if searchSubmitted && !loginSuccessful {
-                        ProgressView()
-                    }
-                }
-                if showError {
-                    Text("You must enter at least one field to search")
-                        .foregroundColor(Color.red)
                     
-                } else {
-                    Text("")
-                }
-                
-                Spacer()
-                Spacer()
-                Spacer()
-            }
-            
-            if loginSuccessful {
-                ZStack (alignment: .topLeading) {
+                    LoginPageSearchView(divemeetsID: $divemeetsID, password: $password)
+                    
                     VStack {
-                        Text("You Logged In!")
-                            .onAppear{
-                                fullScreenResults = true
-                                if !createdKey{
-                                    createdKey = true
-                                }
+                        Button(action: {
+                            /// Need to initially set search to false so webView gets recreated
+                            searchSubmitted = false
+                            /// Only submits a search if one of the relevant fields is filled, otherwise toggles error
+                            if checkFields(divemeetsID: divemeetsID,
+                                           password: password) {
+                                showError = false
+                                searchSubmitted = true
+                                loginSearchSubmitted = false
+                                loginSuccessful = true // set loginSuccessful to true when the login is successful
+                                parsedUserHTML = ""
+                            } else {
+                                showError = true
+                                searchSubmitted = false
+                                loginSearchSubmitted = false
+                                loginSuccessful = false
+                                parsedUserHTML = ""
                             }
-                        Text(String(createdKey))
+                        }, label: {
+                            Text("Submit")
+                                .animation(nil)
+                        })
+                        .buttonStyle(.bordered)
+                        .cornerRadius(cornerRadius)
+                        if searchSubmitted && !loginSuccessful {
+                            ProgressView()
+                        }
                     }
+                    if showError {
+                        Text("You must enter at least one field to search")
+                            .foregroundColor(Color.red)
+                        
+                    } else {
+                        Text("")
+                    }
+                    
+                    Spacer()
+                    Spacer()
+                    Spacer()
                 }
-                .offset(y: fullScreenResults ? 0 : 350)
-                .animation(.linear(duration: 0.2), value: fullScreenResults)
             }
         }
         .onAppear {
             showError = false
         }
-        
     }
-    
 }
 
 
@@ -222,6 +187,7 @@ struct LoginPageSearchView: View {
                 Text("DiveMeets ID:")
                     .padding(.leading)
                 TextField("DiveMeets ID", text: $divemeetsID)
+                    .textContentType(.username).keyboardType(.numberPad)
                     .textFieldStyle(.roundedBorder)
                     .padding(.trailing)
             }
@@ -230,6 +196,7 @@ struct LoginPageSearchView: View {
                     .padding(.leading)
                 if isPasswordVisible {
                     TextField("Password", text: $password)
+                        .textContentType(.password).keyboardType(.default)
                         .textFieldStyle(.roundedBorder)
                         .padding(.trailing)
                 } else {
