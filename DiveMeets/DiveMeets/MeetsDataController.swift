@@ -84,7 +84,7 @@ class MeetsDataController: ObservableObject {
                 format: formatPredicate, meetId ?? NSNull(), name ?? NSNull(), org ?? NSNull(),
                 year ?? NSNull(), link ?? NSNull())
             fetchRequest.predicate = predicate
-            print(predicate)
+            
             let result = try? moc.fetch(fetchRequest)
             let resultData = result as! [DivingMeet]
             
@@ -110,7 +110,7 @@ class MeetsDataController: ObservableObject {
         // Add formatting here so we can properly format nil if meetId or year is nil
         let predicate = NSPredicate(format: "organization == nil")
         fetchRequest.predicate = predicate
-        print(predicate)
+        
         let result = try? moc.fetch(fetchRequest)
         let resultData = result as! [DivingMeet]
         

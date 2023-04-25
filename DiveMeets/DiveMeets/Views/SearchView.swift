@@ -186,6 +186,9 @@ struct SearchView: View {
     @State var linksParsed: Bool = false
     @Binding var hideTabBar: Bool
     @Binding var isIndexingMeets: Bool
+    @Binding var isFinishedCounting: Bool
+    @Binding var meetsParsedCount: Int
+    @Binding var totalMeetsParsedCount: Int
     private var personSearchSubmitted: Bool {
         searchSubmitted && selection == .person
     }
@@ -208,7 +211,10 @@ struct SearchView: View {
                             meetName: $meetName, orgName: $orgName, meetYear: $meetYear,
                             searchSubmitted: $searchSubmitted, parsedLinks: $parsedLinks,
                             dmSearchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed,
-                            hideTabBar: $hideTabBar, isIndexingMeets: $isIndexingMeets)
+                            hideTabBar: $hideTabBar, isIndexingMeets: $isIndexingMeets,
+                            isFinishedCounting: $isFinishedCounting,
+                            meetsParsedCount: $meetsParsedCount,
+                            totalMeetsParsedCount: $totalMeetsParsedCount)
         }
         .onDisappear {
             searchSubmitted = false
@@ -238,15 +244,18 @@ struct SearchInputView: View {
     @Binding var linksParsed: Bool
     @Binding var hideTabBar: Bool
     @Binding var isIndexingMeets: Bool
+    @Binding var isFinishedCounting: Bool
+    @Binding var meetsParsedCount: Int
+    @Binding var totalMeetsParsedCount: Int
     
     @State var predicate: NSPredicate?
     @State var filterType: FilterType = .name
     @State var isSortedAscending: Bool = true
     @FetchRequest(sortDescriptors: [])
     private var items: FetchedResults<DivingMeet>
-    // Potentially useful in the future:
+    // Useful link:
     // https://stackoverflow.com/questions/61631611/swift-dynamicfetchview-fetchlimit/61632618#61632618
-    // Updates the filteredItems value dynamically with predicate changes
+    // Updates the filteredItems value dynamically with predicate and sorting changes
     var filteredItems: FetchedResults<DivingMeet> {
         get {
             let key: String
@@ -296,7 +305,8 @@ struct SearchInputView: View {
          meetName: Binding<String>, orgName: Binding<String>, meetYear: Binding<String>,
          searchSubmitted: Binding<Bool>, parsedLinks: Binding<[String : String]>,
          dmSearchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>, hideTabBar: Binding<Bool>,
-         isIndexingMeets: Binding<Bool>) {
+         isIndexingMeets: Binding<Bool>, isFinishedCounting: Binding<Bool>,
+         meetsParsedCount: Binding<Int>, totalMeetsParsedCount: Binding<Int>) {
         self._selection = selection
         self._firstName = firstName
         self._lastName = lastName
@@ -309,6 +319,9 @@ struct SearchInputView: View {
         self._linksParsed = linksParsed
         self._hideTabBar = hideTabBar
         self._isIndexingMeets = isIndexingMeets
+        self._isFinishedCounting = isFinishedCounting
+        self._meetsParsedCount = meetsParsedCount
+        self._totalMeetsParsedCount = totalMeetsParsedCount
         self._items = FetchRequest<DivingMeet>(entity: DivingMeet.entity(),
                                                sortDescriptors: [])
     }
@@ -321,6 +334,10 @@ struct SearchInputView: View {
         linksParsed = false
         parsedLinks = [:]
         predicate = nil
+    }
+    
+    private func getPercentString(count: Int, total: Int) -> String {
+        return String(Int(trunc(Double(count) / Double(total) * 100)))
     }
     
     var body: some View {
@@ -412,10 +429,8 @@ struct SearchInputView: View {
                             searchSubmitted = true
                             
                             if selection == .meet {
-                                predicate = getPredicate(name: meetName,
-                                                         org: orgName,
+                                predicate = getPredicate(name: meetName, org: orgName,
                                                          year: meetYear)
-                                print(predicate ?? "nil")
                             }
                         } else {
                             clearStateFlags()
@@ -441,21 +456,35 @@ struct SearchInputView: View {
                 }
                 
                 Spacer()
+                
                 if selection == .meet && isIndexingMeets {
                     VStack {
-                        VStack(alignment: .leading) {
-                            Text("Indexing...")
-                                .font(.headline)
-                                .padding(.leading)
-                            HStack {
-                                ProgressView(value: 0.5)
+                        // Displays loading bar if counts are done, otherwise shows indefinite
+                        // progress bar
+                        Group {
+                            if isFinishedCounting {
+                                VStack(alignment: .leading) {
+                                    Text("Indexing...")
+                                        .font(.headline)
+                                        .padding(.leading)
+                                    ProgressView(value: Double(meetsParsedCount),
+                                                 total: Double(totalMeetsParsedCount))
                                     .progressViewStyle(.linear)
                                     .frame(width: 250)
                                     .padding(.leading)
+                                    Text(getPercentString(count: meetsParsedCount,
+                                                          total: totalMeetsParsedCount) + "%")
+                                    .foregroundColor(.gray)
+                                    .padding(.leading)
+                                }
+                            } else {
+                                VStack {
+                                    Text("Indexing...")
+                                        .font(.headline)
+                                        .padding(.leading)
+                                    ProgressView()
+                                }
                             }
-                            Text(String(Int(trunc(0.5 * 100))) + "%")
-                                .foregroundColor(.gray)
-                                .padding(.leading)
                         }
                         .padding(.bottom)
                         Text("Some results may not appear in Search yet")
@@ -665,16 +694,6 @@ struct MeetResultsView : View {
                 }
                 Spacer()
             }
-        }
-    }
-}
-
-struct SearchView_Previews: PreviewProvider {
-    static var previews: some View {
-        ForEach(ColorScheme.allCases, id: \.self) {
-            SearchView(hideTabBar: .constant(false),
-                       isIndexingMeets: .constant(false))
-            .preferredColorScheme($0)
         }
     }
 }

@@ -58,21 +58,14 @@ struct MeetsResultsTestView: View {
                 HStack {
                     if !finishedParsing {
                         Button("Run") {
-                            let url = URL(
-                                string: "https://secure.meetcontrol.com/divemeets/system/index.php")!
-                            
                             Task {
                                 finishedParsing = false
-                                // This sets getTextModel's text field equal to the HTML from url
-                                await getTextModel.fetchText(url: url)
-                                if let text = getTextModel.text {
-                                    // This sets p's upcoming, current, and past meets fields
-                                    try await p.parseMeets(html: text, storedMeets: meets)
-                                    finishedParsing = true
-                                    print("Finished parsing")
-                                } else {
-                                    print("Could not get text from URL")
-                                }
+                                
+                                // This sets p's upcoming, current, and past meets fields
+                                try await p.parseMeets(storedMeets: meets)
+                                
+                                finishedParsing = true
+                                print("Finished parsing")
                             }
                             
                         }

@@ -63,6 +63,9 @@ final class MeetParser: ObservableObject {
     @Published var pastMeets: MeetDict?
     @Published private var pastYear: String = ""
     @Published private var stage: Stage?
+    @Published var meetsParsedCount: Int = 0
+    @Published var totalMeetsParsedCount: Int = 0
+    @Published var isFinishedCounting: Bool = false
     let loader = GetTextAsyncLoader()
     let getTextModel = GetTextAsyncModel()
     let leadingLink: String = "https://secure.meetcontrol.com/divemeets/system/"
@@ -76,59 +79,52 @@ final class MeetParser: ObservableObject {
         }
     }
     
+    // Loads each stored year in the database into a set
     private func pullStoredPastMeetYears(storedMeets: FetchedResults<DivingMeet>) {
         storedPastMeetYears = Set<Int>(Array(storedMeets).map { Int($0.year) })
-        //        print("STORED PAST MEET YEARS: ", storedPastMeetYears!)
     }
     
     // Gets the list of meet names and links to their pages from an org page
-    private func getMeetNamesAndLinks(
-        text: String, storedMeets: FetchedResults<DivingMeet>? = nil) -> [(String, String)]? {
-            var result: [(String, String)]?
-            do {
-                let document: Document = try SwiftSoup.parse(text)
-                guard let body = document.body() else { return [] }
-                let content = try body.getElementById("dm_content")!
-                let rows = try content.getElementsByTag("td")
-                for row in rows {
-                    // Only continues on rows w/o align field and w valign == top
-                    if !(try !row.hasAttr("align")
-                         && row.hasAttr("valign") && row.attr("valign") == "top") {
-                        continue
-                    }
-                    
-                    /// Gets divs from page (meet name on past meets where link is "Results")
-                    let divs = try row.getElementsByTag("div")
-                    
-                    /// Gets links from list of meets
-                    let elem = try row.getElementsByTag("a")
-                    //                try print("divs", divs.text(), "elem", elem.text())
-                    for e in elem {
-                        if try e.tagName() == "a"
-                            && e.attr("href").starts(with: "meet") {
-                            if result == nil {
-                                result = []
-                            }
-                            
-                            let nameText = try divs.isEmpty() ? e.text() : divs[0].text()
-                            result!.append((nameText, try leadingLink + e.attr("href")))
-                            break
+    private func getMeetNamesAndLinks(text: String) -> [(String, String)]? {
+        var result: [(String, String)]?
+        do {
+            let document: Document = try SwiftSoup.parse(text)
+            guard let body = document.body() else { return [] }
+            let content = try body.getElementById("dm_content")!
+            let rows = try content.getElementsByTag("td")
+            for row in rows {
+                // Only continues on rows w/o align field and w valign == top
+                if !(try !row.hasAttr("align")
+                     && row.hasAttr("valign") && row.attr("valign") == "top") {
+                    continue
+                }
+                
+                /// Gets divs from page (meet name on past meets where link is "Results")
+                let divs = try row.getElementsByTag("div")
+                
+                /// Gets links from list of meets
+                let elem = try row.getElementsByTag("a")
+                for e in elem {
+                    if try e.tagName() == "a"
+                        && e.attr("href").starts(with: "meet") {
+                        if result == nil {
+                            result = []
                         }
+                        
+                        let nameText = try divs.isEmpty() ? e.text() : divs[0].text()
+                        result!.append((nameText, try leadingLink + e.attr("href")))
+                        break
                     }
                 }
-            } catch {
-                print("Parse failed")
             }
-            
-            if result != nil {
-                print("Result:", result!)
-            }
-            
-            return result
+        } catch {
+            print("Parse failed")
         }
+        
+        return result
+    }
     
-    // Parses current meets from homepage sidebar since "Current" tab is not
-    // reliable
+    // Parses current meets from homepage sidebar since "Current" tab is not reliable
     private func parseCurrentMeets(html: String) async {
         var result: CurrentMeetDict = []
         do {
@@ -169,12 +165,6 @@ final class MeetParser: ObservableObject {
                     }
                 }
                 
-                //                if result[try meetElem.text()]!["results"] != nil {
-                //                    print("entering with link ", result[try meetElem.text()]!["results"]!)
-                //                    await parseLiveEventsLinks(meetName: try meetElem.text(),
-                //                                               url: URL(
-                //                                                string: result[try meetElem.text()]!["results"]!)!)
-                //                }
                 result.append(resultElem)
             }
             
@@ -262,114 +252,282 @@ final class MeetParser: ObservableObject {
         return nil
     }
     
-    func parseMeets(html: String, storedMeets: FetchedResults<DivingMeet>? = nil) async throws {
+    // Counts the meets to be parsed on a given HTML page
+    private func countMeetNames(text: String) -> Int? {
+        var count: Int = 0
         do {
-            let document: Document = try SwiftSoup.parse(html)
-            guard let body = document.body() else {
-                return
-            }
-            let menu = try body.getElementById("dm_menu_centered")
-            let menuTabs = try menu?.getElementsByTag("ul")[0].getElementsByTag("li")
-            for tab in menuTabs! {
-                // tabElem is one of the links from the tabs in the menu bar
-                let tabElem = try tab.getElementsByAttribute("href")[0]
-                if try tabElem.text() == "Find" {
-                    break
-                }
-                if try tabElem.text() == "Upcoming" {
-                    await MainActor.run {
-                        stage = .upcoming
-                    }
-                    continue
-                }
-                if try tabElem.text() == "Current" {
-                    await parseCurrentMeets(html: html)
-                    await MainActor.run {
-                        stage = .past
-                    }
-                    continue
-                }
-                if try tabElem.text() == "Past Results & Photos" {
-                    await MainActor.run {
-                        stage = .past
-                    }
+            let document: Document = try SwiftSoup.parse(text)
+            guard let body = document.body() else { return nil }
+            let content = try body.getElementById("dm_content")!
+            let rows = try content.getElementsByTag("td")
+            for row in rows {
+                // Only continues on rows w/o align field and w valign == top
+                if !(try !row.hasAttr("align")
+                     && row.hasAttr("valign") && row.attr("valign") == "top") {
                     continue
                 }
                 
-                if stage == .upcoming {
-                    if upcomingMeets == nil {
+                /// Gets links from list of meets
+                let elem = try row.getElementsByTag("a")
+                for e in elem {
+                    if try e.tagName() == "a"
+                        && e.attr("href").starts(with: "meet") {
+                        count += 1
+                        break
+                    }
+                }
+            }
+        } catch {
+            print("Count failed")
+        }
+        
+        return count
+    }
+    
+    // Counts all of the current meets to be parsed
+    private func countCurrentMeets(html: String) async -> Int? {
+        do {
+            let document: Document = try SwiftSoup.parse(html)
+            guard let body = document.body() else { return nil }
+            let content = try body.getElementById("dm_content")
+            let sidebar = try content?.getElementsByTag("div")[3]
+            // Gets table of all current meet rows
+            let currentTable = try sidebar?.getElementsByTag("table")
+                .first()?.children().first()
+            // Gets list of Elements for each current meet
+            let currentRows = try currentTable?.getElementsByTag("table")
+            if let rows = currentRows {
+                return rows.count
+            } else {
+                return 0
+            }
+        } catch {
+            print("Counting current meets failed")
+        }
+        
+        return nil
+    }
+    
+    // Counts all of the meets to be parsed from the meet parse on launch to provide an accurate
+    // indexing progress bar
+    private func countParsedMeets(
+        html: String, storedMeets: FetchedResults<DivingMeet>? = nil) async throws {
+            do {
+                let document: Document = try SwiftSoup.parse(html)
+                guard let body = document.body() else { return }
+                let menu = try body.getElementById("dm_menu_centered")
+                let menuTabs = try menu?.getElementsByTag("ul")[0].getElementsByTag("li")
+                for tab in menuTabs! {
+                    // tabElem is one of the links from the tabs in the menu bar
+                    let tabElem = try tab.getElementsByAttribute("href")[0]
+                    if try tabElem.text() == "Find" {
+                        break
+                    }
+                    if try tabElem.text() == "Upcoming" {
                         await MainActor.run {
-                            upcomingMeets = [:]
+                            stage = .upcoming
+                        }
+                        continue
+                    }
+                    if try tabElem.text() == "Current" {
+                        let currentMeetsCount = await countCurrentMeets(html: html)
+                        await MainActor.run {
+                            totalMeetsParsedCount += currentMeetsCount ?? 0
+                            stage = .past
+                        }
+                        continue
+                    }
+                    if try tabElem.text() == "Past Results & Photos" {
+                        await MainActor.run {
+                            stage = .past
+                        }
+                        continue
+                    }
+                    if stage == .upcoming {
+                        // tabElem.attr("href") is an organization link here
+                        let link = try tabElem.attr("href")
+                            .replacingOccurrences(of: " ", with: "%20")
+                            .replacingOccurrences(of: "\t", with: "")
+                        // Gets HTML from subpage link and sets linkText to HTML;
+                        // This pulls the html for an org's page
+                        await fetchLinkText(url: URL(string: link)!)
+                        await MainActor.run {
+                            // Parses subpage and gets meet names and links
+                            if let text = linkText,
+                               let result = countMeetNames(text: text) {
+                                totalMeetsParsedCount += result
+                            }
+                        }
+                    } else if try stage == .past && tabElem.attr("href") == "#" {
+                        try await MainActor.run {
+                            pastYear = try tabElem.text()
                         }
                     }
-                    if upcomingMeets![currentYear] == nil {
-                        await MainActor.run {
-                            upcomingMeets![currentYear] = [:]
+                    else if stage == .past {
+                        // Gets a set of all past years currently in the database
+                        if storedMeets != nil && storedPastMeetYears == nil {
+                            pullStoredPastMeetYears(storedMeets: storedMeets!)
                         }
-                    }
-                    
-                    // tabElem.attr("href") is an organization link here
-                    let link = try tabElem.attr("href")
-                        .replacingOccurrences(of: " ", with: "%20")
-                        .replacingOccurrences(of: "\t", with: "")
-                    // Gets HTML from subpage link and sets linkText to HTML;
-                    // This pulls the html for an org's page
-                    await fetchLinkText(url: URL(string: link)!)
-                    try await MainActor.run {
-                        // Parses subpage and gets meet names and links
-                        if let result = getMeetNamesAndLinks(text: linkText!) {
-                            try upcomingMeets![currentYear]![tabElem.text()] = result
+                        
+                        // Skip years that are earlier than current year and already in the database
+                        if Int(pastYear)! < Int(currentYear)!
+                            && storedPastMeetYears!.contains(Int(pastYear)!) {
+                            continue
+                        }
+                        
+                        // tabElem.attr("href") is an organization link here
+                        let link = try tabElem.attr("href")
+                            .replacingOccurrences(of: " ", with: "%20")
+                            .replacingOccurrences(of: "\t", with: "")
+                        
+                        // Gets HTML from subpage link and sets linkText to HTML;
+                        // This pulls the html for an org's page
+                        await fetchLinkText(url: URL(string: link)!)
+                        
+                        // Counts subpage and gets number of meet names
+                        await MainActor.run {
+                            if let text = linkText,
+                               let result = countMeetNames(text: text) {
+                                totalMeetsParsedCount += result
+                            }
                         }
                     }
                 }
-                else if try stage == .past && tabElem.attr("href") == "#" {
-                    try await MainActor.run {
-                        pastYear = try tabElem.text()
-                    }
+            } catch {
+                print("Error counting meets")
+            }
+            await MainActor.run {
+                stage = nil
+            }
+        }
+    
+    // Parses the "Meets" tab from the homepage and stores results in MeetDict and CurrentMeetDict
+    // objects to the respective fields in MeetParser
+    func parseMeets(storedMeets: FetchedResults<DivingMeet>? = nil) async throws {
+        do {
+            // Initialize meet parse from index page
+            let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/index.php")!
+            
+            // This sets getTextModel's text field equal to the HTML from url
+            await getTextModel.fetchText(url: url)
+            
+            if let html = getTextModel.text {
+                try await countParsedMeets(html: html, storedMeets: storedMeets)
+                await MainActor.run {
+                    isFinishedCounting = true
                 }
-                else if stage == .past {
-                    if pastMeets == nil {
+                
+                let document: Document = try SwiftSoup.parse(html)
+                guard let body = document.body() else {
+                    return
+                }
+                let menu = try body.getElementById("dm_menu_centered")
+                let menuTabs = try menu?.getElementsByTag("ul")[0].getElementsByTag("li")
+                for tab in menuTabs! {
+                    // tabElem is one of the links from the tabs in the menu bar
+                    let tabElem = try tab.getElementsByAttribute("href")[0]
+                    if try tabElem.text() == "Find" {
+                        break
+                    }
+                    if try tabElem.text() == "Upcoming" {
                         await MainActor.run {
-                            pastMeets = [:]
+                            stage = .upcoming
                         }
+                        continue
                     }
-                    if pastMeets![pastYear] == nil {
+                    if try tabElem.text() == "Current" {
+                        await parseCurrentMeets(html: html)
                         await MainActor.run {
-                            pastMeets![pastYear] = [:]
+                            meetsParsedCount += (currentMeets ?? []).count
+                            stage = .past
                         }
+                        continue
                     }
-                    
-                    // Gets a set of all past years currently in the database
-                    if storedMeets != nil && storedPastMeetYears == nil {
-                        pullStoredPastMeetYears(storedMeets: storedMeets!)
-                    }
-                    
-                    // Skip years that are earlier than current year and already in the database
-                    if Int(pastYear)! < Int(currentYear)!
-                        && storedPastMeetYears!.contains(Int(pastYear)!) {
+                    if try tabElem.text() == "Past Results & Photos" {
+                        await MainActor.run {
+                            stage = .past
+                        }
                         continue
                     }
                     
-                    // tabElem.attr("href") is an organization link here
-                    let link = try tabElem.attr("href")
-                        .replacingOccurrences(of: " ", with: "%20")
-                        .replacingOccurrences(of: "\t", with: "")
-                    
-                    // Gets HTML from subpage link and sets linkText to HTML;
-                    // This pulls the html for an org's page
-                    await fetchLinkText(url: URL(string: link)!)
-                    
-                    // Parses subpage and gets meet names and links
-                    try await MainActor.run {
-                        // Assigns year and org to dict of meet names and
-                        // links to results page
-                        //                        print(pastYear, "ORG", link)
-                        if let text = linkText,
-                           let result = getMeetNamesAndLinks(text: text) {
-                            try pastMeets![pastYear]![tabElem.text()] = result
+                    if stage == .upcoming {
+                        if upcomingMeets == nil {
+                            await MainActor.run {
+                                upcomingMeets = [:]
+                            }
+                        }
+                        if upcomingMeets![currentYear] == nil {
+                            await MainActor.run {
+                                upcomingMeets![currentYear] = [:]
+                            }
+                        }
+                        
+                        // tabElem.attr("href") is an organization link here
+                        let link = try tabElem.attr("href")
+                            .replacingOccurrences(of: " ", with: "%20")
+                            .replacingOccurrences(of: "\t", with: "")
+                        // Gets HTML from subpage link and sets linkText to HTML;
+                        // This pulls the html for an org's page
+                        await fetchLinkText(url: URL(string: link)!)
+                        try await MainActor.run {
+                            // Parses subpage and gets meet names and links
+                            if let result = getMeetNamesAndLinks(text: linkText!) {
+                                try upcomingMeets![currentYear]![tabElem.text()] = result
+                                meetsParsedCount += result.count
+                            }
+                        }
+                    }
+                    else if try stage == .past && tabElem.attr("href") == "#" {
+                        try await MainActor.run {
+                            pastYear = try tabElem.text()
+                        }
+                    }
+                    else if stage == .past {
+                        if pastMeets == nil {
+                            await MainActor.run {
+                                pastMeets = [:]
+                            }
+                        }
+                        if pastMeets![pastYear] == nil {
+                            await MainActor.run {
+                                pastMeets![pastYear] = [:]
+                            }
+                        }
+                        
+                        // Gets a set of all past years currently in the database
+                        if storedMeets != nil && storedPastMeetYears == nil {
+                            pullStoredPastMeetYears(storedMeets: storedMeets!)
+                        }
+                        
+                        // Skip years that are earlier than current year and already in the database
+                        if Int(pastYear)! < Int(currentYear)!
+                            && storedPastMeetYears!.contains(Int(pastYear)!) {
+                            continue
+                        }
+                        
+                        // tabElem.attr("href") is an organization link here
+                        let link = try tabElem.attr("href")
+                            .replacingOccurrences(of: " ", with: "%20")
+                            .replacingOccurrences(of: "\t", with: "")
+                        
+                        // Gets HTML from subpage link and sets linkText to HTML;
+                        // This pulls the html for an org's page
+                        await fetchLinkText(url: URL(string: link)!)
+                        
+                        // Parses subpage and gets meet names and links
+                        try await MainActor.run {
+                            // Assigns year and org to dict of meet names and
+                            // links to results page
+                            if let text = linkText,
+                               let result = getMeetNamesAndLinks(text: text) {
+                                try pastMeets![pastYear]![tabElem.text()] = result
+                                meetsParsedCount += result.count
+                            }
                         }
                     }
                 }
+            } else {
+                print("Could not fetch html")
             }
         } catch {
             print("Error parsing meets")
@@ -472,21 +630,14 @@ struct MeetParserView: View {
             Spacer()
         }
         .onAppear {
-            let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/index.php")!
-            
             Task {
                 finishedParsing = false
-                // This sets getTextModel's text field equal to the HTML from url
-                await getTextModel.fetchText(url: url)
                 
-                if let text = getTextModel.text {
-                    // This sets p's upcoming, current, and past meets fields
-                    try await p.parseMeets(html: text, storedMeets: meets)
-                    finishedParsing = true
-                    print("Finished parsing")
-                } else {
-                    print("Could not fetch model text")
-                }
+                // This sets p's upcoming, current, and past meets fields
+                try await p.parseMeets(storedMeets: meets)
+                
+                finishedParsing = true
+                print("Finished parsing")
             }
         }
     }

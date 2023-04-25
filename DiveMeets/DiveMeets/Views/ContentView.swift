@@ -14,7 +14,7 @@ struct ContentView: View {
     @State private var selectedTab: Tab = .magnifyingglass
     @State var hideTabBar = false
     @State var visibleTabs: [Tab] = Tab.allCases
-    @State var isIndexingMeets: Bool = true
+    @State var isIndexingMeets: Bool = false
     @StateObject private var getTextModel = GetTextAsyncModel()
     @StateObject private var p: MeetParser = MeetParser()
     @FetchRequest(sortDescriptors: []) private var meets: FetchedResults<DivingMeet>
@@ -35,12 +35,16 @@ struct ContentView: View {
                                 case .house:
                                     ProfileView(hideTabBar: $hideTabBar, link:"", diverID: "51197")
                                 case .gearshape:
-                                    MeetsResultsTestView()
-                                    //                                    LiveResultsParserView()
-                                    //                                    MeetParserView()
+                                    Image(systemName: tab.rawValue)
+                                    Text("Settings")
+                                        .bold()
+                                        .animation(nil, value: selectedTab)
                                 case .magnifyingglass:
                                     SearchView(hideTabBar: $hideTabBar,
-                                               isIndexingMeets: $isIndexingMeets)
+                                               isIndexingMeets: $isIndexingMeets,
+                                               isFinishedCounting: $p.isFinishedCounting,
+                                               meetsParsedCount: $p.meetsParsedCount,
+                                               totalMeetsParsedCount: $p.totalMeetsParsedCount)
                             }
                         }
                         .tag(tab)
@@ -85,20 +89,16 @@ struct ContentView: View {
         }
         // Executes on app launch
         .onAppear {
-            // Note: isIndexingMeets is set to true by default, set to false at the end of the task
-            
-            // Initialize meet parse from index page
-            let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/index.php")!
-            
-            // Runs this task asynchronously so rest of app can function while this finishes
-            Task {
-                // This sets getTextModel's text field equal to the HTML from url
-                await getTextModel.fetchText(url: url)
+            // isIndexingMeets is set to false by default so it is only executed from start
+            //     to finish one time (allows indexing to occur in the background without
+            //     starting over)
+            if !isIndexingMeets {
+                isIndexingMeets = true
                 
-                if let text = getTextModel.text {
+                // Runs this task asynchronously so rest of app can function while this finishes
+                Task {
                     // This sets p's upcoming, current, and past meets fields
-                    try await p.parseMeets(html: text, storedMeets: meets)
-                    print("Finished parsing")
+                    try await p.parseMeets(storedMeets: meets)
                     
                     // Check that each set of meets is not nil and add each to the database
                     if let upcoming = p.upcomingMeets {
@@ -110,10 +110,8 @@ struct ContentView: View {
                     if let past = p.pastMeets {
                         db.addRecords(records: db.dictToTuple(dict: past))
                     }
-                    print("Finished adding meets to database")
+                    
                     isIndexingMeets = false
-                } else {
-                    print("Could not fetch model text")
                 }
             }
         }
