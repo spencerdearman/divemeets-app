@@ -35,37 +35,37 @@ struct RecordList: View {
                     VStack(spacing: rowSpacing) {
                         ForEach(records.sorted(by: <), id: \.key) { key, value in
                             NavigationLink(
-                                destination: ProfileView(hideTabBar: $hideTabBar, link: value, diverID: value.substring(from: String.Index(encodedOffset: 67)))) {
-                                    GeometryReader { geometry in
-                                        HStack {
-                                            Text(key)
-                                                .foregroundColor(textColor)
-                                                .font(.system(size: fontSize))
-                                                .padding()
-                                            
-                                            Spacer()
-                                            
-                                            Image(systemName: "chevron.right")
-                                                .foregroundColor(Color.gray)
-                                                .padding()
-                                        }
-                                        .frame(width: frameWidth,
-                                               height: frameHeight)
-                                        .background(rowColor)
-                                        .cornerRadius(cornerRadius)
+                                destination: ProfileView(hideTabBar: $hideTabBar, link: value, diverID: String(value.utf16.dropFirst(67)) ?? "")) {
+                                GeometryReader { geometry in
+                                    HStack {
+                                        Text(key)
+                                            .foregroundColor(textColor)
+                                            .font(.system(size: fontSize))
+                                            .padding()
+                                        
+                                        Spacer()
+                                        
+                                        Image(systemName: "chevron.right")
+                                            .foregroundColor(Color.gray)
+                                            .padding()
                                     }
                                     .frame(width: frameWidth,
                                            height: frameHeight)
+                                    .background(rowColor)
+                                    .cornerRadius(cornerRadius)
                                 }
+                                .frame(width: frameWidth,
+                                       height: frameHeight)
                                 .onDisappear {
                                     resultSelected = true
                                 }
                                 .onAppear{
                                     resultSelected = false
                                 }
-                            
+                            }
                         }
                     }
+
                     /// Scroll tracking to hide/show tab bar when scrolling down/up
                     .overlay(
                         
