@@ -124,9 +124,11 @@ struct MeetList: View {
                                         destination: MeetPage(meetInstance: meet)) {
                                             GeometryReader { geometry in
                                                 HStack {
-                                                    MeetElement(meet0: meet)
-                                                        .foregroundColor(.primary)
-                                                        .padding()
+                                                    HStack {
+                                                        Text(meet.meetName)
+                                                    }
+                                                    .foregroundColor(.primary)
+                                                    .padding()
                                                     
                                                     Spacer()
                                                     
