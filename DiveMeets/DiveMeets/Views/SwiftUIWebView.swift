@@ -21,7 +21,8 @@ struct SwiftUIWebView: View {
     var body: some View {
         VStack {
             WebView(request: $request, parsedHTML: $parsedHTML,
-                    parsedLinks: $parsedLinks, firstName: $firstName, lastName: $lastName, searchSubmitted: $searchSubmitted, linksParsed: $linksParsed)
+                    parsedLinks: $parsedLinks, firstName: $firstName, lastName: $lastName,
+                    searchSubmitted: $searchSubmitted, linksParsed: $linksParsed)
         }
     }
 }
@@ -60,7 +61,9 @@ struct WebView: UIViewRepresentable {
     
     // From UIKit to SwiftUI
     func makeCoordinator() -> Coordinator {
-        return Coordinator(html: $parsedHTML, links: $parsedLinks, firstName: $firstName, lastName: $lastName, searchSubmitted: $searchSubmitted, linksParsed: $linksParsed)
+        return Coordinator(html: $parsedHTML, links: $parsedLinks, firstName: $firstName,
+                           lastName: $lastName, searchSubmitted: $searchSubmitted,
+                           linksParsed: $linksParsed)
     }
     
     class Coordinator: NSObject, WKNavigationDelegate {
@@ -72,7 +75,9 @@ struct WebView: UIViewRepresentable {
         @Binding var searchSubmitted: Bool
         @Binding var linksParsed: Bool
         
-        init(html: Binding<String>, links: Binding<[String: String]>, firstName: Binding<String>, lastName: Binding<String>, searchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>) {
+        init(html: Binding<String>, links: Binding<[String: String]>, firstName: Binding<String>,
+             lastName: Binding<String>, searchSubmitted: Binding<Bool>,
+             linksParsed: Binding<Bool>) {
             self._parsedHTML = html
             self._parsedLinks = links
             self._firstName = firstName
@@ -82,7 +87,8 @@ struct WebView: UIViewRepresentable {
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            let js = "document.getElementById('first').value = '\(firstName)'; document.getElementById('last').value = '\(lastName)'"
+            let js = "document.getElementById('first').value = '\(firstName)';"
+            + "document.getElementById('last').value = '\(lastName)'"
             if !searchSubmitted {
                 /// Fill boxes with search values
                 webView.evaluateJavaScript(js, completionHandler: nil)
@@ -107,9 +113,3 @@ struct WebView: UIViewRepresentable {
         }
     }
 }
-
-//struct SwiftUIWebView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        SwiftUIWebView()
-//    }
-//}

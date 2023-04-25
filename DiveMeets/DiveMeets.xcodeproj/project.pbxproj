@@ -7,8 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		000D28DD29E0EF9100B184E9 /* LiveResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000D28DC29E0EF9100B184E9 /* LiveResults.swift */; };
+		000D28DF29E1201200B184E9 /* LiveResultsWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000D28DE29E1201200B184E9 /* LiveResultsWebView.swift */; };
+		000D28E129E122B700B184E9 /* LiveResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000D28E029E122B700B184E9 /* LiveResultsView.swift */; };
 		001A9B9029B075A6007C7BE5 /* HidingScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001A9B8F29B075A6007C7BE5 /* HidingScrollView.swift */; };
+		002A1B3429DB7C4700A26FED /* ProfileHTMLCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002A1B3329DB7C4700A26FED /* ProfileHTMLCache.swift */; };
+		002A1B7C29DB937C00A26FED /* Meets.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 002A1B7A29DB937C00A26FED /* Meets.xcdatamodeld */; };
+		002A1B7E29DB93FC00A26FED /* MeetsDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002A1B7D29DB93FC00A26FED /* MeetsDataController.swift */; };
+		002A1B8029DB94A400A26FED /* MeetsResultsTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002A1B7F29DB94A400A26FED /* MeetsResultsTestView.swift */; };
+		002A1BB629DCF2F900A26FED /* GetTextAsync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002A1BB529DCF2F900A26FED /* GetTextAsync.swift */; };
+		0037877929D4F40900D3CD59 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877729D4F40900D3CD59 /* Cache.swift */; };
+		0037877A29D4F40900D3CD59 /* ProfileMeetCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877829D4F40900D3CD59 /* ProfileMeetCache.swift */; };
+		0037877C29D4F41800D3CD59 /* MeetParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877B29D4F41800D3CD59 /* MeetParser.swift */; };
+		0037878029D501F600D3CD59 /* ProfileParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877F29D501F600D3CD59 /* ProfileParser.swift */; };
+		0051C9D129E4CEE300C4C9E7 /* PastMeetResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0051C9D029E4CEE300C4C9E7 /* PastMeetResults.swift */; };
 		0095BD2D29B1491D004D7EFD /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0095BD2C29B1491D004D7EFD /* SearchView.swift */; };
+		00A81A3329F455DC00BFAE4E /* LiveResultsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A81A3229F455DC00BFAE4E /* LiveResultsParser.swift */; };
 		00F9665F29AEEF0900F3720B /* FloatingMenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */; };
 		00F9667B29AFDA1500F3720B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9667A29AFDA1500F3720B /* ContentView.swift */; };
 		4D1A5C3729CB953300F3DA2B /* SwiftUIWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */; };
@@ -34,8 +48,22 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		000D28DC29E0EF9100B184E9 /* LiveResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveResults.swift; sourceTree = "<group>"; };
+		000D28DE29E1201200B184E9 /* LiveResultsWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveResultsWebView.swift; sourceTree = "<group>"; };
+		000D28E029E122B700B184E9 /* LiveResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveResultsView.swift; sourceTree = "<group>"; };
 		001A9B8F29B075A6007C7BE5 /* HidingScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HidingScrollView.swift; sourceTree = "<group>"; };
+		002A1B3329DB7C4700A26FED /* ProfileHTMLCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHTMLCache.swift; sourceTree = "<group>"; };
+		002A1B7B29DB937C00A26FED /* PastMeets.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = PastMeets.xcdatamodel; sourceTree = "<group>"; };
+		002A1B7D29DB93FC00A26FED /* MeetsDataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetsDataController.swift; sourceTree = "<group>"; };
+		002A1B7F29DB94A400A26FED /* MeetsResultsTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetsResultsTestView.swift; sourceTree = "<group>"; };
+		002A1BB529DCF2F900A26FED /* GetTextAsync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetTextAsync.swift; sourceTree = "<group>"; };
+		0037877729D4F40900D3CD59 /* Cache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Cache.swift; path = DiveMeets/Model/Cache.swift; sourceTree = SOURCE_ROOT; };
+		0037877829D4F40900D3CD59 /* ProfileMeetCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProfileMeetCache.swift; path = DiveMeets/Model/ProfileMeetCache.swift; sourceTree = SOURCE_ROOT; };
+		0037877B29D4F41800D3CD59 /* MeetParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeetParser.swift; sourceTree = "<group>"; };
+		0037877F29D501F600D3CD59 /* ProfileParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileParser.swift; sourceTree = "<group>"; };
+		0051C9D029E4CEE300C4C9E7 /* PastMeetResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastMeetResults.swift; sourceTree = "<group>"; };
 		0095BD2C29B1491D004D7EFD /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		00A81A3229F455DC00BFAE4E /* LiveResultsParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveResultsParser.swift; sourceTree = "<group>"; };
 		00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingMenuBar.swift; sourceTree = "<group>"; };
 		00F9667A29AFDA1500F3720B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIWebView.swift; sourceTree = "<group>"; };
@@ -98,6 +126,8 @@
 				4D74FEB529AEB4CD00401178 /* Resources */,
 				4D74FE9A29AE7B9800401178 /* Assets.xcassets */,
 				4D74FE9C29AE7B9800401178 /* Preview Content */,
+				002A1B7A29DB937C00A26FED /* Meets.xcdatamodeld */,
+				002A1B7D29DB93FC00A26FED /* MeetsDataController.swift */,
 			);
 			path = DiveMeets;
 			sourceTree = "<group>";
@@ -113,22 +143,28 @@
 		4D74FEB229AEB47000401178 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				4D74FE9829AE7B9800401178 /* ProfileView.swift */,
-				4D74FEA429AE7C2B00401178 /* ProfileImage.swift */,
-				4D74FEA829AEA5AD00401178 /* MapView.swift */,
 				4D74FEAA29AEABE900401178 /* BackgroundView.swift */,
+				00F9667A29AFDA1500F3720B /* ContentView.swift */,
+				4D254F1B29C113240033838D /* DiveMeetProfileView.swift */,
+				00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */,
+				001A9B8F29B075A6007C7BE5 /* HidingScrollView.swift */,
+				4D254F1529C0411C0033838D /* HTMLParser.swift */,
+				00A81A3229F455DC00BFAE4E /* LiveResultsParser.swift */,
+				000D28E029E122B700B184E9 /* LiveResultsView.swift */,
+				000D28DE29E1201200B184E9 /* LiveResultsWebView.swift */,
+				4D74FEA829AEA5AD00401178 /* MapView.swift */,
 				4D74FEBA29AEB57800401178 /* MeetElement.swift */,
 				4D74FEBF29AEBD6F00401178 /* MeetList.swift */,
 				4D74FEC529AEC95500401178 /* MeetPage.swift */,
-				00F9667A29AFDA1500F3720B /* ContentView.swift */,
-				001A9B8F29B075A6007C7BE5 /* HidingScrollView.swift */,
-				00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */,
-				0095BD2C29B1491D004D7EFD /* SearchView.swift */,
-				4D254F1529C0411C0033838D /* HTMLParser.swift */,
+				0037877B29D4F41800D3CD59 /* MeetParser.swift */,
+				002A1B7F29DB94A400A26FED /* MeetsResultsTestView.swift */,
 				4D254F1729C107980033838D /* NamesCreator.swift */,
-				4D254F1B29C113240033838D /* DiveMeetProfileView.swift */,
-				4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */,
+				4D74FEA429AE7C2B00401178 /* ProfileImage.swift */,
+				0037877F29D501F600D3CD59 /* ProfileParser.swift */,
+				4D74FE9829AE7B9800401178 /* ProfileView.swift */,
 				4D1A5C3829CCA1B400F3DA2B /* RecordList.swift */,
+				0095BD2C29B1491D004D7EFD /* SearchView.swift */,
+				4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -136,8 +172,14 @@
 		4D74FEB329AEB4B200401178 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				4D74FEB029AEB3BE00401178 /* MeetData.swift */,
+				0037877729D4F40900D3CD59 /* Cache.swift */,
+				002A1BB529DCF2F900A26FED /* GetTextAsync.swift */,
+				000D28DC29E0EF9100B184E9 /* LiveResults.swift */,
 				4D74FEAE29AEB02100401178 /* Meet.swift */,
+				4D74FEB029AEB3BE00401178 /* MeetData.swift */,
+				0051C9D029E4CEE300C4C9E7 /* PastMeetResults.swift */,
+				002A1B3329DB7C4700A26FED /* ProfileHTMLCache.swift */,
+				0037877829D4F40900D3CD59 /* ProfileMeetCache.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -231,19 +273,33 @@
 				4D74FEBB29AEB57800401178 /* MeetElement.swift in Sources */,
 				4D74FEAF29AEB02100401178 /* Meet.swift in Sources */,
 				4D1A5C3729CB953300F3DA2B /* SwiftUIWebView.swift in Sources */,
+				002A1B7E29DB93FC00A26FED /* MeetsDataController.swift in Sources */,
+				00A81A3329F455DC00BFAE4E /* LiveResultsParser.swift in Sources */,
+				000D28DF29E1201200B184E9 /* LiveResultsWebView.swift in Sources */,
 				4D74FEC029AEBD6F00401178 /* MeetList.swift in Sources */,
 				4D74FEAB29AEABE900401178 /* BackgroundView.swift in Sources */,
+				0051C9D129E4CEE300C4C9E7 /* PastMeetResults.swift in Sources */,
 				4D1A5C3929CCA1B400F3DA2B /* RecordList.swift in Sources */,
+				0037877929D4F40900D3CD59 /* Cache.swift in Sources */,
 				4D74FEC629AEC95500401178 /* MeetPage.swift in Sources */,
 				4D74FEAD29AEAE9800401178 /* Profile.swift in Sources */,
+				002A1BB629DCF2F900A26FED /* GetTextAsync.swift in Sources */,
+				000D28E129E122B700B184E9 /* LiveResultsView.swift in Sources */,
 				4D74FE9929AE7B9800401178 /* ProfileView.swift in Sources */,
+				002A1B8029DB94A400A26FED /* MeetsResultsTestView.swift in Sources */,
 				4D254F1629C0411C0033838D /* HTMLParser.swift in Sources */,
+				002A1B7C29DB937C00A26FED /* Meets.xcdatamodeld in Sources */,
 				4D74FEA929AEA5AD00401178 /* MapView.swift in Sources */,
+				002A1B3429DB7C4700A26FED /* ProfileHTMLCache.swift in Sources */,
 				4D74FEA529AE7C2B00401178 /* ProfileImage.swift in Sources */,
 				4D254F1C29C113240033838D /* DiveMeetProfileView.swift in Sources */,
 				0095BD2D29B1491D004D7EFD /* SearchView.swift in Sources */,
 				4D254F1829C107980033838D /* NamesCreator.swift in Sources */,
+				0037877C29D4F41800D3CD59 /* MeetParser.swift in Sources */,
+				0037877A29D4F40900D3CD59 /* ProfileMeetCache.swift in Sources */,
 				4D74FEB129AEB3BE00401178 /* MeetData.swift in Sources */,
+				0037878029D501F600D3CD59 /* ProfileParser.swift in Sources */,
+				000D28DD29E0EF9100B184E9 /* LiveResults.swift in Sources */,
 				001A9B9029B075A6007C7BE5 /* HidingScrollView.swift in Sources */,
 				00F9665F29AEEF0900F3720B /* FloatingMenuBar.swift in Sources */,
 				4D74FE9729AE7B9800401178 /* DiveMeetsApp.swift in Sources */,
@@ -388,7 +444,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.LoganSherwin-SpencerDearman.DiveMeets";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.SpencerDearman-LoganSherwin.DiveMeets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -417,7 +473,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.LoganSherwin-SpencerDearman.DiveMeets";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.SpencerDearman-LoganSherwin.DiveMeets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -466,6 +522,19 @@
 			productName = SwiftSoup;
 		};
 /* End XCSwiftPackageProductDependency section */
+
+/* Begin XCVersionGroup section */
+		002A1B7A29DB937C00A26FED /* Meets.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				002A1B7B29DB937C00A26FED /* PastMeets.xcdatamodel */,
+			);
+			currentVersion = 002A1B7B29DB937C00A26FED /* PastMeets.xcdatamodel */;
+			path = Meets.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 4D74FE8B29AE7B9800401178 /* Project object */;
 }
