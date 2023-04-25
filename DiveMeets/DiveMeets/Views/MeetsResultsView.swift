@@ -44,12 +44,6 @@ struct MeetsResultsView: View {
         }
     }
     
-    func displayDivingMeets(meets: FetchedResults<DivingMeet>) -> any View {
-        return List(meets) { meet in
-            displayDivingMeet(meet: meet)
-        }
-    }
-    
     var body: some View {
         ZStack {
             VStack {
