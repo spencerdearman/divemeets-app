@@ -44,9 +44,7 @@ struct ProfileView: View {
         
         ZStack{}
             .onAppear{
-                Task {
-                    await parser.parse(urlString: profileLink)
-                    diverData = parser.myData
+                    diverData =  parser.parse(urlString: profileLink)
                     print(diverData)
                     let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
                     print(divers)
@@ -56,7 +54,7 @@ struct ProfileView: View {
                         profileType = "Diver"
                     }
                 }
-            }
+            
         
         if profileType == "Diver" {
             VStack {

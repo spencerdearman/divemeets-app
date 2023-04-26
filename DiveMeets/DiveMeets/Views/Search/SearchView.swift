@@ -207,6 +207,7 @@ struct SearchView: View {
             
             Color.white.ignoresSafeArea()
             
+            
             SearchInputView(selection: $selection, firstName: $firstName, lastName: $lastName,
                             meetName: $meetName, orgName: $orgName, meetYear: $meetYear,
                             searchSubmitted: $searchSubmitted, parsedLinks: $parsedLinks,
@@ -228,7 +229,7 @@ struct SearchInputView: View {
     
     @State private var showError: Bool = false
     @State var fullScreenResults: Bool = false
-    @State var personSelection: String? = nil
+    @State var resultSelected: Bool = false
     // Tracks if the user is inside of a text field to determine when to show the keyboard
     @FocusState var focusedField: Field?
     @Binding var selection: SearchType
@@ -272,10 +273,6 @@ struct SearchInputView: View {
             _items.wrappedValue.nsPredicate = predicate
             return items
         }
-    }
-    
-    var resultSelected: Bool {
-        personSelection != nil
     }
     
     // Light gray
@@ -328,7 +325,6 @@ struct SearchInputView: View {
     
     private func clearStateFlags() {
         showError = false
-        personSelection = nil
         searchSubmitted = false
         dmSearchSubmitted = false
         linksParsed = false
@@ -521,7 +517,7 @@ struct SearchInputView: View {
                     (selection == .person
                      ? AnyView(RecordList(hideTabBar: $hideTabBar,
                                           records: $parsedLinks,
-                                          personSelection: $personSelection))
+                                          resultSelected: $resultSelected))
                      : AnyView(MeetResultsView(records: filteredItems)))
                     .onAppear {
                         fullScreenResults = true

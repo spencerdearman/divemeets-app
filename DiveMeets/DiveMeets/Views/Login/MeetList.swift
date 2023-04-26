@@ -109,12 +109,9 @@ struct MeetList: View {
         //diverData[1][0] is [DIVEMEETS.COM History]
         ZStack{}
             .onAppear{
-                Task {
-                    await parser.parse(urlString: profileLink)
-                    diverData = parser.myData
+                    diverData =  parser.parse(urlString: profileLink)
                     print(diverData)
                     print(createMeets(data: diverData) as Any)
-                }
             }
         let rowColor: Color = currentMode == .light
         ? Color.white

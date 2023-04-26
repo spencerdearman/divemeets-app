@@ -16,7 +16,7 @@ struct ContentView: View {
     @State var visibleTabs: [Tab] = Tab.allCases
     @State var isIndexingMeets: Bool = false
     @StateObject private var getTextModel = GetTextAsyncModel()
-    @StateObject private var p: MeetParser = MeetParser()
+    @State private var p: MeetParser = MeetParser()
     @FetchRequest(sortDescriptors: []) private var meets: FetchedResults<DivingMeet>
     
     // Necessary to hide gray navigation bar from behind floating tab bar
