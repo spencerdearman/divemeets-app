@@ -24,7 +24,6 @@ struct LoginSearchView: View {
     @State var loginSuccessful: Bool = false
     @State var createdKey: Bool = true
     @State private var isUnlocked = false
-    @Binding var hideTabBar: Bool
     @ViewBuilder
     var body: some View {
         
@@ -44,7 +43,7 @@ struct LoginSearchView: View {
                                  password: $password, searchSubmitted: $searchSubmitted,
                                  parsedUserHTML: $parsedUserHTML,
                                  loginSearchSubmitted: $loginSearchSubmitted,
-                                 loginSuccessful: $loginSuccessful, hideTabBar: $hideTabBar)
+                                 loginSuccessful: $loginSuccessful)
         }
         .onDisappear {
             searchSubmitted = false
@@ -90,7 +89,7 @@ struct LoginSearchInputView: View {
     @Binding var parsedUserHTML: String
     @Binding var loginSearchSubmitted: Bool
     @Binding var loginSuccessful: Bool
-    @Binding var hideTabBar: Bool
+    
     // Light gray
     private let deselectedBGColor: Color = Color(red: 0.94, green: 0.94,
                                                  blue: 0.94)
@@ -113,7 +112,6 @@ struct LoginSearchInputView: View {
                 
                 if loginSuccessful {
                     ProfileView(
-                        hideTabBar: $hideTabBar,
                         link: "https://secure.meetcontrol.com/divemeets/system/profile.php?number="
                             + divemeetsID, diverID: divemeetsID)
                         .zIndex(1)

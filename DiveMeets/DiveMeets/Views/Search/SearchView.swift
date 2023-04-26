@@ -184,7 +184,6 @@ struct SearchView: View {
     @State var parsedLinks: [String: String] = [:]
     @State var dmSearchSubmitted: Bool = false
     @State var linksParsed: Bool = false
-    @Binding var hideTabBar: Bool
     @Binding var isIndexingMeets: Bool
     @Binding var isFinishedCounting: Bool
     @Binding var meetsParsedCount: Int
@@ -212,7 +211,7 @@ struct SearchView: View {
                             meetName: $meetName, orgName: $orgName, meetYear: $meetYear,
                             searchSubmitted: $searchSubmitted, parsedLinks: $parsedLinks,
                             dmSearchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed,
-                            hideTabBar: $hideTabBar, isIndexingMeets: $isIndexingMeets,
+                            isIndexingMeets: $isIndexingMeets,
                             isFinishedCounting: $isFinishedCounting,
                             meetsParsedCount: $meetsParsedCount,
                             totalMeetsParsedCount: $totalMeetsParsedCount)
@@ -243,7 +242,6 @@ struct SearchInputView: View {
     @Binding var parsedLinks: [String: String]
     @Binding var dmSearchSubmitted: Bool
     @Binding var linksParsed: Bool
-    @Binding var hideTabBar: Bool
     @Binding var isIndexingMeets: Bool
     @Binding var isFinishedCounting: Bool
     @Binding var meetsParsedCount: Int
@@ -301,7 +299,7 @@ struct SearchInputView: View {
     init(selection: Binding<SearchType>, firstName: Binding<String>, lastName: Binding<String>,
          meetName: Binding<String>, orgName: Binding<String>, meetYear: Binding<String>,
          searchSubmitted: Binding<Bool>, parsedLinks: Binding<[String : String]>,
-         dmSearchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>, hideTabBar: Binding<Bool>,
+         dmSearchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>,
          isIndexingMeets: Binding<Bool>, isFinishedCounting: Binding<Bool>,
          meetsParsedCount: Binding<Int>, totalMeetsParsedCount: Binding<Int>) {
         self._selection = selection
@@ -314,7 +312,6 @@ struct SearchInputView: View {
         self._parsedLinks = parsedLinks
         self._dmSearchSubmitted = dmSearchSubmitted
         self._linksParsed = linksParsed
-        self._hideTabBar = hideTabBar
         self._isIndexingMeets = isIndexingMeets
         self._isFinishedCounting = isFinishedCounting
         self._meetsParsedCount = meetsParsedCount
@@ -417,7 +414,8 @@ struct SearchInputView: View {
                         // Resets focusedField so keyboard disappears
                         focusedField = nil
                         
-                        // Only submits a search if one of the relevant fields is filled, otherwise toggles error
+                        // Only submits a search if one of the relevant fields is filled,
+                        // otherwise toggles error
                         if checkFields(selection: selection, firstName: firstName,
                                        lastName: lastName, meetName: meetName,
                                        orgName: orgName, meetYear: meetYear) {
@@ -515,8 +513,7 @@ struct SearchInputView: View {
             if personResultsReady || meetResultsReady {
                 ZStack (alignment: .topLeading) {
                     (selection == .person
-                     ? AnyView(RecordList(hideTabBar: $hideTabBar,
-                                          records: $parsedLinks,
+                     ? AnyView(RecordList(records: $parsedLinks,
                                           resultSelected: $resultSelected))
                      : AnyView(MeetResultsView(records: filteredItems)))
                     .onAppear {
