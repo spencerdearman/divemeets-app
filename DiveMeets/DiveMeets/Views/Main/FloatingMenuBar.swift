@@ -27,28 +27,77 @@ private func IntFromTab(_ t: Tab) -> Int {
     return -1
 }
 
-let menuBarHideDelay: CGFloat = 1
+// Haptic feedback
+func simpleSuccess() {
+    let generator = UINotificationFeedbackGenerator()
+    generator.notificationOccurred(.success)
+}
 
 struct FloatingMenuBar: View {
     @Environment(\.colorScheme) var currentMode
     
     @Binding var selectedTab: Tab
-    @Binding var hideTabBar: Bool
-    @Binding var visibleTabs: [Tab]
+    @State var hideTabBar: Bool = false
+    @State var visibleTabs: [Tab] = Tab.allCases
+    @State var relaxImage: Bool = false
     private let cornerRadius: CGFloat = 50
     private let frameHeight: CGFloat = 60
+    private let menuBarHideDelay: CGFloat = 0.75
     
     // Add custom multipliers for selected tabs here, defaults to 1.25
     private let sizeMults: [String: Double] = [
-        "magnifyingglass": 1.5
+        "magnifyingglass": 1.5,
+        "house.circle": 1.75,
+        "gearshape.circle": 1.75,
+        "person.circle": 1.75,
+        "magnifyingglass.circle": 1.75,
     ]
     
+    // Computes the image path to use when an image is selected
     private var fillImage: String {
         selectedTab.rawValue == "magnifyingglass"
         ? selectedTab.rawValue + ".circle.fill"
         : selectedTab.rawValue + ".fill"
     }
     
+    // Computes the image path for the selected image when it is relaxed
+    private var selectedImageInverse: String {
+        selectedTab.rawValue + ".circle"
+    }
+    
+    // Computes the image path for the selected image when the state is relaxed vs not
+    private var selectedTabImage: String {
+        relaxImage ? selectedImageInverse : fillImage
+    }
+    
+    // Computes the color to use for the selected image
+    private var selectedColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    
+    // Color for selected image icons
+    private let deselectedColor: Color = .gray
+    
+    // Computes the color for the moving selection bubble
+    private var selectedBubbleColor: Color {
+        currentMode == .light ? .black : .white
+    }
+    
+    // Computes the color of the icon based on the selected color and relaxed vs not
+    private var selectedTabColor: Color {
+        if relaxImage {
+            return selectedBubbleColor == .black ? .black : .white
+        } else {
+            return selectedBubbleColor == .black ? .white : .black
+        }
+    }
+    
+    // Computes the opacity of the icon when relaxed vs not
+    private var selectedTabOpacity: CGFloat {
+        relaxImage ? 0.5 : 1
+    }
+    
+    // Computes the x offset of the icon based on the width of tabs
     private func selectedXOffset(from tabWidth: CGFloat) -> CGFloat {
         let tabInt: CGFloat = CGFloat(IntFromTab(selectedTab))
         let casesCount: Int = Tab.allCases.count
@@ -67,21 +116,7 @@ struct FloatingMenuBar: View {
         return tabWidth * (tabInt - menuBarMidpoint) + addXOff
     }
     
-    // Haptic feedback
-    func simpleSuccess(){
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.success)
-    }
-    
     var body: some View {
-        let selectedColor: Color = currentMode == .light
-        ? .white
-        : .black
-        let deselectedColor: Color = Color.gray
-        let selectedBubbleColor: Color = currentMode == .light
-        ? .black
-        : .white
-        
         ZStack {
             GeometryReader { geometry in
                 // Width of menu bar
@@ -112,38 +147,55 @@ struct FloatingMenuBar: View {
                     
                     // Moving bubble on menu bar
                     RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(selectedBubbleColor)
+                        .fill(relaxImage ? .clear : selectedBubbleColor)
                         .frame(width: tabWidth, height: frameHeight)
                         .offset(x: xOffset)
                         .animation(.spring(), value: visibleTabs)
                         .animation(.spring(), value: selectedTab)
+                        .animation(.easeOut, value: relaxImage)
                     
                     // Line of buttons for each tab
                     HStack(spacing: 0) {
                         ForEach(visibleTabs, id: \.rawValue) { tab in
                             Spacer()
                             Image(systemName: selectedTab == tab
-                                  ? fillImage
+                                  ? selectedTabImage
                                   : tab.rawValue)
                             .scaleEffect(tab == selectedTab
-                                         ? sizeMults[tab.rawValue] ?? 1.25
+                                         ? sizeMults[selectedTabImage] ?? 1.25
                                          : 1.0)
                             .foregroundColor(selectedTab == tab
-                                             ? selectedColor
+                                             ? selectedTabColor
                                              : deselectedColor)
+                            .opacity(selectedTab == tab ? selectedTabOpacity : 1.0)
                             .font(.system(size: 22))
                             // Adds tab change and visible tabs change on button press
                             .onTapGesture() {
-                                withAnimation(.spring()) {
-                                    simpleSuccess()
-                                    selectedTab = tab
-                                    visibleTabs = [tab]
-                                    
-                                    DispatchQueue.main.asyncAfter(
-                                        deadline: (DispatchTime.now() +
-                                                   menuBarHideDelay)) {
-                                                       hideTabBar = true
-                                                   }
+                                if !hideTabBar {
+                                    withAnimation(.spring()) {
+                                        simpleSuccess()
+                                        selectedTab = tab
+                                        visibleTabs = [tab]
+                                        hideTabBar = true
+                                        
+                                        DispatchQueue.main.asyncAfter(
+                                            deadline: (DispatchTime.now() +
+                                                       menuBarHideDelay)) {
+                                                           relaxImage = true
+                                                       }
+                                    }
+                                } else {
+                                    withAnimation(.spring()) {
+                                        simpleSuccess()
+                                        relaxImage = false
+                                        
+                                        DispatchQueue.main.asyncAfter(
+                                            deadline: (DispatchTime.now() +
+                                                       menuBarHideDelay)) {
+                                                           visibleTabs = Tab.allCases
+                                                           hideTabBar = false
+                                                       }
+                                    }
                                 }
                             }
                             // Animation for icon to move after menu bar changes
@@ -163,10 +215,8 @@ struct FloatingMenuBar: View {
 struct FloatingMenuBar_Previews: PreviewProvider {
     static var previews: some View {
         ForEach(ColorScheme.allCases, id: \.self) {
-            FloatingMenuBar(selectedTab: .constant(.house),
-                            hideTabBar: .constant(false),
-                            visibleTabs: .constant(Tab.allCases))
-            .preferredColorScheme($0)
+            FloatingMenuBar(selectedTab: .constant(.house))
+                .preferredColorScheme($0)
         }
     }
 }

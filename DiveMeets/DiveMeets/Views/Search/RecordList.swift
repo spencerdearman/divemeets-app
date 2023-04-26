@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct RecordList: View {
-    @Binding var hideTabBar: Bool
     @Binding var records: [String: String]
     @Binding var resultSelected: Bool
     @State var offset: CGFloat = 0
@@ -36,7 +35,6 @@ struct RecordList: View {
                         ForEach(records.sorted(by: <), id: \.key) { key, value in
                             NavigationLink(
                                 destination: ProfileView(
-                                    hideTabBar: $hideTabBar,
                                     link: value,
                                     diverID: String(value.utf16.dropFirst(67)) ?? "")) {
                                         GeometryReader { geometry in
@@ -68,49 +66,8 @@ struct RecordList: View {
                                     }
                         }
                     }
-                    
-                    // Scroll tracking to hide/show tab bar when scrolling down/up
-                    .overlay(
-                        
-                        GeometryReader {proxy -> Color in
-                            
-                            let minY = proxy.frame(in: .named("SCROLL")).minY
-                            
-                            /*
-                             * Duration to hide TabBar
-                             */
-                            let durationOffset: CGFloat = 0
-                            
-                            DispatchQueue.main.async {
-                                if minY < offset {
-                                    if (offset < 0 &&
-                                        -minY > (lastOffset + durationOffset)) {
-                                        withAnimation(.easeOut.speed(1.5)) {
-                                            hideTabBar = true
-                                        }
-                                        lastOffset = -offset
-                                    }
-                                }
-                                if offset < minY {
-                                    if (offset < 0 &&
-                                        -minY < (lastOffset - durationOffset)) {
-                                        withAnimation(.easeIn.speed(1.5)) {
-                                            hideTabBar = false
-                                        }
-                                        lastOffset = -offset
-                                    }
-                                }
-                                
-                                self.offset = minY
-                            }
-                            
-                            return Color.clear
-                        }
-                        
-                    )
                     .padding()
                 }
-                .coordinateSpace(name: "SCROLL")
                 .navigationTitle("Results")
             }
         }

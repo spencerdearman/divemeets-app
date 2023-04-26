@@ -31,12 +31,10 @@ struct ProfileView: View {
     var diverID : String
     @State var diverData : [[String]] = []
     @State var profileType : String = ""
-    @Binding var hideTabBar: Bool
     @StateObject private var parser = HTMLParser()
     
-    init(hideTabBar: Binding<Bool>, link: String, diverID: String = "00000") {
+    init(link: String, diverID: String = "00000") {
         self.profileLink = link
-        self._hideTabBar = hideTabBar
         self.diverID = diverID
     }
     
@@ -114,7 +112,7 @@ struct ProfileView: View {
                     .padding()
                     
                 }
-                MeetList(profileLink: profileLink, hideTabBar: $hideTabBar)
+                MeetList(profileLink: profileLink)
                     .offset(y: -160)
             }
         } else {
@@ -168,7 +166,7 @@ struct ProfileView: View {
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
         ForEach(ColorScheme.allCases, id: \.self) {
-            ProfileView(hideTabBar: .constant(false), link: "").preferredColorScheme($0)
+            ProfileView(link: "").preferredColorScheme($0)
         }
     }
 }
