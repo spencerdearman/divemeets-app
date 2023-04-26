@@ -17,7 +17,7 @@ extension String {
     }
 }
 
-func fixPlacement(data: [Array<String>] ) -> [Array<String>] {
+func fixPlacement(data: [[String]] ) -> [[String]] {
     var updated = data
     updated[0] = updated[0][0].components(separatedBy: "History")
     updated[0].remove(at: 1)
@@ -43,9 +43,11 @@ struct ProfileView: View {
     var body: some View {
         
         ZStack{}
-            .onAppear{
-                    diverData =  parser.parse(urlString: profileLink)
-                    print(diverData)
+            .onAppear {
+                Task {
+                    await parser.parse(urlString: profileLink)
+                    diverData = parser.myData
+                    //                    print(diverData)
                     let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
                     print(divers)
                     if divers != "" {
@@ -54,7 +56,7 @@ struct ProfileView: View {
                         profileType = "Diver"
                     }
                 }
-            
+            }
         
         if profileType == "Diver" {
             VStack {
@@ -83,7 +85,7 @@ struct ProfileView: View {
                                     (diverData[0][0].slice(from: "State: ", to: " Country")  ?? "")
                                     + ", "
                                     + (diverData[0][0].slice(from: " Country: ",
-                                                           to: " Gender") ?? ""))
+                                                             to: " Gender") ?? ""))
                                 : Text("")
                             }
                             .font(.subheadline)

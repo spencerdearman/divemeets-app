@@ -14,7 +14,7 @@ struct RecordList: View {
     @State var offset: CGFloat = 0
     @State var lastOffset: CGFloat = 0
     
-    /// Style adjustments for elements of list
+    // Style adjustments for elements of list
     private let frameWidth: CGFloat = 350
     private let frameHeight: CGFloat = 50
     private let cornerRadius: CGFloat = 30
@@ -27,7 +27,7 @@ struct RecordList: View {
     var body: some View {
         NavigationView {
             ZStack {
-                /// Background color for View
+                // Background color for View
                 Color(red: grayValue, green: grayValue, blue: grayValue)
                     .ignoresSafeArea()
                 
@@ -35,38 +35,41 @@ struct RecordList: View {
                     VStack(spacing: rowSpacing) {
                         ForEach(records.sorted(by: <), id: \.key) { key, value in
                             NavigationLink(
-                                destination: ProfileView(hideTabBar: $hideTabBar, link: value, diverID: String(value.utf16.dropFirst(67)) ?? "")) {
-                                GeometryReader { geometry in
-                                    HStack {
-                                        Text(key)
-                                            .foregroundColor(textColor)
-                                            .font(.system(size: fontSize))
-                                            .padding()
-                                        
-                                        Spacer()
-                                        
-                                        Image(systemName: "chevron.right")
-                                            .foregroundColor(Color.gray)
-                                            .padding()
+                                destination: ProfileView(
+                                    hideTabBar: $hideTabBar,
+                                    link: value,
+                                    diverID: String(value.utf16.dropFirst(67)) ?? "")) {
+                                        GeometryReader { geometry in
+                                            HStack {
+                                                Text(key)
+                                                    .foregroundColor(textColor)
+                                                    .font(.system(size: fontSize))
+                                                    .padding()
+                                                
+                                                Spacer()
+                                                
+                                                Image(systemName: "chevron.right")
+                                                    .foregroundColor(Color.gray)
+                                                    .padding()
+                                            }
+                                            .frame(width: frameWidth,
+                                                   height: frameHeight)
+                                            .background(rowColor)
+                                            .cornerRadius(cornerRadius)
+                                        }
+                                        .frame(width: frameWidth,
+                                               height: frameHeight)
+                                        .onDisappear {
+                                            resultSelected = true
+                                        }
+                                        .onAppear{
+                                            resultSelected = false
+                                        }
                                     }
-                                    .frame(width: frameWidth,
-                                           height: frameHeight)
-                                    .background(rowColor)
-                                    .cornerRadius(cornerRadius)
-                                }
-                                .frame(width: frameWidth,
-                                       height: frameHeight)
-                                .onDisappear {
-                                    resultSelected = true
-                                }
-                                .onAppear{
-                                    resultSelected = false
-                                }
-                            }
                         }
                     }
-
-                    /// Scroll tracking to hide/show tab bar when scrolling down/up
+                    
+                    // Scroll tracking to hide/show tab bar when scrolling down/up
                     .overlay(
                         
                         GeometryReader {proxy -> Color in
@@ -113,10 +116,3 @@ struct RecordList: View {
         }
     }
 }
-
-//struct RecordList_Previews: PreviewProvider {
-//    static var previews: some View {
-//        RecordList(hideTabBar: .constant(false), records: .constant(["Logan": "google.com"]))
-//    }
-//}
-//

@@ -10,7 +10,7 @@ import SwiftUI
 struct MeetList: View {
     @Environment(\.colorScheme) var currentMode
     var profileLink: String
-    @State var diverData: [Array<String>] = []
+    @State var diverData: [[String]] = []
     @State var offset: CGFloat = 0
     @State var lastOffset: CGFloat = 0
     @Binding var hideTabBar: Bool
@@ -108,11 +108,15 @@ struct MeetList: View {
         
         //diverData[1][0] is [DIVEMEETS.COM History]
         ZStack{}
-            .onAppear{
-                    diverData =  parser.parse(urlString: profileLink)
-                    print(diverData)
-                    print(createMeets(data: diverData) as Any)
+            .onAppear {
+                Task {
+                    await parser.parse(urlString: profileLink)
+                    diverData = parser.myData
+                    //                    print(diverData)
+                    //                    print(createMeets(data: diverData) as Any)
+                }
             }
+        
         let rowColor: Color = currentMode == .light
         ? Color.white
         : Color.black
