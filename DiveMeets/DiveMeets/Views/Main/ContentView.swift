@@ -12,8 +12,6 @@ struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
     @Environment(\.meetsDB) var db
     @State private var selectedTab: Tab = .magnifyingglass
-    @State var hideTabBar = false
-    @State var visibleTabs: [Tab] = Tab.allCases
     @State var isIndexingMeets: Bool = false
     @StateObject private var getTextModel = GetTextAsyncModel()
     @State private var p: MeetParser = MeetParser()
@@ -40,13 +38,12 @@ struct ContentView: View {
                                         .bold()
                                         .animation(nil, value: selectedTab)
                                 case .magnifyingglass:
-                                    SearchView(hideTabBar: $hideTabBar,
-                                               isIndexingMeets: $isIndexingMeets,
+                                    SearchView(isIndexingMeets: $isIndexingMeets,
                                                isFinishedCounting: $p.isFinishedCounting,
                                                meetsParsedCount: $p.meetsParsedCount,
                                                totalMeetsParsedCount: $p.totalMeetsParsedCount)
                                 case .person:
-                                LoginSearchView(hideTabBar: $hideTabBar)
+                                LoginSearchView()
                             }
                         }
                         .tag(tab)
@@ -57,33 +54,8 @@ struct ContentView: View {
             Group {
                 VStack {
                     Spacer()
-                    FloatingMenuBar(selectedTab: $selectedTab,
-                                    hideTabBar: $hideTabBar,
-                                    visibleTabs: $visibleTabs)
-                    .offset(y: hideTabBar ? 110 : 20)
-                    .animation(.spring(), value: hideTabBar)
-                }
-                
-                // Safe area tap to retrieve hidden tab bar
-                if hideTabBar {
-                    Rectangle()
-                        .foregroundColor(Color.clear)
-                        .contentShape(Rectangle())
-                        .frame(width: 150, height: 90)
-                        .offset(y: 370)
-                        .onTapGesture { _ in
-                            hideTabBar = false
-                            
-                            // Adds delay for menu bar to grow to full size after
-                            // a change
-                            DispatchQueue.main.asyncAfter(
-                                deadline: (
-                                    DispatchTime.now() + menuBarHideDelay)
-                            ) {
-                                visibleTabs = Tab.allCases
-                            }
-                        }
-                    
+                    FloatingMenuBar(selectedTab: $selectedTab)
+                    .offset(y: 20)
                 }
             }
             // Keeps keyboard from pushing menu bar up the page when it appears

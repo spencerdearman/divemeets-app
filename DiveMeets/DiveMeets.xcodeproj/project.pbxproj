@@ -10,7 +10,6 @@
 		000D28DD29E0EF9100B184E9 /* LiveResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000D28DC29E0EF9100B184E9 /* LiveResults.swift */; };
 		000D28DF29E1201200B184E9 /* LiveResultsWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000D28DE29E1201200B184E9 /* LiveResultsWebView.swift */; };
 		000D28E129E122B700B184E9 /* LiveResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000D28E029E122B700B184E9 /* LiveResultsView.swift */; };
-		001A9B9029B075A6007C7BE5 /* HidingScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001A9B8F29B075A6007C7BE5 /* HidingScrollView.swift */; };
 		002A1B3429DB7C4700A26FED /* ProfileHTMLCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002A1B3329DB7C4700A26FED /* ProfileHTMLCache.swift */; };
 		002A1B7C29DB937C00A26FED /* Meets.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 002A1B7A29DB937C00A26FED /* Meets.xcdatamodeld */; };
 		002A1B7E29DB93FC00A26FED /* MeetsDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002A1B7D29DB93FC00A26FED /* MeetsDataController.swift */; };
@@ -47,7 +46,6 @@
 		000D28DC29E0EF9100B184E9 /* LiveResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveResults.swift; sourceTree = "<group>"; };
 		000D28DE29E1201200B184E9 /* LiveResultsWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveResultsWebView.swift; sourceTree = "<group>"; };
 		000D28E029E122B700B184E9 /* LiveResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveResultsView.swift; sourceTree = "<group>"; };
-		001A9B8F29B075A6007C7BE5 /* HidingScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HidingScrollView.swift; sourceTree = "<group>"; };
 		002A1B3329DB7C4700A26FED /* ProfileHTMLCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHTMLCache.swift; sourceTree = "<group>"; };
 		002A1B7B29DB937C00A26FED /* PastMeets.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = PastMeets.xcdatamodel; sourceTree = "<group>"; };
 		002A1B7D29DB93FC00A26FED /* MeetsDataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetsDataController.swift; sourceTree = "<group>"; };
@@ -208,7 +206,6 @@
 			children = (
 				00F9667A29AFDA1500F3720B /* ContentView.swift */,
 				00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */,
-				001A9B8F29B075A6007C7BE5 /* HidingScrollView.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -335,7 +332,6 @@
 				4DD868ED29F0E69C00FF988D /* keychain-swift.swift in Sources */,
 				0037878029D501F600D3CD59 /* ProfileParser.swift in Sources */,
 				000D28DD29E0EF9100B184E9 /* LiveResults.swift in Sources */,
-				001A9B9029B075A6007C7BE5 /* HidingScrollView.swift in Sources */,
 				00F9665F29AEEF0900F3720B /* FloatingMenuBar.swift in Sources */,
 				4D74FE9729AE7B9800401178 /* DiveMeetsApp.swift in Sources */,
 				4DE6CFC329E25A0D00831D1D /* LoginWebView.swift in Sources */,
