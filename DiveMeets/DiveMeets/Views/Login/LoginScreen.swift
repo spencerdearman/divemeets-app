@@ -8,10 +8,8 @@
 import SwiftUI
 import LocalAuthentication
 
-let keychainManager = KeychainManager()
-
-/// Checks that for a given SearchType, at least one of the relevant fields has a value, and returns true if so.
-/// If all relevant fields are empty, returns false
+// Checks that for a given SearchType, at least one of the relevant fields has a value, and returns
+// true if so. If all relevant fields are empty, returns false
 private func checkFields(divemeetsID: String = "",
                          password: String = "") -> Bool {
     return divemeetsID != "" || password != ""
@@ -26,32 +24,27 @@ struct LoginSearchView: View {
     @State var loginSuccessful: Bool = false
     @State var createdKey: Bool = true
     @State private var isUnlocked = false
-    @State var keyChange: Bool = false
     @Binding var hideTabBar: Bool
     @ViewBuilder
     var body: some View {
         
-        ZStack{}
-        .onAppear{
-            if createdKey || !keyChange {
-                keychainManager.createKeychainItem(divemeetsID: divemeetsID, password: password)
-                keyChange = true
-            }
-        }
-        
-        ZStack{
-            
-            if searchSubmitted || keyChange {
-            }
+        ZStack {
             
             if searchSubmitted {
-                LoginUIWebView(divemeetsID: $divemeetsID, password: $password, parsedUserHTML: $parsedUserHTML, loginSearchSubmitted: $loginSearchSubmitted, loginSuccessful: $loginSuccessful)
+                LoginUIWebView(divemeetsID: $divemeetsID, password: $password,
+                               parsedUserHTML: $parsedUserHTML,
+                               loginSearchSubmitted: $loginSearchSubmitted,
+                               loginSuccessful: $loginSuccessful)
             }
 
             Color.white.ignoresSafeArea()
 
-            /// Submit button doesn't switch pages in preview, but it works in Simulator
-            LoginSearchInputView(createdKey: $createdKey, divemeetsID: $divemeetsID, password: $password, searchSubmitted: $searchSubmitted, parsedUserHTML: $parsedUserHTML, loginSearchSubmitted: $loginSearchSubmitted, loginSuccessful: $loginSuccessful, hideTabBar: $hideTabBar)
+            // Submit button doesn't switch pages in preview, but it works in Simulator
+            LoginSearchInputView(createdKey: $createdKey, divemeetsID: $divemeetsID,
+                                 password: $password, searchSubmitted: $searchSubmitted,
+                                 parsedUserHTML: $parsedUserHTML,
+                                 loginSearchSubmitted: $loginSearchSubmitted,
+                                 loginSuccessful: $loginSuccessful, hideTabBar: $hideTabBar)
         }
         .onDisappear {
             searchSubmitted = false
@@ -66,7 +59,10 @@ struct LoginSearchView: View {
         // Check if biometric authentication is available
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
             // Biometric authentication is available, authenticate the user
-            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Please authenticate to unlock") { success, authenticationError in
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
+                                   localizedReason: "Please authenticate to unlock") {
+                success, authenticationError in
+                
                 DispatchQueue.main.async {
                     if success {
                         isUnlocked = true
@@ -95,7 +91,7 @@ struct LoginSearchInputView: View {
     @Binding var loginSearchSubmitted: Bool
     @Binding var loginSuccessful: Bool
     @Binding var hideTabBar: Bool
-    /// Light gray
+    // Light gray
     private let deselectedBGColor: Color = Color(red: 0.94, green: 0.94,
                                                  blue: 0.94)
     private let selectedTextColor: Color = Color.white
@@ -116,7 +112,10 @@ struct LoginSearchInputView: View {
             VStack {
                 
                 if loginSuccessful {
-                    ProfileView(hideTabBar: $hideTabBar, link: "https://secure.meetcontrol.com/divemeets/system/profile.php?number=" + divemeetsID, diverID: divemeetsID)
+                    ProfileView(
+                        hideTabBar: $hideTabBar,
+                        link: "https://secure.meetcontrol.com/divemeets/system/profile.php?number="
+                            + divemeetsID, diverID: divemeetsID)
                         .zIndex(1)
                         .offset(y: 90)
                 } else {
@@ -128,15 +127,17 @@ struct LoginSearchInputView: View {
                     
                     VStack {
                         Button(action: {
-                            /// Need to initially set search to false so webView gets recreated
+                            // Need to initially set search to false so webView gets recreated
                             searchSubmitted = false
-                            /// Only submits a search if one of the relevant fields is filled, otherwise toggles error
+                            // Only submits a search if one of the relevant fields is filled,
+                            // otherwise toggles error
                             if checkFields(divemeetsID: divemeetsID,
                                            password: password) {
                                 showError = false
                                 searchSubmitted = true
                                 loginSearchSubmitted = false
-                                loginSuccessful = true // set loginSuccessful to true when the login is successful
+                                // set loginSuccessful to true when the login is successful
+                                loginSuccessful = true
                                 parsedUserHTML = ""
                             } else {
                                 showError = true

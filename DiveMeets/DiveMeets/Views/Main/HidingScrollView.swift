@@ -32,10 +32,10 @@ struct HidingScrollView: View {
                     
                     let minY = proxy.frame(in: .named("SCROLL")).minY
                     
-                    /// Duration to hide TabBar
+                    // Duration to hide TabBar
                     let durationOffset: CGFloat = 0
                     
-                    /// Runs in the background and checks for changes in Y from scrolling up/down
+                    // Runs in the background and checks for changes in Y from scrolling up/down
                     DispatchQueue.main.async {
                         if minY < offset {
                             if offset < 0 && -minY > (lastOffset + durationOffset) {

@@ -99,10 +99,10 @@ final class MeetParser: ObservableObject {
                     continue
                 }
                 
-                /// Gets divs from page (meet name on past meets where link is "Results")
+                // Gets divs from page (meet name on past meets where link is "Results")
                 let divs = try row.getElementsByTag("div")
                 
-                /// Gets links from list of meets
+                // Gets links from list of meets
                 let elem = try row.getElementsByTag("a")
                 for e in elem {
                     if try e.tagName() == "a"
@@ -267,7 +267,7 @@ final class MeetParser: ObservableObject {
                     continue
                 }
                 
-                /// Gets links from list of meets
+                // Gets links from list of meets
                 let elem = try row.getElementsByTag("a")
                 for e in elem {
                     if try e.tagName() == "a"

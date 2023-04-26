@@ -28,7 +28,7 @@ class ProfileHTMLCache: Cache<String, String> {
         }
     }
     
-    /// Needs to be copied and rewritten so decoder.decode can receive correct class
+    // Needs to be copied and rewritten so decoder.decode can receive correct class
     func loadFromDisk() -> ProfileHTMLCache {
         do {
             return try super.loadFromDisk(instance: self) as! ProfileHTMLCache

@@ -225,10 +225,11 @@ final class ProfileParser: ObservableObject {
         return (diving, coaching, judging, diverList)
     }
     
-    /// Wraps caching functionality into getting profile HTML to avoid network access if not necessary
+    // Wraps caching functionality into getting profile HTML to avoid network access if not necessary
     func getProfileHTML(profileLink: String) -> String {
         let session = URLSession.shared
-        let diverID: String = String(profileLink[profileLink.index(profileLink.endIndex, offsetBy: -5)...])
+        let diverID: String = String(
+            profileLink[profileLink.index(profileLink.endIndex, offsetBy: -5)...])
         let url = URL(string: profileLink)!
         
         var resultText: String?

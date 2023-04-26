@@ -22,8 +22,8 @@ private func IntFromTab(_ t: Tab) -> Int {
         }
         i += 1
     }
-    /// This should not be possible to reach since t is a Tab and we are iterating over all Tabs, so it will
-    /// always reach the inner if statement and return
+    // This should not be possible to reach since t is a Tab and we are iterating over all Tabs,
+    // so it will always reach the inner if statement and return
     return -1
 }
 
@@ -38,7 +38,7 @@ struct FloatingMenuBar: View {
     private let cornerRadius: CGFloat = 50
     private let frameHeight: CGFloat = 60
     
-    /// Add custom multipliers for selected tabs here, defaults to 1.25
+    // Add custom multipliers for selected tabs here, defaults to 1.25
     private let sizeMults: [String: Double] = [
         "magnifyingglass": 1.5
     ]
@@ -53,21 +53,21 @@ struct FloatingMenuBar: View {
         let tabInt: CGFloat = CGFloat(IntFromTab(selectedTab))
         let casesCount: Int = Tab.allCases.count
         
-        /// Sets midpoint to middle icon index, chooses left of middle if even num of
-        /// choices
+        // Sets midpoint to middle icon index, chooses left of middle if even num of
+        // choices
         var menuBarMidpoint: CGFloat {
             casesCount.isMultiple(of: 2)
             ? (CGFloat(casesCount) - 1) / 2
             : floor(CGFloat(casesCount) / 2)
         }
         
-        /// Offset that appears to be necessary when there are more than three tabs
+        // Offset that appears to be necessary when there are more than three tabs
         let addXOff: CGFloat = casesCount > 3 ? 2 : 0
         
         return tabWidth * (tabInt - menuBarMidpoint) + addXOff
     }
     
-    /// Haptic feedback
+    // Haptic feedback
     func simpleSuccess(){
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
@@ -84,33 +84,33 @@ struct FloatingMenuBar: View {
         
         ZStack {
             GeometryReader { geometry in
-                /// Width of menu bar
+                // Width of menu bar
                 let geoWidth: CGFloat =
                 visibleTabs.count > 1
                 ? geometry.size.width
                 : cornerRadius * 1.2
                 
-                /// Width of bubble for one tab
+                // Width of bubble for one tab
                 let tabWidth: CGFloat =
                 visibleTabs.count > 1
                 ? ((geoWidth - 0) /
                    CGFloat(Tab.allCases.count))
                 : geoWidth
                 
-                /// x offset from center of tab bar to selected tab
+                // x offset from center of tab bar to selected tab
                 let xOffset: CGFloat =
                 visibleTabs.count > 1
                 ? selectedXOffset(from: tabWidth)
                 : 0
                 
                 ZStack {
-                    /// Clear background of menu bar
+                    // Clear background of menu bar
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .fill(.thinMaterial)
                         .frame(width: geoWidth, height: frameHeight)
                         .animation(.spring(), value: visibleTabs)
                     
-                    /// Moving bubble on menu bar
+                    // Moving bubble on menu bar
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .fill(selectedBubbleColor)
                         .frame(width: tabWidth, height: frameHeight)
@@ -118,7 +118,7 @@ struct FloatingMenuBar: View {
                         .animation(.spring(), value: visibleTabs)
                         .animation(.spring(), value: selectedTab)
                     
-                    /// Line of buttons for each tab
+                    // Line of buttons for each tab
                     HStack(spacing: 0) {
                         ForEach(visibleTabs, id: \.rawValue) { tab in
                             Spacer()
@@ -132,7 +132,7 @@ struct FloatingMenuBar: View {
                                              ? selectedColor
                                              : deselectedColor)
                             .font(.system(size: 22))
-                            /// Adds tab change and visible tabs change on button press
+                            // Adds tab change and visible tabs change on button press
                             .onTapGesture() {
                                 withAnimation(.spring()) {
                                     simpleSuccess()
@@ -146,7 +146,7 @@ struct FloatingMenuBar: View {
                                                    }
                                 }
                             }
-                            /// Animation for icon to move after menu bar changes
+                            // Animation for icon to move after menu bar changes
                             .animation(.spring(), value: visibleTabs)
                             Spacer()
                         }

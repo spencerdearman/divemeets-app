@@ -21,7 +21,8 @@ struct LoginUIWebView: View {
     var body: some View {
         VStack {
             LoginWebView(request: $request, parsedUserHTML: $parsedUserHTML,
-                    divemeetsID: $divemeetsID, password: $password, loginSuccessful: $loginSuccessful)
+                    divemeetsID: $divemeetsID, password: $password,
+                         loginSuccessful: $loginSuccessful)
         }
     }
 }
@@ -63,7 +64,8 @@ struct LoginWebView: UIViewRepresentable {
     
     // From UIKit to SwiftUI
     func makeCoordinator() -> Coordinator {
-        return Coordinator(html: $parsedUserHTML, divemeetsID: $divemeetsID, password: $password, loginSuccessful: $loginSuccessful)
+        return Coordinator(html: $parsedUserHTML, divemeetsID: $divemeetsID, password: $password,
+                           loginSuccessful: $loginSuccessful)
     }
     
     class Coordinator: NSObject, WKNavigationDelegate {
@@ -73,7 +75,8 @@ struct LoginWebView: UIViewRepresentable {
         @Binding var password: String
         @Binding var loginSuccessful: Bool
         
-        init(html: Binding<String>, divemeetsID: Binding<String>, password: Binding<String>, loginSuccessful: Binding<Bool>) {
+        init(html: Binding<String>, divemeetsID: Binding<String>, password: Binding<String>,
+             loginSuccessful: Binding<Bool>) {
             self._parsedUserHTML = html
             self._divemeetsID = divemeetsID
             self._password = password
@@ -81,9 +84,11 @@ struct LoginWebView: UIViewRepresentable {
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            let js = "document.querySelector('input[name=\"username\"]').value = '\(divemeetsID)'; document.querySelector('input[name=\"passwd\"]').value = '\(password)'"
+            let js = "document.querySelector('input[name=\"username\"]').value = '\(divemeetsID)';"
+            + "document.querySelector('input[name=\"passwd\"]').value = '\(password)'"
             webView.evaluateJavaScript(js, completionHandler: nil)
-            webView.evaluateJavaScript("document.querySelector('input[type=\"submit\"][value=\"Log in\"]').click()") {
+            webView.evaluateJavaScript(
+                "document.querySelector('input[type=\"submit\"][value=\"Log in\"]').click()") {
                 _, _ in
                 self.checkIfLoggedIn(webView)
             }

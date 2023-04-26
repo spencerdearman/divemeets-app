@@ -94,8 +94,8 @@ private extension SearchInputView {
     }
 }
 
-/// Checks that for a given SearchType, at least one of the relevant fields has a value, and returns true if so.
-/// If all relevant fields are empty, returns false
+// Checks that for a given SearchType, at least one of the relevant fields has a value, and returns true if so.
+// If all relevant fields are empty, returns false
 private func checkFields(selection: SearchType, firstName: String = "",
                          lastName: String = "", meetName: String = "",
                          orgName: String = "", meetYear: String = "") -> Bool {
@@ -107,8 +107,8 @@ private func checkFields(selection: SearchType, firstName: String = "",
     }
 }
 
-/// Converts the arguments passed into getPredicate into the list of unpacked parameters necessary to init
-/// NSPredicate; returns nil if all fields are empty
+// Converts the arguments passed into getPredicate into the list of unpacked parameters necessary to init
+// NSPredicate; returns nil if all fields are empty
 private func argsToPredParams(
     pred: String, name: String, org: String, year: String) -> NSPredicate? {
         let haveName = name != ""
@@ -139,8 +139,8 @@ private func argsToPredParams(
         return nil
     }
 
-/// Produces Optional NSPredicate string based on which values are filled or not filled, returns nil if all fields
-/// are empty
+// Produces Optional NSPredicate string based on which values are filled or not filled, returns nil if all fields
+// are empty
 private func getPredicate(name: String, org: String, year: String) -> NSPredicate? {
     if name == "" && org == "" && year == "" {
         return nil
@@ -162,7 +162,7 @@ private func getPredicate(name: String, org: String, year: String) -> NSPredicat
     
     var resultString: String = ""
     
-    /// Joins all the statements together with AND
+    // Joins all the statements together with AND
     for (idx, query) in subqueries.enumerated() {
         resultString += query
         if idx < subqueries.count - 1 {
@@ -278,7 +278,7 @@ struct SearchInputView: View {
         personSelection != nil
     }
     
-    /// Light gray
+    // Light gray
     private let deselectedBGColor: Color = Color(red: 0.94, green: 0.94,
                                                  blue: 0.94)
     private let selectedTextColor: Color = Color.white
@@ -415,13 +415,13 @@ struct SearchInputView: View {
                 
                 VStack {
                     Button(action: {
-                        /// Need to initially set search to false so webView gets recreated
+                        // Need to initially set search to false so webView gets recreated
                         searchSubmitted = false
                         
-                        /// Resets focusedField so keyboard disappears
+                        // Resets focusedField so keyboard disappears
                         focusedField = nil
                         
-                        /// Only submits a search if one of the relevant fields is filled, otherwise toggles error
+                        // Only submits a search if one of the relevant fields is filled, otherwise toggles error
                         if checkFields(selection: selection, firstName: firstName,
                                        lastName: lastName, meetName: meetName,
                                        orgName: orgName, meetYear: meetYear) {

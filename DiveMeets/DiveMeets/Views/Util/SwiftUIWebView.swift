@@ -90,17 +90,17 @@ struct WebView: UIViewRepresentable {
             let js = "document.getElementById('first').value = '\(firstName)';"
             + "document.getElementById('last').value = '\(lastName)'"
             if !dmSearchSubmitted {
-                /// Fill boxes with search values
+                // Fill boxes with search values
                 webView.evaluateJavaScript(js, completionHandler: nil)
                 
-                /// Click Submit
+                // Click Submit
                 webView.evaluateJavaScript(
                     "document.getElementsByTagName('input')[2].click()") {
                         _, _ in
                         self.dmSearchSubmitted = true
                     }
             } else if !linksParsed {
-                /// Gets HTML after submitting request
+                // Gets HTML after submitting request
                 webView.evaluateJavaScript("document.body.innerHTML") {
                     [weak self] result, error in
                     guard let html = result as? String, error == nil else { return }

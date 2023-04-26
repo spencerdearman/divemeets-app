@@ -9,7 +9,8 @@ import SwiftUI
 import SwiftSoup
 
 struct LiveResultsView: View {
-    @State var request: String = "https://secure.meetcontrol.com/divemeets/system/livestats.php?event=stats-8960-180-9-Finished"
+    @State var request: String =
+    "https://secure.meetcontrol.com/divemeets/system/livestats.php?event=stats-8960-180-9-Finished"
     @State var html: String = ""
     @State var rows: [[String: String]] = []
     @State var columns: [String] = []

@@ -21,7 +21,7 @@ open class KeychainSwift {
   
   var lastQueryParameters: [String: Any]? // Used by the unit tests
   
-  /// Contains result code from the last operation. Value is noErr (0) for a successful result.
+  // Contains result code from the last operation. Value is noErr (0) for a successful result.
   open var lastResultCode: OSStatus = noErr
 
   var keyPrefix = "" // Can be useful in test.
@@ -45,7 +45,7 @@ open class KeychainSwift {
   private let lock = NSLock()
 
   
-  /// Instantiate a KeychainSwift object
+  // Instantiate a KeychainSwift object
   public init() { }
   
   /**
@@ -312,7 +312,7 @@ open class KeychainSwift {
     return lastResultCode == noErr
   }
   
-  /// Returns the key with currently set prefix.
+  // Returns the key with currently set prefix.
   func keyWithPrefix(_ key: String) -> String {
     return "\(keyPrefix)\(key)"
   }
@@ -352,9 +352,9 @@ open class KeychainSwift {
 import Foundation
 import Security
 
-/// Constants used by the library
+// Constants used by the library
 public struct KeychainSwiftConstants {
-  /// Specifies a Keychain access group. Used for sharing Keychain items between apps.
+  // Specifies a Keychain access group. Used for sharing Keychain items between apps.
   public static var accessGroup: String { return toString(kSecAttrAccessGroup) }
   
   /**
@@ -364,31 +364,31 @@ public struct KeychainSwiftConstants {
    */
   public static var accessible: String { return toString(kSecAttrAccessible) }
   
-  /// Used for specifying a String key when setting/getting a Keychain value.
+  // Used for specifying a String key when setting/getting a Keychain value.
   public static var attrAccount: String { return toString(kSecAttrAccount) }
 
-  /// Used for specifying synchronization of keychain items between devices.
+  // Used for specifying synchronization of keychain items between devices.
   public static var attrSynchronizable: String { return toString(kSecAttrSynchronizable) }
   
-  /// An item class key used to construct a Keychain search dictionary.
+  // An item class key used to construct a Keychain search dictionary.
   public static var klass: String { return toString(kSecClass) }
   
-  /// Specifies the number of values returned from the keychain. The library only supports single values.
+  // Specifies the number of values returned from the keychain. The library only supports single values.
   public static var matchLimit: String { return toString(kSecMatchLimit) }
   
-  /// A return data type used to get the data from the Keychain.
+  // A return data type used to get the data from the Keychain.
   public static var returnData: String { return toString(kSecReturnData) }
   
-  /// Used for specifying a value when setting a Keychain value.
+  // Used for specifying a value when setting a Keychain value.
   public static var valueData: String { return toString(kSecValueData) }
     
-  /// Used for returning a reference to the data from the keychain
+  // Used for returning a reference to the data from the keychain
   public static var returnReference: String { return toString(kSecReturnPersistentRef) }
   
-  /// A key whose value is a Boolean indicating whether or not to return item attributes
+  // A key whose value is a Boolean indicating whether or not to return item attributes
   public static var returnAttributes : String { return toString(kSecReturnAttributes) }
     
-  /// A value that corresponds to matching an unlimited number of items
+  // A value that corresponds to matching an unlimited number of items
   public static var secMatchLimitAll : String { return toString(kSecMatchLimitAll) }
     
   static func toString(_ value: CFString) -> String {

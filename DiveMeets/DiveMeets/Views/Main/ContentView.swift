@@ -19,7 +19,7 @@ struct ContentView: View {
     @StateObject private var p: MeetParser = MeetParser()
     @FetchRequest(sortDescriptors: []) private var meets: FetchedResults<DivingMeet>
     
-    /// Necessary to hide gray navigation bar from behind floating tab bar
+    // Necessary to hide gray navigation bar from behind floating tab bar
     init() {
         UITabBar.appearance().isHidden = true
     }
@@ -30,7 +30,7 @@ struct ContentView: View {
                 TabView(selection: $selectedTab) {
                     ForEach(Tab.allCases, id: \.rawValue) { tab in
                         HStack {
-                            /// Add different page views here for different tabs
+                            // Add different page views here for different tabs
                             switch tab {
                                 case .house:
                                     ProfileView(hideTabBar: $hideTabBar, link:"", diverID: "51197")
@@ -64,7 +64,7 @@ struct ContentView: View {
                     .animation(.spring(), value: hideTabBar)
                 }
                 
-                /// Safe area tap to retrieve hidden tab bar
+                // Safe area tap to retrieve hidden tab bar
                 if hideTabBar {
                     Rectangle()
                         .foregroundColor(Color.clear)
@@ -74,8 +74,8 @@ struct ContentView: View {
                         .onTapGesture { _ in
                             hideTabBar = false
                             
-                            /// Adds delay for menu bar to grow to full size after
-                            /// a change
+                            // Adds delay for menu bar to grow to full size after
+                            // a change
                             DispatchQueue.main.asyncAfter(
                                 deadline: (
                                     DispatchTime.now() + menuBarHideDelay)

@@ -16,7 +16,7 @@ struct MeetList: View {
     @Binding var hideTabBar: Bool
     @StateObject private var parser = HTMLParser()
     
-    /// Style adjustments for elements of list
+    // Style adjustments for elements of list
     private let frameWidth: CGFloat = 350
     private let frameHeight: CGFloat = 50
     private let cornerRadius: CGFloat = 30
@@ -45,7 +45,14 @@ struct MeetList: View {
                 let eventTitle = firstCol.components(separatedBy: " - ")[0]
                 // Get the place and score
                 
-                guard let placeScoreStr = row.last, let placeScoreMatch = try? NSRegularExpression(pattern: "([A-Z\\d]+)\\s+(\\d+.\\d+)").firstMatch(in: placeScoreStr, options: [], range: NSRange(location: 0, length: placeScoreStr.count)), placeScoreMatch.numberOfRanges == 3, let placeRange = Range(placeScoreMatch.range(at: 1), in: placeScoreStr), let scoreRange = Range(placeScoreMatch.range(at: 2), in: placeScoreStr) else {
+                guard let placeScoreStr = row.last,
+                      let placeScoreMatch = try? NSRegularExpression(
+                        pattern: "([A-Z\\d]+)\\s+(\\d+.\\d+)")
+                    .firstMatch(in: placeScoreStr, options: [],
+                                range: NSRange(location: 0, length: placeScoreStr.count)),
+                      placeScoreMatch.numberOfRanges == 3,
+                      let placeRange = Range(placeScoreMatch.range(at: 1), in: placeScoreStr),
+                      let scoreRange = Range(placeScoreMatch.range(at: 2), in: placeScoreStr) else {
                     print("Error: Invalid place at index \(row.count - 1)")
                     return nil
                 }
@@ -60,7 +67,8 @@ struct MeetList: View {
                 // If the first column doesn't contain ".", it's a meet name
                 // Save the previous meet's data
                 if !currentMeetName.isEmpty {
-                    let meet = Meet(meetName: currentMeetName, meetEvents: currentMeetEvents, meetPlaces: currentMeetPlaces, meetScores: currentMeetScores)
+                    let meet = Meet(meetName: currentMeetName, meetEvents: currentMeetEvents,
+                                    meetPlaces: currentMeetPlaces, meetScores: currentMeetScores)
                     meets.append(meet)
                     currentMeetEvents.removeAll()
                     currentMeetPlaces.removeAll()
@@ -74,7 +82,8 @@ struct MeetList: View {
         
         // Save the last meet's data
         if !currentMeetName.isEmpty {
-            let meet = Meet(meetName: currentMeetName, meetEvents: currentMeetEvents, meetPlaces: currentMeetPlaces, meetScores: currentMeetScores)
+            let meet = Meet(meetName: currentMeetName, meetEvents: currentMeetEvents,
+                            meetPlaces: currentMeetPlaces, meetScores: currentMeetScores)
             meets.append(meet)
         }
         
@@ -92,9 +101,9 @@ struct MeetList: View {
         }
         return updated_meets
     }
-
-
-
+    
+    
+    
     var body: some View {
         
         //diverData[1][0] is [DIVEMEETS.COM History]
@@ -108,83 +117,83 @@ struct MeetList: View {
                 }
             }
         let rowColor: Color = currentMode == .light
-                ? Color.white
-                : Color.black
+        ? Color.white
+        : Color.black
+        
+        NavigationView {
+            ZStack {
+                // Background color for View
+                Color.clear.background(.thinMaterial)
+                    .ignoresSafeArea()
                 
-                NavigationView {
-                    ZStack {
-                        /// Background color for View
-                        Color.clear.background(.thinMaterial)
-                            .ignoresSafeArea()
-                        
-                        ScrollView(.vertical, showsIndicators: false) {
-                            VStack(spacing: rowSpacing) {
-                                ForEach(createMeets(data: diverData) ?? [], id: \.meetName) { meet in
-                                    NavigationLink(
-                                        destination: MeetPage(meetInstance: meet)) {
-                                            GeometryReader { geometry in
-                                                HStack {
-                                                    HStack {
-                                                        Text(meet.meetName)
-                                                    }
-                                                    .foregroundColor(.primary)
-                                                    .padding()
-                                                    
-                                                    Spacer()
-                                                    
-                                                    Image(systemName: "chevron.right")
-                                                        .foregroundColor(.secondary)
-                                                        .padding()
-                                                }
-                                                .frame(width: frameWidth,
-                                                       height: frameHeight)
-                                                .background(rowColor)
-                                                .cornerRadius(cornerRadius)
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: rowSpacing) {
+                        ForEach(createMeets(data: diverData) ?? [], id: \.meetName) { meet in
+                            NavigationLink(
+                                destination: MeetPage(meetInstance: meet)) {
+                                    GeometryReader { geometry in
+                                        HStack {
+                                            HStack {
+                                                Text(meet.meetName)
                                             }
-                                            .frame(width: frameWidth,
-                                                   height: frameHeight)
+                                            .foregroundColor(.primary)
+                                            .padding()
+                                            
+                                            Spacer()
+                                            
+                                            Image(systemName: "chevron.right")
+                                                .foregroundColor(.secondary)
+                                                .padding()
                                         }
-                                }
-                            }
-                            /// Scroll tracking to hide/show tab bar when scrolling down/up
-                            .overlay(
-                                
-                                GeometryReader {proxy -> Color in
-                                    
-                                    let minY = proxy.frame(in: .named("SCROLL")).minY
-                                    
-                                    /// Duration to hide TabBar
-                                    let durationOffset: CGFloat = 0
-                                    
-                                    DispatchQueue.main.async {
-                                        if minY < offset {
-                                            if (offset < 0 &&
-                                                -minY > (lastOffset + durationOffset)) {
-                                                withAnimation(.easeOut.speed(1.5)) {
-                                                    hideTabBar = true
-                                                }
-                                                lastOffset = -offset
-                                            }
-                                        }
-                                        if offset < minY {
-                                            if (offset < 0 &&
-                                                -minY < (lastOffset - durationOffset)) {
-                                                withAnimation(.easeIn.speed(1.5)) {
-                                                    hideTabBar = false
-                                                }
-                                                lastOffset = -offset
-                                            }
-                                        }
-                                        self.offset = minY
+                                        .frame(width: frameWidth,
+                                               height: frameHeight)
+                                        .background(rowColor)
+                                        .cornerRadius(cornerRadius)
                                     }
-                                    return Color.clear
+                                    .frame(width: frameWidth,
+                                           height: frameHeight)
                                 }
-                            )
-                            .padding()
                         }
-                        .coordinateSpace(name: "SCROLL")
-                        .navigationTitle("Meets")
                     }
+                    // Scroll tracking to hide/show tab bar when scrolling down/up
+                    .overlay(
+                        
+                        GeometryReader {proxy -> Color in
+                            
+                            let minY = proxy.frame(in: .named("SCROLL")).minY
+                            
+                            // Duration to hide TabBar
+                            let durationOffset: CGFloat = 0
+                            
+                            DispatchQueue.main.async {
+                                if minY < offset {
+                                    if (offset < 0 &&
+                                        -minY > (lastOffset + durationOffset)) {
+                                        withAnimation(.easeOut.speed(1.5)) {
+                                            hideTabBar = true
+                                        }
+                                        lastOffset = -offset
+                                    }
+                                }
+                                if offset < minY {
+                                    if (offset < 0 &&
+                                        -minY < (lastOffset - durationOffset)) {
+                                        withAnimation(.easeIn.speed(1.5)) {
+                                            hideTabBar = false
+                                        }
+                                        lastOffset = -offset
+                                    }
+                                }
+                                self.offset = minY
+                            }
+                            return Color.clear
+                        }
+                    )
+                    .padding()
                 }
+                .coordinateSpace(name: "SCROLL")
+                .navigationTitle("Meets")
             }
+        }
+    }
 }

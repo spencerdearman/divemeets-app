@@ -61,10 +61,10 @@ fileprivate var emptyGlobalCaches: [String: CustomCache] = [
     "profileHTML": CustomCache.profileHTML(ProfileHTMLCache())
 ]
 
-/// Access from any file using 'GlobalCaches.caches[<cacheKey>]
+// Access from any file using 'GlobalCaches.caches[<cacheKey>]
 struct GlobalCaches {
-    /// Internal caches dict, should not be referenced except through subscripting
-    ///  e.g. GlobalCaches.caches["profileMeetCache"]["2023]
+    // Internal caches dict, should not be referenced except through subscripting
+    //  e.g. GlobalCaches.caches["profileMeetCache"]["2023]
     static var caches: [String: CustomCache] = emptyGlobalCaches
     
     static func saveAllCaches() {

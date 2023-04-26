@@ -12,7 +12,8 @@ struct ProfileImage: View {
     let diverID: String
     
     var body: some View {
-        let imageUrlString = "https://secure.meetcontrol.com/divemeets/system/profilephotos/\(diverID).jpg"
+        let imageUrlString =
+        "https://secure.meetcontrol.com/divemeets/system/profilephotos/\(diverID).jpg"
         let imageUrl = URL(string: imageUrlString)
         AsyncImage(url: imageUrl!) { phase in
             if let image = phase.image {
