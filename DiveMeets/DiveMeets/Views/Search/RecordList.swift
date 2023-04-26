@@ -14,7 +14,7 @@ struct RecordList: View {
     @State var offset: CGFloat = 0
     @State var lastOffset: CGFloat = 0
     
-    /// Style adjustments for elements of list
+    // Style adjustments for elements of list
     private let frameWidth: CGFloat = 350
     private let frameHeight: CGFloat = 50
     private let cornerRadius: CGFloat = 30
@@ -35,7 +35,7 @@ struct RecordList: View {
     var body: some View {
         NavigationView {
             ZStack {
-                /// Background color for View
+                // Background color for View
                 customGray.ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
@@ -57,21 +57,21 @@ struct RecordList: View {
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(Color.secondary)
                                             .padding()
+                                            }
+                                            .frame(width: frameWidth,
+                                                   height: frameHeight)
+                                            .background(rowColor)
+                                            .cornerRadius(cornerRadius)
+                                        }
+                                        .frame(width: frameWidth,
+                                               height: frameHeight)
+                                        .onDisappear {
+                                            resultSelected = true
+                                        }
+                                        .onAppear{
+                                            resultSelected = false
+                                        }
                                     }
-                                    .frame(width: frameWidth,
-                                           height: frameHeight)
-                                    .background(rowColor)
-                                    .cornerRadius(cornerRadius)
-                                }
-                                .frame(width: frameWidth,
-                                       height: frameHeight)
-                                .onDisappear {
-                                    resultSelected = true
-                                }
-                                .onAppear{
-                                    resultSelected = false
-                                }
-                            }
                         }
                     }
                     .padding()
