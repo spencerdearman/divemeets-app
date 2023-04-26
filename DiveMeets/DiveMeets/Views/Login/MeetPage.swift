@@ -52,9 +52,3 @@ struct MeetPage: View {
         }
     }
 }
-
-struct MeetPage_Previews: PreviewProvider {
-    static var previews: some View {
-        MeetPage(meetInstance: meets[0])
-    }
-}
