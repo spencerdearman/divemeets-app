@@ -33,7 +33,7 @@ struct ContentView: View {
                             // Add different page views here for different tabs
                             switch tab {
                                 case .house:
-                                    ProfileView(hideTabBar: $hideTabBar, link:"", diverID: "51197")
+                                    Home()
                                 case .gearshape:
                                     Image(systemName: tab.rawValue)
                                     Text("Settings")
