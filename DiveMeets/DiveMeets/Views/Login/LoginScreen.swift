@@ -172,8 +172,11 @@ struct LoginPageSearchView: View {
                 Text("DiveMeets ID:")
                     .padding(.leading)
                 TextField("DiveMeets ID", text: $divemeetsID)
-                    .textContentType(.username).keyboardType(.numberPad)
+                    .textContentType(.username)
+                    .keyboardType(.numberPad)
                     .textFieldStyle(.roundedBorder)
+                Image(systemName: "eye.circle")
+                    .opacity(0.0)
                     .padding(.trailing)
             }
             HStack {
@@ -181,13 +184,12 @@ struct LoginPageSearchView: View {
                     .padding(.leading)
                 if isPasswordVisible {
                     TextField("Password", text: $password)
-                        .textContentType(.password).keyboardType(.default)
+                        .textContentType(.password)
+                        .keyboardType(.default)
                         .textFieldStyle(.roundedBorder)
-                        .padding(.trailing)
                 } else {
                     SecureField("Password", text: $password)
                         .textFieldStyle(.roundedBorder)
-                        .padding(.trailing)
                 }
                 Button(action: {
                     isPasswordVisible.toggle()
@@ -195,6 +197,7 @@ struct LoginPageSearchView: View {
                     Image(systemName: isPasswordVisible ? "eye.circle" : "eye.slash.circle")
                         .foregroundColor(.gray)
                 }
+                .padding(.trailing)
             }
         }
         .padding()
