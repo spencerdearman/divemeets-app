@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct RecordList: View {
+    @Environment(\.colorScheme) var currentMode
     @Binding var records: [String: String]
     @Binding var resultSelected: Bool
     @State var offset: CGFloat = 0
@@ -18,17 +19,24 @@ struct RecordList: View {
     private let frameHeight: CGFloat = 50
     private let cornerRadius: CGFloat = 30
     private let rowSpacing: CGFloat = 3
-    private let rowColor: Color = Color.white
-    private let textColor: Color = Color.black
+    private let textColor: Color = Color.primary
     private let fontSize: CGFloat = 20
     private let grayValue: CGFloat = 0.95
+    
+    private var rowColor: Color {
+        currentMode == .light ? Color.white : Color.black
+    }
+    
+    private var customGray: Color {
+        let gray = currentMode == .light ? 0.95 : 0.1
+        return Color(red: gray, green: gray, blue: gray)
+    }
     
     var body: some View {
         NavigationView {
             ZStack {
                 /// Background color for View
-                Color(red: grayValue, green: grayValue, blue: grayValue)
-                    .ignoresSafeArea()
+                customGray.ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: rowSpacing) {
@@ -47,7 +55,7 @@ struct RecordList: View {
                                         Spacer()
                                         
                                         Image(systemName: "chevron.right")
-                                            .foregroundColor(Color.gray)
+                                            .foregroundColor(Color.secondary)
                                             .padding()
                                     }
                                     .frame(width: frameWidth,
@@ -74,9 +82,12 @@ struct RecordList: View {
     }
 }
 
-//struct RecordList_Previews: PreviewProvider {
-//    static var previews: some View {
-//        RecordList(hideTabBar: .constant(false), records: .constant(["Logan": "google.com"]))
-//    }
-//}
-//
+struct RecordList_Previews: PreviewProvider {
+    static var previews: some View {
+        ForEach(ColorScheme.allCases, id: \.self) {
+            RecordList(records: .constant(["Logan": "google.com"]),
+                       resultSelected: .constant(false))
+                .preferredColorScheme($0)
+        }
+    }
+}
