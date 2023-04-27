@@ -16,6 +16,7 @@ private func checkFields(divemeetsID: String = "",
 }
 
 struct LoginSearchView: View {
+    @Environment(\.colorScheme) var currentMode
     @State private var divemeetsID: String = ""
     @State private var password: String = ""
     @State private var searchSubmitted: Bool = false
@@ -24,6 +25,7 @@ struct LoginSearchView: View {
     @State var loginSuccessful: Bool = false
     @State var createdKey: Bool = true
     @State private var isUnlocked = false
+    
     @ViewBuilder
     var body: some View {
         
@@ -36,7 +38,8 @@ struct LoginSearchView: View {
                                loginSuccessful: $loginSuccessful)
             }
 
-            Color.white.ignoresSafeArea()
+            (currentMode == .light ? Color.white : Color.black)
+                .ignoresSafeArea()
 
             // Submit button doesn't switch pages in preview, but it works in Simulator
             LoginSearchInputView(createdKey: $createdKey, divemeetsID: $divemeetsID,
@@ -77,10 +80,7 @@ struct LoginSearchView: View {
 }
 
 struct LoginSearchInputView: View {
-    @Environment(\.colorScheme) var currentMode
     @State private var showError: Bool = false
-    @State var fullScreenResults: Bool = false
-    @State var resultSelected: Bool = false
     @Binding var createdKey: Bool
     @Binding var divemeetsID: String
     @Binding var password: String
@@ -89,22 +89,8 @@ struct LoginSearchInputView: View {
     @Binding var parsedUserHTML: String
     @Binding var loginSearchSubmitted: Bool
     @Binding var loginSuccessful: Bool
-    
-    // Light gray
-    private let deselectedBGColor: Color = Color(red: 0.94, green: 0.94,
-                                                 blue: 0.94)
-    private let selectedTextColor: Color = Color.white
-    private let deselectedTextColor: Color = Color.blue
-    
+
     private let cornerRadius: CGFloat = 30
-    private let selectedBGColor: Color = Color.accentColor
-    private let grayValue: CGFloat = 0.90
-    private let grayValueDark: CGFloat = 0.10
-    private let textColor: Color = Color.primary
-    private let typeBubbleWidth: CGFloat = 100
-    private let typeBubbleHeight: CGFloat = 35
-    
-    private let typeBGWidth: CGFloat = 40
     
     var body: some View {
         ZStack {
@@ -218,6 +204,3 @@ struct LoginPageSearchView: View {
         }
     }
 }
-
-
-

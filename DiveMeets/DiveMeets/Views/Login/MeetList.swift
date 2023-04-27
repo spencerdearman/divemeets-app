@@ -23,6 +23,11 @@ struct MeetList: View {
     private let fontSize: CGFloat = 20
     let startIndex = 2
     
+    private var customGray: Color {
+        let gray = currentMode == .light ? 0.95 : 0.1
+        return Color(red: gray, green: gray, blue: gray)
+    }
+    
     func createMeets(data: [[String]]) -> [Meet]? {
         if data.count < 2 {
             return nil
@@ -119,8 +124,7 @@ struct MeetList: View {
         NavigationView {
             ZStack {
                 // Background color for View
-                Color.clear.background(.thinMaterial)
-                    .ignoresSafeArea()
+                customGray.ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: rowSpacing) {
