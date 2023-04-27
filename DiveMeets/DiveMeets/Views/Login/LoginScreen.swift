@@ -25,7 +25,7 @@ struct LoginSearchView: View {
     @State var loginSuccessful: Bool = false
     @State var createdKey: Bool = true
     @State private var isUnlocked = false
-    
+
     @ViewBuilder
     var body: some View {
         

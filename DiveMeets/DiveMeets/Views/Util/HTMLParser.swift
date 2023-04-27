@@ -9,32 +9,25 @@ import SwiftUI
 import SwiftSoup
 
 final class HTMLParser: ObservableObject {
-    @Published var myData = [Array<String>]()
+    @Published var myData = [[String]]()
+    let getTextModel = GetTextAsyncModel()
     
-    func parse(html: String) -> [Array<String>] {
-        do {
-            let document: Document = try SwiftSoup.parse(html)
-            guard let body = document.body() else {
-                return [[]]
-            }
-            let main = try body.getElementsByTag("body").compactMap({try? $0.html()})
-            let html = main[0]
-            let doc: Document = try SwiftSoup.parse(html)
-
-            var myData = [Array<String>]()
-            let myRows: Elements? = try doc.getElementsByTag("tr")
-            try myRows?.forEach({ row in
-                let tempString = try row.text()
-                let split = tempString.components(separatedBy: "  ")
-                myData.append(split)
-            })
-            //myData[0] = myData[0][0].components(separatedBy: "History")
-            //myData[0].remove(at: 1)
-            return myData
+    func parse(html: String) async throws -> [[String]] {
+        let document: Document = try SwiftSoup.parse(html)
+        guard let body = document.body() else {
+            return [[]]
         }
-        catch {
-            print("Error Parsing: " + String(describing: error))
-        }
+        let main = try body.getElementsByTag("body").compactMap({try? $0.html()})
+        let html = main[0]
+        let doc: Document = try SwiftSoup.parse(html)
+        
+        var myData = [[String]]()
+        let myRows: Elements? = try doc.getElementsByTag("tr")
+        try myRows?.forEach({ row in
+            let tempString = try row.text()
+            let split = tempString.components(separatedBy: "  ")
+            myData.append(split)
+        })
         
         return myData
     }
@@ -68,19 +61,24 @@ final class HTMLParser: ObservableObject {
         return ""
     }
     
-    func parse(urlString: String) -> [Array<String>] {
-        guard let url = URL(string: urlString) else {
-            return []
-        }
+    func parse(urlString: String) async {
+        guard let url = URL(string: urlString) else { return }
         
-        do {
-            let html = try String(contentsOf: url)
-            myData = parse(html: html)
-            return myData
-        } catch {
-            print("Error fetching HTML: \(error)")
+        // This sets getTextModel's text field equal to the HTML from url
+        await getTextModel.fetchText(url: url)
+        
+        if let html = getTextModel.text {
+            do {
+                let data = try await parse(html: html)
+                await MainActor.run {
+                    myData = data
+                }
+            } catch {
+                print("Error parsing HTML: \(error)")
+            }
+        } else {
+            print("Could not fetch text")
         }
-        return []
     }
     
     func getRecords(_ html: String) -> [String: String] {
@@ -101,34 +99,5 @@ final class HTMLParser: ObservableObject {
             print("Parsing records failed")
         }
         return result
-    }
-}
-
-struct ParsedView: View {
-    @State private var urlString = ""
-    @StateObject private var parser = HTMLParser()
-    
-    var body: some View {
-        VStack {
-            TextField("Enter URL", text: $urlString)
-                .padding()
-            
-            Button("Parse HTML") {
-                parser.parse(urlString: urlString)
-                //print(parser.myData)
-            }
-            .padding()
-            
-            List(parser.myData, id: \.self) { rowData in
-                HStack {
-                    ForEach(rowData, id: \.self) { item in
-                        Text(item)
-                            .padding(5)
-                            .border(Color.gray)
-                    }
-                }
-            }
-        }
-        .padding()
     }
 }
