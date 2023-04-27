@@ -42,21 +42,22 @@ struct RecordList: View {
                     VStack(spacing: rowSpacing) {
                         ForEach(records.sorted(by: <), id: \.key) { key, value in
                             NavigationLink(
-                                destination: ProfileView(link: value,
-                                                         diverID: String(value.utf16.dropFirst(67))
-                                                         ?? "")) {
-                                GeometryReader { geometry in
-                                    HStack {
-                                        Text(key)
-                                            .foregroundColor(textColor)
-                                            .font(.system(size: fontSize))
-                                            .padding()
-                                        
-                                        Spacer()
-                                        
-                                        Image(systemName: "chevron.right")
-                                            .foregroundColor(Color.secondary)
-                                            .padding()
+
+                                destination: ProfileView(
+                                    link: value,
+                                    diverID: String(value.utf16.dropFirst(67)) ?? "")) {
+                                        GeometryReader { geometry in
+                                            HStack {
+                                                Text(key)
+                                                    .foregroundColor(textColor)
+                                                    .font(.system(size: fontSize))
+                                                    .padding()
+                                                
+                                                Spacer()
+                                                
+                                                Image(systemName: "chevron.right")
+                                                    .foregroundColor(Color.gray)
+                                                    .padding()
                                             }
                                             .frame(width: frameWidth,
                                                    height: frameHeight)
