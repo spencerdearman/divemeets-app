@@ -101,34 +101,3 @@ final class HTMLParser: ObservableObject {
         return result
     }
 }
-
-struct ParsedView: View {
-    @State private var urlString = ""
-    @StateObject private var parser = HTMLParser()
-    
-    var body: some View {
-        VStack {
-            TextField("Enter URL", text: $urlString)
-                .padding()
-            
-            Button("Parse HTML") {
-                Task {
-                    await parser.parse(urlString: urlString)
-                    print(parser.myData)
-                }
-            }
-            .padding()
-            
-            List(parser.myData, id: \.self) { rowData in
-                HStack {
-                    ForEach(rowData, id: \.self) { item in
-                        Text(item)
-                            .padding(5)
-                            .border(Color.gray)
-                    }
-                }
-            }
-        }
-        .padding()
-    }
-}
