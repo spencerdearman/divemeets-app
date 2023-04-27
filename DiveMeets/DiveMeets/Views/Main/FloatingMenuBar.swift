@@ -48,9 +48,9 @@ struct FloatingMenuBar: View {
     private let sizeMults: [String: Double] = [
         "magnifyingglass": 1.5,
         "house.circle": 1.75,
-        "gearshape.circle": 1.75,
-        "person.circle": 1.75,
-        "magnifyingglass.circle": 1.75,
+        "gearshape.circle": 1.6,
+        "person.circle": 1.6,
+        "magnifyingglass.circle": 1.5,
     ]
     
     // Computes the image path to use when an image is selected
