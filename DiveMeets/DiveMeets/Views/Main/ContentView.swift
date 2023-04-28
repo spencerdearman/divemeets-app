@@ -17,6 +17,20 @@ struct ContentView: View {
     @State private var p: MeetParser = MeetParser()
     @FetchRequest(sortDescriptors: []) private var meets: FetchedResults<DivingMeet>
     
+    var hasHomeButton: Bool {
+        if #available(iOS 13.0, *) {
+            let scenes = UIApplication.shared.connectedScenes
+            let windowScene = scenes.first as? UIWindowScene
+            guard let window = windowScene?.windows.first else { return false }
+            
+            return !(window.safeAreaInsets.top > 20)
+        }
+    }
+    
+    var menuBarOffset: CGFloat {
+        hasHomeButton ? 0 : 20
+    }
+    
     // Necessary to hide gray navigation bar from behind floating tab bar
     init() {
         UITabBar.appearance().isHidden = true
@@ -24,7 +38,7 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            VStack{
+            VStack {
                 TabView(selection: $selectedTab) {
                     ForEach(Tab.allCases, id: \.rawValue) { tab in
                         HStack {
@@ -43,7 +57,7 @@ struct ContentView: View {
                                                meetsParsedCount: $p.meetsParsedCount,
                                                totalMeetsParsedCount: $p.totalMeetsParsedCount)
                                 case .person:
-                                LoginSearchView()
+                                    LoginSearchView()
                             }
                         }
                         .tag(tab)
@@ -51,16 +65,12 @@ struct ContentView: View {
                     }
                 }
             }
-            Group {
-                VStack {
-                    Spacer()
-                    FloatingMenuBar(selectedTab: $selectedTab)
-                    .offset(y: 20)
-                }
-            }
-            // Keeps keyboard from pushing menu bar up the page when it appears
-            .ignoresSafeArea(.keyboard)
+            
+            FloatingMenuBar(selectedTab: $selectedTab)
+                .offset(y: menuBarOffset)
+                .frame(maxHeight: .infinity, alignment: .bottom)
         }
+        .ignoresSafeArea(.keyboard)
         // Executes on app launch
         .onAppear {
             // isIndexingMeets is set to false by default so it is only executed from start
