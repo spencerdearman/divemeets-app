@@ -12,7 +12,7 @@ import LocalAuthentication
 // true if so. If all relevant fields are empty, returns false
 private func checkFields(divemeetsID: String = "",
                          password: String = "") -> Bool {
-    return divemeetsID != "" || password != ""
+    return divemeetsID != "" && password != ""
 }
 
 struct LoginSearchView: View {
@@ -81,11 +81,11 @@ struct LoginSearchView: View {
 
 struct LoginSearchInputView: View {
     @State private var showError: Bool = false
+    @State private var errorMessage: Bool = false
     @Binding var createdKey: Bool
     @Binding var divemeetsID: String
     @Binding var password: String
     @Binding var searchSubmitted: Bool
-    
     @Binding var parsedUserHTML: String
     @Binding var loginSearchSubmitted: Bool
     @Binding var loginSuccessful: Bool
@@ -95,9 +95,8 @@ struct LoginSearchInputView: View {
     var body: some View {
         ZStack {
             VStack {
-                
                 if loginSuccessful {
-                    ProfileView(
+                    LoginProfile(
                         link: "https://secure.meetcontrol.com/divemeets/system/profile.php?number="
                             + divemeetsID, diverID: divemeetsID)
                         .zIndex(1)
@@ -121,7 +120,7 @@ struct LoginSearchInputView: View {
                                 searchSubmitted = true
                                 loginSearchSubmitted = false
                                 // set loginSuccessful to true when the login is successful
-                                loginSuccessful = true
+                                loginSuccessful = false
                                 parsedUserHTML = ""
                             } else {
                                 showError = true
@@ -137,11 +136,24 @@ struct LoginSearchInputView: View {
                         .buttonStyle(.bordered)
                         .cornerRadius(cornerRadius)
                         if searchSubmitted && !loginSuccessful {
-                            ProgressView()
+                            VStack {
+                                ProgressView()
+                                if !errorMessage {
+                                    Text(" ")
+                                } else {
+                                    Text("Login Not Successful")
+                                }
+                            }
+                            .onAppear {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                                    errorMessage = true
+                                }
+                            }
                         }
+
                     }
                     if showError {
-                        Text("You must enter at least one field to search")
+                        Text("You must enter both fields to search")
                             .foregroundColor(Color.red)
                         
                     } else {

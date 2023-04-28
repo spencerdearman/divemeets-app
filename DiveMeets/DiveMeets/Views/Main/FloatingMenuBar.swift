@@ -42,7 +42,8 @@ struct FloatingMenuBar: View {
     @State var relaxImage: Bool = false
     private let cornerRadius: CGFloat = 50
     private let frameHeight: CGFloat = 60
-    private let menuBarHideDelay: CGFloat = 0.75
+    private let menuBarHideDelay: CGFloat = 0.7
+    private let menuBarShowDelay: CGFloat = 0.55
     
     // Add custom multipliers for selected tabs here, defaults to 1.25
     private let sizeMults: [String: Double] = [
@@ -191,7 +192,7 @@ struct FloatingMenuBar: View {
                                         
                                         DispatchQueue.main.asyncAfter(
                                             deadline: (DispatchTime.now() +
-                                                       menuBarHideDelay)) {
+                                                       menuBarShowDelay)) {
                                                            visibleTabs = Tab.allCases
                                                            hideTabBar = false
                                                        }

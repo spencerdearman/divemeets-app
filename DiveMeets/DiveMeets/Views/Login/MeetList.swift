@@ -13,13 +13,14 @@ struct MeetList: View {
     @State var diverData: [[String]] = []
     @State var offset: CGFloat = 0
     @State var lastOffset: CGFloat = 0
+    @State var meets: [Meet] = []
     @StateObject private var parser = HTMLParser()
     
     // Style adjustments for elements of list
     private let frameWidth: CGFloat = 350
     private let frameHeight: CGFloat = 50
     private let cornerRadius: CGFloat = 30
-    private let rowSpacing: CGFloat = 3
+    private let rowSpacing: CGFloat = 10
     private let fontSize: CGFloat = 20
     let startIndex = 2
     
@@ -110,12 +111,12 @@ struct MeetList: View {
     
     var body: some View {
         
-        //diverData[1][0] is [DIVEMEETS.COM History]
         ZStack{}
             .onAppear {
                 Task {
                     await parser.parse(urlString: profileLink)
                     diverData = parser.myData
+                    meets = createMeets(data: diverData) ?? []
                     //                    print(diverData)
                     //                    print(createMeets(data: diverData) as Any)
                 }
@@ -132,31 +133,34 @@ struct MeetList: View {
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: rowSpacing) {
-                        ForEach(createMeets(data: diverData) ?? [], id: \.meetName) { meet in
-                            NavigationLink(
-                                destination: MeetPage(meetInstance: meet)) {
-                                    GeometryReader { geometry in
-                                        HStack {
-                                            HStack {
-                                                Text(meet.meetName)
-                                            }
-                                            .foregroundColor(.primary)
-                                            .padding()
-                                            
-                                            Spacer()
-                                            
-                                            Image(systemName: "chevron.right")
-                                                .foregroundColor(.secondary)
-                                                .padding()
-                                        }
-                                        .frame(width: frameWidth,
-                                               height: frameHeight)
-                                        .background(rowColor)
-                                        .cornerRadius(cornerRadius)
-                                    }
-                                    .frame(width: frameWidth,
-                                           height: frameHeight)
+                        ForEach($meets, id: \.self) { $meet in
+                            HStack {
+                                
+                                Image(systemName: "link")
+                                    .foregroundColor(.secondary)
+                                    .padding()
+                                
+                                Spacer()
+                                
+                                HStack {
+                                    Text(meet.meetName)
                                 }
+                                .foregroundColor(.primary)
+                                .padding()
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.secondary)
+                                    .padding()
+                            }
+                            .frame(width: frameWidth,
+                                   height: meet.isOpen ? 200: 60)
+                            .background(rowColor)
+                            .cornerRadius(cornerRadius)
+                            .onTapGesture{
+                                meet.isOpen.toggle()
+                            }
                         }
                     }
                     .padding()
@@ -166,3 +170,85 @@ struct MeetList: View {
         }
     }
 }
+
+
+
+/* WORKING NAVIGATION VIEW FROM BEFORE
+ 
+ NavigationView {
+ ZStack {
+ // Background color for View
+ Color.clear.background(.thinMaterial)
+ .ignoresSafeArea()
+ 
+ ScrollView(.vertical, showsIndicators: false) {
+ VStack(spacing: rowSpacing) {
+ ForEach(createMeets(data: diverData) ?? [], id: \.meetName) { meet in
+ NavigationLink(
+ destination: MeetPage(meetInstance: meet)) {
+ GeometryReader { geometry in
+ HStack {
+ HStack {
+ Text(meet.meetName)
+ }
+ .foregroundColor(.primary)
+ .padding()
+ 
+ Spacer()
+ 
+ Image(systemName: "chevron.right")
+ .foregroundColor(.secondary)
+ .padding()
+ }
+ .frame(width: frameWidth,
+ height: frameHeight)
+ .background(rowColor)
+ .cornerRadius(cornerRadius)
+ }
+ .frame(width: frameWidth,
+ height: frameHeight)
+ }
+ }
+ }
+ // Scroll tracking to hide/show tab bar when scrolling down/up
+ .overlay(
+ 
+ GeometryReader {proxy -> Color in
+ 
+ let minY = proxy.frame(in: .named("SCROLL")).minY
+ 
+ // Duration to hide TabBar
+ let durationOffset: CGFloat = 0
+ 
+ DispatchQueue.main.async {
+ if minY < offset {
+ if (offset < 0 &&
+ -minY > (lastOffset + durationOffset)) {
+ withAnimation(.easeOut.speed(1.5)) {
+ hideTabBar = true
+ }
+ lastOffset = -offset
+ }
+ }
+ if offset < minY {
+ if (offset < 0 &&
+ -minY < (lastOffset - durationOffset)) {
+ withAnimation(.easeIn.speed(1.5)) {
+ hideTabBar = false
+ }
+ lastOffset = -offset
+ }
+ }
+ self.offset = minY
+ }
+ return Color.clear
+ }
+ )
+ .padding()
+ }
+ .coordinateSpace(name: "SCROLL")
+ .navigationTitle("Meets")
+ }
+ }
+ 
+ */

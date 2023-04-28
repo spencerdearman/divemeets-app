@@ -37,6 +37,8 @@
 		4D74FEC029AEBD6F00401178 /* MeetList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FEBF29AEBD6F00401178 /* MeetList.swift */; };
 		4D74FEC629AEC95500401178 /* MeetPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FEC529AEC95500401178 /* MeetPage.swift */; };
 		4D8B9C1929F8D395002B53AD /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8B9C1829F8D395002B53AD /* Home.swift */; };
+		4D8B9C1B29F97562002B53AD /* TestingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8B9C1A29F97562002B53AD /* TestingPage.swift */; };
+		4D8B9C1D29FB4EBD002B53AD /* LoginProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8B9C1C29FB4EBD002B53AD /* LoginProfile.swift */; };
 		4DD868ED29F0E69C00FF988D /* keychain-swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DD868EC29F0E69C00FF988D /* keychain-swift.swift */; };
 		4DE6CFC329E25A0D00831D1D /* LoginWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DE6CFC229E25A0D00831D1D /* LoginWebView.swift */; };
 		4DEF7D3629BEE796003EAD70 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 4DEF7D3529BEE796003EAD70 /* SwiftSoup */; };
@@ -75,6 +77,8 @@
 		4D74FEBF29AEBD6F00401178 /* MeetList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetList.swift; sourceTree = "<group>"; };
 		4D74FEC529AEC95500401178 /* MeetPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetPage.swift; sourceTree = "<group>"; };
 		4D8B9C1829F8D395002B53AD /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
+		4D8B9C1A29F97562002B53AD /* TestingPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestingPage.swift; sourceTree = "<group>"; };
+		4D8B9C1C29FB4EBD002B53AD /* LoginProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginProfile.swift; sourceTree = "<group>"; };
 		4DC7ACEC29F38828008BBB62 /* DiveMeets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DiveMeets.entitlements; sourceTree = "<group>"; };
 		4DD868EC29F0E69C00FF988D /* keychain-swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "keychain-swift.swift"; sourceTree = "<group>"; };
 		4DE6CFC229E25A0D00831D1D /* LoginWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginWebView.swift; sourceTree = "<group>"; };
@@ -184,6 +188,7 @@
 			children = (
 				4D09308429D3A1B7003AAA90 /* LoginScreen.swift */,
 				4DE6CFC229E25A0D00831D1D /* LoginWebView.swift */,
+				4D8B9C1C29FB4EBD002B53AD /* LoginProfile.swift */,
 				4D74FEBF29AEBD6F00401178 /* MeetList.swift */,
 				4D74FEC529AEC95500401178 /* MeetPage.swift */,
 				4D74FEA429AE7C2B00401178 /* ProfileImage.swift */,
@@ -197,6 +202,7 @@
 			isa = PBXGroup;
 			children = (
 				4D8B9C1829F8D395002B53AD /* Home.swift */,
+				4D8B9C1A29F97562002B53AD /* TestingPage.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -312,6 +318,7 @@
 				002A1B7E29DB93FC00A26FED /* MeetsDataController.swift in Sources */,
 				00A81A3329F455DC00BFAE4E /* LiveResultsParser.swift in Sources */,
 				000D28DF29E1201200B184E9 /* LiveResultsWebView.swift in Sources */,
+				4D8B9C1B29F97562002B53AD /* TestingPage.swift in Sources */,
 				4D74FEC029AEBD6F00401178 /* MeetList.swift in Sources */,
 				0051C9D129E4CEE300C4C9E7 /* PastMeetResults.swift in Sources */,
 				4D1A5C3929CCA1B400F3DA2B /* RecordList.swift in Sources */,
@@ -327,6 +334,7 @@
 				002A1B3429DB7C4700A26FED /* ProfileHTMLCache.swift in Sources */,
 				4D74FEA529AE7C2B00401178 /* ProfileImage.swift in Sources */,
 				0095BD2D29B1491D004D7EFD /* SearchView.swift in Sources */,
+				4D8B9C1D29FB4EBD002B53AD /* LoginProfile.swift in Sources */,
 				0037877C29D4F41800D3CD59 /* MeetParser.swift in Sources */,
 				0037877A29D4F40900D3CD59 /* ProfileMeetCache.swift in Sources */,
 				4DD868ED29F0E69C00FF988D /* keychain-swift.swift in Sources */,
@@ -465,7 +473,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"DiveMeets/Preview Content\"";
-				DEVELOPMENT_TEAM = UCV4CFXWW3;
+				DEVELOPMENT_TEAM = WY8V5FPBV9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DiveMeets/Info.plist;
@@ -480,7 +488,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.SpencerDearman-LoganSherwin.DiveMeets";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.LoganSherwin-SpencerDearman.DiveMeets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -499,7 +507,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"DiveMeets/Preview Content\"";
-				DEVELOPMENT_TEAM = UCV4CFXWW3;
+				DEVELOPMENT_TEAM = WY8V5FPBV9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DiveMeets/Info.plist;
@@ -514,7 +522,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.SpencerDearman-LoganSherwin.DiveMeets";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.LoganSherwin-SpencerDearman.DiveMeets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;

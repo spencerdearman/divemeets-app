@@ -1,13 +1,32 @@
 //
-//  ProfileView.swift
+//  LoginProfile.swift
 //  DiveMeets
 //
-//  Created by Spencer Dearman on 2/28/23.
+//  Created by Spencer Dearman on 4/27/23.
 //
 
 import SwiftUI
 
-struct ProfileView: View {
+
+
+extension String {
+    func slice(from: String, to: String) -> String? {
+        guard let rangeFrom = range(of: from)?.upperBound else { return nil }
+        guard let rangeTo = self[rangeFrom...].range(of: to)?.lowerBound else { return nil }
+        return String(self[rangeFrom..<rangeTo])
+    }
+}
+
+func fixPlacement(data: [[String]] ) -> [[String]] {
+    var updated = data
+    updated[0] = updated[0][0].components(separatedBy: "History")
+    updated[0].remove(at: 1)
+    return data
+}
+
+
+
+struct LoginProfile: View {
     var profileLink: String
     var diverID : String
     @State var diverData : [[String]] = []
@@ -140,6 +159,14 @@ struct ProfileView: View {
                     .padding()
                 }
             }
+        }
+    }
+}
+
+struct ProfileView_Previews: PreviewProvider {
+    static var previews: some View {
+        ForEach(ColorScheme.allCases, id: \.self) {
+            ProfileView(link: "").preferredColorScheme($0)
         }
     }
 }
