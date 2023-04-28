@@ -43,7 +43,8 @@ struct FloatingMenuBar: View {
     private let cornerRadius: CGFloat = 50
     @ScaledMetric private var frameHeightScaled: CGFloat = 60
     private let menuBarHideDelay: CGFloat = 0.75
-    
+    private let menuBarShowDelay: CGFloat = 0.55
+
     private var frameHeight: CGFloat {
         min(frameHeightScaled, 100)
     }
@@ -192,7 +193,7 @@ struct FloatingMenuBar: View {
                                         
                                         DispatchQueue.main.asyncAfter(
                                             deadline: (DispatchTime.now() +
-                                                       menuBarHideDelay)) {
+                                                       menuBarShowDelay)) {
                                                            visibleTabs = Tab.allCases
                                                            hideTabBar = false
                                                        }

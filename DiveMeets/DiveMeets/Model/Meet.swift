@@ -14,4 +14,5 @@ struct Meet: Hashable, Codable {
     var meetEvents: [String]
     var meetPlaces: [Int]
     var meetScores: [Double]
+    var isOpen: Bool = false
 }
