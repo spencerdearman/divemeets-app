@@ -7,19 +7,19 @@
 
 import SwiftUI
 
-enum SearchType: String, CaseIterable {
+private enum SearchType: String, CaseIterable {
     case person = "Person"
     case meet = "Meet"
 }
 
-enum Field: Int, Hashable, CaseIterable {
+private enum Field: Int, Hashable, CaseIterable {
     case firstName
     case lastName
     case meetName
     case meetOrg
 }
 
-enum FilterType: String, CaseIterable {
+private enum FilterType: String, CaseIterable {
     case name = "Name"
     case year = "Year"
 }
@@ -204,7 +204,7 @@ struct SearchView: View {
                                linksParsed: $linksParsed)
             }
             
-            Color.white.ignoresSafeArea()
+//            Color.white.ignoresSafeArea()
             
             
             SearchInputView(selection: $selection, firstName: $firstName, lastName: $lastName,
@@ -230,8 +230,8 @@ struct SearchInputView: View {
     @State var fullScreenResults: Bool = false
     @State var resultSelected: Bool = false
     // Tracks if the user is inside of a text field to determine when to show the keyboard
-    @FocusState var focusedField: Field?
-    @Binding var selection: SearchType
+    @FocusState private var focusedField: Field?
+    @Binding private var selection: SearchType
     @Binding var firstName: String
     @Binding var lastName: String
     @Binding var meetName: String
@@ -248,7 +248,7 @@ struct SearchInputView: View {
     @Binding var totalMeetsParsedCount: Int
     
     @State var predicate: NSPredicate?
-    @State var filterType: FilterType = .name
+    @State private var filterType: FilterType = .name
     @State var isSortedAscending: Bool = true
     @FetchRequest(sortDescriptors: [])
     private var items: FetchedResults<DivingMeet>
@@ -296,12 +296,13 @@ struct SearchInputView: View {
         selection == .meet && predicate != nil
     }
     
-    init(selection: Binding<SearchType>, firstName: Binding<String>, lastName: Binding<String>,
-         meetName: Binding<String>, orgName: Binding<String>, meetYear: Binding<String>,
-         searchSubmitted: Binding<Bool>, parsedLinks: Binding<[String : String]>,
-         dmSearchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>,
-         isIndexingMeets: Binding<Bool>, isFinishedCounting: Binding<Bool>,
-         meetsParsedCount: Binding<Int>, totalMeetsParsedCount: Binding<Int>) {
+    fileprivate init(selection: Binding<SearchType>, firstName: Binding<String>,
+                     lastName: Binding<String>, meetName: Binding<String>,
+                     orgName: Binding<String>, meetYear: Binding<String>,
+                     searchSubmitted: Binding<Bool>, parsedLinks: Binding<[String : String]>,
+                     dmSearchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>,
+                     isIndexingMeets: Binding<Bool>, isFinishedCounting: Binding<Bool>,
+                     meetsParsedCount: Binding<Int>, totalMeetsParsedCount: Binding<Int>) {
         self._selection = selection
         self._firstName = firstName
         self._lastName = lastName
@@ -564,7 +565,7 @@ struct SearchInputView: View {
 struct DiverSearchView: View {
     @Binding var firstName: String
     @Binding var lastName: String
-    var focusedField: FocusState<Field?>.Binding
+    fileprivate var focusedField: FocusState<Field?>.Binding
     
     var body: some View {
         VStack {
@@ -598,12 +599,12 @@ struct MeetSearchView: View {
     @Binding var orgName: String
     @Binding var meetYear: String
     @Binding private var predicate: NSPredicate?
-    var focusedField: FocusState<Field?>.Binding
+    private var focusedField: FocusState<Field?>.Binding
     private var filteredItems: FetchedResults<DivingMeet>
     
-    init(meetName: Binding<String>, orgName: Binding<String>, meetYear: Binding<String>,
-         predicate: Binding<NSPredicate?>, focusedField: FocusState<Field?>.Binding,
-         items: FetchedResults<DivingMeet>) {
+    fileprivate init(meetName: Binding<String>, orgName: Binding<String>,
+                     meetYear: Binding<String>, predicate: Binding<NSPredicate?>,
+                     focusedField: FocusState<Field?>.Binding, items: FetchedResults<DivingMeet>) {
         self._meetName = meetName
         self._orgName = orgName
         self._meetYear = meetYear

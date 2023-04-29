@@ -8,6 +8,11 @@
 import SwiftUI
 import LocalAuthentication
 
+private enum Field: Int, Hashable, CaseIterable {
+    case diveMeetsId
+    case passwd
+}
+
 // Checks that for a given SearchType, at least one of the relevant fields has a value, and returns
 // true if so. If all relevant fields are empty, returns false
 private func checkFields(divemeetsID: String = "",
@@ -16,7 +21,6 @@ private func checkFields(divemeetsID: String = "",
 }
 
 struct LoginSearchView: View {
-    @Environment(\.colorScheme) var currentMode
     @State private var divemeetsID: String = ""
     @State private var password: String = ""
     @State private var searchSubmitted: Bool = false
@@ -37,9 +41,6 @@ struct LoginSearchView: View {
                                loginSearchSubmitted: $loginSearchSubmitted,
                                loginSuccessful: $loginSuccessful)
             }
-
-            (currentMode == .light ? Color.white : Color.black)
-                .ignoresSafeArea()
 
             // Submit button doesn't switch pages in preview, but it works in Simulator
             LoginSearchInputView(createdKey: $createdKey, divemeetsID: $divemeetsID,
@@ -80,7 +81,11 @@ struct LoginSearchView: View {
 }
 
 struct LoginSearchInputView: View {
+    @Environment(\.colorScheme) var currentMode
     @State private var showError: Bool = false
+    // Focus State is a state variable that updates the user input field that is selected based on
+    // which field the user selects
+    @FocusState private var focusedField: Field?
     @Binding var createdKey: Bool
     @Binding var divemeetsID: String
     @Binding var password: String
@@ -94,6 +99,13 @@ struct LoginSearchInputView: View {
     
     var body: some View {
         ZStack {
+            (currentMode == .light ? Color.white : Color.black)
+                .ignoresSafeArea()
+            // Allows the user to hide the keyboard when clicking on the background of the page
+                .onTapGesture {
+                    focusedField = nil
+                }
+            
             VStack {
                 
                 if loginSuccessful {
@@ -107,7 +119,27 @@ struct LoginSearchInputView: View {
                         .font(.title)
                         .bold()
                     
-                    LoginPageSearchView(divemeetsID: $divemeetsID, password: $password)
+                    LoginPageSearchView(divemeetsID: $divemeetsID, password: $password,
+                                        focusedField: $focusedField)
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Button(action: previous) {
+                                Image(systemName: "chevron.up")
+                            }
+                            .disabled(hasReachedStart)
+                            
+                            Button(action: next) {
+                                Image(systemName: "chevron.down")
+                            }
+                            .disabled(hasReachedEnd)
+                            
+                            Spacer()
+                            
+                            Button(action: dismissKeyboard) {
+                                Text("**Done**")
+                            }
+                        }
+                    }
                     
                     VStack {
                         Button(action: {
@@ -165,6 +197,7 @@ struct LoginPageSearchView: View {
     @Binding var divemeetsID: String
     @Binding var password: String
     @State private var isPasswordVisible = false
+    fileprivate var focusedField: FocusState<Field?>.Binding
     
     var body: some View {
         VStack {
@@ -175,6 +208,7 @@ struct LoginPageSearchView: View {
                     .textContentType(.username)
                     .keyboardType(.numberPad)
                     .textFieldStyle(.roundedBorder)
+                    .focused(focusedField, equals: .diveMeetsId)
                 Image(systemName: "eye.circle")
                     .opacity(0.0)
                     .padding(.trailing)
@@ -187,9 +221,11 @@ struct LoginPageSearchView: View {
                         .textContentType(.password)
                         .keyboardType(.default)
                         .textFieldStyle(.roundedBorder)
+                        .focused(focusedField, equals: .passwd)
                 } else {
                     SecureField("Password", text: $password)
                         .textFieldStyle(.roundedBorder)
+                        .focused(focusedField, equals: .passwd)
                 }
                 Button(action: {
                     isPasswordVisible.toggle()
@@ -205,5 +241,35 @@ struct LoginPageSearchView: View {
             divemeetsID = ""
             password = ""
         }
+    }
+}
+
+private extension LoginSearchInputView {
+    var hasReachedStart: Bool {
+        self.focusedField == Field.allCases.first
+    }
+    
+    var hasReachedEnd: Bool {
+        self.focusedField == Field.allCases.last
+    }
+    
+    func dismissKeyboard() {
+        self.focusedField = nil
+    }
+    
+    func next() {
+        guard let currentInput = focusedField,
+              let lastIndex = Field.allCases.last?.rawValue else { return }
+        
+        let index = min(currentInput.rawValue + 1, lastIndex)
+        self.focusedField = Field(rawValue: index)
+    }
+    
+    func previous() {
+        guard let currentInput = focusedField,
+              let firstIndex = Field.allCases.first?.rawValue else { return }
+        
+        let index = max(currentInput.rawValue - 1, firstIndex)
+        self.focusedField = Field(rawValue: index)
     }
 }
