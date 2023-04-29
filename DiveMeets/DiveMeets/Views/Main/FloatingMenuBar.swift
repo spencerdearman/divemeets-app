@@ -216,6 +216,7 @@ struct FloatingMenuBar: View {
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 visibleTabs = [selectedTab]
+                hideTabBar = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + menuBarHideDelay) {
                     relaxImage = true
                 }
