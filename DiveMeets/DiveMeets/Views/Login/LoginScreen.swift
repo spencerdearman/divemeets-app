@@ -83,6 +83,8 @@ struct LoginSearchView: View {
 struct LoginSearchInputView: View {
     @Environment(\.colorScheme) var currentMode
     @State private var showError: Bool = false
+    // Focus State is a state variable that updates the user input field that is selected based on
+    // which field the user selects
     @FocusState private var focusedField: Field?
     @Binding var createdKey: Bool
     @Binding var divemeetsID: String
