@@ -16,6 +16,7 @@ struct RecordList: View {
     private let cornerRadius: CGFloat = 30
     private let rowSpacing: CGFloat = 3
     private let textColor: Color = Color.primary
+    @ScaledMetric private var viewPadding: CGFloat = 58
     
     private var rowColor: Color {
         currentMode == .light ? Color.white : Color.black
@@ -67,6 +68,7 @@ struct RecordList: View {
                     .padding()
                 }
                 .navigationTitle("Results")
+                .padding(.bottom, viewPadding)
             }
         }
     }
