@@ -538,19 +538,21 @@ struct SearchInputView: View {
                         }
                         
                         Spacer()
-                        Menu {
-                            Picker("", selection: $filterType) {
-                                ForEach(FilterType.allCases, id: \.self) {
-                                    Text($0.rawValue)
-                                        .tag($0)
+                        if meetResultsReady {
+                            Menu {
+                                Picker("", selection: $filterType) {
+                                    ForEach(FilterType.allCases, id: \.self) {
+                                        Text($0.rawValue)
+                                            .tag($0)
+                                    }
                                 }
+                                Button(action: { () -> () in isSortedAscending.toggle() }) {
+                                    Label("Sort: \(isSortedAscending ? "Ascending" : "Descending")",
+                                          systemImage: "arrow.up.arrow.down")
+                                }
+                            } label: {
+                                Image(systemName: "line.3.horizontal.decrease.circle")
                             }
-                            Button(action: { () -> () in isSortedAscending.toggle() }) {
-                                Label("Sort: \(isSortedAscending ? "Ascending" : "Descending")",
-                                      systemImage: "arrow.up.arrow.down")
-                            }
-                        } label: {
-                            Image(systemName: "line.3.horizontal.decrease.circle")
                         }
                     }
                     .padding(EdgeInsets(top: 5, leading: 18, bottom: 10, trailing: 18))
