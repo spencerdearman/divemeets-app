@@ -525,6 +525,7 @@ struct SearchInputView: View {
                      : AnyView(MeetResultsView(records: filteredItems)))
                     .onAppear {
                         fullScreenResults = true
+                        resultSelected = false
                     }
                     HStack {
                         if !resultSelected {
