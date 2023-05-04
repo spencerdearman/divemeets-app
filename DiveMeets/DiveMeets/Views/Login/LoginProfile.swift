@@ -29,13 +29,19 @@ func fixPlacement(data: [[String]] ) -> [[String]] {
 struct LoginProfile: View {
     var profileLink: String
     var diverID : String
+    @Binding var loggedIn: Bool
+    @Binding var divemeetsID: String
+    @Binding var password: String
     @State var diverData : [[String]] = []
     @State var profileType : String = ""
     @StateObject private var parser = HTMLParser()
     
-    init(link: String, diverID: String = "00000") {
+    init(link: String, diverID: String = "00000", loggedIn: Binding<Bool>, divemeetsID: Binding<String>, password: Binding<String>) {
         self.profileLink = link
         self.diverID = diverID
+        self._loggedIn = loggedIn
+        self._divemeetsID = divemeetsID
+        self._password = password
     }
     
     var body: some View {
@@ -59,8 +65,16 @@ struct LoginProfile: View {
         if profileType == "Diver" {
             VStack {
                 VStack {
-                    ProfileImage(diverID: diverID)
-                        .offset(y:-100)
+                    ZStack{
+                        Button("Logout", action: {
+                            loggedIn = false // add this
+                            divemeetsID = ""
+                            password = ""
+                                    })
+                        .offset(x:-140, y:-215)
+                        ProfileImage(diverID: diverID)
+                            .offset(y:-100)
+                    }
                     VStack {
                         VStack(alignment: .leading) {
                             HStack (alignment: .firstTextBaseline) {
