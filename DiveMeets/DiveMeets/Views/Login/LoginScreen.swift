@@ -25,6 +25,7 @@ struct LoginSearchView: View {
     @State var loginSuccessful: Bool = false
     @State var createdKey: Bool = true
     @State private var isUnlocked = false
+    @State var loggedIn = false
 
     @ViewBuilder
     var body: some View {
@@ -35,7 +36,7 @@ struct LoginSearchView: View {
                 LoginUIWebView(divemeetsID: $divemeetsID, password: $password,
                                parsedUserHTML: $parsedUserHTML,
                                loginSearchSubmitted: $loginSearchSubmitted,
-                               loginSuccessful: $loginSuccessful)
+                               loginSuccessful: $loginSuccessful, loggedIn: $loggedIn)
             }
 
             (currentMode == .light ? Color.white : Color.black)
@@ -46,7 +47,7 @@ struct LoginSearchView: View {
                                  password: $password, searchSubmitted: $searchSubmitted,
                                  parsedUserHTML: $parsedUserHTML,
                                  loginSearchSubmitted: $loginSearchSubmitted,
-                                 loginSuccessful: $loginSuccessful)
+                                 loginSuccessful: $loginSuccessful, loggedIn: $loggedIn)
         }
         .onDisappear {
             searchSubmitted = false
@@ -89,16 +90,17 @@ struct LoginSearchInputView: View {
     @Binding var parsedUserHTML: String
     @Binding var loginSearchSubmitted: Bool
     @Binding var loginSuccessful: Bool
+    @Binding var loggedIn: Bool
 
     private let cornerRadius: CGFloat = 30
     
     var body: some View {
         ZStack {
             VStack {
-                if loginSuccessful {
+                if loginSuccessful && loggedIn {
                     LoginProfile(
                         link: "https://secure.meetcontrol.com/divemeets/system/profile.php?number="
-                            + divemeetsID, diverID: divemeetsID)
+                        + divemeetsID, diverID: divemeetsID, loggedIn: $loggedIn, divemeetsID: $divemeetsID, password: $password)
                         .zIndex(1)
                         .offset(y: 90)
                 } else {
