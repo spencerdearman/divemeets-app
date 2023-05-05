@@ -81,6 +81,7 @@ final class HTMLParser: ObservableObject {
         }
     }
     
+    
     func getRecords(_ html: String) -> [String: String] {
         let leadingLink: String = "https://secure.meetcontrol.com/divemeets/system/"
         var result: [String: String] = [:]

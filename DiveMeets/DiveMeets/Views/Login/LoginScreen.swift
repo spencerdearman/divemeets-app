@@ -88,6 +88,7 @@ struct LoginSearchInputView: View {
     // which field the user selects
     @FocusState private var focusedField: LoginField?
     @State private var errorMessage: Bool = false
+    @State var progressView = true
     @Binding var createdKey: Bool
     @Binding var divemeetsID: String
     @Binding var password: String
@@ -112,7 +113,7 @@ struct LoginSearchInputView: View {
                 if loginSuccessful && loggedIn {
                     LoginProfile(
                         link: "https://secure.meetcontrol.com/divemeets/system/profile.php?number="
-                        + divemeetsID, diverID: divemeetsID, loggedIn: $loggedIn, divemeetsID: $divemeetsID, password: $password)
+                        + divemeetsID, diverID: divemeetsID, loggedIn: $loggedIn, divemeetsID: $divemeetsID, password: $password, searchSubmitted: $searchSubmitted, loginSuccessful: $loginSuccessful, loginSearchSubmitted: $loginSearchSubmitted)
                         .zIndex(1)
                         .offset(y: 90)
                 } else {
@@ -171,7 +172,17 @@ struct LoginSearchInputView: View {
                         .cornerRadius(cornerRadius)
                         if searchSubmitted && !loginSuccessful {
                             VStack {
-                                ProgressView()
+                                if progressView {
+                                    ProgressView()
+                                }
+                            }
+                            .onAppear {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                                    progressView = false
+                                }
+                                    
+                            }
+                            VStack {
                                 if !errorMessage {
                                     Text(" ")
                                 } else {
@@ -179,7 +190,7 @@ struct LoginSearchInputView: View {
                                 }
                             }
                             .onAppear {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                                     errorMessage = true
                                 }
                             }

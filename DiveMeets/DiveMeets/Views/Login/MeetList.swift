@@ -13,7 +13,7 @@ struct MeetList: View {
     @State var diverData: [[String]] = []
     @State var offset: CGFloat = 0
     @State var lastOffset: CGFloat = 0
-    @State var meets: [Meet] = []
+    @State var meets: [MeetEvent] = []
     @StateObject private var parser = HTMLParser()
     
     // Style adjustments for elements of list
@@ -29,16 +29,16 @@ struct MeetList: View {
         return Color(red: gray, green: gray, blue: gray)
     }
     
-    func createMeets(data: [[String]]) -> [Meet]? {
+    func createMeets(data: [[String]]) -> [MeetEvent]? {
         if data.count < 2 {
             return nil
         }
         
-        var meets = [Meet]()
+        var meets = [MeetEvent]()
         var currentMeetName = ""
-        var currentMeetEvents = [String]()
-        var currentMeetPlaces = [Int]()
-        var currentMeetScores = [Double]()
+        var currentMeetEvents: [MeetEvent]?
+        var currentMeetPlaces: Int?
+        var currentMeetScores: Double?
         
         for index in 2..<data.count {
             let row = data[index]
@@ -65,21 +65,21 @@ struct MeetList: View {
                 let place = Int(placeScoreStr[placeRange]) ?? 0
                 let score = Double(placeScoreStr[scoreRange]) ?? 0.0
                 
-                currentMeetEvents.append(eventTitle)
-                currentMeetPlaces.append(place)
-                currentMeetScores.append(score)
+                if currentMeetEvents == nil{
+                    currentMeetEvents = []
+                }
+                currentMeetEvents!.append(MeetEvent(name: eventTitle, place: place, score: score, isChild: true))
+
             } else {
                 // If the first column doesn't contain ".", it's a meet name
                 // Save the previous meet's data
                 if !currentMeetName.isEmpty {
-                    let meet = Meet(meetName: currentMeetName, meetEvents: currentMeetEvents,
-                                    meetPlaces: currentMeetPlaces, meetScores: currentMeetScores)
+                    let meet = MeetEvent(name: currentMeetName, children: currentMeetEvents)
                     meets.append(meet)
-                    currentMeetEvents.removeAll()
-                    currentMeetPlaces.removeAll()
-                    currentMeetScores.removeAll()
+                    currentMeetEvents = nil
+                    currentMeetPlaces = nil
+                    currentMeetScores = nil
                 }
-                
                 // Set the current meet name
                 currentMeetName = firstCol
             }
@@ -87,17 +87,16 @@ struct MeetList: View {
         
         // Save the last meet's data
         if !currentMeetName.isEmpty {
-            let meet = Meet(meetName: currentMeetName, meetEvents: currentMeetEvents,
-                            meetPlaces: currentMeetPlaces, meetScores: currentMeetScores)
+            let meet = MeetEvent(name: currentMeetName, children: currentMeetEvents)
             meets.append(meet)
         }
         
-        var updated_meets = [Meet]()
+        var updated_meets = [MeetEvent]()
         meets.forEach{ meet in
-            if meet.meetName == "Dive Statistics" {
+            if meet.name == "Dive Statistics" {
                 return
             }
-            if meet.meetName == "Dive & Height Description High Score Avg Score # of Times" {
+            if meet.name == "Dive & Height Description High Score Avg Score # of Times" {
                 return
             }
             else {
@@ -117,7 +116,8 @@ struct MeetList: View {
                     await parser.parse(urlString: profileLink)
                     diverData = parser.myData
                     meets = createMeets(data: diverData) ?? []
-                    //                    print(diverData)
+                    print(meets)
+//                                        print(diverData)
                     //                    print(createMeets(data: diverData) as Any)
                 }
             }
@@ -131,124 +131,56 @@ struct MeetList: View {
                 // Background color for View
                 customGray.ignoresSafeArea()
                 
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: rowSpacing) {
-                        ForEach($meets, id: \.self) { $meet in
-                            HStack {
-                                
-                                Image(systemName: "link")
-                                    .foregroundColor(.secondary)
-                                    .padding()
-                                
-                                Spacer()
-                                
-                                HStack {
-                                    Text(meet.meetName)
-                                }
-                                .foregroundColor(.primary)
-                                .padding()
-                                
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(.secondary)
-                                    .padding()
-                            }
+//                ScrollView(.vertical, showsIndicators: false) {
+//                    VStack(spacing: rowSpacing) {
+                        List($meets, children: \.children) { $meet in
+                            (!meet.isChild ?
+                             AnyView(
+                                parentView(meet: $meet)
+                             ) : AnyView(
+                                childView(meet: $meet)
+                             ))
                             .frame(width: frameWidth,
-                                   height: meet.isOpen ? 200: 60)
-                            .background(rowColor)
-                            .cornerRadius(cornerRadius)
-                            .onTapGesture{
-                                meet.isOpen.toggle()
+                                   height: meet.isOpen ? 400: 60)
                             }
                         }
-                    }
-                    .padding()
-                }
+//                    }
+//                    .padding()
+//                }
                 .navigationTitle("Meets")
             }
         }
     }
+
+
+
+struct childView: View{
+    @Binding var meet: MeetEvent
+    
+    var body: some View{
+        NavigationLink(destination: Event(meet: $meet)){
+            Text(meet.name)
+        }
+    }
 }
 
-
-
-/* WORKING NAVIGATION VIEW FROM BEFORE
- 
- NavigationView {
- ZStack {
- // Background color for View
- Color.clear.background(.thinMaterial)
- .ignoresSafeArea()
- 
- ScrollView(.vertical, showsIndicators: false) {
- VStack(spacing: rowSpacing) {
- ForEach(createMeets(data: diverData) ?? [], id: \.meetName) { meet in
- NavigationLink(
- destination: MeetPage(meetInstance: meet)) {
- GeometryReader { geometry in
- HStack {
- HStack {
- Text(meet.meetName)
- }
- .foregroundColor(.primary)
- .padding()
- 
- Spacer()
- 
- Image(systemName: "chevron.right")
- .foregroundColor(.secondary)
- .padding()
- }
- .frame(width: frameWidth,
- height: frameHeight)
- .background(rowColor)
- .cornerRadius(cornerRadius)
- }
- .frame(width: frameWidth,
- height: frameHeight)
- }
- }
- }
- // Scroll tracking to hide/show tab bar when scrolling down/up
- .overlay(
- 
- GeometryReader {proxy -> Color in
- 
- let minY = proxy.frame(in: .named("SCROLL")).minY
- 
- // Duration to hide TabBar
- let durationOffset: CGFloat = 0
- 
- DispatchQueue.main.async {
- if minY < offset {
- if (offset < 0 &&
- -minY > (lastOffset + durationOffset)) {
- withAnimation(.easeOut.speed(1.5)) {
- hideTabBar = true
- }
- lastOffset = -offset
- }
- }
- if offset < minY {
- if (offset < 0 &&
- -minY < (lastOffset - durationOffset)) {
- withAnimation(.easeIn.speed(1.5)) {
- hideTabBar = false
- }
- lastOffset = -offset
- }
- }
- self.offset = minY
- }
- return Color.clear
- }
- )
- .padding()
- }
- .coordinateSpace(name: "SCROLL")
- .navigationTitle("Meets")
- }
- }
- 
- */
+struct parentView: View{
+    @Binding var meet: MeetEvent
+    
+    var body: some View{
+        HStack {
+            Image(systemName: "link")
+                .foregroundColor(.secondary)
+                .padding()
+            
+            Spacer()
+            
+            HStack {
+                Text(meet.name)
+            }
+            .foregroundColor(.primary)
+            .padding()
+            
+        }
+    }
+}

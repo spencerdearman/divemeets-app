@@ -105,7 +105,7 @@ struct LoginWebView: UIViewRepresentable {
                 self?.parsedUserHTML = html
                 //self?.parsedUserHTML = self?.htmlParser.parseReturnString(html: html) ?? ""
                 // Check if the login was successful by looking for a "Welcome, [username]!" message
-                if html.contains("Pool Deck") {
+                if html.contains("DiveMeets #") {
                     self?.loginSuccessful = true
                     self?.loggedIn = true
                 } else {
