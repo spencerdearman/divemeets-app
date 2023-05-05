@@ -8,6 +8,14 @@
 import CoreData
 import Foundation
 
+enum RecordType: Int, CaseIterable {
+    case upcoming = 0
+    case current = 1
+    case past = 2
+    
+}
+
+// Type is not included, will be added in addRecord(s) before added to the database
 typealias MeetRecord = (Int?, String?, String?, Int?, String?)
 
 class MeetsDataController: ObservableObject {
@@ -27,7 +35,8 @@ class MeetsDataController: ObservableObject {
     }
     
     // Adds a single record to the CoreData database if not already present
-    func addRecord(_ meetId: Int?, _ name: String?, _ org: String?, _ year: Int?, _ link: String?) {
+    func addRecord(_ meetId: Int?, _ name: String?, _ org: String?, _ year: Int?, _ link: String?,
+                   _ type: RecordType?) {
         let moc = container.viewContext
         
         // Check if the entry is already in the database before adding
@@ -35,16 +44,39 @@ class MeetsDataController: ObservableObject {
         
         // Add formatting here so we can properly format nil if meetId or year is nil
         let formatPredicate =
+        "meetId == \(meetId == nil ? "%@" : "%d") && name == %@ AND "
+        + "year == \(meetId == nil ? "%@" : "%d") AND link == %@"
+        // Formatting for post-typechecking refetch
+        let postTypeCheckFormatPredicate =
         "meetId == \(meetId == nil ? "%@" : "%d") && name == %@ AND organization == %@ AND "
         + "year == \(meetId == nil ? "%@" : "%d") AND link == %@"
+        // Cannot match on organization because meet status changes organization
         let predicate = NSPredicate(
-            format: formatPredicate, meetId ?? NSNull(), name ?? NSNull(), org ?? NSNull(),
-            year ?? NSNull(), link ?? NSNull())
+            format: formatPredicate, meetId ?? NSNull(), name ?? NSNull(), year ?? NSNull(),
+            link ?? NSNull())
+        let postTypeCheckPredicate = NSPredicate(
+            format: postTypeCheckFormatPredicate, meetId ?? NSNull(), name ?? NSNull(),
+            org ?? NSNull(), year ?? NSNull(), link ?? NSNull())
         fetchRequest.predicate = predicate
         
-        let result = try? moc.fetch(fetchRequest)
+        var result = try? moc.fetch(fetchRequest)
         
-        // Only adds to the database if it couldn't be found already
+        // Deletes all meets that match in every field but organization and type and deletes all
+        // meets that have a lower type value (upcoming < current < past)
+        if result!.count > 0 {
+            let resultData = result as! [DivingMeet]
+            for meet in resultData {
+                if type != nil && Int(meet.meetType) < type!.rawValue {
+                    moc.delete(meet)
+                }
+            }
+        }
+        
+        // Refetch results after removing above, including organization
+        fetchRequest.predicate = postTypeCheckPredicate
+        result = try? moc.fetch(fetchRequest)
+        
+        // Only adds to the database if it couldn't be found already (exact duplicates)
         if result!.count == 0 {
             let meet = DivingMeet(context: moc)
             meet.id = UUID()
@@ -57,16 +89,19 @@ class MeetsDataController: ObservableObject {
                 meet.year = Int16(year!)
             }
             meet.link = link
+            if type != nil {
+                meet.meetType = Int16(type!.rawValue)
+            }
             
             try? moc.save()
         }
     }
     
     // Adds a list of records to the CoreData database
-    func addRecords(records: [MeetRecord]) {
+    func addRecords(records: [MeetRecord], type: RecordType? = nil) {
         for record in records {
             let (meetId, name, org, year, link) = record
-            addRecord(meetId, name, org, year, link)
+            addRecord(meetId, name, org, year, link, type)
         }
     }
     

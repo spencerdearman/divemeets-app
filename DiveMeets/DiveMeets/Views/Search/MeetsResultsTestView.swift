@@ -53,6 +53,12 @@ struct MeetsResultsTestView: View {
                         db.dropAllRecords()
                     }
                     Spacer()
+                    Button("Add Past Type") {
+                        for meet in filteredMeets {
+                            meet.meetType = 2
+                        }
+                    }
+                    Spacer()
                 }
                 .padding()
                 HStack {
