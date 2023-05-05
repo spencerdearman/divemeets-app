@@ -32,16 +32,22 @@ struct LoginProfile: View {
     @Binding var loggedIn: Bool
     @Binding var divemeetsID: String
     @Binding var password: String
+    @Binding var searchSubmitted: Bool
+    @Binding var loginSuccessful: Bool
+    @Binding var loginSearchSubmitted: Bool
     @State var diverData : [[String]] = []
     @State var profileType : String = ""
     @StateObject private var parser = HTMLParser()
     
-    init(link: String, diverID: String = "00000", loggedIn: Binding<Bool>, divemeetsID: Binding<String>, password: Binding<String>) {
+    init(link: String, diverID: String = "00000", loggedIn: Binding<Bool>, divemeetsID: Binding<String>, password: Binding<String>, searchSubmitted: Binding<Bool>, loginSuccessful: Binding<Bool>, loginSearchSubmitted: Binding<Bool>) {
         self.profileLink = link
         self.diverID = diverID
         self._loggedIn = loggedIn
         self._divemeetsID = divemeetsID
         self._password = password
+        self._searchSubmitted = searchSubmitted
+        self._loginSuccessful = loginSuccessful
+        self._loginSearchSubmitted = loginSearchSubmitted
     }
     
     var body: some View {
@@ -70,8 +76,13 @@ struct LoginProfile: View {
                             loggedIn = false // add this
                             divemeetsID = ""
                             password = ""
+                            searchSubmitted = false
+                            loginSuccessful = false
+                            loginSearchSubmitted = false
                                     })
-                        .offset(x:-140, y:-215)
+                        .buttonStyle(.bordered)
+                        .cornerRadius(30)
+                        .offset(x:-150, y:-215)
                         ProfileImage(diverID: diverID)
                             .offset(y:-100)
                     }
@@ -81,11 +92,11 @@ struct LoginProfile: View {
                                 var firstName = diverData[0][0].slice(from: "Name: ", to: " ") ?? ""
                                 var lastName =
                                 diverData[0][0].slice(from: firstName + " ", to: " ") ?? ""
-                                
+
                                 diverData != []
                                 ? Text(firstName + " " + lastName) .font(.title)
                                 : Text("")
-                                
+
                                 Text(diverID)
                                     .font(.subheadline).foregroundColor(.secondary)
                             }
@@ -124,7 +135,7 @@ struct LoginProfile: View {
                         .offset(y:-150)
                     }
                     .padding()
-                    
+
                 }
                 MeetList(profileLink: profileLink)
                     .offset(y: -160)
