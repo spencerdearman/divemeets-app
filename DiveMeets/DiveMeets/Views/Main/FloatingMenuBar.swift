@@ -172,7 +172,6 @@ struct FloatingMenuBar: View {
                             // Adds tab change and visible tabs change on button press
                             .onTapGesture() {
                                 if !hideTabBar {
-                                    withAnimation(.spring()) {
                                         simpleSuccess()
                                         selectedTab = tab
                                         visibleTabs = [tab]
@@ -183,9 +182,7 @@ struct FloatingMenuBar: View {
                                                        menuBarHideDelay)) {
                                                            relaxImage = true
                                                        }
-                                    }
                                 } else {
-                                    withAnimation(.spring()) {
                                         simpleSuccess()
                                         relaxImage = false
                                         
@@ -196,7 +193,6 @@ struct FloatingMenuBar: View {
                                                            hideTabBar = false
                                                        }
                                     }
-                                }
                             }
                             // Animation for icon to move after menu bar changes
                             .animation(.spring(), value: visibleTabs)
