@@ -9,7 +9,7 @@ import SwiftUI
 
 struct Event: View {
     @Binding var meet: MeetEvent
-    @State var diverData : String = ""
+    @State var diverData : [String:[String:(String, Double, String)]] = [:]
     @StateObject private var parser = EventHTMLParser()
     
     var body: some View {
