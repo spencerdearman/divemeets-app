@@ -25,11 +25,15 @@ struct ParseError: LocalizedError {
     }
 }
 
-//                    Year  :  Org   : [(Name  , Link  )]
-typealias MeetDict = [String: [String: [(String, String)]]]
-//                           [Name  :  Link Type ("info" or "results") : Link]
+//                       (Name ,  Link, startDate, endDate, city, state, country)
+typealias MeetDictBody = (String, String, String, String, String, String, String)
+//                    Year  :  Org   : [MeetDictBody]
+typealias MeetDict = [String: [String: [MeetDictBody]]]
+//                              (Link, startDate, endDate, city, state , country)
+typealias CurrentMeetDictBody = (String, String, String, String, String, String)
+//                           [Name  :  Link Type ("info" or "results") : CurrentMeetDictBody]
 //                                   Note: "results" key not always present
-typealias CurrentMeetDict = [[String: [String: String]]]
+typealias CurrentMeetDict = [[String: [String: CurrentMeetDictBody]]]
 //                           Meet  :  Event : LiveResults object
 typealias LiveResultsDict = [String: [String: LiveResults]]
 
@@ -81,29 +85,55 @@ final class MeetParser: ObservableObject {
     
     // Loads each stored year in the database into a set
     private func pullStoredPastMeetYears(storedMeets: FetchedResults<DivingMeet>) {
-        storedPastMeetYears = Set<Int>(Array(storedMeets).map { Int($0.year) })
+        storedPastMeetYears = Set<Int>(Array(storedMeets).map {
+            Calendar.current.dateComponents([.year], from: $0.startDate!).year!
+        })
     }
     
     // Gets the list of meet names and links to their pages from an org page
-    private func getMeetNamesAndLinks(text: String) -> [(String, String)]? {
-        var result: [(String, String)]?
+    private func getMeetInfo(text: String) -> [MeetDictBody]? {
+        var result: [MeetDictBody]?
         do {
             let document: Document = try SwiftSoup.parse(text)
             guard let body = document.body() else { return [] }
             let content = try body.getElementById("dm_content")!
-            let rows = try content.getElementsByTag("td")
-            for row in rows {
-                // Only continues on rows w/o align field and w valign == top
-                if !(try !row.hasAttr("align")
-                     && row.hasAttr("valign") && row.attr("valign") == "top") {
-                    continue
+            let trs = try content.getElementsByTag("tr")
+            let filtered = trs.filter({ (elem: Element) -> Bool in
+                do {
+                    let tr = try elem.getElementsByAttribute("bgcolor").text()
+                    return tr != ""
+                } catch {
+                    return false
                 }
+            })
+            
+            for meetRow in filtered {
+                let fullCols = try meetRow.getElementsByTag("td")
+                let cols = fullCols.filter({(col: Element) -> Bool in
+                    do {
+                        // Filters out the td that contains the logo icon
+                        return try !col.hasAttr("align")
+                        && col.hasAttr("valign") && col.attr("valign") == "top"
+                    } catch {
+                        return false
+                    }
+                })
+                
+                let meetData = cols[0]
+                let startDate = try cols[1].text()
+                let endDate = try cols[2].text()
+                let city = try cols[3].text()
+                let state = try cols[4].text()
+                let country = try cols[5].text()
                 
                 // Gets divs from page (meet name on past meets where link is "Results")
-                let divs = try row.getElementsByTag("div")
+                let divs = try meetData.getElementsByTag("div")
+                
+                var name: String = try !divs.isEmpty() ? divs[0].text() : ""
+                var link: String?
                 
                 // Gets links from list of meets
-                let elem = try row.getElementsByTag("a")
+                let elem = try meetData.getElementsByTag("a")
                 for e in elem {
                     if try e.tagName() == "a"
                         && e.attr("href").starts(with: "meet") {
@@ -111,10 +141,16 @@ final class MeetParser: ObservableObject {
                             result = []
                         }
                         
-                        let nameText = try divs.isEmpty() ? e.text() : divs[0].text()
-                        result!.append((nameText, try leadingLink + e.attr("href")))
+                        // Gets name from link if meetinfo link, gets name from div if
+                        // meetresults link
+                        name = try divs.isEmpty() ? e.text() : divs[0].text()
+                        link = try leadingLink + e.attr("href")
                         break
                     }
+                }
+                
+                if result != nil && link != nil {
+                    result!.append((name, link!, startDate, endDate, city, state, country))
                 }
             }
         } catch {
@@ -140,29 +176,54 @@ final class MeetParser: ObservableObject {
             // Gets list of Elements for each current meet
             let currentRows = try currentTable?.getElementsByTag("table")
             for row in currentRows! {
-                var resultElem: [String: [String: String]] = [:]
+                var resultElem: [String: [String: CurrentMeetDictBody]] = [:]
                 let rowRows = try row.getElementsByTag("td")
+                
                 let meetElem = rowRows[0]
                 var meetResults: Element? = nil
                 
                 resultElem[try meetElem.text()] = [:]
-                resultElem[try meetElem.text()]!["info"] = try leadingLink +
+                
+                let infoLink = try leadingLink +
                 meetElem.getElementsByAttribute("href")[0].attr("href")
+                
+                var resultsLink: String? = nil
                 
                 if rowRows.count > 1 {
                     meetResults = rowRows[1]
                     do {
                         let resultsLinks = try meetResults!.getElementsByAttribute("href")
-                        let resultsLink: String
                         
                         if (resultsLinks.count == 0) {
                             throw ParseError("No results page found in row")
                         }
-                        resultsLink = try resultsLinks[0].attr("href")
-                        resultElem[try meetElem.text()]!["results"] = leadingLink + resultsLink
+                        
+                        resultsLink = try leadingLink + resultsLinks[0].attr("href")
                     } catch {
                         print("No results page found")
                     }
+                }
+                
+                let meetLoc = try rowRows[2].text()
+                let commaIdx = meetLoc.firstIndex(of: ",")!
+                let city = String(meetLoc[..<commaIdx])
+                let state = String(meetLoc[meetLoc.index(commaIdx, offsetBy: 2)...])
+                let country = "US"
+                
+                let meetDates = try rowRows[3].text()
+                let dashIdx = meetDates.firstIndex(of: "-")!
+                let yearCommaIdx = meetDates.firstIndex(of: ",")!
+                let startDate = String(meetDates[..<dashIdx]
+                    .trimmingCharacters(in: .whitespacesAndNewlines))
+                + meetDates[yearCommaIdx...]
+                let endDate = String(meetDates[meetDates.index(dashIdx, offsetBy: 2)...])
+                
+                resultElem[try meetElem.text()]!["info"] =
+                (infoLink, startDate, endDate, city, state, country)
+                
+                if resultsLink != nil {
+                    resultElem[try meetElem.text()]!["results"] =
+                    (resultsLink!, startDate, endDate, city, state, country)
                 }
                 
                 result.append(resultElem)
@@ -471,7 +532,7 @@ final class MeetParser: ObservableObject {
                         await fetchLinkText(url: URL(string: link)!)
                         try await MainActor.run {
                             // Parses subpage and gets meet names and links
-                            if let result = getMeetNamesAndLinks(text: linkText!) {
+                            if let result = getMeetInfo(text: linkText!) {
                                 try upcomingMeets![currentYear]![tabElem.text()] = result
                                 meetsParsedCount += result.count
                             }
@@ -519,7 +580,7 @@ final class MeetParser: ObservableObject {
                             // Assigns year and org to dict of meet names and
                             // links to results page
                             if let text = linkText,
-                               let result = getMeetNamesAndLinks(text: text) {
+                               let result = getMeetInfo(text: text) {
                                 try pastMeets![pastYear]![tabElem.text()] = result
                                 meetsParsedCount += result.count
                             }
@@ -532,38 +593,6 @@ final class MeetParser: ObservableObject {
         } catch {
             print("Error parsing meets")
         }
-    }
-    
-    func writeToFile(dict: [String: [String: String]],
-                     filename: String = "saved.json") {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting.insert(.sortedKeys)
-        encoder.outputFormatting.insert(.prettyPrinted)
-        
-        do {
-            let data = try encoder.encode(dict)
-            let bundleURL = Bundle.main.resourceURL!
-            
-            let jsonFileURL = bundleURL.appendingPathComponent(filename)
-            
-            try data.write(to: jsonFileURL)
-        } catch {
-            print("Write Error = \(error.localizedDescription)")
-        }
-    }
-    
-    func readFromFile(filename: String) -> [String: [String: String]] {
-        let decoder = JSONDecoder()
-        let bundleURL = Bundle.main.resourceURL!.appendingPathComponent("pastMeets.json")
-        do {
-            let data = try Data(contentsOf: bundleURL)
-            let jsonObject = try decoder.decode([String: [String: String]].self,
-                                                from: data)
-            return jsonObject
-        } catch {
-            print("Read Error = \(error.localizedDescription)")
-        }
-        return [:]
     }
     
     func printPastMeets() {
