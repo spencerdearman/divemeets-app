@@ -45,7 +45,7 @@ struct ContentView: View {
                             // Add different page views here for different tabs
                             switch tab {
                                 case .house:
-                                    Home()
+                                    Home(meetParser: $p)
                                 case .gearshape:
                                     Image(systemName: tab.rawValue)
                                     Text("Settings")
