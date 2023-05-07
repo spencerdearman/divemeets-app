@@ -27,20 +27,23 @@ struct MeetsResultsTestView: View {
     @FetchRequest(
         sortDescriptors: [],
         predicate: NSPredicate(
-            format: "%@ in[cd] name && year < %d", "Big Dive", 2013)
+            format: "startDate <= %@", Date() as NSDate)
     ) var filteredMeets: FetchedResults<DivingMeet>
     
     func displayDivingMeet(meet: DivingMeet) -> HStack<TupleView<(Text, Text, Text, Text, Text)>> {
         let linkHead = "https://secure.meetcontrol.com/divemeets/system/"
+        let df = DateFormatter()
+        df.dateFormat = "MMM d, yyyy"
         return HStack {
             Text(String(meet.meetId))
             Text(meet.name ?? "Unknown")
             Text(meet.organization ?? "Unknown")
-            Text(String(meet.year))
-            Text(meet.link != nil
-                 ? meet.link![meet.link!.index(
-                    meet.link!.startIndex, offsetBy: linkHead.count)..<meet.link!.endIndex]
-                 : "Unknown")
+            Text(meet.state ?? "Unknown")
+//            Text(meet.link != nil
+//                 ? meet.link![meet.link!.index(
+//                    meet.link!.startIndex, offsetBy: linkHead.count)..<meet.link!.endIndex]
+//                 : "Unknown")
+            Text(df.string(from: meet.startDate ?? Date()))
         }
     }
     
