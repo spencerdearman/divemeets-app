@@ -9,17 +9,18 @@ import SwiftUI
 
 struct Event: View {
     @Binding var meet: MeetEvent
-    @State var diverData : [String:[String:(String, Double, String)]] = [:]
+    @State var diverData : (String, String, String, Double, Double, Double) = ("","", "", 0.0, 0.0, 0.0)
+    @State var diverTableData: [Int: (String, String, String, Double, Double, Double, String)] = [:]
+    
     @StateObject private var parser = EventHTMLParser()
     
     var body: some View {
         ZStack{}
-        ZStack{}
             .onAppear {
                 Task {
-                    await parser.parse(urlString: "https://secure.meetcontrol.com/divemeets/system/profile.php?number=60480")
-                    diverData = parser.myData
-                    print(diverData)
+                    await parser.eventParse(urlString: meet.link!)
+                    diverData = parser.eventData
+                    diverTableData = parser.diveTableData
                 }
             }
         VStack{
@@ -27,11 +28,8 @@ struct Event: View {
             Text(meet.name)
                 .font(.headline)
             Spacer()
-            
+            Text(meet.link!)
         }
-        .onAppear(perform:{
-            print("hello")
-        })
         .padding()
     }
 }
