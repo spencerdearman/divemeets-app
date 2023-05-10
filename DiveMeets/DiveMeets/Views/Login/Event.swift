@@ -23,7 +23,6 @@ struct Event: View {
                     print(diverData)
                     await parser.tableDataParse(urlString: meet.link!)
                     diverTableData = parser.diveTableData
-                    print(diverTableData)
                 }
             }
         VStack{

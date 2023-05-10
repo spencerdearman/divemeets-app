@@ -37,7 +37,7 @@ final class EventHTMLParser: ObservableObject {
         var eventLink = ""
         var meetName = ""
         for (i, t) in overall.enumerated(){
-            var testString = try t.text()
+            let testString = try t.text()
             if i == 0 {
                 continue
             } else if testString.contains(".") {
@@ -78,30 +78,18 @@ final class EventHTMLParser: ObservableObject {
         
         let table = try body.getElementsByTag("table")
         let overall = try table[0].getElementsByTag("tr")
+        let finalRow = try overall[overall.count - 2].getElementsByTag("td")
         //Getting the link to the meet page, not to be confused with the meetLink --Working
         
-        for (i, t) in overall.enumerated(){
-            if i == 0 {
-                meetPageLink = "https://secure.meetcontrol.com/divemeets/system/" + (try t.getElementsByTag("a").attr("href"))
-            } else if i == 1 {
-                //Eventually go back and remove repeats
-                meetDates = try t.getElementsByTag("Strong").text()
-            } else if i == 3 {
-                let temp = try t.getElementsByTag("Strong").text()
-                let range = temp.range(of: " - ")
-                organization = String(temp.suffix(from: range!.upperBound))
-            }
-        }
-        let finalRow = try overall[overall.count - 2].getElementsByTag("td")
-        for (i, tr) in finalRow.enumerated() {
-            if i == 2 {
-                totalNetScore = Double(try tr.text())!
-            } else if i == 3 {
-                totalDD = Double(try tr.text())!
-            } else if i == 4 {
-                totalScore = Double(try tr.text())!
-            }
-        }
+        let temp = try overall[3].getElementsByTag("strong").text()
+        let range = temp.range(of: " - ")
+        organization = String(temp.suffix(from: range!.upperBound))
+        
+        meetPageLink = "https://secure.meetcontrol.com/divemeets/system/" + (try overall[0].getElementsByTag("a").attr("href"))
+        meetDates = try overall[1].getElementsByTag("Strong").text()
+        totalNetScore = Double(try finalRow[2].text())!
+        totalDD = Double(try finalRow[3].text())!
+        totalScore = Double(try finalRow[4].text())!
         return (meetPageLink, meetDates, organization, totalNetScore, totalDD, totalScore)
     }
     
@@ -111,7 +99,7 @@ final class EventHTMLParser: ObservableObject {
         guard let body = document.body() else {
             return [:]
         }
-    
+        
         //Variable Hell
         var order = 0
         var diveNum = ""
@@ -122,7 +110,6 @@ final class EventHTMLParser: ObservableObject {
         var score = 0.0
         var scoreLink = ""
         
-        let main = try body.getElementsByTag("body")
         let table = try body.getElementsByTag("table")
         let diveTable = try table[0].getElementsByAttribute("bgcolor")
         for dive in diveTable {
@@ -135,15 +122,10 @@ final class EventHTMLParser: ObservableObject {
                 } else if i == 2 {
                     height = try cell.text()
                 } else if i == 3 {
-//                    let containsBR: Bool = try cell.select("br").count > 0
-//                    if containsBR {
-//
-//                    }
-//                    print(containsBR)
-                    name = try cell.text()
+                    name = try String(cell.html().split(separator:"<br>").last!)
                 } else if i == 4 {
                     let score = (try cell.text()).replacingOccurrences(of: " Failed Dive", with: "")
-                    let updatedScore = (try score.replacingOccurrences(of: "Dive Changed", with: ""))
+                    let updatedScore = (score.replacingOccurrences(of: "Dive Changed", with: ""))
                     netScore = Double(updatedScore)!
                 } else if i == 5 {
                     if try cell.text().count > 4 {
@@ -152,7 +134,6 @@ final class EventHTMLParser: ObservableObject {
                         DD = Double(try cell.text())!
                     }
                 } else if i == 6 {
-                    print(try cell.text())
                     score = Double(try cell.text().replacingOccurrences(of: "  ", with: ""))!
                     scoreLink = "https://secure.meetcontrol.com/divemeets/system/" + (try cell.getElementsByTag("a").attr("href"))
                 }
