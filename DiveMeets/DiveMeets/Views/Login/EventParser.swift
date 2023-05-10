@@ -99,7 +99,6 @@ final class EventHTMLParser: ObservableObject {
         guard let body = document.body() else {
             return [:]
         }
-        //Variable Hell
         var order = 0
         var diveNum = ""
         var height = ""
