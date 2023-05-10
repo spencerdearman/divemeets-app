@@ -75,11 +75,8 @@ class MeetsDataController: ObservableObject {
             meet.name = name
             meet.organization = org
             meet.link = link
-            //            print("Start Date:", startDate)
-            //            print("End Date:", endDate)
             if startDate != nil {
                 meet.startDate = df.date(from: startDate!)
-                //                print("Start:", meet.startDate)
             }
             if endDate != nil {
                 meet.endDate = df.date(from: endDate!)
