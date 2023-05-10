@@ -8,7 +8,7 @@
 import SwiftUI
 import LocalAuthentication
 
-private enum Field: Int, Hashable, CaseIterable {
+enum LoginField: Int, Hashable, CaseIterable {
     case diveMeetsId
     case passwd
 }
@@ -85,7 +85,7 @@ struct LoginSearchInputView: View {
     @State private var showError: Bool = false
     // Focus State is a state variable that updates the user input field that is selected based on
     // which field the user selects
-    @FocusState private var focusedField: Field?
+    @FocusState private var focusedField: LoginField?
     @Binding var createdKey: Bool
     @Binding var divemeetsID: String
     @Binding var password: String
@@ -197,7 +197,7 @@ struct LoginPageSearchView: View {
     @Binding var divemeetsID: String
     @Binding var password: String
     @State private var isPasswordVisible = false
-    fileprivate var focusedField: FocusState<Field?>.Binding
+    fileprivate var focusedField: FocusState<LoginField?>.Binding
     
     var body: some View {
         VStack {
@@ -205,6 +205,9 @@ struct LoginPageSearchView: View {
                 Text("DiveMeets ID:")
                     .padding(.leading)
                 TextField("DiveMeets ID", text: $divemeetsID)
+                    .modifier(LoginTextFieldClearButton(text: $divemeetsID,
+                                                   fieldType: .diveMeetsId,
+                                                   focusedField: focusedField))
                     .textContentType(.username)
                     .keyboardType(.numberPad)
                     .textFieldStyle(.roundedBorder)
@@ -218,12 +221,18 @@ struct LoginPageSearchView: View {
                     .padding(.leading)
                 if isPasswordVisible {
                     TextField("Password", text: $password)
+                        .modifier(LoginTextFieldClearButton(text: $password,
+                                                            fieldType: .passwd,
+                                                            focusedField: focusedField))
                         .textContentType(.password)
                         .keyboardType(.default)
                         .textFieldStyle(.roundedBorder)
                         .focused(focusedField, equals: .passwd)
                 } else {
                     SecureField("Password", text: $password)
+                        .modifier(LoginTextFieldClearButton(text: $password,
+                                                            fieldType: .passwd,
+                                                            focusedField: focusedField))
                         .textFieldStyle(.roundedBorder)
                         .focused(focusedField, equals: .passwd)
                 }
@@ -246,11 +255,11 @@ struct LoginPageSearchView: View {
 
 private extension LoginSearchInputView {
     var hasReachedStart: Bool {
-        self.focusedField == Field.allCases.first
+        self.focusedField == LoginField.allCases.first
     }
     
     var hasReachedEnd: Bool {
-        self.focusedField == Field.allCases.last
+        self.focusedField == LoginField.allCases.last
     }
     
     func dismissKeyboard() {
@@ -259,17 +268,17 @@ private extension LoginSearchInputView {
     
     func next() {
         guard let currentInput = focusedField,
-              let lastIndex = Field.allCases.last?.rawValue else { return }
+              let lastIndex = LoginField.allCases.last?.rawValue else { return }
         
         let index = min(currentInput.rawValue + 1, lastIndex)
-        self.focusedField = Field(rawValue: index)
+        self.focusedField = LoginField(rawValue: index)
     }
     
     func previous() {
         guard let currentInput = focusedField,
-              let firstIndex = Field.allCases.first?.rawValue else { return }
+              let firstIndex = LoginField.allCases.first?.rawValue else { return }
         
         let index = max(currentInput.rawValue - 1, firstIndex)
-        self.focusedField = Field(rawValue: index)
+        self.focusedField = LoginField(rawValue: index)
     }
 }

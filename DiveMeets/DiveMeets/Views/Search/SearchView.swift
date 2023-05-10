@@ -12,7 +12,7 @@ private enum SearchType: String, CaseIterable {
     case meet = "Meet"
 }
 
-private enum Field: Int, Hashable, CaseIterable {
+enum SearchField: Int, Hashable, CaseIterable {
     case firstName
     case lastName
     case meetName
@@ -26,19 +26,19 @@ private enum FilterType: String, CaseIterable {
 
 private extension SearchInputView {
     var hasReachedPersonStart: Bool {
-        self.focusedField == Field.allCases.first
+        self.focusedField == SearchField.allCases.first
     }
     
     var hasReachedMeetStart: Bool {
-        self.focusedField == Field.meetName
+        self.focusedField == SearchField.meetName
     }
     
     var hasReachedPersonEnd: Bool {
-        self.focusedField == Field.lastName
+        self.focusedField == SearchField.lastName
     }
     
     var hasReachedMeetEnd: Bool {
-        self.focusedField == Field.allCases.last
+        self.focusedField == SearchField.allCases.last
     }
     
     func dismissKeyboard() {
@@ -47,34 +47,34 @@ private extension SearchInputView {
     
     func nextPersonField() {
         guard let currentInput = focusedField else { return }
-        let lastIndex = Field.lastName.rawValue
+        let lastIndex = SearchField.lastName.rawValue
         
         let index = min(currentInput.rawValue + 1, lastIndex)
-        self.focusedField = Field(rawValue: index)
+        self.focusedField = SearchField(rawValue: index)
     }
     
     func nextMeetField() {
         guard let currentInput = focusedField,
-              let lastIndex = Field.allCases.last?.rawValue else { return }
+              let lastIndex = SearchField.allCases.last?.rawValue else { return }
         
         let index = min(currentInput.rawValue + 1, lastIndex)
-        self.focusedField = Field(rawValue: index)
+        self.focusedField = SearchField(rawValue: index)
     }
     
     func previousPersonField() {
         guard let currentInput = focusedField,
-              let firstIndex = Field.allCases.first?.rawValue else { return }
+              let firstIndex = SearchField.allCases.first?.rawValue else { return }
         
         let index = max(currentInput.rawValue - 1, firstIndex)
-        self.focusedField = Field(rawValue: index)
+        self.focusedField = SearchField(rawValue: index)
     }
     
     func previousMeetField() {
         guard let currentInput = focusedField else { return }
-        let firstIndex = Field.meetName.rawValue
+        let firstIndex = SearchField.meetName.rawValue
         
         let index = max(currentInput.rawValue - 1, firstIndex)
-        self.focusedField = Field(rawValue: index)
+        self.focusedField = SearchField(rawValue: index)
     }
     
     func next() {
@@ -227,7 +227,7 @@ struct SearchInputView: View {
     @State var fullScreenResults: Bool = false
     @State var resultSelected: Bool = false
     // Tracks if the user is inside of a text field to determine when to show the keyboard
-    @FocusState private var focusedField: Field?
+    @FocusState private var focusedField: SearchField?
     @Binding private var selection: SearchType
     @Binding var firstName: String
     @Binding var lastName: String
@@ -573,7 +573,7 @@ struct SearchInputView: View {
 struct DiverSearchView: View {
     @Binding var firstName: String
     @Binding var lastName: String
-    fileprivate var focusedField: FocusState<Field?>.Binding
+    fileprivate var focusedField: FocusState<SearchField?>.Binding
     
     var body: some View {
         VStack {
@@ -581,6 +581,10 @@ struct DiverSearchView: View {
                 Text("First Name:")
                     .padding(.leading)
                 TextField("First Name", text: $firstName)
+                    .modifier(TextFieldClearButton(text: $firstName,
+                                                   fieldType: .firstName,
+                                                   focusedField: focusedField))
+                    .multilineTextAlignment(.leading)
                     .textFieldStyle(.roundedBorder)
                     .padding(.trailing)
                     .focused(focusedField, equals: .firstName)
@@ -589,9 +593,14 @@ struct DiverSearchView: View {
                 Text("Last Name:")
                     .padding(.leading)
                 TextField("Last Name", text: $lastName)
+                    .modifier(TextFieldClearButton(text: $lastName,
+                                                   fieldType: .lastName,
+                                                   focusedField: focusedField))
+                    .multilineTextAlignment(.leading)
                     .textFieldStyle(.roundedBorder)
                     .padding(.trailing)
                     .focused(focusedField, equals: .lastName)
+                    
             }
         }
         .padding()
@@ -607,12 +616,12 @@ struct MeetSearchView: View {
     @Binding var orgName: String
     @Binding var meetYear: String
     @Binding private var predicate: NSPredicate?
-    private var focusedField: FocusState<Field?>.Binding
+    private var focusedField: FocusState<SearchField?>.Binding
     private var filteredItems: FetchedResults<DivingMeet>
     
     fileprivate init(meetName: Binding<String>, orgName: Binding<String>,
                      meetYear: Binding<String>, predicate: Binding<NSPredicate?>,
-                     focusedField: FocusState<Field?>.Binding, items: FetchedResults<DivingMeet>) {
+                     focusedField: FocusState<SearchField?>.Binding, items: FetchedResults<DivingMeet>) {
         self._meetName = meetName
         self._orgName = orgName
         self._meetYear = meetYear
@@ -627,6 +636,10 @@ struct MeetSearchView: View {
                 Text("Meet Name:")
                     .padding(.leading)
                 TextField("Meet Name", text: $meetName)
+                    .modifier(TextFieldClearButton(text: $meetName,
+                                                   fieldType: .meetName,
+                                                   focusedField: focusedField))
+                    .multilineTextAlignment(.leading)
                     .textFieldStyle(.roundedBorder)
                     .padding(.trailing)
                     .focused(focusedField, equals: .meetName)
@@ -635,6 +648,10 @@ struct MeetSearchView: View {
                 Text("Organization Name:")
                     .padding(.leading)
                 TextField("Organization Name", text: $orgName)
+                    .modifier(TextFieldClearButton(text: $orgName,
+                                                   fieldType: .meetOrg,
+                                                   focusedField: focusedField))
+                    .multilineTextAlignment(.leading)
                     .textFieldStyle(.roundedBorder)
                     .padding(.trailing)
                     .focused(focusedField, equals: .meetOrg)
