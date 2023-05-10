@@ -33,7 +33,7 @@ typealias MeetDict = [String: [String: [MeetDictBody]]]
 typealias CurrentMeetDictBody = (String, String, String, String, String, String)
 //                           [Name  :  Link Type ("info" or "results") : CurrentMeetDictBody]
 //                                   Note: "results" key not always present
-typealias CurrentMeetDict = [[String: [String: CurrentMeetDictBody]]]
+typealias CurrentMeetList = [[String: [String: CurrentMeetDictBody]]]
 //                           Meet  :  Event : LiveResults object
 typealias LiveResultsDict = [String: [String: LiveResults]]
 
@@ -58,7 +58,7 @@ final class MeetParser: ObservableObject {
     // Upcoming meets happening in the future
     @Published var upcomingMeets: MeetDict?
     // Meets that are actively happening during that time period
-    @Published var currentMeets: CurrentMeetDict?
+    @Published var currentMeets: CurrentMeetList?
     // Current meets that have live results available on their results page
     @Published var liveResults: LiveResultsDict?
     // Meets that have already happened
@@ -162,7 +162,7 @@ final class MeetParser: ObservableObject {
     
     // Parses current meets from homepage sidebar since "Current" tab is not reliable
     private func parseCurrentMeets(html: String) async {
-        var result: CurrentMeetDict = []
+        var result: CurrentMeetList = []
         do {
             let document: Document = try SwiftSoup.parse(html)
             guard let body = document.body() else {

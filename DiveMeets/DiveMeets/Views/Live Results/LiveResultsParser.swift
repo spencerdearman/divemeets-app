@@ -13,7 +13,7 @@ final class LiveResultsParser: ObservableObject {
     @Binding var liveResultsLink: String
     @Binding var liveResultsHTML: String
     // Meets that are actively happening during that time period
-    @Published var currentMeets: CurrentMeetDict?
+    @Published var currentMeets: CurrentMeetList?
     // Current meets that have live results available on their results page
     @Published var liveResults: LiveResultsDict?
     let getTextModel = GetTextAsyncModel()

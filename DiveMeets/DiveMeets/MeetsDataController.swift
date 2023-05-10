@@ -198,7 +198,7 @@ class MeetsDataController: ObservableObject {
     // Turns CurrentMeetDict into
     // [(meetId, name, <nil>, link, startDate, endDate, city, state, country)]
     // ** link is info link for meet, results link is not stored in the database if it exists
-    func dictToTuple(dict: CurrentMeetDict) -> [MeetRecord] {
+    func dictToTuple(dict: CurrentMeetList) -> [MeetRecord] {
         var result: [MeetRecord] = []
         for elem in dict {
             for (name, typeDict) in elem {
