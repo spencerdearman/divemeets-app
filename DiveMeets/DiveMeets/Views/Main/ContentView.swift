@@ -86,13 +86,13 @@ struct ContentView: View {
                     
                     // Check that each set of meets is not nil and add each to the database
                     if let upcoming = p.upcomingMeets {
-                        db.addRecords(records: db.dictToTuple(dict: upcoming))
+                        db.addRecords(records: db.dictToTuple(dict: upcoming), type: .upcoming)
                     }
                     if let current = p.currentMeets {
-                        db.addRecords(records: db.dictToTuple(dict: current))
+                        db.addRecords(records: db.dictToTuple(dict: current), type: .current)
                     }
                     if let past = p.pastMeets {
-                        db.addRecords(records: db.dictToTuple(dict: past))
+                        db.addRecords(records: db.dictToTuple(dict: past), type: .past)
                     }
                     
                     isIndexingMeets = false
