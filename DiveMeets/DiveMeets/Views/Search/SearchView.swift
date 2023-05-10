@@ -204,9 +204,6 @@ struct SearchView: View {
                                linksParsed: $linksParsed)
             }
             
-//            Color.white.ignoresSafeArea()
-            
-            
             SearchInputView(selection: $selection, firstName: $firstName, lastName: $lastName,
                             meetName: $meetName, orgName: $orgName, meetYear: $meetYear,
                             searchSubmitted: $searchSubmitted, parsedLinks: $parsedLinks,
@@ -250,6 +247,17 @@ struct SearchInputView: View {
     @State var predicate: NSPredicate?
     @State private var filterType: FilterType = .name
     @State var isSortedAscending: Bool = true
+    @ScaledMetric private var resultsOffsetScaled = 350.0
+    @ScaledMetric private var resultsIconSizeScaled = 30.0
+    
+    var resultsOffset: CGFloat {
+        min(max(resultsOffsetScaled, 350.0), UIScreen.main.bounds.height - 250)
+    }
+    
+    var resultsIconSize: CGFloat {
+        max(resultsIconSizeScaled, 15.0)
+    }
+    
     @FetchRequest(sortDescriptors: [])
     private var items: FetchedResults<DivingMeet>
     // Useful link:
@@ -284,10 +292,10 @@ struct SearchInputView: View {
     private let grayValue: CGFloat = 0.90
     private let grayValueDark: CGFloat = 0.10
     private let textColor: Color = Color.primary
-    private let typeBubbleWidth: CGFloat = 100
-    private let typeBubbleHeight: CGFloat = 35
+    @ScaledMetric private var typeBubbleWidth: CGFloat = 100
+    @ScaledMetric private var typeBubbleHeight: CGFloat = 35
     
-    private let typeBGWidth: CGFloat = 40
+    @ScaledMetric private var typeBGWidth: CGFloat = 40
     
     private var personResultsReady: Bool {
         selection == .person && linksParsed
@@ -338,12 +346,10 @@ struct SearchInputView: View {
         let typeBGColor: Color = currentMode == .light
         ? Color(red: grayValue, green: grayValue, blue: grayValue)
         : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
-        let typeBubbleColor: Color = currentMode == .light
-        ? Color.white
-        : Color.black
+        let typeBubbleColor: Color = currentMode == .light ? Color.white : Color.black
         
         ZStack {
-            typeBubbleColor
+            (currentMode == .light ? Color.white : Color.black)
                 .ignoresSafeArea()
             // Allows the user to hide the keyboard when clicking on the background of the page
                 .onTapGesture {
@@ -519,39 +525,41 @@ struct SearchInputView: View {
                      : AnyView(MeetResultsView(records: filteredItems)))
                     .onAppear {
                         fullScreenResults = true
-                    }
-                    if !resultSelected {
-                        Button(action: { () -> () in fullScreenResults.toggle() }) {
-                            Image(systemName: "chevron.down")
-                        }
-                        .rotationEffect(.degrees(fullScreenResults ? 0: -180))
-                        .frame(width:50, height: 50)
-                        .foregroundColor(.primary)
-                        .font(.system(size: 22))
-                        .contentShape(Rectangle())
+                        resultSelected = false
                     }
                     HStack {
-                        Spacer()
-                        Menu {
-                            Picker("", selection: $filterType) {
-                                ForEach(FilterType.allCases, id: \.self) {
-                                    Text($0.rawValue)
-                                        .tag($0)
-                                }
+                        if !resultSelected {
+                            Button(action: { () -> () in fullScreenResults.toggle() }) {
+                                Image(systemName: "chevron.down")
                             }
-                            Button(action: { () -> () in isSortedAscending.toggle() }) {
-                                Label("Sort: \(isSortedAscending ? "Ascending" : "Descending")",
-                                      systemImage: "arrow.up.arrow.down")
-                            }
-                        } label: {
-                            Image(systemName: "line.3.horizontal.decrease.circle")
+                            .rotationEffect(.degrees(fullScreenResults ? 0: -180))
+                            .frame(width: resultsIconSize, height: resultsIconSize)
+                            .clipShape(Rectangle())
                         }
-                        .frame(width: 50, height: 50)
-                        .foregroundColor(.primary)
-                        .font(.system(size: 22))
+                        
+                        Spacer()
+                        if meetResultsReady {
+                            Menu {
+                                Picker("", selection: $filterType) {
+                                    ForEach(FilterType.allCases, id: \.self) {
+                                        Text($0.rawValue)
+                                            .tag($0)
+                                    }
+                                }
+                                Button(action: { () -> () in isSortedAscending.toggle() }) {
+                                    Label("Sort: \(isSortedAscending ? "Ascending" : "Descending")",
+                                          systemImage: "arrow.up.arrow.down")
+                                }
+                            } label: {
+                                Image(systemName: "line.3.horizontal.decrease.circle")
+                            }
+                        }
                     }
+                    .padding(EdgeInsets(top: 5, leading: 18, bottom: 10, trailing: 18))
+                    .foregroundColor(.primary)
+                    .font(.title)
                 }
-                .offset(y: fullScreenResults ? 0 : 350)
+                .offset(y: fullScreenResults ? 0 : resultsOffset)
                 .animation(.linear(duration: 0.2), value: fullScreenResults)
             }
         }

@@ -41,8 +41,12 @@ struct FloatingMenuBar: View {
     @State var visibleTabs: [Tab] = Tab.allCases
     @State var relaxImage: Bool = false
     private let cornerRadius: CGFloat = 50
-    private let frameHeight: CGFloat = 60
+    @ScaledMetric private var frameHeightScaled: CGFloat = 60
     private let menuBarHideDelay: CGFloat = 0.75
+    
+    private var frameHeight: CGFloat {
+        min(frameHeightScaled, 100)
+    }
     
     // Add custom multipliers for selected tabs here, defaults to 1.25
     private let sizeMults: [String: Double] = [
@@ -123,7 +127,7 @@ struct FloatingMenuBar: View {
                 let geoWidth: CGFloat =
                 visibleTabs.count > 1
                 ? geometry.size.width
-                : cornerRadius * 1.2
+                : frameHeight
                 
                 // Width of bubble for one tab
                 let tabWidth: CGFloat =
@@ -168,7 +172,7 @@ struct FloatingMenuBar: View {
                                              ? selectedTabColor
                                              : deselectedColor)
                             .opacity(selectedTab == tab ? selectedTabOpacity : 1.0)
-                            .font(.system(size: 22))
+                            .font(.title2)
                             // Adds tab change and visible tabs change on button press
                             .onTapGesture() {
                                 if !hideTabBar {
@@ -208,6 +212,15 @@ struct FloatingMenuBar: View {
             .frame(height: frameHeight)
             .cornerRadius(cornerRadius)
             .padding()
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                visibleTabs = [selectedTab]
+                hideTabBar = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + menuBarHideDelay) {
+                    relaxImage = true
+                }
+            }
         }
     }
 }
