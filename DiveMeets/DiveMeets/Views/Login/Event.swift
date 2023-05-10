@@ -9,7 +9,7 @@ import SwiftUI
 
 struct Event: View {
     @Binding var meet: MeetEvent
-    @State var diverData : (String, String, String, Double, Double, Double) = ("","", "", 0.0, 0.0, 0.0)
+    @State var diverData : (String, String, String, Double, Double, Double) = ("", "", "", 0.0, 0.0, 0.0)
     @State var diverTableData: [Int: (String, String, String, Double, Double, Double, String)] = [:]
     
     @StateObject private var parser = EventHTMLParser()
@@ -20,7 +20,10 @@ struct Event: View {
                 Task {
                     await parser.eventParse(urlString: meet.link!)
                     diverData = parser.eventData
+                    print(diverData)
+                    await parser.tableDataParse(urlString: meet.link!)
                     diverTableData = parser.diveTableData
+                    print(diverTableData)
                 }
             }
         VStack{
