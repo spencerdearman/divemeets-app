@@ -24,8 +24,8 @@ struct Home: View {
     var body: some View {
         VStack {
             Spacer()
-            let upcoming = tupleToList(tuples: db.dictToTuple(dict: meetParser.upcomingMeets ?? [:]))
-            if upcoming != [] {
+            if meetParser.upcomingMeets != nil && !meetParser.upcomingMeets!.isEmpty {
+                let upcoming = tupleToList(tuples: db.dictToTuple(dict: meetParser.upcomingMeets!))
                 List(upcoming, id: \.self) { meet in
                     HStack {
                         ForEach(meet, id: \.self) { col in
@@ -35,13 +35,15 @@ struct Home: View {
                         }
                     }
                 }
+            } else if meetParser.upcomingMeets != nil {
+                Text("No upcoming meets found")
             } else {
                 Text("Getting upcoming meets")
                 ProgressView()
             }
             Spacer()
-            let current = tupleToList(tuples: db.dictToTuple(dict: meetParser.currentMeets ?? []))
-            if current != [] {
+            if meetParser.currentMeets != nil && !meetParser.currentMeets!.isEmpty {
+                let current = tupleToList(tuples: db.dictToTuple(dict: meetParser.currentMeets ?? []))
                 List(current, id: \.self) { meet in
                     HStack {
                         ForEach(meet, id: \.self) { col in
@@ -51,6 +53,8 @@ struct Home: View {
                         }
                     }
                 }
+            } else if meetParser.currentMeets != nil {
+                Text("No current meets found")
             } else {
                 Text("Getting current meets")
                 ProgressView()
