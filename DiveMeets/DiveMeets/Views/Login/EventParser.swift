@@ -11,7 +11,8 @@ import SwiftSoup
 final class EventHTMLParser: ObservableObject {
     @Published var myData = [Int:[String:[String:(String, Double, String)]]]()
     @Published var diveTableData = [Int: (String, String, String, Double, Double, Double, String)]()
-    @Published var eventData: (String, String, String, Double, Double, Double) = ("","", "", 0.0, 0.0, 0.0)
+    @Published var eventData: (String, String, String, Double, Double, Double) =
+    ("","", "", 0.0, 0.0, 0.0)
     @Published var eventDictionary = [String:(String, Double, String)]()
     @Published var innerDictionary = [String:[String:(String, Double, String)]]()
     @Published var mainDictionary = [Int:[String:[String:(String, Double, String)]]]()
@@ -41,19 +42,25 @@ final class EventHTMLParser: ObservableObject {
             if i == 0 {
                 continue
             } else if testString.contains(".") {
-                meetEvent = try t.getElementsByTag("td")[0].text().replacingOccurrences(of: "  ", with: "")
-                eventPlace = try t.getElementsByTag("td")[1].text().replacingOccurrences(of: " ", with: "")
+                meetEvent = try t.getElementsByTag("td")[0].text()
+                    .replacingOccurrences(of: "  ", with: "")
+                eventPlace = try t.getElementsByTag("td")[1].text()
+                    .replacingOccurrences(of: " ", with: "")
                 eventScore = Double(try t.getElementsByTag("td")[2].text())!
                 eventLinkAppend = try t.getElementsByTag("a").attr("href")
                 eventLink = "https://secure.meetcontrol.com/divemeets/system/" + eventLinkAppend
                 string.append(try t.text())
-                eventDictionary[meetEvent] = (eventPlace, eventScore, eventLink)
+                await MainActor.run { [meetEvent, eventPlace, eventScore, eventLink] in
+                    eventDictionary[meetEvent] = (eventPlace, eventScore, eventLink)
+                }
             } else if counter != 0 {
-                innerDictionary[meetName] = eventDictionary
-                mainDictionary[counter] = innerDictionary
+                await MainActor.run { [meetName, counter] in
+                    innerDictionary[meetName] = eventDictionary
+                    mainDictionary[counter] = innerDictionary
+                    innerDictionary = [:]
+                    eventDictionary = [:]
+                }
                 meetName = try t.text()
-                innerDictionary = [:]
-                eventDictionary = [:]
                 counter += 1
             } else {
                 meetName = try t.text()
@@ -85,7 +92,8 @@ final class EventHTMLParser: ObservableObject {
         let range = temp.range(of: " - ")
         organization = String(temp.suffix(from: range!.upperBound))
         
-        meetPageLink = "https://secure.meetcontrol.com/divemeets/system/" + (try overall[0].getElementsByTag("a").attr("href"))
+        meetPageLink = "https://secure.meetcontrol.com/divemeets/system/" +
+        (try overall[0].getElementsByTag("a").attr("href"))
         meetDates = try overall[1].getElementsByTag("Strong").text()
         totalNetScore = Double(try finalRow[2].text())!
         totalDD = Double(try finalRow[3].text())!
@@ -94,7 +102,8 @@ final class EventHTMLParser: ObservableObject {
     }
     
     
-    func parseDiveTable(html: String) async throws -> [Int: (String, String, String, Double, Double, Double, String)] {
+    func parseDiveTable(html: String) async throws ->
+    [Int: (String, String, String, Double, Double, Double, String)] {
         let document: Document = try SwiftSoup.parse(html)
         guard let body = document.body() else {
             return [:]
@@ -116,7 +125,8 @@ final class EventHTMLParser: ObservableObject {
             diveNum = try diveInformation[1].text()
             height = try diveInformation[2].text()
             name = try String(diveInformation[3].html().split(separator:"<br>").last!)
-            let tempScore = (try diveInformation[4].text()).replacingOccurrences(of: " Failed Dive", with: "")
+            let tempScore = (try diveInformation[4].text())
+                .replacingOccurrences(of: " Failed Dive", with: "")
             let updatedScore = (tempScore.replacingOccurrences(of: "Dive Changed", with: ""))
             netScore = Double(updatedScore)!
             
@@ -125,9 +135,13 @@ final class EventHTMLParser: ObservableObject {
             } else {
                 DD = Double(try diveInformation[5].text())!
             }
-            score = Double(try diveInformation[6].text().replacingOccurrences(of: "  ", with: ""))!
-            scoreLink = "https://secure.meetcontrol.com/divemeets/system/" + (try diveInformation[6].getElementsByTag("a").attr("href"))
-            meetScores[order] = (diveNum, height, name, netScore, DD, score, scoreLink)
+            score = Double(try diveInformation[6].text()
+                .replacingOccurrences(of: "  ", with: ""))!
+            scoreLink = "https://secure.meetcontrol.com/divemeets/system/" +
+            (try diveInformation[6].getElementsByTag("a").attr("href"))
+            await MainActor.run { [order, diveNum, height, name, netScore, DD, score, scoreLink] in
+                meetScores[order] = (diveNum, height, name, netScore, DD, score, scoreLink)
+            }
         }
         return meetScores
     }

@@ -33,11 +33,13 @@ struct DiveMeetsApp: App {
     // Only one of these should exist, add @Environment to use variable in views
     // instead of creating a new instance of MeetsDataController()
     @StateObject var meetsDataController = MeetsDataController()
+    @StateObject var meetParser: MeetParser = MeetParser()
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(\.managedObjectContext, meetsDataController.container.viewContext)
                 .environment(\.meetsDB, meetsDataController)
+                .environmentObject(meetParser)
         }
     }
 }
