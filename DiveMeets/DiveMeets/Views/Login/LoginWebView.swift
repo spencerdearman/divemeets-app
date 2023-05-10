@@ -16,13 +16,14 @@ struct LoginUIWebView: View {
     "https://secure.meetcontrol.com/divemeets/system/login.php"
     @Binding var loginSearchSubmitted: Bool
     @Binding var loginSuccessful: Bool
+    @Binding var loggedIn: Bool
 
     
     var body: some View {
         VStack {
             LoginWebView(request: $request, parsedUserHTML: $parsedUserHTML,
                     divemeetsID: $divemeetsID, password: $password,
-                         loginSuccessful: $loginSuccessful)
+                         loginSuccessful: $loginSuccessful, loggedIn: $loggedIn)
         }
     }
 }
@@ -34,6 +35,7 @@ struct LoginWebView: UIViewRepresentable {
     @Binding var divemeetsID: String
     @Binding var password: String
     @Binding var loginSuccessful: Bool
+    @Binding var loggedIn: Bool
     
     func makeUIView(context: Context) -> WKWebView {
         let webView: WKWebView = {
@@ -64,8 +66,7 @@ struct LoginWebView: UIViewRepresentable {
     
     // From UIKit to SwiftUI
     func makeCoordinator() -> Coordinator {
-        return Coordinator(html: $parsedUserHTML, divemeetsID: $divemeetsID, password: $password,
-                           loginSuccessful: $loginSuccessful)
+        return Coordinator(html: $parsedUserHTML, divemeetsID: $divemeetsID, password: $password, loginSuccessful: $loginSuccessful, loggedIn: $loggedIn)
     }
     
     class Coordinator: NSObject, WKNavigationDelegate {
@@ -74,13 +75,14 @@ struct LoginWebView: UIViewRepresentable {
         @Binding var divemeetsID: String
         @Binding var password: String
         @Binding var loginSuccessful: Bool
+        @Binding var loggedIn: Bool
         
-        init(html: Binding<String>, divemeetsID: Binding<String>, password: Binding<String>,
-             loginSuccessful: Binding<Bool>) {
+        init(html: Binding<String>, divemeetsID: Binding<String>, password: Binding<String>,loginSuccessful: Binding<Bool>, loggedIn: Binding<Bool>) {
             self._parsedUserHTML = html
             self._divemeetsID = divemeetsID
             self._password = password
             self._loginSuccessful = loginSuccessful
+            self._loggedIn = loggedIn
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -102,11 +104,10 @@ struct LoginWebView: UIViewRepresentable {
                 }
                 self?.parsedUserHTML = html
                 //self?.parsedUserHTML = self?.htmlParser.parseReturnString(html: html) ?? ""
-                print(self?.parsedUserHTML)
-                
                 // Check if the login was successful by looking for a "Welcome, [username]!" message
-                if html.contains("Pool Deck") {
+                if html.contains("DiveMeets #") {
                     self?.loginSuccessful = true
+                    self?.loggedIn = true
                 } else {
                     print("Was not able to login")
                 }
