@@ -20,9 +20,9 @@ struct Event: View {
                 Task {
                     await parser.eventParse(urlString: meet.link!)
                     diverData = parser.eventData
-                    print(diverData)
                     await parser.tableDataParse(urlString: meet.link!)
                     diverTableData = parser.diveTableData
+                    print(diverTableData)
                 }
             }
         VStack{
