@@ -19,7 +19,8 @@ func tupleToList(tuples: [MeetRecord]) -> [[String]] {
 
 struct Home: View {
     @Environment(\.meetsDB) var db
-    @EnvironmentObject var meetParser: MeetParser
+    @StateObject var meetParser: MeetParser = MeetParser()
+    @State private var meetsParsed: Bool = false
     
     var body: some View {
         VStack {
@@ -60,6 +61,14 @@ struct Home: View {
                 ProgressView()
             }
             Spacer()
+        }
+        .onAppear {
+            if !meetsParsed {
+                Task {
+                    try await meetParser.parsePresentMeets()
+                    meetsParsed = true
+                }
+            }
         }
     }
 }
