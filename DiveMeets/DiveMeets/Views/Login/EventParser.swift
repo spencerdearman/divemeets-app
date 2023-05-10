@@ -16,8 +16,7 @@ final class EventHTMLParser: ObservableObject {
     @Published var innerDictionary = [String:[String:(String, Double, String)]]()
     @Published var mainDictionary = [Int:[String:[String:(String, Double, String)]]]()
     @Published var meetScores = [Int: (String, String, String, Double, Double, Double, String)]()
-    @Published var diveMeetTotals: (String, String, String, Double, Double, Double) = ("","", "", 0.0, 0.0, 0.0)
-    //@Published var myData = [(String, Int, String)]()
+    
     let getTextModel = GetTextAsyncModel()
     
     func parse(html: String) async throws -> [Int:[String:[String:(String, Double, String)]]] {
@@ -26,7 +25,6 @@ final class EventHTMLParser: ObservableObject {
             return [:]
         }
         let main = try body.getElementsByTag("table")
-        print("this is the HTML")
         
         //Getting the overarching td and then pulling the 3 items within
         let overall = try main[1].getElementsByTag("tr")
@@ -78,14 +76,13 @@ final class EventHTMLParser: ObservableObject {
         var totalDD  = 0.0
         var totalScore = 0.0
         
-        let main = try body.getElementsByTag("body")
         let table = try body.getElementsByTag("table")
         let overall = try table[0].getElementsByTag("tr")
         //Getting the link to the meet page, not to be confused with the meetLink --Working
         
         for (i, t) in overall.enumerated(){
             if i == 0 {
-                var meetPageLink = "https://secure.meetcontrol.com/divemeets/system/" + (try t.getElementsByTag("a").attr("href"))
+                meetPageLink = "https://secure.meetcontrol.com/divemeets/system/" + (try t.getElementsByTag("a").attr("href"))
             } else if i == 1 {
                 //Eventually go back and remove repeats
                 meetDates = try t.getElementsByTag("Strong").text()
@@ -97,7 +94,6 @@ final class EventHTMLParser: ObservableObject {
         }
         let finalRow = try overall[overall.count - 2].getElementsByTag("td")
         for (i, tr) in finalRow.enumerated() {
-            print(tr)
             if i == 2 {
                 totalNetScore = Double(try tr.text())!
             } else if i == 3 {
@@ -106,8 +102,7 @@ final class EventHTMLParser: ObservableObject {
                 totalScore = Double(try tr.text())!
             }
         }
-        diveMeetTotals = (meetPageLink, meetDates, organization, totalNetScore, totalDD, totalScore)
-        return diveMeetTotals
+        return (meetPageLink, meetDates, organization, totalNetScore, totalDD, totalScore)
     }
     
     
@@ -116,7 +111,7 @@ final class EventHTMLParser: ObservableObject {
         guard let body = document.body() else {
             return [:]
         }
-        
+    
         //Variable Hell
         var order = 0
         var diveNum = ""
@@ -140,17 +135,28 @@ final class EventHTMLParser: ObservableObject {
                 } else if i == 2 {
                     height = try cell.text()
                 } else if i == 3 {
+//                    let containsBR: Bool = try cell.select("br").count > 0
+//                    if containsBR {
+//
+//                    }
+//                    print(containsBR)
                     name = try cell.text()
                 } else if i == 4 {
-                    netScore = Double(try cell.text())!
+                    let score = (try cell.text()).replacingOccurrences(of: " Failed Dive", with: "")
+                    let updatedScore = (try score.replacingOccurrences(of: "Dive Changed", with: ""))
+                    netScore = Double(updatedScore)!
                 } else if i == 5 {
-                    DD = Double(try cell.text())!
+                    if try cell.text().count > 4 {
+                        DD = Double(try cell.text().suffix(4))!
+                    } else {
+                        DD = Double(try cell.text())!
+                    }
                 } else if i == 6 {
-                    score = Double(try cell.text())!
+                    print(try cell.text())
+                    score = Double(try cell.text().replacingOccurrences(of: "  ", with: ""))!
                     scoreLink = "https://secure.meetcontrol.com/divemeets/system/" + (try cell.getElementsByTag("a").attr("href"))
                 }
             }
-            //(String, String, String, Double, Double, Double, String)
             meetScores[order] = (diveNum, height, name, netScore, DD, score, scoreLink)
         }
         return meetScores
@@ -185,9 +191,27 @@ final class EventHTMLParser: ObservableObject {
         if let html = getTextModel.text {
             do {
                 let data = try await parseEvent(html: html)
-                let tableData = try await parseDiveTable(html: html)
                 await MainActor.run {
                     eventData = data
+                }
+            } catch {
+                print("Error parsing HTML: \(error)")
+            }
+        } else {
+            print("Could not fetch text")
+        }
+    }
+    
+    func tableDataParse(urlString: String) async {
+        guard let url = URL(string: urlString) else { return }
+        
+        // This sets getTextModel's text field equal to the HTML from url
+        await getTextModel.fetchText(url: url)
+        
+        if let html = getTextModel.text {
+            do {
+                let tableData = try await parseDiveTable(html: html)
+                await MainActor.run {
                     diveTableData = tableData
                 }
             } catch {
