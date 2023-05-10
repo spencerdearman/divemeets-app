@@ -36,6 +36,7 @@ struct MeetList: View {
         var meets = [MeetEvent]()
         var currentMeetEvents: [MeetEvent]? = []
         
+        //Starting at 1 because the first meet in the dictionary has a key of 1
         for i in 1...diverData.count{
             if let value = diverData[i] {
                 for (name, meetEvent) in value{
