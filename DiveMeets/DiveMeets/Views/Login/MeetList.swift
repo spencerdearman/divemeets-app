@@ -90,8 +90,6 @@ struct MeetList: View {
         }
     }
 
-
-
 struct childView: View{
     @Binding var meet: MeetEvent
     

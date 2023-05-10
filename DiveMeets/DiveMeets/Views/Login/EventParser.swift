@@ -99,7 +99,6 @@ final class EventHTMLParser: ObservableObject {
         guard let body = document.body() else {
             return [:]
         }
-        
         //Variable Hell
         var order = 0
         var diveNum = ""
@@ -114,30 +113,21 @@ final class EventHTMLParser: ObservableObject {
         let diveTable = try table[0].getElementsByAttribute("bgcolor")
         for dive in diveTable {
             let diveInformation = try dive.getElementsByTag("td")
-            for (i, cell) in diveInformation.enumerated() {
-                if i == 0 {
-                    order = Int(try cell.text())!
-                } else if i == 1 {
-                    diveNum = try cell.text()
-                } else if i == 2 {
-                    height = try cell.text()
-                } else if i == 3 {
-                    name = try String(cell.html().split(separator:"<br>").last!)
-                } else if i == 4 {
-                    let score = (try cell.text()).replacingOccurrences(of: " Failed Dive", with: "")
-                    let updatedScore = (score.replacingOccurrences(of: "Dive Changed", with: ""))
-                    netScore = Double(updatedScore)!
-                } else if i == 5 {
-                    if try cell.text().count > 4 {
-                        DD = Double(try cell.text().suffix(4))!
-                    } else {
-                        DD = Double(try cell.text())!
-                    }
-                } else if i == 6 {
-                    score = Double(try cell.text().replacingOccurrences(of: "  ", with: ""))!
-                    scoreLink = "https://secure.meetcontrol.com/divemeets/system/" + (try cell.getElementsByTag("a").attr("href"))
-                }
+            order = Int(try diveInformation[0].text())!
+            diveNum = try diveInformation[1].text()
+            height = try diveInformation[2].text()
+            name = try String(diveInformation[3].html().split(separator:"<br>").last!)
+            let tempScore = (try diveInformation[4].text()).replacingOccurrences(of: " Failed Dive", with: "")
+            let updatedScore = (tempScore.replacingOccurrences(of: "Dive Changed", with: ""))
+            netScore = Double(updatedScore)!
+            
+            if try diveInformation[5].text().count > 4 {
+                DD = Double(try diveInformation[5].text().suffix(4))!
+            } else {
+                DD = Double(try diveInformation[5].text())!
             }
+            score = Double(try diveInformation[6].text().replacingOccurrences(of: "  ", with: ""))!
+            scoreLink = "https://secure.meetcontrol.com/divemeets/system/" + (try diveInformation[6].getElementsByTag("a").attr("href"))
             meetScores[order] = (diveNum, height, name, netScore, DD, score, scoreLink)
         }
         return meetScores
