@@ -22,15 +22,40 @@ struct Home: View {
     @EnvironmentObject var meetParser: MeetParser
     
     var body: some View {
-        List(tupleToList(tuples: db.dictToTuple(dict: meetParser.upcomingMeets ?? [:])),
-             id: \.self) { meet in
-            HStack {
-                ForEach(meet, id: \.self) { col in
-                    if !col.starts(with: "http") {
-                        Text(col)
+        VStack {
+            Spacer()
+            let upcoming = tupleToList(tuples: db.dictToTuple(dict: meetParser.upcomingMeets ?? [:]))
+            if upcoming != [] {
+                List(upcoming, id: \.self) { meet in
+                    HStack {
+                        ForEach(meet, id: \.self) { col in
+                            if !col.starts(with: "http") {
+                                Text(col)
+                            }
+                        }
                     }
                 }
+            } else {
+                Text("Getting upcoming meets")
+                ProgressView()
             }
+            Spacer()
+            let current = tupleToList(tuples: db.dictToTuple(dict: meetParser.currentMeets ?? []))
+            if current != [] {
+                List(current, id: \.self) { meet in
+                    HStack {
+                        ForEach(meet, id: \.self) { col in
+                            if !col.starts(with: "http") {
+                                Text(col)
+                            }
+                        }
+                    }
+                }
+            } else {
+                Text("Getting current meets")
+                ProgressView()
+            }
+            Spacer()
         }
     }
 }
