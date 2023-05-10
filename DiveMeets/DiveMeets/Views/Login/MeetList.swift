@@ -61,7 +61,6 @@ struct MeetList: View {
                     await parser.parse(urlString: profileLink)
                     diverData = parser.myData
                     meets = createMeets(data: diverData) ?? []
-//                    print(meets)
                 }
             }
         
