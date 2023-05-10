@@ -57,7 +57,6 @@ struct LoginProfile: View {
                 Task {
                     await parser.parse(urlString: profileLink)
                     diverData = parser.myData
-                    //                    print(diverData)
                     let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
                     print(divers)
                     if divers != "" {
