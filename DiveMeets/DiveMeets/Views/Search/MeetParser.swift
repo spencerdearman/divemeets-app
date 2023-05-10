@@ -510,6 +510,12 @@ final class MeetParser: ObservableObject {
                     }
                     if try tabElem.text() == "Past Results & Photos" {
                         await MainActor.run {
+                            // Assigns currentMeets to empty list if we don't see the tab in menu,
+                            // sets that we have checked and there aren't any current meets
+                            if currentMeets == nil {
+                                currentMeets = []
+                            }
+                            
                             stage = .past
                         }
                         continue
