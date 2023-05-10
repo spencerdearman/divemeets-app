@@ -185,9 +185,7 @@ struct SearchView: View {
     @State var dmSearchSubmitted: Bool = false
     @State var linksParsed: Bool = false
     @Binding var isIndexingMeets: Bool
-    @Binding var isFinishedCounting: Bool
-    @Binding var meetsParsedCount: Int
-    @Binding var totalMeetsParsedCount: Int
+    
     private var personSearchSubmitted: Bool {
         searchSubmitted && selection == .person
     }
@@ -208,10 +206,7 @@ struct SearchView: View {
                             meetName: $meetName, orgName: $orgName, meetYear: $meetYear,
                             searchSubmitted: $searchSubmitted, parsedLinks: $parsedLinks,
                             dmSearchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed,
-                            isIndexingMeets: $isIndexingMeets,
-                            isFinishedCounting: $isFinishedCounting,
-                            meetsParsedCount: $meetsParsedCount,
-                            totalMeetsParsedCount: $totalMeetsParsedCount)
+                            isIndexingMeets: $isIndexingMeets)
         }
         .onDisappear {
             searchSubmitted = false
@@ -222,13 +217,14 @@ struct SearchView: View {
 
 struct SearchInputView: View {
     @Environment(\.colorScheme) var currentMode
+    @EnvironmentObject private var meetParser: MeetParser
     
     @State private var showError: Bool = false
     @State var fullScreenResults: Bool = false
     @State var resultSelected: Bool = false
     // Tracks if the user is inside of a text field to determine when to show the keyboard
     @FocusState private var focusedField: SearchField?
-    @Binding private var selection: SearchType
+    @Binding fileprivate var selection: SearchType
     @Binding var firstName: String
     @Binding var lastName: String
     @Binding var meetName: String
@@ -240,9 +236,6 @@ struct SearchInputView: View {
     @Binding var dmSearchSubmitted: Bool
     @Binding var linksParsed: Bool
     @Binding var isIndexingMeets: Bool
-    @Binding var isFinishedCounting: Bool
-    @Binding var meetsParsedCount: Int
-    @Binding var totalMeetsParsedCount: Int
     
     @State var predicate: NSPredicate?
     @State private var filterType: FilterType = .name
@@ -258,8 +251,7 @@ struct SearchInputView: View {
         max(resultsIconSizeScaled, 15.0)
     }
     
-    @FetchRequest(sortDescriptors: [])
-    private var items: FetchedResults<DivingMeet>
+    @FetchRequest(sortDescriptors: []) private var items: FetchedResults<DivingMeet>
     // Useful link:
     // https://stackoverflow.com/questions/61631611/swift-dynamicfetchview-fetchlimit/61632618#61632618
     // Updates the filteredItems value dynamically with predicate and sorting changes
@@ -302,31 +294,6 @@ struct SearchInputView: View {
     }
     private var meetResultsReady: Bool {
         selection == .meet && predicate != nil
-    }
-    
-    fileprivate init(selection: Binding<SearchType>, firstName: Binding<String>,
-                     lastName: Binding<String>, meetName: Binding<String>,
-                     orgName: Binding<String>, meetYear: Binding<String>,
-                     searchSubmitted: Binding<Bool>, parsedLinks: Binding<[String : String]>,
-                     dmSearchSubmitted: Binding<Bool>, linksParsed: Binding<Bool>,
-                     isIndexingMeets: Binding<Bool>, isFinishedCounting: Binding<Bool>,
-                     meetsParsedCount: Binding<Int>, totalMeetsParsedCount: Binding<Int>) {
-        self._selection = selection
-        self._firstName = firstName
-        self._lastName = lastName
-        self._meetName = meetName
-        self._orgName = orgName
-        self._meetYear = meetYear
-        self._searchSubmitted = searchSubmitted
-        self._parsedLinks = parsedLinks
-        self._dmSearchSubmitted = dmSearchSubmitted
-        self._linksParsed = linksParsed
-        self._isIndexingMeets = isIndexingMeets
-        self._isFinishedCounting = isFinishedCounting
-        self._meetsParsedCount = meetsParsedCount
-        self._totalMeetsParsedCount = totalMeetsParsedCount
-        self._items = FetchRequest<DivingMeet>(entity: DivingMeet.entity(),
-                                               sortDescriptors: [])
     }
     
     private func clearStateFlags() {
@@ -463,18 +430,19 @@ struct SearchInputView: View {
                         // Displays loading bar if counts are done, otherwise shows indefinite
                         // progress bar
                         Group {
-                            if isFinishedCounting {
+                            if meetParser.isFinishedCounting {
                                 VStack(alignment: .leading) {
                                     Text("Indexing...")
                                         .font(.headline)
                                         .padding(.leading)
-                                    ProgressView(value: Double(meetsParsedCount),
-                                                 total: Double(totalMeetsParsedCount))
+                                    ProgressView(value: Double(meetParser.meetsParsedCount),
+                                                 total: Double(meetParser.totalMeetsParsedCount))
                                     .progressViewStyle(.linear)
                                     .frame(width: 250)
                                     .padding(.leading)
-                                    Text(getPercentString(count: meetsParsedCount,
-                                                          total: totalMeetsParsedCount) + "%")
+                                    Text(getPercentString(count: meetParser.meetsParsedCount,
+                                                          total: meetParser.totalMeetsParsedCount)
+                                         + "%")
                                     .foregroundColor(.gray)
                                     .padding(.leading)
                                 }

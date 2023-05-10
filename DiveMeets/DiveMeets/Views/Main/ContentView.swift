@@ -11,10 +11,9 @@ struct ContentView: View {
     @Environment(\.colorScheme) var currentMode
     @Environment(\.scenePhase) var scenePhase
     @Environment(\.meetsDB) var db
+    @EnvironmentObject private var p: MeetParser
     @State private var selectedTab: Tab = .magnifyingglass
     @State var isIndexingMeets: Bool = false
-    @StateObject private var getTextModel = GetTextAsyncModel()
-    @State private var p: MeetParser = MeetParser()
     @FetchRequest(sortDescriptors: []) private var meets: FetchedResults<DivingMeet>
     
     var hasHomeButton: Bool {
@@ -45,17 +44,14 @@ struct ContentView: View {
                             // Add different page views here for different tabs
                             switch tab {
                                 case .house:
-                                    Home(meetParser: $p)
+                                    Home()
                                 case .gearshape:
                                     Image(systemName: tab.rawValue)
                                     Text("Settings")
                                         .bold()
                                         .animation(nil, value: selectedTab)
                                 case .magnifyingglass:
-                                    SearchView(isIndexingMeets: $isIndexingMeets,
-                                               isFinishedCounting: $p.isFinishedCounting,
-                                               meetsParsedCount: $p.meetsParsedCount,
-                                               totalMeetsParsedCount: $p.totalMeetsParsedCount)
+                                    SearchView(isIndexingMeets: $isIndexingMeets)
                                 case .person:
                                     LoginSearchView()
                             }

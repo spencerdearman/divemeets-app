@@ -19,7 +19,7 @@ func tupleToList(tuples: [MeetRecord]) -> [[String]] {
 
 struct Home: View {
     @Environment(\.meetsDB) var db
-    @Binding var meetParser: MeetParser
+    @EnvironmentObject var meetParser: MeetParser
     
     var body: some View {
         List(tupleToList(tuples: db.dictToTuple(dict: meetParser.upcomingMeets ?? [:])),

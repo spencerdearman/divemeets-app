@@ -55,8 +55,6 @@ func decomposeRow(row: Element) -> [String] {
 
 
 final class MeetParser: ObservableObject {
-    let currentYear = String(Calendar.current.component(.year, from: Date()))
-    @Published private var linkText: String?
     // Upcoming meets happening in the future
     @Published var upcomingMeets: MeetDict?
     // Meets that are actively happening during that time period
@@ -65,14 +63,16 @@ final class MeetParser: ObservableObject {
     @Published var liveResults: LiveResultsDict?
     // Meets that have already happened
     @Published var pastMeets: MeetDict?
-    @Published private var pastYear: String = ""
-    @Published private var stage: Stage?
     @Published var meetsParsedCount: Int = 0
     @Published var totalMeetsParsedCount: Int = 0
     @Published var isFinishedCounting: Bool = false
-    let loader = GetTextAsyncLoader()
-    let getTextModel = GetTextAsyncModel()
-    let leadingLink: String = "https://secure.meetcontrol.com/divemeets/system/"
+    private let currentYear = String(Calendar.current.component(.year, from: Date()))
+    private var linkText: String?
+    private var pastYear: String = ""
+    private var stage: Stage?
+    private let loader = GetTextAsyncLoader()
+    private let getTextModel = GetTextAsyncModel()
+    private let leadingLink: String = "https://secure.meetcontrol.com/divemeets/system/"
     private var storedPastMeetYears: Set<Int>? = nil
     
     // Gets html text from async loader
