@@ -486,7 +486,6 @@ final class MeetParser: ObservableObject {
                 for tab in menuTabs! {
                     // tabElem is one of the links from the tabs in the menu bar
                     let tabElem = try tab.getElementsByAttribute("href")[0]
-                    print(try tabElem.text())
                     
                     if try tabElem.text() == "Past Results & Photos" {
                         // Assigns currentMeets to empty list in case without current tab
