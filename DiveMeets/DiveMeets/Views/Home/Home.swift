@@ -131,21 +131,57 @@ struct UpcomingMeetsView: View {
     var body: some View {
         if meetParser.upcomingMeets != nil && !meetParser.upcomingMeets!.isEmpty {
             let upcoming = tupleToList(tuples: db.dictToTuple(dict: meetParser.upcomingMeets!))
-            List(upcoming, id: \.self) { meet in
-                HStack {
-                    ForEach(meet, id: \.self) { col in
-                        if !col.starts(with: "http") {
-                            Text(col)
+            GeometryReader { mainView in
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 15) {
+                        ForEach(upcoming, id: \.self) { meet in
+                            GeometryReader { item in
+                                ZStack {
+                                    Rectangle()
+                                        .foregroundColor(.white)
+                                    HStack {
+                                        ForEach(meet, id: \.self) { col in
+                                            if !col.starts(with: "http") {
+                                                Text(col)
+                                            }
+                                        }
+                                    }
+                                    .padding()
+                                }
+                                .cornerRadius(15)
+                                .scaleEffect(scaleValue(mainFrame: mainView.frame(in: .global).minY,
+                                                        minY: item.frame(in: .global).minY),
+                                             anchor: .bottom)
+                                .opacity(scaleValue(mainFrame: mainView.frame(in: .global).minY,
+                                                    minY: item.frame(in: .global).minY))
+                            }
+                            .frame(height: 100)
                         }
                     }
+                    .padding(.horizontal)
+                    .padding(.top, 25)
                 }
+                .zIndex(1)
             }
+            .background(Color(red: 0.95, green: 0.95, blue: 0.95))
             .padding(.bottom, maxHeightOffset)
         } else if meetParser.upcomingMeets != nil {
             Text("No upcoming meets found")
         } else {
             Text("Getting upcoming meets")
             ProgressView()
+        }
+    }
+    
+    func scaleValue(mainFrame: CGFloat, minY: CGFloat) -> CGFloat {
+        withAnimation(.easeOut) {
+            let scale = (minY - 25) / mainFrame
+
+            if scale > 1 {
+                return 1
+            } else {
+                return scale
+            }
         }
     }
 }
