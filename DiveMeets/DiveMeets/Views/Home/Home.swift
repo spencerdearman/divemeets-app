@@ -15,14 +15,28 @@ enum ViewType: String, CaseIterable {
 func tupleToList(tuples: [MeetRecord]) -> [[String]] {
     var result: [[String]] = []
     //  (id, name, org, link, startDate, endDate, city, state, country)
-    for (id, name, org, link, startDate, endDate, city, state, country) in tuples.sorted(by: {
-        // Sorts by startDate for view results
-        let a = $0.4
-        let b = $1.4
-        let df = DateFormatter()
-        df.dateFormat = "MMM d, yyyy"
-        return df.date(from: a!)! < df.date(from: b!)!
-    }) {
+    for (id, name, org, link, startDate, endDate, city, state, country) in tuples.sorted(
+        by: { (lhs, rhs) in
+            let df = DateFormatter()
+            df.dateFormat = "MMM d, yyyy"
+            
+            // Sorts first by start date, then end date, then name in that order
+            if lhs.4 == rhs.4 {
+                if lhs.5 == rhs.5 {
+                    return lhs.1! < rhs.1!
+                }
+                
+                let a = lhs.5!
+                let b = rhs.5!
+                
+                return df.date(from: a)! < df.date(from: b)!
+            }
+            
+            let a = lhs.4!
+            let b = rhs.4!
+            
+            return df.date(from: a)! < df.date(from: b)!
+        }) {
         let idStr = id != nil ? String(id!) : ""
         result.append([idStr, name ?? "", org ?? "", link ?? "",
                        startDate ?? "", endDate ?? "", city ?? "", state ?? "", country ?? ""])
@@ -154,10 +168,17 @@ struct CurrentMeetsView: View {
     @Environment(\.meetsDB) var db
     @ObservedObject var meetParser: MeetParser
     
+    @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
+    
+    private var maxHeightOffset: CGFloat {
+        min(maxHeightOffsetScaled, 90)
+    }
+    
     var body: some View {
         if meetParser.currentMeets != nil && !meetParser.currentMeets!.isEmpty {
             let current = tupleToList(tuples: db.dictToTuple(dict: meetParser.currentMeets ?? []))
             ScalingScrollView(meets: current)
+                .padding(.bottom, maxHeightOffset)
         } else if meetParser.currentMeets != nil {
             Text("No current meets found")
         } else {
@@ -185,20 +206,41 @@ struct MeetBubbleView: View {
         ZStack {
             Rectangle()
                 .foregroundColor(bubbleColor)
-            HStack {
-                Text(elements[1]) // name
-                Text(elements[2]) // org
-                Text(elements[4]) // startDate
-                Text(elements[6]) // city
-                Text(elements[7]) // state
+            VStack {
+                VStack {
+                    Text(elements[1]) // name
+                        .font(.title3)
+                        .bold()
+                    
+                    Spacer()
+                    
+                    Text(elements[2]) // org
+                        .font(.headline)
+                }
+                .scaledToFit()
+                Spacer()
+                HStack {
+                    Text(elements[6] + ", " + elements[7]) // city, state
+                    
+                    Spacer()
+                    
+                    Text(elements[4] + " - " + elements[5]) // startDate - endDate
+                }
+                .font(.subheadline)
+                .scaledToFit()
+                .minimumScaleFactor(0.5)
             }
             .padding()
+        }
+        .onTapGesture {
+            print(elements[3])
         }
     }
 }
 
 struct ScalingScrollView: View {
     @Environment(\.colorScheme) var currentMode
+    @ScaledMetric private var frameHeight: CGFloat = 100
     
     private let grayValue: CGFloat = 0.90
     private let grayValueDark: CGFloat = 0.10
@@ -218,7 +260,7 @@ struct ScalingScrollView: View {
     var body: some View {
         GeometryReader { mainView in
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 15) {
+                VStack(spacing: 20) {
                     ForEach(meets, id: \.self) { meet in
                         GeometryReader { item in
                             MeetBubbleView(elements: meet)
@@ -229,8 +271,9 @@ struct ScalingScrollView: View {
                                 .opacity(scaleValue(mainFrame: mainView.frame(in: .global).minY,
                                                     minY: item.frame(in: .global).minY))
                         }
-                        .frame(height: 100)
+                        .frame(height: frameHeight)
                     }
+                    Spacer()
                 }
                 .padding(.horizontal)
                 .padding(.top, 25)
@@ -246,6 +289,8 @@ struct ScalingScrollView: View {
             
             if scale > 1 {
                 return 1
+            } else if scale == 0 {
+                return 1e-5
             } else {
                 return scale
             }
