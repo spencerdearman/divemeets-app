@@ -85,7 +85,11 @@ final class MeetParser: ObservableObject {
     
     // Loads each stored year in the database into a set
     private func pullStoredPastMeetYears(storedMeets: FetchedResults<DivingMeet>) {
-        storedPastMeetYears = Set<Int>(Array(storedMeets).map {
+        let entries = Array(storedMeets).filter {(m) -> Bool in
+            m.startDate != nil
+        }
+        
+        storedPastMeetYears = Set<Int>(entries.map {
             Calendar.current.dateComponents([.year], from: $0.startDate!).year!
         })
     }
