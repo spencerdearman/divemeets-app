@@ -15,10 +15,17 @@ enum ViewType: String, CaseIterable {
 func tupleToList(tuples: [MeetRecord]) -> [[String]] {
     var result: [[String]] = []
     //  (id, name, org, link, startDate, endDate, city, state, country)
-    for (_, name, org, _, startDate, _, city, state, _) in tuples {
-        //        let idStr = id != nil ? String(id!) : ""
-        result.append([name ?? "", org ?? "",
-                       startDate ?? "", city ?? "", state ?? ""])
+    for (id, name, org, link, startDate, endDate, city, state, country) in tuples.sorted(by: {
+        // Sorts by startDate for view results
+        let a = $0.4
+        let b = $1.4
+        let df = DateFormatter()
+        df.dateFormat = "MMM d, yyyy"
+        return df.date(from: a!)! < df.date(from: b!)!
+    }) {
+        let idStr = id != nil ? String(id!) : ""
+        result.append([idStr, name ?? "", org ?? "", link ?? "",
+                       startDate ?? "", endDate ?? "", city ?? "", state ?? "", country ?? ""])
     }
     return result
 }
@@ -160,6 +167,36 @@ struct CurrentMeetsView: View {
     }
 }
 
+struct MeetBubbleView: View {
+    @Environment(\.colorScheme) var currentMode
+    
+    private var bubbleColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    
+    //  (id, name, org, link, startDate, endDate, city, state, country)
+    private var elements: [String]
+    
+    init(elements: [String]) {
+        self.elements = elements
+    }
+    
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .foregroundColor(bubbleColor)
+            HStack {
+                Text(elements[1]) // name
+                Text(elements[2]) // org
+                Text(elements[4]) // startDate
+                Text(elements[6]) // city
+                Text(elements[7]) // state
+            }
+            .padding()
+        }
+    }
+}
+
 struct ScalingScrollView: View {
     @Environment(\.colorScheme) var currentMode
     
@@ -170,10 +207,6 @@ struct ScalingScrollView: View {
         currentMode == .light
         ? Color(red: grayValue, green: grayValue, blue: grayValue)
         : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
-    }
-    
-    private var bubbleColor: Color {
-        currentMode == .light ? .white : .black
     }
     
     private var meets: [[String]]
@@ -188,24 +221,13 @@ struct ScalingScrollView: View {
                 VStack(spacing: 15) {
                     ForEach(meets, id: \.self) { meet in
                         GeometryReader { item in
-                            ZStack {
-                                Rectangle()
-                                    .foregroundColor(bubbleColor)
-                                HStack {
-                                    ForEach(meet, id: \.self) { col in
-                                        if !col.starts(with: "http") {
-                                            Text(col)
-                                        }
-                                    }
-                                }
-                                .padding()
-                            }
-                            .cornerRadius(15)
-                            .scaleEffect(scaleValue(mainFrame: mainView.frame(in: .global).minY,
-                                                    minY: item.frame(in: .global).minY),
-                                         anchor: .bottom)
-                            .opacity(scaleValue(mainFrame: mainView.frame(in: .global).minY,
-                                                minY: item.frame(in: .global).minY))
+                            MeetBubbleView(elements: meet)
+                                .cornerRadius(15)
+                                .scaleEffect(scaleValue(mainFrame: mainView.frame(in: .global).minY,
+                                                        minY: item.frame(in: .global).minY),
+                                             anchor: .bottom)
+                                .opacity(scaleValue(mainFrame: mainView.frame(in: .global).minY,
+                                                    minY: item.frame(in: .global).minY))
                         }
                         .frame(height: 100)
                     }
