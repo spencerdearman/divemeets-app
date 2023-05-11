@@ -16,7 +16,7 @@ func tupleToList(tuples: [MeetRecord]) -> [[String]] {
     var result: [[String]] = []
     //  (id, name, org, link, startDate, endDate, city, state, country)
     for (_, name, org, _, startDate, _, city, state, _) in tuples {
-//        let idStr = id != nil ? String(id!) : ""
+        //        let idStr = id != nil ? String(id!) : ""
         result.append([name ?? "", org ?? "",
                        startDate ?? "", city ?? "", state ?? ""])
     }
@@ -131,57 +131,13 @@ struct UpcomingMeetsView: View {
     var body: some View {
         if meetParser.upcomingMeets != nil && !meetParser.upcomingMeets!.isEmpty {
             let upcoming = tupleToList(tuples: db.dictToTuple(dict: meetParser.upcomingMeets!))
-            GeometryReader { mainView in
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 15) {
-                        ForEach(upcoming, id: \.self) { meet in
-                            GeometryReader { item in
-                                ZStack {
-                                    Rectangle()
-                                        .foregroundColor(.white)
-                                    HStack {
-                                        ForEach(meet, id: \.self) { col in
-                                            if !col.starts(with: "http") {
-                                                Text(col)
-                                            }
-                                        }
-                                    }
-                                    .padding()
-                                }
-                                .cornerRadius(15)
-                                .scaleEffect(scaleValue(mainFrame: mainView.frame(in: .global).minY,
-                                                        minY: item.frame(in: .global).minY),
-                                             anchor: .bottom)
-                                .opacity(scaleValue(mainFrame: mainView.frame(in: .global).minY,
-                                                    minY: item.frame(in: .global).minY))
-                            }
-                            .frame(height: 100)
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 25)
-                }
-                .zIndex(1)
-            }
-            .background(Color(red: 0.95, green: 0.95, blue: 0.95))
-            .padding(.bottom, maxHeightOffset)
+            ScalingScrollView(meets: upcoming)
+                .padding(.bottom, maxHeightOffset)
         } else if meetParser.upcomingMeets != nil {
             Text("No upcoming meets found")
         } else {
             Text("Getting upcoming meets")
             ProgressView()
-        }
-    }
-    
-    func scaleValue(mainFrame: CGFloat, minY: CGFloat) -> CGFloat {
-        withAnimation(.easeOut) {
-            let scale = (minY - 25) / mainFrame
-
-            if scale > 1 {
-                return 1
-            } else {
-                return scale
-            }
         }
     }
 }
@@ -194,18 +150,83 @@ struct CurrentMeetsView: View {
     var body: some View {
         if meetParser.currentMeets != nil && !meetParser.currentMeets!.isEmpty {
             let current = tupleToList(tuples: db.dictToTuple(dict: meetParser.currentMeets ?? []))
-            List(current, id: \.self) { meet in
-                HStack {
-                    ForEach(meet, id: \.self) { col in
-                        Text(col)
-                    }
-                }
-            }
+            ScalingScrollView(meets: current)
         } else if meetParser.currentMeets != nil {
             Text("No current meets found")
         } else {
             Text("Getting current meets")
             ProgressView()
+        }
+    }
+}
+
+struct ScalingScrollView: View {
+    @Environment(\.colorScheme) var currentMode
+    
+    private let grayValue: CGFloat = 0.90
+    private let grayValueDark: CGFloat = 0.10
+    
+    private var grayColor: Color {
+        currentMode == .light
+        ? Color(red: grayValue, green: grayValue, blue: grayValue)
+        : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
+    }
+    
+    private var bubbleColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    
+    private var meets: [[String]]
+    
+    init(meets: [[String]]) {
+        self.meets = meets
+    }
+    
+    var body: some View {
+        GeometryReader { mainView in
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 15) {
+                    ForEach(meets, id: \.self) { meet in
+                        GeometryReader { item in
+                            ZStack {
+                                Rectangle()
+                                    .foregroundColor(bubbleColor)
+                                HStack {
+                                    ForEach(meet, id: \.self) { col in
+                                        if !col.starts(with: "http") {
+                                            Text(col)
+                                        }
+                                    }
+                                }
+                                .padding()
+                            }
+                            .cornerRadius(15)
+                            .scaleEffect(scaleValue(mainFrame: mainView.frame(in: .global).minY,
+                                                    minY: item.frame(in: .global).minY),
+                                         anchor: .bottom)
+                            .opacity(scaleValue(mainFrame: mainView.frame(in: .global).minY,
+                                                minY: item.frame(in: .global).minY))
+                        }
+                        .frame(height: 100)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top, 25)
+            }
+            .zIndex(1)
+        }
+        .background(grayColor)
+    }
+    
+    func scaleValue(mainFrame: CGFloat, minY: CGFloat) -> CGFloat {
+        withAnimation(.easeOut) {
+            let scale = (minY - 25) / mainFrame
+            
+            if scale > 1 {
+                return 1
+            } else {
+                return scale
+            }
         }
     }
 }
