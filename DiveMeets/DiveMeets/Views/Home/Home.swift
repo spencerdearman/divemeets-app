@@ -215,13 +215,16 @@ struct MeetBubbleView: View {
                     Text(elements[1]) // name
                         .font(.title3)
                         .bold()
+                        .scaledToFit()
+                        .minimumScaleFactor(0.5)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(1)
                     
                     Spacer()
                     
                     Text(elements[2]) // org
                         .font(.headline)
                 }
-                .scaledToFit()
                 Spacer()
                 HStack {
                     Text(elements[6] + ", " + elements[7]) // city, state

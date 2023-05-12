@@ -21,13 +21,14 @@ struct ScalingScrollView<T: RandomAccessCollection, U: View>: View where T.Eleme
     }
     
     var records: T
-    var bgColor: Color = Color(red: 0.95, green: 0.95, blue: 0.95)
+    var bgColor: Color? = nil
+    var rowSpacing: CGFloat = 20
     var viewGenerator: (T.Element) -> U
     
     var body: some View {
         GeometryReader { mainView in
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 20) {
+                VStack(spacing: rowSpacing) {
                     ForEach(records, id: \.self) { record in
                         GeometryReader { item in
                             viewGenerator(record)
@@ -47,7 +48,7 @@ struct ScalingScrollView<T: RandomAccessCollection, U: View>: View where T.Eleme
             }
             .zIndex(1)
         }
-                .background(bgColor)
+        .background(bgColor == nil ? grayColor : bgColor)
     }
     
     func scaleValue(mainFrame: CGFloat, minY: CGFloat) -> CGFloat {
