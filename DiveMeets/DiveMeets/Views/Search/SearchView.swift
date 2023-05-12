@@ -655,6 +655,18 @@ struct MeetResultsView : View {
     private let grayValue: CGFloat = 0.95
     private let grayValueDark: CGFloat = 0.10
     
+    private var grayColor: Color {
+        currentMode == .light
+        ? Color(red: grayValue, green: grayValue, blue: grayValue)
+        : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
+    }
+
+    private func dateToString(_ date: Date) -> String {
+        let df = DateFormatter()
+        df.dateFormat = "MMM d, yyyy"
+        return df.string(from: date)
+    }
+    
     var body: some View {
         let gray = currentMode == .light ? grayValue : grayValueDark
         ZStack {
@@ -670,14 +682,26 @@ struct MeetResultsView : View {
                     .padding(.top, 50)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 if !records.isEmpty {
-                    List(records) { result in
-                        Button(result.name!) {
-                            print(result.link!)
+                    ScalingScrollView(records: records) { (e) in
+                        ZStack {
+                            Rectangle()
+                                .foregroundColor(currentMode == .light ? .white : .black)
+                            VStack {
+                                HStack {
+                                    Text(e.name!)
+                                    Spacer()
+                                    Text(e.city! + ", " + e.state!)
+                                }
+                                HStack {
+                                    Text(e.organization!)
+                                    Spacer()
+                                    Text(dateToString(e.startDate!)
+                                         + " - " + dateToString(e.endDate!))
+                                }
+                            }
+                            .padding()
                         }
-                        .foregroundColor(.primary)
                     }
-                    .offset(y: -50)
-                    .scrollContentBackground(.hidden)
                 }
                 Spacer()
             }

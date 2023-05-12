@@ -20,6 +20,7 @@
 		0037877C29D4F41800D3CD59 /* MeetParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877B29D4F41800D3CD59 /* MeetParser.swift */; };
 		0037878029D501F600D3CD59 /* ProfileParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877F29D501F600D3CD59 /* ProfileParser.swift */; };
 		0051C9D129E4CEE300C4C9E7 /* PastMeetResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0051C9D029E4CEE300C4C9E7 /* PastMeetResults.swift */; };
+		0069DC5B2A0DC5610096C04B /* ScalingScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0069DC5A2A0DC5610096C04B /* ScalingScrollView.swift */; };
 		006CF0842A02340500E7C2A5 /* TextFieldClearButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 006CF0832A02340500E7C2A5 /* TextFieldClearButton.swift */; };
 		008C19C52A0C74280000968F /* CollapsingScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 008C19C42A0C74280000968F /* CollapsingScrollView.swift */; };
 		0095BD2D29B1491D004D7EFD /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0095BD2C29B1491D004D7EFD /* SearchView.swift */; };
@@ -63,6 +64,7 @@
 		0037877B29D4F41800D3CD59 /* MeetParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeetParser.swift; sourceTree = "<group>"; };
 		0037877F29D501F600D3CD59 /* ProfileParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileParser.swift; sourceTree = "<group>"; };
 		0051C9D029E4CEE300C4C9E7 /* PastMeetResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastMeetResults.swift; sourceTree = "<group>"; };
+		0069DC5A2A0DC5610096C04B /* ScalingScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScalingScrollView.swift; sourceTree = "<group>"; };
 		006CF0832A02340500E7C2A5 /* TextFieldClearButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldClearButton.swift; sourceTree = "<group>"; };
 		008C19C42A0C74280000968F /* CollapsingScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollapsingScrollView.swift; sourceTree = "<group>"; };
 		0095BD2C29B1491D004D7EFD /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
@@ -246,6 +248,7 @@
 				4D254F1529C0411C0033838D /* HTMLParser.swift */,
 				4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */,
 				008C19C42A0C74280000968F /* CollapsingScrollView.swift */,
+				0069DC5A2A0DC5610096C04B /* ScalingScrollView.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -333,6 +336,7 @@
 				4D1A5C3729CB953300F3DA2B /* SwiftUIWebView.swift in Sources */,
 				002A1B7E29DB93FC00A26FED /* MeetsDataController.swift in Sources */,
 				00A81A3329F455DC00BFAE4E /* LiveResultsParser.swift in Sources */,
+				0069DC5B2A0DC5610096C04B /* ScalingScrollView.swift in Sources */,
 				000D28DF29E1201200B184E9 /* LiveResultsWebView.swift in Sources */,
 				4D8B9C1B29F97562002B53AD /* TestingPage.swift in Sources */,
 				4D74FEC029AEBD6F00401178 /* MeetList.swift in Sources */,

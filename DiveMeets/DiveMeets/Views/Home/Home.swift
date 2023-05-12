@@ -152,7 +152,9 @@ struct UpcomingMeetsView: View {
     var body: some View {
         if meetParser.upcomingMeets != nil && !meetParser.upcomingMeets!.isEmpty {
             let upcoming = tupleToList(tuples: db.dictToTuple(dict: meetParser.upcomingMeets!))
-            ScalingScrollView(meets: upcoming)
+            ScalingScrollView(records: upcoming) { (elem) in
+                MeetBubbleView(elements: elem)
+            }
                 .padding(.bottom, maxHeightOffset)
         } else if meetParser.upcomingMeets != nil {
             Text("No upcoming meets found")
@@ -177,7 +179,9 @@ struct CurrentMeetsView: View {
     var body: some View {
         if meetParser.currentMeets != nil && !meetParser.currentMeets!.isEmpty {
             let current = tupleToList(tuples: db.dictToTuple(dict: meetParser.currentMeets ?? []))
-            ScalingScrollView(meets: current)
+            ScalingScrollView(records: current) { (elem) in
+                MeetBubbleView(elements: elem)
+            }
                 .padding(.bottom, maxHeightOffset)
         } else if meetParser.currentMeets != nil {
             Text("No current meets found")
@@ -234,66 +238,6 @@ struct MeetBubbleView: View {
         }
         .onTapGesture {
             print(elements[3])
-        }
-    }
-}
-
-struct ScalingScrollView: View {
-    @Environment(\.colorScheme) var currentMode
-    @ScaledMetric private var frameHeight: CGFloat = 100
-    
-    private let grayValue: CGFloat = 0.90
-    private let grayValueDark: CGFloat = 0.10
-    
-    private var grayColor: Color {
-        currentMode == .light
-        ? Color(red: grayValue, green: grayValue, blue: grayValue)
-        : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
-    }
-    
-    private var meets: [[String]]
-    
-    init(meets: [[String]]) {
-        self.meets = meets
-    }
-    
-    var body: some View {
-        GeometryReader { mainView in
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 20) {
-                    ForEach(meets, id: \.self) { meet in
-                        GeometryReader { item in
-                            MeetBubbleView(elements: meet)
-                                .cornerRadius(15)
-                                .scaleEffect(scaleValue(mainFrame: mainView.frame(in: .global).minY,
-                                                        minY: item.frame(in: .global).minY),
-                                             anchor: .bottom)
-                                .opacity(scaleValue(mainFrame: mainView.frame(in: .global).minY,
-                                                    minY: item.frame(in: .global).minY))
-                        }
-                        .frame(height: frameHeight)
-                    }
-                    Spacer()
-                }
-                .padding(.horizontal)
-                .padding(.top, 25)
-            }
-            .zIndex(1)
-        }
-        .background(grayColor)
-    }
-    
-    func scaleValue(mainFrame: CGFloat, minY: CGFloat) -> CGFloat {
-        withAnimation(.easeOut) {
-            let scale = (minY - 25) / mainFrame
-            
-            if scale > 1 {
-                return 1
-            } else if scale == 0 {
-                return 1e-5
-            } else {
-                return scale
-            }
         }
     }
 }
