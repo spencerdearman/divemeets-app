@@ -21,7 +21,8 @@ enum SearchField: Int, Hashable, CaseIterable {
 
 private enum FilterType: String, CaseIterable {
     case name = "Name"
-    case year = "Year"
+    case startDate = "Start Date"
+    case state = "State"
 }
 
 private extension SearchInputView {
@@ -217,7 +218,6 @@ struct SearchView: View {
 
 struct SearchInputView: View {
     @Environment(\.colorScheme) var currentMode
-    @EnvironmentObject private var meetParser: MeetParser
     
     @State private var showError: Bool = false
     @State var fullScreenResults: Bool = false
@@ -254,20 +254,27 @@ struct SearchInputView: View {
     @FetchRequest(sortDescriptors: []) private var items: FetchedResults<DivingMeet>
     // Useful link:
     // https://stackoverflow.com/questions/61631611/swift-dynamicfetchview-fetchlimit/61632618#61632618
-    // Updates the filteredItems value dynamically with predicate and sorting changes
+    // Updates the filteredItems value dynamically with predicate and sorting changes;
+    // Sorts ascending/descending based on flag, but always sorts secondarily by name ascending if
+    // another option is chosen
     var filteredItems: FetchedResults<DivingMeet> {
         get {
-            let key: String
+            let descriptors: [NSSortDescriptor]
             switch(filterType) {
                 case .name:
-                    key = "name"
+                    descriptors = [NSSortDescriptor(key: "name", ascending: isSortedAscending)]
                     break
-                case .year:
-                    key = "year"
+                case .startDate:
+                    descriptors = [NSSortDescriptor(key: "startDate", ascending: isSortedAscending),
+                                   NSSortDescriptor(key: "name", ascending: true)]
+                    break
+                case .state:
+                    descriptors = [NSSortDescriptor(key: "state", ascending: isSortedAscending),
+                                   NSSortDescriptor(key: "name", ascending: true)]
                     break
             }
-            _items.wrappedValue.nsSortDescriptors = [
-                NSSortDescriptor(key: key, ascending: isSortedAscending)]
+            
+            _items.wrappedValue.nsSortDescriptors = descriptors
             _items.wrappedValue.nsPredicate = predicate
             return items
         }
@@ -303,10 +310,6 @@ struct SearchInputView: View {
         linksParsed = false
         parsedLinks = [:]
         predicate = nil
-    }
-    
-    private func getPercentString(count: Int, total: Int) -> String {
-        return String(Int(trunc(Double(count) / Double(total) * 100)))
     }
     
     var body: some View {
@@ -373,8 +376,7 @@ struct SearchInputView: View {
                 
                 if selection == .meet {
                     MeetSearchView(meetName: $meetName, orgName: $orgName,
-                                   meetYear: $meetYear, predicate: $predicate,
-                                   focusedField: $focusedField, items: filteredItems)
+                                   meetYear: $meetYear, focusedField: $focusedField)
                 } else {
                     DiverSearchView(firstName: $firstName, lastName: $lastName,
                                     focusedField: $focusedField)
@@ -426,40 +428,7 @@ struct SearchInputView: View {
                 Spacer()
                 
                 if selection == .meet && isIndexingMeets {
-                    VStack {
-                        // Displays loading bar if counts are done, otherwise shows indefinite
-                        // progress bar
-                        Group {
-                            if meetParser.isFinishedCounting {
-                                VStack(alignment: .leading) {
-                                    Text("Indexing...")
-                                        .font(.headline)
-                                        .padding(.leading)
-                                    ProgressView(value: Double(meetParser.meetsParsedCount),
-                                                 total: Double(meetParser.totalMeetsParsedCount))
-                                    .progressViewStyle(.linear)
-                                    .frame(width: 250)
-                                    .padding(.leading)
-                                    Text(getPercentString(count: meetParser.meetsParsedCount,
-                                                          total: meetParser.totalMeetsParsedCount)
-                                         + "%")
-                                    .foregroundColor(.gray)
-                                    .padding(.leading)
-                                }
-                            } else {
-                                VStack {
-                                    Text("Indexing...")
-                                        .font(.headline)
-                                        .padding(.leading)
-                                    ProgressView()
-                                }
-                            }
-                        }
-                        .padding(.bottom)
-                        Text("Some results may not appear in Search yet")
-                            .foregroundColor(.gray)
-                        Spacer()
-                    }
+                    IndexingCounterView()
                 }
                 Spacer()
                 Spacer()
@@ -514,7 +483,7 @@ struct SearchInputView: View {
                                             .tag($0)
                                     }
                                 }
-                                Button(action: { () -> () in isSortedAscending.toggle() }) {
+                                Button(action: { isSortedAscending.toggle() }) {
                                     Label("Sort: \(isSortedAscending ? "Ascending" : "Descending")",
                                           systemImage: "arrow.up.arrow.down")
                                 }
@@ -536,6 +505,51 @@ struct SearchInputView: View {
         }
     }
     
+}
+
+struct IndexingCounterView: View {
+    @EnvironmentObject var meetParser: MeetParser
+    
+    private func getPercentString(count: Int, total: Int) -> String {
+        return String(Int(trunc(Double(count) / Double(total) * 100)))
+    }
+    
+    var body: some View {
+        VStack {
+            // Displays loading bar if counts are done, otherwise shows indefinite
+            // progress bar
+            Group {
+                if meetParser.isFinishedCounting {
+                    VStack(alignment: .leading) {
+                        Text("Indexing...")
+                            .font(.headline)
+                            .padding(.leading)
+                        ProgressView(value: Double(meetParser.meetsParsedCount),
+                                     total: Double(meetParser.totalMeetsParsedCount))
+                        .progressViewStyle(.linear)
+                        .frame(width: 250)
+                        .padding(.leading)
+                        Text(getPercentString(count: meetParser.meetsParsedCount,
+                                              total: meetParser.totalMeetsParsedCount)
+                             + "%")
+                        .foregroundColor(.gray)
+                        .padding(.leading)
+                    }
+                } else {
+                    VStack {
+                        Text("Indexing...")
+                            .font(.headline)
+                            .padding(.leading)
+                        ProgressView()
+                    }
+                }
+            }
+            .padding(.bottom)
+            Text("Some results may not appear in Search yet")
+                .foregroundColor(.gray)
+            Spacer()
+        }
+    }
 }
 
 struct DiverSearchView: View {
@@ -583,19 +597,15 @@ struct MeetSearchView: View {
     @Binding var meetName: String
     @Binding var orgName: String
     @Binding var meetYear: String
-    @Binding private var predicate: NSPredicate?
     private var focusedField: FocusState<SearchField?>.Binding
-    private var filteredItems: FetchedResults<DivingMeet>
+    private let currentYear: Int = Calendar.current.component(.year, from: Date())
     
     fileprivate init(meetName: Binding<String>, orgName: Binding<String>,
-                     meetYear: Binding<String>, predicate: Binding<NSPredicate?>,
-                     focusedField: FocusState<SearchField?>.Binding, items: FetchedResults<DivingMeet>) {
+                     meetYear: Binding<String>, focusedField: FocusState<SearchField?>.Binding) {
         self._meetName = meetName
         self._orgName = orgName
         self._meetYear = meetYear
-        self._predicate = predicate
         self.focusedField = focusedField
-        self.filteredItems = items
     }
     
     var body: some View {
@@ -629,7 +639,8 @@ struct MeetSearchView: View {
                     .padding(.leading)
                 Picker("", selection: $meetYear) {
                     Text("").tag("")
-                    ForEach((2004...2023).reversed(), id: \.self) {
+                    ForEach((2004...currentYear).reversed(),
+                            id: \.self) {
                         Text(String($0))
                             .tag(String($0))
                     }
