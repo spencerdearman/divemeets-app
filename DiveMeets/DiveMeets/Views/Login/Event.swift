@@ -15,6 +15,7 @@ struct Event: View {
     @State var scoreData : [Int: Double] = [:]
     @State var isExpanded: Bool = false
     @State var expandedIndices: Set<Int> = []
+    @State var scoreString: String = ""
     
     @StateObject private var parser = EventHTMLParser()
     @StateObject private var scoreParser = ScoreHTMLParser()
@@ -28,8 +29,6 @@ struct Event: View {
                     await parser.tableDataParse(urlString: meet.link!)
                     diverTableData = parser.diveTableData
                     //print(diverTableData)
-                    await scoreParser.parse(urlString: "https://secure.meetcontrol.com/divemeets/system/judgesscoresext.php?meetnum=8698&eventnum=7180&dvrnum=51197&divord=1&eventtype=9&synchdvrnum=&sts=1674154171")
-                    scoreData = scoreParser.scoreData
                 }
             }
         VStack {
@@ -58,21 +57,30 @@ struct Event: View {
                             content: {
                                 VStack(alignment: .leading, spacing: 5) {
                                     Text("Height: \(value.1)")
+                                        .onAppear{
+                                            Task {
+                                                await scoreParser.parse(urlString: value.6)
+                                                scoreData = scoreParser.scoreData
+                                                let sorted = scoreData.sorted { $0.key < $1.key }
+                                                let formatted = scoreData.map { " \($0.value) " }.joined(separator:" | ")
+                                                scoreString = "| \(formatted) |"
+                                            }
+                                        }
+                                    Text("Scores: " + scoreString)
                                     Text("Name: \(value.2)")
                                     Text("Net Score: \(value.3)")
                                     Text("DD: \(value.4)")
-                                    Text("Total Score: \(value.5)")
                                 }
                                 .padding(.leading, 20)
                             },
                             label: {
-                                Text(value.0)
+                                Text(value.0 + " - " + String(value.5))
                                     .font(.headline)
                             }
                         )
                     }
                 }
-                .padding()
+                .ignoresSafeArea()
             }
             .padding()
         }
