@@ -13,6 +13,8 @@ struct Event: View {
     @State var diverData : (String, String, String, Double, Double, Double) = ("", "", "", 0.0, 0.0, 0.0)
     @State var diverTableData: [Int: (String, String, String, Double, Double, Double, String)] = [:]
     @State var scoreData : [Int: Double] = [:]
+    @State var isExpanded: Bool = false
+    @State var expandedIndices: Set<Int> = []
     
     @StateObject private var parser = EventHTMLParser()
     @StateObject private var scoreParser = ScoreHTMLParser()
@@ -43,10 +45,50 @@ struct Event: View {
             }
             .padding(.horizontal)
             
-            Text(meet.name)
-                .font(.title2)
+            VStack(alignment: .leading, spacing: 10) {
+                Text(meet.name)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .padding()
+                
+                List {
+                    ForEach(diverTableData.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+                        DisclosureGroup(
+                            isExpanded: isExpanded(key),
+                            content: {
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text("Height: \(value.1)")
+                                    Text("Name: \(value.2)")
+                                    Text("Net Score: \(value.3)")
+                                    Text("DD: \(value.4)")
+                                    Text("Total Score: \(value.5)")
+                                }
+                                .padding(.leading, 20)
+                            },
+                            label: {
+                                Text(value.0)
+                                    .font(.headline)
+                            }
+                        )
+                    }
+                }
                 .padding()
+            }
+            .padding()
         }
+    }
+    
+    private func isExpanded(_ index: Int) -> Binding<Bool> {
+        Binding(
+            get: { expandedIndices.contains(index) },
+            set: { isExpanded in
+                if isExpanded {
+                    expandedIndices.insert(index)
+                } else {
+                    expandedIndices.remove(index)
+                }
+            }
+        )
     }
 }
 
