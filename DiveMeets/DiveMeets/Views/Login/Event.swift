@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct Event: View {
+    @Environment(\.presentationMode) var presentationMode
     @Binding var meet: MeetEvent
     @State var diverData : (String, String, String, Double, Double, Double) = ("", "", "", 0.0, 0.0, 0.0)
     @State var diverTableData: [Int: (String, String, String, Double, Double, Double, String)] = [:]
@@ -29,14 +30,23 @@ struct Event: View {
                     scoreData = scoreParser.scoreData
                 }
             }
-        VStack{
-            Spacer()
+        VStack {
+            HStack {
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .font(.title)
+                        .foregroundColor(.blue)
+                }
+                Spacer()
+            }
+            .padding(.horizontal)
+            
             Text(meet.name)
-                .font(.headline)
-            Spacer()
-            Text(meet.link!)
+                .font(.title2)
+                .padding()
         }
-        .padding()
     }
 }
 
