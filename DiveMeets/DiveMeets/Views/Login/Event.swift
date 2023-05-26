@@ -62,7 +62,7 @@ struct Event: View {
                                                 await scoreParser.parse(urlString: value.6)
                                                 scoreData = scoreParser.scoreData
                                                 let sorted = scoreData.sorted { $0.key < $1.key }
-                                                let formatted = scoreData.map { " \($0.value) " }.joined(separator:" | ")
+                                                let formatted = scoreData.map { " \($0.value) "  }.joined(separator:" | ")
                                                 scoreString = "| \(formatted) |"
                                             }
                                         }

@@ -78,7 +78,9 @@ struct LoginProfile: View {
                             searchSubmitted = false
                             loginSuccessful = false
                             loginSearchSubmitted = false
-                                    })
+                            diverData = []
+                            profileType = ""
+                        })
                         .buttonStyle(.bordered)
                         .cornerRadius(30)
                         .offset(x:-150, y:-215)
@@ -91,11 +93,11 @@ struct LoginProfile: View {
                                 var firstName = diverData[0][0].slice(from: "Name: ", to: " ") ?? ""
                                 var lastName =
                                 diverData[0][0].slice(from: firstName + " ", to: " ") ?? ""
-
+                                
                                 diverData != []
                                 ? Text(firstName + " " + lastName) .font(.title)
                                 : Text("")
-
+                                
                                 Text(diverID)
                                     .font(.subheadline).foregroundColor(.secondary)
                             }
@@ -134,7 +136,7 @@ struct LoginProfile: View {
                         .offset(y:-150)
                     }
                     .padding()
-
+                    
                 }
                 MeetList(profileLink: profileLink)
                     .offset(y: -160)
@@ -183,14 +185,6 @@ struct LoginProfile: View {
                     .padding()
                 }
             }
-        }
-    }
-}
-
-struct ProfileView_Previews: PreviewProvider {
-    static var previews: some View {
-        ForEach(ColorScheme.allCases, id: \.self) {
-            ProfileView(link: "").preferredColorScheme($0)
         }
     }
 }
