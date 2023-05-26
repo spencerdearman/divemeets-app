@@ -122,8 +122,14 @@ final class EventHTMLParser: ObservableObject {
         for dive in diveTable {
             let diveInformation = try dive.getElementsByTag("td")
             order = Int(try diveInformation[0].text())!
-            diveNum = try diveInformation[1].text()
-            height = try diveInformation[2].text()
+            
+            let tempNum = try diveInformation[1].html().split(separator:"<br>")
+            if tempNum.count > 1{
+                diveNum = tempNum[0] + " --> " + tempNum[1]
+            } else {
+                diveNum = try diveInformation[1].text()
+            }
+            height = try String(diveInformation[2].html().split(separator:"<br>").last!)
             name = try String(diveInformation[3].html().split(separator:"<br>").last!)
             let tempScore = (try diveInformation[4].text())
                 .replacingOccurrences(of: " Failed Dive", with: "")
