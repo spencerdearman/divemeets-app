@@ -38,30 +38,44 @@ struct LoginWebView: UIViewRepresentable {
     @Binding var loggedIn: Bool
     
     func makeUIView(context: Context) -> WKWebView {
-        let webView: WKWebView = {
-            let pagePrefs = WKWebpagePreferences()
-            pagePrefs.allowsContentJavaScript = true
-            let config = WKWebViewConfiguration()
-            config.defaultWebpagePreferences = pagePrefs
-            
-            // Create a shared website data store to maintain the session
-            let websiteDataStore = WKWebsiteDataStore.default()
-            config.websiteDataStore = websiteDataStore
-            
-            let webview = WKWebView(frame: .zero,
-                                    configuration: config)
-            webview.translatesAutoresizingMaskIntoConstraints = false
-            return webview
-        }()
+        // Create a new web configuration with a new website data store to clear cache
+        let pagePrefs = WKWebpagePreferences()
+        pagePrefs.allowsContentJavaScript = true
+        let config = WKWebViewConfiguration()
+        config.defaultWebpagePreferences = pagePrefs
+        
+        let websiteDataStore = WKWebsiteDataStore.nonPersistent()
+        config.websiteDataStore = websiteDataStore
+        
+        let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         
         return webView
     }
-    
-    // from SwiftUI to UIKit
+
+    // From SwiftUI to UIKit
     func updateUIView(_ uiView: WKWebView, context: Context) {
         guard let url = URL(string: request) else { return }
-        uiView.load(URLRequest(url: url))
+        
+        // Create a new web configuration with a new website data store to clear cache
+        let pagePrefs = WKWebpagePreferences()
+        pagePrefs.allowsContentJavaScript = true
+        let config = WKWebViewConfiguration()
+        config.defaultWebpagePreferences = pagePrefs
+        
+        let websiteDataStore = WKWebsiteDataStore.nonPersistent()
+        config.websiteDataStore = websiteDataStore
+        
+        let webView = WKWebView(frame: .zero, configuration: config)
+        webView.navigationDelegate = context.coordinator
+        
+        uiView.removeFromSuperview()
+        uiView.navigationDelegate = nil
+        
+        uiView.addSubview(webView)
+        uiView.navigationDelegate = webView.navigationDelegate
+        
+        webView.load(URLRequest(url: url))
     }
     
     // From UIKit to SwiftUI
@@ -86,30 +100,44 @@ struct LoginWebView: UIViewRepresentable {
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            let js = "document.querySelector('input[name=\"username\"]').value = '\(divemeetsID)';"
-            + "document.querySelector('input[name=\"passwd\"]').value = '\(password)'"
+            let js = """
+                var usernameInput = document.querySelector('input[name="username"]');
+                var passwordInput = document.querySelector('input[name="passwd"]');
+                usernameInput.value = '\(divemeetsID)';
+                passwordInput.value = '\(password)';
+            """
             webView.evaluateJavaScript(js, completionHandler: nil)
             webView.evaluateJavaScript(
-                "document.querySelector('input[type=\"submit\"][value=\"Log in\"]').click()") {
-                _, _ in
-                self.checkIfLoggedIn(webView)
+                "document.querySelector('input[type=\"submit\"][value=\"Log in\"]').click()") { _, _ in
+                    self.checkIfLoggedIn(webView)
             }
+            resetLoginForm(webView) // Add this line to reset the form
+        }
+        
+        func resetLoginForm(_ webView: WKWebView) {
+            let resetJs = """
+                var usernameInput = document.querySelector('input[name="username"]');
+                var passwordInput = document.querySelector('input[name="passwd"]');
+                usernameInput.value = '';
+                passwordInput.value = '';
+            """
+            webView.evaluateJavaScript(resetJs, completionHandler: nil)
         }
         
         func checkIfLoggedIn(_ webView: WKWebView) {
             webView.evaluateJavaScript("document.body.innerHTML") { [weak self] result, error in
-                guard let html = result as? String, error == nil else {
+                guard var html = result as? String, error == nil else {
+                    self?.loginSuccessful = false
                     print("Error getting HTML:", error ?? "unknown error")
                     return
                 }
+                self?.loginSuccessful = false
                 self?.parsedUserHTML = html
-                //self?.parsedUserHTML = self?.htmlParser.parseReturnString(html: html) ?? ""
-                // Check if the login was successful by looking for a "Welcome, [username]!" message
-                if html.contains("DiveMeets #") {
+                if html.contains("there is a countdown timer") {
                     self?.loginSuccessful = true
-                    self?.loggedIn = true
                 } else {
                     print("Was not able to login")
+                    self?.loginSuccessful = false
                 }
             }
         }

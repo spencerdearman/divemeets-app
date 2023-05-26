@@ -30,7 +30,7 @@ struct LoginSearchView: View {
     @State var createdKey: Bool = true
     @State private var isUnlocked = false
     @State var loggedIn = false
-
+    
     @ViewBuilder
     var body: some View {
         
@@ -42,7 +42,7 @@ struct LoginSearchView: View {
                                loginSearchSubmitted: $loginSearchSubmitted,
                                loginSuccessful: $loginSuccessful, loggedIn: $loggedIn)
             }
-
+            
             // Submit button doesn't switch pages in preview, but it works in Simulator
             LoginSearchInputView(createdKey: $createdKey, divemeetsID: $divemeetsID,
                                  password: $password, searchSubmitted: $searchSubmitted,
@@ -54,30 +54,6 @@ struct LoginSearchView: View {
             searchSubmitted = false
         }
         
-    }
-    
-    func authenticate() {
-        let context = LAContext()
-        var error: NSError?
-
-        // Check if biometric authentication is available
-        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-            // Biometric authentication is available, authenticate the user
-            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
-                                   localizedReason: "Please authenticate to unlock") {
-                success, authenticationError in
-                
-                DispatchQueue.main.async {
-                    if success {
-                        isUnlocked = true
-                    } else {
-                        // Authentication failed
-                    }
-                }
-            }
-        } else {
-            // Biometric authentication is not available
-        }
     }
 }
 
@@ -95,7 +71,7 @@ struct LoginSearchInputView: View {
     @Binding var loginSearchSubmitted: Bool
     @Binding var loginSuccessful: Bool
     @Binding var loggedIn: Bool
-
+    
     private let cornerRadius: CGFloat = 30
     
     var body: some View {
@@ -108,12 +84,12 @@ struct LoginSearchInputView: View {
                 }
             
             VStack {
-                if loginSuccessful && loggedIn {
+                if loginSuccessful {
                     LoginProfile(
                         link: "https://secure.meetcontrol.com/divemeets/system/profile.php?number="
                         + divemeetsID, diverID: divemeetsID, loggedIn: $loggedIn, divemeetsID: $divemeetsID, password: $password, searchSubmitted: $searchSubmitted, loginSuccessful: $loginSuccessful, loginSearchSubmitted: $loginSearchSubmitted)
-                        .zIndex(1)
-                        .offset(y: 90)
+                    .zIndex(1)
+                    .offset(y: 90)
                 } else {
                     Text("Login")
                         .font(.title)
@@ -151,16 +127,9 @@ struct LoginSearchInputView: View {
                                            password: password) {
                                 showError = false
                                 searchSubmitted = true
-                                loginSearchSubmitted = false
-                                // set loginSuccessful to true when the login is successful
-                                loginSuccessful = false
-                                parsedUserHTML = ""
                             } else {
                                 showError = true
                                 searchSubmitted = false
-                                loginSearchSubmitted = false
-                                loginSuccessful = false
-                                parsedUserHTML = ""
                             }
                         }, label: {
                             Text("Submit")
@@ -168,22 +137,19 @@ struct LoginSearchInputView: View {
                         })
                         .buttonStyle(.bordered)
                         .cornerRadius(cornerRadius)
-                        if searchSubmitted && !loginSuccessful {
+                        if (searchSubmitted && !loginSuccessful) {
                             VStack {
                                 if progressView {
                                     ProgressView()
                                 }
                             }
                             .onAppear {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
                                     progressView = false
                                 }
-                                    
                             }
                             VStack {
-                                if !errorMessage {
-                                    Text(" ")
-                                } else {
+                                if errorMessage {
                                     Text("Login Not Successful")
                                 }
                             }
@@ -193,7 +159,8 @@ struct LoginSearchInputView: View {
                                 }
                             }
                         }
-
+                        
+                        
                     }
                     if showError {
                         Text("You must enter both fields to search")
@@ -229,8 +196,8 @@ struct LoginPageSearchView: View {
                     .padding(.leading)
                 TextField("DiveMeets ID", text: $divemeetsID)
                     .modifier(LoginTextFieldClearButton(text: $divemeetsID,
-                                                   fieldType: .diveMeetsId,
-                                                   focusedField: focusedField))
+                                                        fieldType: .diveMeetsId,
+                                                        focusedField: focusedField))
                     .textContentType(.username)
                     .keyboardType(.numberPad)
                     .textFieldStyle(.roundedBorder)
