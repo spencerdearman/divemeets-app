@@ -12,6 +12,7 @@ struct Event: View {
     @Binding var meet: MeetEvent
     @State var diverData : (String, String, String, Double, Double, Double) = ("", "", "", 0.0, 0.0, 0.0)
     @State var diverTableData: [Int: (String, String, String, Double, Double, Double, String)] = [:]
+    @State var scoreDictionary: [String: String] = [:]
     @State var scoreData : [Int: Double] = [:]
     @State var isExpanded: Bool = false
     @State var expandedIndices: Set<Int> = []
@@ -44,6 +45,21 @@ struct Event: View {
             }
             .padding(.horizontal)
             
+            ForEach(diverTableData.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+                ZStack{}
+                    .onAppear{
+                        Task {
+                            await scoreParser.parse(urlString: value.6)
+                            scoreData = scoreParser.scoreData
+                            let sorted = scoreData.sorted { $0.key < $1.key }
+                            let formatted = scoreData.map { " \($0.value) "  }.joined(separator:" | ")
+                            scoreString = "| \(formatted) |"
+                            scoreDictionary[value.0] = scoreString
+                        }
+                    }
+                
+            }
+            
             VStack(alignment: .leading, spacing: 10) {
                 Text(meet.name)
                     .font(.title)
@@ -57,16 +73,7 @@ struct Event: View {
                             content: {
                                 VStack(alignment: .leading, spacing: 5) {
                                     Text("Height: \(value.1)")
-                                        .onAppear{
-                                            Task {
-                                                await scoreParser.parse(urlString: value.6)
-                                                scoreData = scoreParser.scoreData
-                                                let sorted = scoreData.sorted { $0.key < $1.key }
-                                                let formatted = scoreData.map { " \($0.value) "  }.joined(separator:" | ")
-                                                scoreString = "| \(formatted) |"
-                                            }
-                                        }
-                                    Text("Scores: " + scoreString)
+                                    Text("Scores: " + (scoreDictionary[value.0] ?? ""))
                                     Text("Name: \(value.2)")
                                     Text("Net Score: \(value.3)")
                                     Text("DD: \(value.4)")
