@@ -115,26 +115,32 @@ private func argsToPredParams(
         let haveName = name != ""
         let haveOrg = org != ""
         let haveYear = year != ""
-        var castYear: Int16? = nil
+        var startDate: NSDate? = nil
+        var endDate: NSDate? = nil
         
         if haveYear {
-            castYear = Int16(year)!
+            let df = DateFormatter()
+            df.dateFormat = "MMM d, yyyy"
+            let startDateStr: String = "Jan 1, " + year
+            startDate = df.date(from: startDateStr) as? NSDate
+            let endDateStr: String = "Dec 31, " + year
+            endDate = df.date(from: endDateStr) as? NSDate
         }
         
         if haveName && haveOrg && haveYear {
-            return NSPredicate(format: pred, name, org, castYear!)
+            return NSPredicate(format: pred, name, org, startDate!, endDate!)
         } else if haveName && haveOrg {
             return NSPredicate(format: pred, name, org)
         } else if haveName && haveYear {
-            return NSPredicate(format: pred, name, castYear!)
+            return NSPredicate(format: pred, name, startDate!, endDate!)
         } else if haveOrg && haveYear {
-            return NSPredicate(format: pred, org, castYear!)
+            return NSPredicate(format: pred, org, startDate!, endDate!)
         } else if haveName {
             return NSPredicate(format: pred, name)
         } else if haveOrg {
             return NSPredicate(format: pred, org)
         } else if haveYear {
-            return NSPredicate(format: pred, castYear!)
+            return NSPredicate(format: pred, startDate!, endDate!)
         }
         
         return nil
@@ -158,7 +164,7 @@ private func getPredicate(name: String, org: String, year: String) -> NSPredicat
     }
     
     if year != "" {
-        subqueries.append("year == %d")
+        subqueries.append("startDate BETWEEN {%@, %@}")
     }
     
     var resultString: String = ""
