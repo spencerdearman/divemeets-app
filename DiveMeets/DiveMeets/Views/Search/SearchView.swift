@@ -722,7 +722,7 @@ struct MeetResultsView : View {
                                 .lineLimit(2)
                                 Spacer()
                                 HStack {
-                                    Text(e.organization!)
+                                    Text(e.organization ?? "")
                                     Spacer()
                                     Text(dateToString(e.startDate!)
                                          + " - " + dateToString(e.endDate!))
