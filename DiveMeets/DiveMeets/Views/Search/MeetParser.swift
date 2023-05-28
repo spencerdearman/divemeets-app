@@ -466,9 +466,9 @@ final class MeetParser: ObservableObject {
             }
         }
     
-    // Parses the "Meets" tab from the homepage and stores results in MeetDict and CurrentMeetDict
-    // objects to the respective fields in MeetParser
-    func parseMeets(storedMeets: FetchedResults<DivingMeet>? = nil) async throws {
+    // Parses only upcoming and current meets and skips counting (should not be run on the
+    // environment object MeetParser; this is currently used on the Home page to speed up loading)
+    func parsePresentMeets() async throws {
         do {
             // Initialize meet parse from index page
             let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/index.php")!
@@ -477,8 +477,87 @@ final class MeetParser: ObservableObject {
             await getTextModel.fetchText(url: url)
             
             if let html = getTextModel.text {
-                try await countParsedMeets(html: html, storedMeets: storedMeets)
+                let document: Document = try SwiftSoup.parse(html)
+                guard let body = document.body() else {
+                    return
+                }
+                let menu = try body.getElementById("dm_menu_centered")
+                let menuTabs = try menu?.getElementsByTag("ul")[0].getElementsByTag("li")
+                for tab in menuTabs! {
+                    // tabElem is one of the links from the tabs in the menu bar
+                    let tabElem = try tab.getElementsByAttribute("href")[0]
+                    
+                    if try tabElem.text() == "Past Results & Photos" {
+                        // Assigns currentMeets to empty list in case without current tab
+                        if currentMeets == nil {
+                            await MainActor.run {
+                                currentMeets = []
+                            }
+                        }
+                        break
+                    }
+                    if try tabElem.text() == "Upcoming" {
+                        await MainActor.run {
+                            stage = .upcoming
+                        }
+                        continue
+                    }
+                    if try tabElem.text() == "Current" {
+                        await parseCurrentMeets(html: html)
+                        break
+                    }
+                    if stage == .upcoming {
+                        if upcomingMeets == nil {
+                            await MainActor.run {
+                                upcomingMeets = [:]
+                            }
+                        }
+                        if upcomingMeets![currentYear] == nil {
+                            await MainActor.run {
+                                upcomingMeets![currentYear] = [:]
+                            }
+                        }
+                        
+                        // tabElem.attr("href") is an organization link here
+                        let link = try tabElem.attr("href")
+                            .replacingOccurrences(of: " ", with: "%20")
+                            .replacingOccurrences(of: "\t", with: "")
+                        // Gets HTML from subpage link and sets linkText to HTML;
+                        // This pulls the html for an org's page
+                        await fetchLinkText(url: URL(string: link)!)
+                        try await MainActor.run {
+                            // Parses subpage and gets meet names and links
+                            if let text = linkText,
+                               let result = getMeetInfo(text: text) {
+                                try upcomingMeets![currentYear]![tabElem.text()] = result
+                            }
+                        }
+                    }
+                }
+            }
+        } catch {
+            print("Parse present meets failed")
+        }
+    }
+    
+    // Parses the "Meets" tab from the homepage and stores results in MeetDict and CurrentMeetDict
+    // objects to the respective fields in MeetParser
+    func parseMeets(storedMeets: FetchedResults<DivingMeet>? = nil, skipCount: Bool = false) async throws {
+        do {
+            // Initialize meet parse from index page
+            let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/index.php")!
+            
+            // This sets getTextModel's text field equal to the HTML from url
+            await getTextModel.fetchText(url: url)
+            
+            if let html = getTextModel.text {
+                if !skipCount {
+                    try await countParsedMeets(html: html, storedMeets: storedMeets)
+                }
                 await MainActor.run {
+                    if skipCount {
+                        totalMeetsParsedCount = 10000
+                    }
                     isFinishedCounting = true
                 }
                 
@@ -510,6 +589,12 @@ final class MeetParser: ObservableObject {
                     }
                     if try tabElem.text() == "Past Results & Photos" {
                         await MainActor.run {
+                            // Assigns currentMeets to empty list if we don't see the tab in menu,
+                            // sets that we have checked and there aren't any current meets
+                            if currentMeets == nil {
+                                currentMeets = []
+                            }
+                            
                             stage = .past
                         }
                         continue
@@ -536,7 +621,8 @@ final class MeetParser: ObservableObject {
                         await fetchLinkText(url: URL(string: link)!)
                         try await MainActor.run {
                             // Parses subpage and gets meet names and links
-                            if let result = getMeetInfo(text: linkText!) {
+                            if let text = linkText,
+                               let result = getMeetInfo(text: text) {
                                 try upcomingMeets![currentYear]![tabElem.text()] = result
                                 meetsParsedCount += result.count
                             }

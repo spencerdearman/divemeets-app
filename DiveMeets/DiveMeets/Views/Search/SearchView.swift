@@ -651,9 +651,28 @@ struct MeetSearchView: View {
 
 struct MeetResultsView : View {
     @Environment(\.colorScheme) var currentMode
+    @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
+    @ScaledMetric private var rowSpacing: CGFloat = 20
+    
     var records: FetchedResults<DivingMeet>
     private let grayValue: CGFloat = 0.95
     private let grayValueDark: CGFloat = 0.10
+    
+    private var maxHeightOffset: CGFloat {
+        min(maxHeightOffsetScaled, 90)
+    }
+    
+    private var grayColor: Color {
+        currentMode == .light
+        ? Color(red: grayValue, green: grayValue, blue: grayValue)
+        : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
+    }
+    
+    private func dateToString(_ date: Date) -> String {
+        let df = DateFormatter()
+        df.dateFormat = "MMM d, yyyy"
+        return df.string(from: date)
+    }
     
     var body: some View {
         let gray = currentMode == .light ? grayValue : grayValueDark
@@ -670,14 +689,37 @@ struct MeetResultsView : View {
                     .padding(.top, 50)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 if !records.isEmpty {
-                    List(records) { result in
-                        Button(result.name!) {
-                            print(result.link!)
+                    ScalingScrollView(records: records, rowSpacing: rowSpacing) { (e) in
+                        ZStack {
+                            Rectangle()
+                                .foregroundColor(currentMode == .light ? .white : .black)
+                            VStack {
+                                HStack(alignment: .top) {
+                                    Text(e.name!)
+                                        .font(.title3)
+                                        .bold()
+                                    Spacer()
+                                    Text(e.city! + ", " + e.state!)
+                                }
+                                .fixedSize(horizontal: false, vertical: true)
+                                .lineLimit(2)
+                                Spacer()
+                                HStack {
+                                    Text(e.organization!)
+                                    Spacer()
+                                    Text(dateToString(e.startDate!)
+                                         + " - " + dateToString(e.endDate!))
+                                }
+                                .fixedSize(horizontal: false, vertical: true)
+                                .lineLimit(1)
+                            }
+                            .padding()
                         }
-                        .foregroundColor(.primary)
+                        .onTapGesture {
+                            print(e.link!)
+                        }
                     }
-                    .offset(y: -50)
-                    .scrollContentBackground(.hidden)
+                    .padding(.bottom, maxHeightOffset)
                 }
                 Spacer()
             }
