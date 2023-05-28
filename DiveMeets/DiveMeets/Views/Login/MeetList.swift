@@ -93,15 +93,24 @@ struct childView: View{
     @Binding var meet: MeetEvent
     
     var body: some View{
-            NavigationLink(destination: Event(meet: $meet)){
-                Text(meet.name)
-            }
-            .simultaneousGesture(TapGesture().onEnded {
-                meet.isOpen = true
-            })
-            .fullScreenCover(isPresented: $meet.isOpen) {
-                Event(meet: $meet)
-            }
+        Button(action: {}, label: {
+            Text(meet.name)
+        })
+        .simultaneousGesture(TapGesture().onEnded {
+            meet.isOpen = true
+        })
+        .fullScreenCover(isPresented: $meet.isOpen) {
+            Event(meet: $meet)
+        }
+//            NavigationLink(destination: Event(meet: $meet)){
+//                Text(meet.name)
+//            }
+//            .simultaneousGesture(TapGesture().onEnded {
+//                meet.isOpen = true
+//            })
+//            .fullScreenCover(isPresented: $meet.isOpen) {
+//                Event(meet: $meet)
+//            }
     }
 }
 

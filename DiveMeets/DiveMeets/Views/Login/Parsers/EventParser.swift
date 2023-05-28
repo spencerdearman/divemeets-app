@@ -125,7 +125,7 @@ final class EventHTMLParser: ObservableObject {
             
             let tempNum = try diveInformation[1].html().split(separator:"<br>")
             if tempNum.count > 1{
-                diveNum = tempNum[0] + " --> " + tempNum[1]
+                diveNum = tempNum[1] + " (Changed from " + tempNum[0] + ")"
             } else {
                 diveNum = try diveInformation[1].text()
             }
