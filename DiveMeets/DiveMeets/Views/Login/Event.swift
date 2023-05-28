@@ -29,7 +29,6 @@ struct Event: View {
                     diverData = parser.eventData
                     await parser.tableDataParse(urlString: meet.link!)
                     diverTableData = parser.diveTableData
-                    //print(diverTableData)
                 }
             }
         VStack {
@@ -66,6 +65,19 @@ struct Event: View {
                     .fontWeight(.bold)
                     .padding()
                 
+                Divider()
+                Text("Dates: " + diverData.1)
+                Text("Organization: " + diverData.2)
+                Divider()
+                Text("Total Score: " + String(diverData.5))
+                    .font(.title3)
+                    .bold()
+                HStack{
+                    Text("Total Net Score: " + String(diverData.3))
+                    Text("Total DD: " + String(diverData.4))
+                }
+                Divider()
+                
                 List {
                     ForEach(diverTableData.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
                         DisclosureGroup(
@@ -87,6 +99,7 @@ struct Event: View {
                         )
                     }
                 }
+                .frame(height: 500)
                 .ignoresSafeArea()
             }
             .padding()
@@ -106,4 +119,3 @@ struct Event: View {
         )
     }
 }
-
