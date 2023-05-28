@@ -188,17 +188,6 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		4D753DE12A21542D0029138B /* Parsers */ = {
-			isa = PBXGroup;
-			children = (
-				0037877F29D501F600D3CD59 /* ProfileParser.swift */,
-				4D9DD09B2A05981300F6D31C /* EventParser.swift */,
-				4D60E8F82A1737A90011A295 /* ScoringParser.swift */,
-				4D753DE22A2158370029138B /* EventPageParser.swift */,
-			);
-			path = Parsers;
-			sourceTree = "<group>";
-		};
 		4D8B9C1029F898AD002B53AD /* Search */ = {
 			isa = PBXGroup;
 			children = (
@@ -222,7 +211,10 @@
 				4D9DD0992A058EF700F6D31C /* Event.swift */,
 				4D74FEC529AEC95500401178 /* MeetPage.swift */,
 				4D74FEA429AE7C2B00401178 /* ProfileImage.swift */,
-				4D753DE12A21542D0029138B /* Parsers */,
+				0037877F29D501F600D3CD59 /* ProfileParser.swift */,
+				4D9DD09B2A05981300F6D31C /* EventParser.swift */,
+				4D60E8F82A1737A90011A295 /* ScoringParser.swift */,
+				4D753DE22A2158370029138B /* EventPageParser.swift */,
 				4D74FE9829AE7B9800401178 /* ProfileView.swift */,
 				00E0D4992A042A8D00B01D98 /* LoginTextFieldClearButton.swift */,
 			);
