@@ -46,10 +46,11 @@ struct ContentView: View {
                                 case .house:
                                     Home()
                                 case .gearshape:
-                                    Image(systemName: tab.rawValue)
-                                    Text("Settings")
-                                        .bold()
-                                        .animation(nil, value: selectedTab)
+                                    EventResultPage()
+//                                    Image(systemName: tab.rawValue)
+//                                    Text("Settings")
+//                                        .bold()
+//                                        .animation(nil, value: selectedTab)
                                 case .magnifyingglass:
                                     SearchView(isIndexingMeets: $isIndexingMeets)
                                 case .person:

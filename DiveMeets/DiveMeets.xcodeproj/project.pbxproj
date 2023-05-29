@@ -112,6 +112,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4D50E7722A24050E009BFBFA /* Parsers */ = {
+			isa = PBXGroup;
+			children = (
+				0037877F29D501F600D3CD59 /* ProfileParser.swift */,
+				4D60E8F82A1737A90011A295 /* ScoringParser.swift */,
+				4D753DE22A2158370029138B /* EventPageParser.swift */,
+				4D9DD09B2A05981300F6D31C /* EventParser.swift */,
+			);
+			path = Parsers;
+			sourceTree = "<group>";
+		};
 		4D74FE8A29AE7B9800401178 = {
 			isa = PBXGroup;
 			children = (
@@ -156,6 +167,7 @@
 		4D74FEB229AEB47000401178 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				4D50E7722A24050E009BFBFA /* Parsers */,
 				4D8B9C1229F898DD002B53AD /* Home */,
 				4D8B9C1429F89A72002B53AD /* Live Results */,
 				4D8B9C1129F898D5002B53AD /* Login */,
@@ -211,10 +223,6 @@
 				4D9DD0992A058EF700F6D31C /* Event.swift */,
 				4D74FEC529AEC95500401178 /* MeetPage.swift */,
 				4D74FEA429AE7C2B00401178 /* ProfileImage.swift */,
-				0037877F29D501F600D3CD59 /* ProfileParser.swift */,
-				4D9DD09B2A05981300F6D31C /* EventParser.swift */,
-				4D60E8F82A1737A90011A295 /* ScoringParser.swift */,
-				4D753DE22A2158370029138B /* EventPageParser.swift */,
 				4D74FE9829AE7B9800401178 /* ProfileView.swift */,
 				00E0D4992A042A8D00B01D98 /* LoginTextFieldClearButton.swift */,
 			);

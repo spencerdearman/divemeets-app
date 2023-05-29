@@ -10,7 +10,7 @@ import SwiftUI
 struct Event: View {
     @Environment(\.presentationMode) var presentationMode
     @Binding var meet: MeetEvent
-    @State var diverData : (String, String, String, Double, Double, Double) = ("", "", "", 0.0, 0.0, 0.0)
+    @State var diverData : (String, String, String, Double, Double, Double, String) = ("", "", "", 0.0, 0.0, 0.0, "")
     @State var diverTableData: [Int: (String, String, String, Double, Double, Double, String)] = [:]
     @State var scoreDictionary: [String: String] = [:]
     @State var scoreData : [Int: Double] = [:]
