@@ -43,15 +43,19 @@ struct ContentView: View {
                         HStack {
                             // Add different page views here for different tabs
                             switch tab {
-                            case .house:
-                                Home()
-                            case .gearshape:
-                                LiveResultsView()
-                                //ToolsMenu()
-                            case .magnifyingglass:
-                                SearchView(isIndexingMeets: $isIndexingMeets)
-                            case .person:
-                                LoginSearchView()
+                                case .house:
+//                                    Home()
+                                    MeetPageView(meetLink: "https://secure.meetcontrol.com/divemeets/system/meetinfoext.php?meetnum=8996")
+                                case .gearshape:
+                                    MeetPageView(meetLink: "https://secure.meetcontrol.com/divemeets/system/meetresultsext.php?meetnum=8996")
+//                                    Image(systemName: tab.rawValue)
+//                                    Text("Settings")
+//                                        .bold()
+//                                        .animation(nil, value: selectedTab)
+                                case .magnifyingglass:
+                                    SearchView(isIndexingMeets: $isIndexingMeets)
+                                case .person:
+                                    LoginSearchView()
                             }
                         }
                         .tag(tab)
