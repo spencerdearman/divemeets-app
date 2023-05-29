@@ -262,6 +262,7 @@
 				4D74FEA429AE7C2B00401178 /* ProfileImage.swift */,
 				4D74FE9829AE7B9800401178 /* ProfileView.swift */,
 				00E0D4992A042A8D00B01D98 /* LoginTextFieldClearButton.swift */,
+				4D9DD09B2A05981300F6D31C /* EventParser.swift */,
 				0097478E2A24549A004E7C73 /* MeetPageParser.swift */,
 			);
 			path = Login;
