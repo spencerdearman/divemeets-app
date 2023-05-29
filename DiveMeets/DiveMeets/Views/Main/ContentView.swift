@@ -12,7 +12,7 @@ struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
     @Environment(\.meetsDB) var db
     @EnvironmentObject private var p: MeetParser
-    @State private var selectedTab: Tab = .magnifyingglass
+    @State private var selectedTab: Tab = .house
     @State var isIndexingMeets: Bool = false
     @FetchRequest(sortDescriptors: []) private var meets: FetchedResults<DivingMeet>
     
@@ -44,12 +44,14 @@ struct ContentView: View {
                             // Add different page views here for different tabs
                             switch tab {
                                 case .house:
-                                    Home()
+//                                    Home()
+                                    MeetPageView(meetLink: "https://secure.meetcontrol.com/divemeets/system/meetinfoext.php?meetnum=8996")
                                 case .gearshape:
-                                    Image(systemName: tab.rawValue)
-                                    Text("Settings")
-                                        .bold()
-                                        .animation(nil, value: selectedTab)
+                                    MeetPageView(meetLink: "https://secure.meetcontrol.com/divemeets/system/meetresultsext.php?meetnum=8996")
+//                                    Image(systemName: tab.rawValue)
+//                                    Text("Settings")
+//                                        .bold()
+//                                        .animation(nil, value: selectedTab)
                                 case .magnifyingglass:
                                     SearchView(isIndexingMeets: $isIndexingMeets)
                                 case .person:
