@@ -12,6 +12,7 @@ struct EventResultPage: View {
     @State var eventTitle: String = ""
     @State var meetLink: String
     @State var resultData: [[String]] = []
+    @State var alreadyParsed: Bool = false
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
@@ -20,16 +21,20 @@ struct EventResultPage: View {
     var body: some View {
         ZStack{}
             .onAppear {
-                Task {
-                    await parser.parse(urlString: meetLink)
-                    resultData = parser.eventPageData
-                    eventTitle = resultData[0][8]
+                if !alreadyParsed {
+                    Task {
+                        await parser.parse(urlString: meetLink)
+                        resultData = parser.eventPageData
+                        eventTitle = resultData[0][8]
+                        alreadyParsed = true
+                    }
                 }
             }
         VStack{
             Text(eventTitle)
                 .font(.title)
                 .bold()
+                .padding()
             Divider()
             ScalingScrollView(records: resultData) { (elem) in
                 PersonBubbleView(elements: elem, eventTitle: eventTitle)
@@ -88,7 +93,7 @@ struct PersonBubbleView: View {
                         Spacer()
                         Text("Score: ")
                         NavigationLink {
-                            Event(isFirstNav: $navStatus, meet: .constant(MeetEvent(name: eventTitle, link: elements[6])))
+                            Event(isFirstNav: $navStatus, meet: .constant(MeetEvent(name: eventTitle, link: elements[6], firstNavigation: false)))
                         } label: {
                             Text(elements[5])
                         }

@@ -28,4 +28,5 @@ struct MeetEvent: Hashable, Identifiable {
     var isOpen: Bool = false
     var isChild: Bool = false
     var link: String?
+    var firstNavigation: Bool = true
 }

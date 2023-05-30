@@ -188,6 +188,11 @@ struct LoginPageSearchView: View {
     @Binding var password: String
     @State private var isPasswordVisible = false
     fileprivate var focusedField: FocusState<LoginField?>.Binding
+    @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
+    
+    private var maxHeightOffset: CGFloat {
+        min(maxHeightOffsetScaled, 90)
+    }
     
     var body: some View {
         VStack {
@@ -237,7 +242,7 @@ struct LoginPageSearchView: View {
                 .padding(.trailing)
             }
         }
-        .padding()
+        .padding(.bottom, maxHeightOffset)
         .onAppear {
             divemeetsID = ""
             password = ""

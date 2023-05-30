@@ -81,10 +81,12 @@ struct Event: View {
                         Text("Total DD: " + String(diverData.4))
                     }
                     Divider()
-                    NavigationLink {
-                        EventResultPage(meetLink: diverData.6)
-                    } label: {
-                        Text("Full Event Page")
+                    if meet.firstNavigation {
+                        NavigationLink {
+                            EventResultPage(meetLink: diverData.6)
+                        } label: {
+                            Text("Full Event Page")
+                        }
                     }
                     
                     
