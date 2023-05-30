@@ -26,6 +26,7 @@
 		0097478F2A24549A004E7C73 /* MeetPageParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0097478E2A24549A004E7C73 /* MeetPageParser.swift */; };
 		00A81A3329F455DC00BFAE4E /* LiveResultsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A81A3229F455DC00BFAE4E /* LiveResultsParser.swift */; };
 		00E0D49A2A042A8D00B01D98 /* LoginTextFieldClearButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00E0D4992A042A8D00B01D98 /* LoginTextFieldClearButton.swift */; };
+		00F2C3142A25B1B800B1CD01 /* EventParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F2C3132A25B1B800B1CD01 /* EventParser.swift */; };
 		00F9665F29AEEF0900F3720B /* FloatingMenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */; };
 		00F9667B29AFDA1500F3720B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9667A29AFDA1500F3720B /* ContentView.swift */; };
 		4D09308529D3A1B7003AAA90 /* LoginScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D09308429D3A1B7003AAA90 /* LoginScreen.swift */; };
@@ -46,7 +47,6 @@
 		4D8B9C1929F8D395002B53AD /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8B9C1829F8D395002B53AD /* Home.swift */; };
 		4D8B9C1D29FB4EBD002B53AD /* LoginProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8B9C1C29FB4EBD002B53AD /* LoginProfile.swift */; };
 		4D9DD09A2A058EF700F6D31C /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D9DD0992A058EF700F6D31C /* Event.swift */; };
-		4D9DD09C2A05981300F6D31C /* EventParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D9DD09B2A05981300F6D31C /* EventParser.swift */; };
 		4DD868ED29F0E69C00FF988D /* keychain-swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DD868EC29F0E69C00FF988D /* keychain-swift.swift */; };
 		4DE6CFC329E25A0D00831D1D /* LoginWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DE6CFC229E25A0D00831D1D /* LoginWebView.swift */; };
 		4DEF7D3629BEE796003EAD70 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 4DEF7D3529BEE796003EAD70 /* SwiftSoup */; };
@@ -72,6 +72,7 @@
 		0097478E2A24549A004E7C73 /* MeetPageParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetPageParser.swift; sourceTree = "<group>"; };
 		00A81A3229F455DC00BFAE4E /* LiveResultsParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveResultsParser.swift; sourceTree = "<group>"; };
 		00E0D4992A042A8D00B01D98 /* LoginTextFieldClearButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginTextFieldClearButton.swift; sourceTree = "<group>"; };
+		00F2C3132A25B1B800B1CD01 /* EventParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventParser.swift; sourceTree = "<group>"; };
 		00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingMenuBar.swift; sourceTree = "<group>"; };
 		00F9667A29AFDA1500F3720B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		4D09308429D3A1B7003AAA90 /* LoginScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginScreen.swift; sourceTree = "<group>"; };
@@ -94,7 +95,6 @@
 		4D8B9C1829F8D395002B53AD /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
 		4D8B9C1C29FB4EBD002B53AD /* LoginProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginProfile.swift; sourceTree = "<group>"; };
 		4D9DD0992A058EF700F6D31C /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
-		4D9DD09B2A05981300F6D31C /* EventParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventParser.swift; sourceTree = "<group>"; };
 		4DC7ACEC29F38828008BBB62 /* DiveMeets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DiveMeets.entitlements; sourceTree = "<group>"; };
 		4DD868EC29F0E69C00FF988D /* keychain-swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "keychain-swift.swift"; sourceTree = "<group>"; };
 		4DE6CFC229E25A0D00831D1D /* LoginWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginWebView.swift; sourceTree = "<group>"; };
@@ -115,10 +115,10 @@
 		4D50E7722A24050E009BFBFA /* Parsers */ = {
 			isa = PBXGroup;
 			children = (
+				00F2C3132A25B1B800B1CD01 /* EventParser.swift */,
 				0037877F29D501F600D3CD59 /* ProfileParser.swift */,
 				4D60E8F82A1737A90011A295 /* ScoringParser.swift */,
 				4D753DE22A2158370029138B /* EventPageParser.swift */,
-				4D9DD09B2A05981300F6D31C /* EventParser.swift */,
 			);
 			path = Parsers;
 			sourceTree = "<group>";
@@ -225,7 +225,6 @@
 				4D74FEA429AE7C2B00401178 /* ProfileImage.swift */,
 				4D74FE9829AE7B9800401178 /* ProfileView.swift */,
 				00E0D4992A042A8D00B01D98 /* LoginTextFieldClearButton.swift */,
-				4D9DD09B2A05981300F6D31C /* EventParser.swift */,
 				0097478E2A24549A004E7C73 /* MeetPageParser.swift */,
 			);
 			path = Login;
@@ -347,6 +346,7 @@
 				4D753DE32A2158370029138B /* EventPageParser.swift in Sources */,
 				00F9667B29AFDA1500F3720B /* ContentView.swift in Sources */,
 				4D60E8F92A1737A90011A295 /* ScoringParser.swift in Sources */,
+				00F2C3142A25B1B800B1CD01 /* EventParser.swift in Sources */,
 				4D9DD09A2A058EF700F6D31C /* Event.swift in Sources */,
 				4D8B9C1929F8D395002B53AD /* Home.swift in Sources */,
 				4D74FEAF29AEB02100401178 /* Meet.swift in Sources */,
@@ -357,7 +357,6 @@
 				000D28DF29E1201200B184E9 /* LiveResultsWebView.swift in Sources */,
 				4D74FEC029AEBD6F00401178 /* MeetList.swift in Sources */,
 				0051C9D129E4CEE300C4C9E7 /* PastMeetResults.swift in Sources */,
-				4D9DD09C2A05981300F6D31C /* EventParser.swift in Sources */,
 				4D1A5C3929CCA1B400F3DA2B /* RecordList.swift in Sources */,
 				0037877929D4F40900D3CD59 /* Cache.swift in Sources */,
 				4D74FEC629AEC95500401178 /* MeetPageView.swift in Sources */,
