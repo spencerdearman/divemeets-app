@@ -18,7 +18,8 @@ struct MeetPageView: View {
     @State private var meetCoachData: MeetCoachData?
     @State private var meetInfoData: MeetInfoJointData?
     @ObservedObject private var mpp: MeetPageParser = MeetPageParser()
-    @State private var detailsExpanded: Bool = false
+    @State private var meetDetailsExpanded: Bool = false
+    @State private var warmupDetailsExpanded: Bool = false
     private let getTextModel = GetTextAsyncModel()
     var meetLink: String
     
@@ -107,31 +108,131 @@ struct MeetPageView: View {
         return tupleToList(data: data.0) + tupleToList(data: data.1)
     }
     
+    private func keyToHStack(data: [String: String], key: String) -> HStack<TupleView<(Text, Text)>> {
+        return HStack {
+            Text("\(key): ")
+                .bold()
+            Text(data[key]!)
+        }
+    }
+    
+    private func dateSorted(
+        _ time: MeetInfoTimeData) -> [(key: String, value: Dictionary<String, String>)] {
+        let data = time.sorted(by: {
+            let df = DateFormatter()
+            df.dateFormat = "EEEE, MMM dd, yyyy"
+            
+            let d1 = df.date(from: $0.key)
+            let d2 = df.date(from: $1.key)
+            
+            return d1! < d2!
+        })
+        
+        return data
+    }
+    
+    private func groupByDay(data: MeetEventData) -> [String: MeetEventData] {
+        var result: [String: MeetEventData] = [:]
+        
+        for e in data {
+            let date = e.0
+            if !result.keys.contains(date) {
+                result[date] = []
+            }
+            
+            result[date]!.append(e)
+        }
+        
+        return result
+    }
+    
     var body: some View {
         ZStack {
             if meetInfoData != nil {
                 let info = meetInfoData!.0
-                VStack {
+                let time = meetInfoData!.1
+                VStack(alignment: .leading, spacing: 10) {
                     Text(info["Name"]!)
                         .font(.title)
                         .fontWeight(.bold)
-                        .padding()
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    Text(info["Sponsor"]!)
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    Text(info["Start Date"]! + " - " + info["End Date"]!)
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .multilineTextAlignment(.trailing)
+                    HStack {
+                        Text("Signup Deadline: ")
+                            .font(.headline)
+                        Text(info["Online Signup Closes at"]!)
+                            .multilineTextAlignment(.trailing)
+                            .font(.body)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    
+                    Divider()
+                    
                     DisclosureGroup(
-                        isExpanded: $detailsExpanded,
+                        isExpanded: $meetDetailsExpanded,
                         content: {
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text("First")
-                                Text("Second")
-                                Text("Third")
+                            VStack(alignment: .leading, spacing: 10) {
+                                keyToHStack(data: info, key: "Time Left Before Late Fee")
+                                keyToHStack(data: info, key: "Type")
+                                keyToHStack(data: info, key: "Rules")
+                                keyToHStack(data: info, key: "Sponsor")
+                                keyToHStack(data: info, key: "Pool")
+                                keyToHStack(data: info, key: "Fee per event")
+                                keyToHStack(data: info, key: "USA Diving Per Event Insurance Surcharge Fee")
+                                keyToHStack(data: info, key: "Late Fee")
+                                keyToHStack(data: info, key: "Fee must be paid by")
+                                    .multilineTextAlignment(.trailing)
+                                keyToHStack(data: info, key: "Warm up time prior to event")
                             }
                         },
                         label: {
-                            Text("Show Details")
+                            Text("Meet Details")
                                 .font(.headline)
                                 .foregroundColor(.black)
                         }
                     )
-                    .frame(width: 300)
+                    .padding([.leading, .trailing])
+                    
+                    Divider()
+                    
+                    DisclosureGroup(
+                        isExpanded: $warmupDetailsExpanded,
+                        content: {
+                            VStack(alignment: .leading, spacing: 10) {
+                                ForEach(dateSorted(time), id: \.key) { key, value in
+                                    Text(key)
+                                        .bold()
+                                    VStack(alignment: .leading) {
+                                        keyToHStack(data: value, key: "Warmup Starts")
+                                        keyToHStack(data: value, key: "Warmup Ends")
+                                        keyToHStack(data: value, key: "Events Start")
+                                    }
+                                    .padding(.leading, 30)
+                                }
+                            }
+                        },
+                        label: {
+                            Text("Warmup Details")
+                                .font(.headline)
+                                .foregroundColor(.black)
+                        }
+                    )
+                    .padding([.leading, .trailing])
+                    
+                    Divider()
+                    
+//                    List {
+//
+//                    }
+                    
                     Spacer()
                 }
                 .padding()
@@ -153,7 +254,7 @@ struct MeetPageView: View {
                         meetDiverData = mpp.getDiverListData(data: meetData!)
                         meetCoachData = mpp.getCoachListData(data: meetData!)
                         meetInfoData = mpp.getMeetInfoData(data: meetData!)
-                        print(meetInfoData!.0)
+                        print(meetEventData!)
                     }
                 }
             }
