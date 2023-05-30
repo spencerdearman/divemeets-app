@@ -20,6 +20,9 @@ typealias MeetPageData = [String: [Element]]
 //                        [(date  , number, name, rule , entries)]
 typealias MeetEventData = [(String, Int, String, String, Int)]
 
+//                               [(name  , link  , entries, date)]
+typealias MeetResultsEventData = [(String, String, Int, String)]
+
 //                        [(name  , team  , link  , [events])]
 typealias MeetDiverData = [(String, String, String, [String])]
 
@@ -72,6 +75,9 @@ class MeetPageParser: ObservableObject {
             if let events = data["events"] {
                 for e in events {
                     text = try e.text()
+                    // This line catches cases where results events are passed into this function
+                    if e == events.first! && !containsDayOfWeek(text) { return nil }
+                    
                     if date == "" || containsDayOfWeek(text) {
                         date = text
                         continue
@@ -104,6 +110,46 @@ class MeetPageParser: ObservableObject {
             }
         } catch {
             print("Getting event data failed")
+        }
+        
+        return nil
+    }
+    
+    func getResultsEventData(data: MeetPageData) -> MeetResultsEventData? {
+        var result: MeetResultsEventData = []
+        
+        if let events = data["events"] {
+            do {
+                for event in events {
+                    let text = try event.text()
+                    
+                    // This line catches cases where info events are passed into this function
+                    if event == events.first! && containsDayOfWeek(text) { return nil }
+                    
+                    let nameSplit = text.components(separatedBy: ") ")
+                    var name = nameSplit[0]
+                    name.append(")")
+                    
+                    let link = try leadingLink + event.getElementsByTag("a").attr("href")
+                    
+                    let secSplit = nameSplit.last!.components(separatedBy: " ")
+                    let entries = Int(secSplit.first!)!
+                    
+                    // Converts date to proper format, then turns back into string
+                    let df = DateFormatter()
+                    df.dateFormat = "yyyy-MM-dd"
+                    let date = df.date(from: secSplit.last!)!
+                    
+                    df.dateFormat = "EEEE, MMM d, yyyy"
+                    let dateStr = df.string(from: date)
+                    
+                    result.append((name, link, entries, dateStr))
+                }
+                
+                return result
+            } catch {
+                print("Getting results event data failed")
+            }
         }
         
         return nil
@@ -233,11 +279,11 @@ class MeetPageParser: ObservableObject {
                 if text.contains("Note:") {
                     break
                 }
-                print(text)
+//                print(text)
                 result["info"]!.append(r)
             }
             result["info"]!.removeLast()
-            print("_____________________")
+//            print("_____________________")
             
             if tables.count < 2 { return nil }
             let botTable = tables[1]
