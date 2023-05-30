@@ -121,6 +121,7 @@
 				0037877F29D501F600D3CD59 /* ProfileParser.swift */,
 				4D60E8F82A1737A90011A295 /* ScoringParser.swift */,
 				4D753DE22A2158370029138B /* EventPageParser.swift */,
+				0097478E2A24549A004E7C73 /* MeetPageParser.swift */,
 			);
 			path = Parsers;
 			sourceTree = "<group>";
@@ -227,7 +228,6 @@
 				4D74FEA429AE7C2B00401178 /* ProfileImage.swift */,
 				4D74FE9829AE7B9800401178 /* ProfileView.swift */,
 				00E0D4992A042A8D00B01D98 /* LoginTextFieldClearButton.swift */,
-				0097478E2A24549A004E7C73 /* MeetPageParser.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
