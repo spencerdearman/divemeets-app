@@ -16,6 +16,7 @@ struct MeetPageView: View {
     @State private var meetEventData: MeetEventData?
     @State private var meetDiverData: MeetDiverData?
     @State private var meetCoachData: MeetCoachData?
+    @State private var meetInfoData: MeetInfoJointData?
     @ObservedObject private var mpp: MeetPageParser = MeetPageParser()
     private let getTextModel = GetTextAsyncModel()
     var meetLink: String
@@ -62,6 +63,36 @@ struct MeetPageView: View {
         return result
     }
     
+    private func tupleToList(data: MeetInfoData) -> [[String]] {
+        var result: [[String]] = []
+        
+        for (key, value) in data {
+            result.append([key, value])
+        }
+        
+        return result
+    }
+    
+    private func tupleToList(data: MeetInfoTimeData) -> [[String]] {
+        var result: [[String]] = []
+        
+        for (date, times) in data {
+            var row = [date]
+            for (key, time) in times {
+                row.append(key)
+                row.append(time)
+            }
+            
+            result.append(row)
+        }
+        
+        return result
+    }
+    
+    private func tupleToList(data: MeetInfoJointData) -> [[String]] {
+        return tupleToList(data: data.0) + tupleToList(data: data.1)
+    }
+    
     var body: some View {
         ZStack {
             VStack {
@@ -100,6 +131,7 @@ struct MeetPageView: View {
                         meetEventData = await mpp.getEventData(data: meetData!)
                         meetDiverData = mpp.getDiverListData(data: meetData!)
                         meetCoachData = mpp.getCoachListData(data: meetData!)
+                        meetInfoData = mpp.getMeetInfoData(data: meetData!)
                     }
                 }
             }
