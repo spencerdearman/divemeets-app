@@ -19,6 +19,7 @@ struct MeetPageView: View {
     @State private var meetCoachData: MeetCoachData?
     @State private var meetInfoData: MeetInfoJointData?
     @ObservedObject private var mpp: MeetPageParser = MeetPageParser()
+    @State private var detailsExpanded: Bool = false
     private let getTextModel = GetTextAsyncModel()
     var meetLink: String
     var showBackButton: Bool = true
@@ -217,37 +218,32 @@ struct MeetPageView: View {
     
     var body: some View {
         ZStack {
-            VStack {
-//                ForEach(tupleToList(data: meetEventData ?? []), id: \.self) { elem in
-//                    Text("Date: " + elem[0])
-//                    Text("Event: " + elem[1])
-//                    Text("Name: " + elem[2])
-//                    Text("Rule: " + elem[3])
-//                    Text("Entries: " + elem[4])
-//                }
-                
-//                ForEach(tupleToList(data: meetDiverData ?? []), id: \.self) { elem in
-//                    Text("Name: " + elem[0])
-//                    Text("Team: " + elem[1])
-//                    Text("Link: " + elem[2])
-//                }
-                
-//                ForEach(tupleToList(data: meetCoachData ?? []), id: \.self) { elem in
-//                    Text("Name: " + elem[0])
-//                    Text("Team: " + elem[1])
-//                    Text("Link: " + elem[2])
-//                }
-                
-                ForEach(tupleToList(data: meetInfoData?.0 ?? [:]), id: \.self) { elem in
-                    Text(elem[0] + ": " + elem[1])
+            if meetInfoData != nil {
+                let info = meetInfoData!.0
+                VStack {
+                    Text(info["Name"]!)
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .padding()
+                    DisclosureGroup(
+                        isExpanded: $detailsExpanded,
+                        content: {
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text("First")
+                                Text("Second")
+                                Text("Third")
+                            }
+                        },
+                        label: {
+                            Text("Show Details")
+                                .font(.headline)
+                                .foregroundColor(.black)
+                        }
+                    )
+                    .frame(width: 300)
+                    Spacer()
                 }
-                
-//                ForEach(tupleToList(data: meetResultsEventData ?? []), id: \.self) { elem in
-//                    Text("Name: " + elem[0])
-//                    Text("Link: " + elem[1])
-//                    Text("Entries: " + elem[2])
-//                    Text("Date: " + elem[3])
-//                }
+                .padding()
             }
         }
         .onAppear {
@@ -266,6 +262,7 @@ struct MeetPageView: View {
                         meetDiverData = mpp.getDiverListData(data: meetData!)
                         meetCoachData = mpp.getCoachListData(data: meetData!)
                         meetInfoData = mpp.getMeetInfoData(data: meetData!)
+                        print(meetInfoData!.0)
                     }
                 }
             }
