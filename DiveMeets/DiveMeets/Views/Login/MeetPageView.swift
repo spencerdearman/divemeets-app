@@ -7,9 +7,6 @@
 //
 
 import SwiftUI
-import SwiftSoup
-
-
 
 struct MeetPageView: View {
     @State private var meetData: MeetPageData?
