@@ -135,6 +135,20 @@ struct MeetPageView: View {
         }
     }
     
+    private func tupleToList(data: MeetEventData) -> [[String]] {
+        var result: [[String]] = []
+        for event in data {
+            let date = event.0
+            let number = String(event.1)
+            let name = event.2
+            let rule = event.3
+            let entries = String(event.4)
+            result.append([date, number, name, rule, entries])
+        }
+        
+        return result
+    }
+    
     var body: some View {
         VStack {
             if let meetInfoData = meetInfoData {
