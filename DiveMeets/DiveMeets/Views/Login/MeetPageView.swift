@@ -109,13 +109,13 @@ struct MeetPageView: View {
     var body: some View {
         ZStack {
             VStack {
-                ForEach(tupleToList(data: meetEventData ?? []), id: \.self) { elem in
-                    Text("Date: " + elem[0])
-                    Text("Event: " + elem[1])
-                    Text("Name: " + elem[2])
-                    Text("Rule: " + elem[3])
-                    Text("Entries: " + elem[4])
-                }
+//                ForEach(tupleToList(data: meetEventData ?? []), id: \.self) { elem in
+//                    Text("Date: " + elem[0])
+//                    Text("Event: " + elem[1])
+//                    Text("Name: " + elem[2])
+//                    Text("Rule: " + elem[3])
+//                    Text("Entries: " + elem[4])
+//                }
                 
 //                ForEach(tupleToList(data: meetDiverData ?? []), id: \.self) { elem in
 //                    Text("Name: " + elem[0])
