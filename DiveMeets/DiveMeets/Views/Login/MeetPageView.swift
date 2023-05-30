@@ -112,13 +112,13 @@ struct MeetPageView: View {
     var body: some View {
         ZStack {
             VStack {
-                ForEach(tupleToList(data: meetEventData ?? []), id: \.self) { elem in
-                    Text("Date: " + elem[0])
-                    Text("Event: " + elem[1])
-                    Text("Name: " + elem[2])
-                    Text("Rule: " + elem[3])
-                    Text("Entries: " + elem[4])
-                }
+//                ForEach(tupleToList(data: meetEventData ?? []), id: \.self) { elem in
+//                    Text("Date: " + elem[0])
+//                    Text("Event: " + elem[1])
+//                    Text("Name: " + elem[2])
+//                    Text("Rule: " + elem[3])
+//                    Text("Entries: " + elem[4])
+//                }
                 
 //                ForEach(tupleToList(data: meetDiverData ?? []), id: \.self) { elem in
 //                    Text("Name: " + elem[0])
@@ -132,12 +132,16 @@ struct MeetPageView: View {
 //                    Text("Link: " + elem[2])
 //                }
                 
-                ForEach(tupleToList(data: meetResultsEventData ?? []), id: \.self) { elem in
-                    Text("Name: " + elem[0])
-                    Text("Link: " + elem[1])
-                    Text("Entries: " + elem[2])
-                    Text("Date: " + elem[3])
+                ForEach(tupleToList(data: meetInfoData?.0 ?? [:]), id: \.self) { elem in
+                    Text(elem[0] + ": " + elem[1])
                 }
+                
+//                ForEach(tupleToList(data: meetResultsEventData ?? []), id: \.self) { elem in
+//                    Text("Name: " + elem[0])
+//                    Text("Link: " + elem[1])
+//                    Text("Entries: " + elem[2])
+//                    Text("Date: " + elem[3])
+//                }
             }
         }
         .onAppear {
