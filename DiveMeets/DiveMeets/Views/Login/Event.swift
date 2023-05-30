@@ -18,6 +18,7 @@ struct Event: View {
     @State var isExpanded: Bool = false
     @State var expandedIndices: Set<Int> = []
     @State var scoreString: String = ""
+    @State var fullEventPageShown: Bool = false
     
     @StateObject private var parser = EventHTMLParser()
     @StateObject private var scoreParser = ScoreHTMLParser()
@@ -81,12 +82,12 @@ struct Event: View {
                         Text("Total DD: " + String(diverData.4))
                     }
                     Divider()
-                    if meet.firstNavigation {
-                        NavigationLink {
+                    if meet.firstNavigation && !fullEventPageShown {
+                        NavigationLink (destination: {
                             EventResultPage(meetLink: diverData.6)
-                        } label: {
+                        }, label: {
                             Text("Full Event Page")
-                        }
+                        })
                     }
                     
                     
@@ -99,8 +100,8 @@ struct Event: View {
                                         Text("Height: \(value.1)")
                                         Text("Scores: " + (scoreDictionary[value.0] ?? ""))
                                         Text("Name: \(value.2)")
-                                        Text("Net Score: \(value.3)")
-                                        Text("DD: \(value.4)")
+                                        Text("Net Score: \(value.3, specifier: "%.2f")")
+                                        Text("DD: \(value.4, specifier: "%.1f")")
                                     }
                                     .padding(.leading, 20)
                                 },
