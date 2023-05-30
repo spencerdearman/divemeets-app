@@ -8,8 +8,6 @@
 
 
 import SwiftUI
-import Combine
-import SwiftSoup
 
 struct LiveResultsView: View {
     var request: String =
