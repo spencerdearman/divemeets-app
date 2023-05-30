@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftSoup
 
 struct LiveResultsView: View {
     @State var request: String =
