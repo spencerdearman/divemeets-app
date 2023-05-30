@@ -51,6 +51,52 @@ class MeetPageParser: ObservableObject {
         return false
     }
     
+    // Corrects date formatting to consistent usage, e.g. Tuesday, May 16, 2023
+    private func correctDateFormatting(_ str: String) throws -> String {
+        let df = DateFormatter()
+        let formatters = ["yyyy-MM-dd", "MM-dd-yyyy"]
+        var date: Date? = nil
+        
+        for formatter in formatters {
+            df.dateFormat = formatter
+            date = df.date(from: str)
+            
+            if date != nil {
+                break
+            }
+        }
+        
+        if date == nil {
+            throw NSError()
+        }
+        
+        df.dateFormat = "EEEE, MMM d, yyyy"
+        return df.string(from: date!)
+    }
+    
+    // Corrects date time formatting to consistent usage, e.g. Tuesday, May 16, 2023 5:00 PM
+    private func correctDateTimeFormatting(_ str: String) throws -> String {
+        let df = DateFormatter()
+        let formatters = ["MM/dd/yyyy h:mm:ss a"]
+        var date: Date? = nil
+        
+        for formatter in formatters {
+            df.dateFormat = formatter
+            date = df.date(from: str)
+            
+            if date != nil {
+                break
+            }
+        }
+        
+        if date == nil {
+            throw NSError()
+        }
+        
+        df.dateFormat = "EEEE, MMM d, yyyy h:mm a"
+        return df.string(from: date!)
+    }
+    
     private func getEventRule(link: String) async -> String? {
         let textModel: GetTextAsyncModel = GetTextAsyncModel()
         let url: URL = URL(string: link)!
@@ -136,14 +182,9 @@ class MeetPageParser: ObservableObject {
                     let entries = Int(secSplit.first!)!
                     
                     // Converts date to proper format, then turns back into string
-                    let df = DateFormatter()
-                    df.dateFormat = "yyyy-MM-dd"
-                    let date = df.date(from: secSplit.last!)!
+                    let date = try correctDateFormatting(secSplit.last!)
                     
-                    df.dateFormat = "EEEE, MMM d, yyyy"
-                    let dateStr = df.string(from: date)
-                    
-                    result.append((name, link, entries, dateStr))
+                    result.append((name, link, entries, date))
                 }
                 
                 return result
@@ -224,10 +265,12 @@ class MeetPageParser: ObservableObject {
         if let info = data["info"] {
             do {
                 for res in info {
-                    let text = try res.text()
+                    var text = try res.text()
                     if text.starts(with: "Fee to be paid") {
                         continue
                     }
+                    
+                    // Gets elements with center alignment (the dates for each warmup/event time)
                     let elems = try res.getElementsByAttribute("align").filter {
                         try $0.attr("align") == "center"
                     }
@@ -237,17 +280,45 @@ class MeetPageParser: ObservableObject {
                         addToTime = true
                         continue
                     }
+                    if text.contains("In order to") {
+                        text = text.replacingOccurrences(of: "(In order to avoid late fee) ", with: "")
+                    }
                     if !addToTime && text.components(separatedBy: ": ").count < 2 {
+                        print("Text split failed for: ", text)
                         continue
                     }
                     
-                    let split = text.components(separatedBy: ": ")
+                    var split = text.components(separatedBy: ": ")
+                    // Fix capitalization error for word "Date"
+                    if split[0].contains("date") {
+                        split[0] = split[0].replacingOccurrences(of: "date", with: "Date")
+                    }
+                    // Fix inconsistent spacing after $
+                    if split[1].contains("$ ") {
+                        split[1] = split[1].replacingOccurrences(of: "$ ", with: "$")
+                    }
                     
                     if addToTime {
                         if time[curDay] == nil {
                             time[curDay] = [:]
                         }
                         time[curDay]![split[0]] = split[1]
+                    } else if split[0].contains("Online Signup Closes at") {
+                        let dateSplit = split[1].split(separator: " ", maxSplits: 1)
+                        
+                        let date = try correctDateFormatting(String(dateSplit.first!))
+                        infoResult[split[0]] = date + " " + dateSplit.last!
+                    } else if split[0].contains("Date") {
+                        let dateSplit = split[1].components(separatedBy: " ")
+
+                        let date = try correctDateFormatting(dateSplit.first!)
+                        infoResult[split[0]] = date
+                    } else if split[0].contains("Fee must be paid by") {
+                        let dateSplit = split[1].components(separatedBy: " ")
+                        let dateTime = dateSplit[..<3].joined(separator: " ")
+                        
+                        let date = try correctDateTimeFormatting(dateTime)
+                        infoResult[split[0]] = date + " (Local Time)"
                     } else {
                         infoResult[split[0]] = split[1]
                     }
@@ -279,11 +350,9 @@ class MeetPageParser: ObservableObject {
                 if text.contains("Note:") {
                     break
                 }
-//                print(text)
                 result["info"]!.append(r)
             }
             result["info"]!.removeLast()
-//            print("_____________________")
             
             if tables.count < 2 { return nil }
             let botTable = tables[1]
@@ -302,17 +371,13 @@ class MeetPageParser: ObservableObject {
                 }
                 
                 if stage == .events {
-//                    print(try "Event: " + t.text())
                     result["events"]!.append(t)
                 } else if stage == .divers {
-//                    print(try "Diver: " + t.text())
                     result["divers"]!.append(t)
                 } else {
-//                    print(try "Coach: " + t.text())
                     result["coaches"]!.append(t)
                 }
             }
-//            print("_____________________")
             
             return result
             
@@ -331,13 +396,7 @@ class MeetPageParser: ObservableObject {
             let upperRows = try tables[0].getElementsByTag("tr")
             result["name"] = [upperRows[0]]
             result["date"] = [upperRows[1]]
-            print(try result["name"]![0].text())
-            print(try result["date"]![0].text())
             result["events"] = try tables[0].getElementsByAttribute("bgcolor").array()
-            for r in result["events"]! {
-                print(try r.text())
-            }
-            print("_____________________")
             
             if tables.count < 2 { return nil }
             let lowerRows = try tables[1].getElementsByTag("tr")
@@ -347,7 +406,6 @@ class MeetPageParser: ObservableObject {
                 if r == lowerRows.first()! {
                     continue
                 }
-                print(try r.text())
                 result["divers"]!.append(r)
             }
             
