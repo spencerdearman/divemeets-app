@@ -91,6 +91,7 @@ struct MeetList: View {
 
 struct childView: View{
     @Binding var meet: MeetEvent
+    @State var navStatus: Bool = true
     
     var body: some View{
         Button(action: {}, label: {
@@ -100,7 +101,7 @@ struct childView: View{
             meet.isOpen = true
         })
         .fullScreenCover(isPresented: $meet.isOpen) {
-            Event(meet: $meet)
+            Event(isFirstNav: $navStatus, meet: $meet)
         }
     }
 }
