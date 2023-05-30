@@ -26,6 +26,13 @@ typealias MeetDiverData = [(String, String, String, [String])]
 //                        [name  , team  , coachLink]
 typealias MeetCoachData = [(String, String, String)]
 
+typealias MeetInfoData = [String: String]
+
+//                           [day   : [warmup/event start/end: time]]
+typealias MeetInfoTimeData = [String: [String: String]]
+
+typealias MeetInfoJointData = (MeetInfoData, MeetInfoTimeData)
+
 class MeetPageParser: ObservableObject {
     @Published var meetData: MeetPageData?
     private let leadingLink: String = "https://secure.meetcontrol.com/divemeets/system/"
@@ -162,6 +169,53 @@ class MeetPageParser: ObservableObject {
         return nil
     }
     
+    func getMeetInfoData(data: MeetPageData) -> (MeetInfoData, MeetInfoTimeData)? {
+        var infoResult: [String: String] = [:]
+        var time: [String: [String: String]] = [:]
+        var curDay: String = ""
+        var addToTime: Bool = false
+        
+        if let info = data["info"] {
+            do {
+                for res in info {
+                    let text = try res.text()
+                    if text.starts(with: "Fee to be paid") {
+                        continue
+                    }
+                    let elems = try res.getElementsByAttribute("align").filter {
+                        try $0.attr("align") == "center"
+                    }
+                    
+                    if elems.count > 0 {
+                        curDay = try elems.first!.text()
+                        addToTime = true
+                        continue
+                    }
+                    if !addToTime && text.components(separatedBy: ": ").count < 2 {
+                        continue
+                    }
+                    
+                    let split = text.components(separatedBy: ": ")
+                    
+                    if addToTime {
+                        if time[curDay] == nil {
+                            time[curDay] = [:]
+                        }
+                        time[curDay]![split[0]] = split[1]
+                    } else {
+                        infoResult[split[0]] = split[1]
+                    }
+                }
+                
+                return (infoResult, time)
+            } catch {
+                print("Getting meet info data failed")
+            }
+        }
+        
+        return nil
+    }
+    
     // Produces a MeetPageData object with keys: coaches, divers, events, info
     private func parseInfoPage(tables: Elements) -> MeetPageData? {
         var result: MeetPageData = [:]
@@ -173,7 +227,8 @@ class MeetPageParser: ObservableObject {
             let topTable = tables[0]
             result["info"] = []
             
-            for r in try topTable.getElementsByTag("tr") {
+            // Drops first element ("To sign up for this meet, please login." element)
+            for r in try topTable.getElementsByTag("tr").dropFirst() {
                 let text = try r.text()
                 
                 if text.contains("Note:") {
@@ -202,17 +257,17 @@ class MeetPageParser: ObservableObject {
                 }
                 
                 if stage == .events {
-                    print(try "Event: " + t.text())
+//                    print(try "Event: " + t.text())
                     result["events"]!.append(t)
                 } else if stage == .divers {
-                    print(try "Diver: " + t.text())
+//                    print(try "Diver: " + t.text())
                     result["divers"]!.append(t)
                 } else {
-                    print(try "Coach: " + t.text())
+//                    print(try "Coach: " + t.text())
                     result["coaches"]!.append(t)
                 }
             }
-            print("_____________________")
+//            print("_____________________")
             
             return result
             
