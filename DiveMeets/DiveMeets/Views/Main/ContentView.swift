@@ -43,17 +43,17 @@ struct ContentView: View {
                         HStack {
                             // Add different page views here for different tabs
                             switch tab {
-                                case .house:
-                                    Home()
-                                case .gearshape:
-                                    Image(systemName: tab.rawValue)
-                                    Text("Settings")
-                                        .bold()
-                                        .animation(nil, value: selectedTab)
-                                case .magnifyingglass:
-                                    SearchView(isIndexingMeets: $isIndexingMeets)
-                                case .person:
-                                    LoginSearchView()
+                            case .house:
+                                Home()
+                            case .gearshape:
+                                Image(systemName: tab.rawValue)
+                                Text("Settings")
+                                    .bold()
+                                    .animation(nil, value: selectedTab)
+                            case .magnifyingglass:
+                                SearchView(isIndexingMeets: $isIndexingMeets)
+                            case .person:
+                                LoginSearchView()
                             }
                         }
                         .tag(tab)

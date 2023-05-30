@@ -155,7 +155,7 @@ struct UpcomingMeetsView: View {
             ScalingScrollView(records: upcoming) { (elem) in
                 MeetBubbleView(elements: elem)
             }
-                .padding(.bottom, maxHeightOffset)
+            .padding(.bottom, maxHeightOffset)
         } else if meetParser.upcomingMeets != nil {
             Text("No upcoming meets found")
         } else {

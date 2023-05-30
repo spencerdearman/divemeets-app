@@ -11,8 +11,8 @@ import SwiftSoup
 final class EventHTMLParser: ObservableObject {
     @Published var myData = [Int:[String:[String:(String, Double, String)]]]()
     @Published var diveTableData = [Int: (String, String, String, Double, Double, Double, String)]()
-    @Published var eventData: (String, String, String, Double, Double, Double) =
-    ("","", "", 0.0, 0.0, 0.0)
+    @Published var eventData: (String, String, String, Double, Double, Double, String) =
+    ("","", "", 0.0, 0.0, 0.0, "")
     @Published var eventDictionary = [String:(String, Double, String)]()
     @Published var innerDictionary = [String:[String:(String, Double, String)]]()
     @Published var mainDictionary = [Int:[String:[String:(String, Double, String)]]]()
@@ -70,10 +70,10 @@ final class EventHTMLParser: ObservableObject {
         return mainDictionary
     }
     
-    func parseEvent(html: String) async throws -> (String, String, String, Double, Double, Double) {
+    func parseEvent(html: String) async throws -> (String, String, String, Double, Double, Double, String) {
         let document: Document = try SwiftSoup.parse(html)
         guard let body = document.body() else {
-            return ("", "", "", 0.0, 0.0, 0.0)
+            return ("", "", "", 0.0, 0.0, 0.0, "")
         }
         
         var meetPageLink = ""
@@ -82,6 +82,7 @@ final class EventHTMLParser: ObservableObject {
         var totalNetScore = 0.0
         var totalDD  = 0.0
         var totalScore = 0.0
+        var eventPageLink = ""
         
         let table = try body.getElementsByTag("table")
         let overall = try table[0].getElementsByTag("tr")
@@ -94,11 +95,16 @@ final class EventHTMLParser: ObservableObject {
         
         meetPageLink = "https://secure.meetcontrol.com/divemeets/system/" +
         (try overall[0].getElementsByTag("a").attr("href"))
+        
+        eventPageLink = "https://secure.meetcontrol.com/divemeets/system/" +
+        (try overall[2].getElementsByTag("a").attr("href"))
+        
+        print("Here is the link:" + String(try overall[1].getElementsByTag("a").attr("href")))
         meetDates = try overall[1].getElementsByTag("Strong").text()
         totalNetScore = Double(try finalRow[2].text())!
         totalDD = Double(try finalRow[3].text())!
         totalScore = Double(try finalRow[4].text())!
-        return (meetPageLink, meetDates, organization, totalNetScore, totalDD, totalScore)
+        return (meetPageLink, meetDates, organization, totalNetScore, totalDD, totalScore, eventPageLink)
     }
     
     
@@ -122,8 +128,14 @@ final class EventHTMLParser: ObservableObject {
         for dive in diveTable {
             let diveInformation = try dive.getElementsByTag("td")
             order = Int(try diveInformation[0].text())!
-            diveNum = try diveInformation[1].text()
-            height = try diveInformation[2].text()
+            
+            let tempNum = try diveInformation[1].html().split(separator:"<br>")
+            if tempNum.count > 1{
+                diveNum = tempNum[1] + " (Changed from " + tempNum[0] + ")"
+            } else {
+                diveNum = try diveInformation[1].text()
+            }
+            height = try String(diveInformation[2].html().split(separator:"<br>").last!)
             name = try String(diveInformation[3].html().split(separator:"<br>").last!)
             let tempScore = (try diveInformation[4].text())
                 .replacingOccurrences(of: " Failed Dive", with: "")

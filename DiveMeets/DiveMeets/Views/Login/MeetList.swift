@@ -53,7 +53,7 @@ struct MeetList: View {
         return meets
     }
     
-
+    
     var body: some View {
         
         ZStack{}
@@ -68,33 +68,40 @@ struct MeetList: View {
         let rowColor: Color = currentMode == .light
         ? Color.white
         : Color.black
-
+        
         NavigationView {
             ZStack {
                 // Background color for View
                 customGray.ignoresSafeArea()
-                        List($meets, children: \.children) { $meet in
-                            (!meet.isChild ?
-                             AnyView(
-                                parentView(meet: $meet)
-                             ) : AnyView(
-                                childView(meet: $meet)
-                             ))
-                            .frame(width: frameWidth,
-                                   height: meet.isOpen ? 400: 45)
-                            }
-                        }
-                .navigationTitle("Meets")
+                List($meets, children: \.children) { $meet in
+                    (!meet.isChild ?
+                     AnyView(
+                        parentView(meet: $meet)
+                     ) : AnyView(
+                        childView(meet: $meet)
+                     ))
+                    .frame(width: frameWidth,
+                           height: meet.isOpen ? 400: 45)
+                }
             }
+            .navigationTitle("Meets")
         }
     }
+}
 
 struct childView: View{
     @Binding var meet: MeetEvent
+    @State var navStatus: Bool = true
     
     var body: some View{
-        NavigationLink(destination: Event(meet: $meet)){
+        Button(action: {}, label: {
             Text(meet.name)
+        })
+        .simultaneousGesture(TapGesture().onEnded {
+            meet.isOpen = true
+        })
+        .fullScreenCover(isPresented: $meet.isOpen) {
+            Event(isFirstNav: $navStatus, meet: $meet)
         }
     }
 }
@@ -120,3 +127,4 @@ struct parentView: View{
         }
     }
 }
+

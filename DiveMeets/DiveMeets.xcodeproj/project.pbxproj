@@ -31,6 +31,7 @@
 		4D1A5C3729CB953300F3DA2B /* SwiftUIWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */; };
 		4D1A5C3929CCA1B400F3DA2B /* RecordList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1A5C3829CCA1B400F3DA2B /* RecordList.swift */; };
 		4D254F1629C0411C0033838D /* HTMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D254F1529C0411C0033838D /* HTMLParser.swift */; };
+		4D60E8F92A1737A90011A295 /* ScoringParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D60E8F82A1737A90011A295 /* ScoringParser.swift */; };
 		4D74FE9729AE7B9800401178 /* DiveMeetsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FE9629AE7B9800401178 /* DiveMeetsApp.swift */; };
 		4D74FE9929AE7B9800401178 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FE9829AE7B9800401178 /* ProfileView.swift */; };
 		4D74FE9B29AE7B9800401178 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4D74FE9A29AE7B9800401178 /* Assets.xcassets */; };
@@ -39,6 +40,8 @@
 		4D74FEAF29AEB02100401178 /* Meet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FEAE29AEB02100401178 /* Meet.swift */; };
 		4D74FEC029AEBD6F00401178 /* MeetList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FEBF29AEBD6F00401178 /* MeetList.swift */; };
 		4D74FEC629AEC95500401178 /* MeetPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FEC529AEC95500401178 /* MeetPage.swift */; };
+		4D753DE02A214F640029138B /* EventResultPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D753DDF2A214F640029138B /* EventResultPage.swift */; };
+		4D753DE32A2158370029138B /* EventPageParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D753DE22A2158370029138B /* EventPageParser.swift */; };
 		4D8B9C1929F8D395002B53AD /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8B9C1829F8D395002B53AD /* Home.swift */; };
 		4D8B9C1D29FB4EBD002B53AD /* LoginProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8B9C1C29FB4EBD002B53AD /* LoginProfile.swift */; };
 		4D9DD09A2A058EF700F6D31C /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D9DD0992A058EF700F6D31C /* Event.swift */; };
@@ -74,6 +77,7 @@
 		4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIWebView.swift; sourceTree = "<group>"; };
 		4D1A5C3829CCA1B400F3DA2B /* RecordList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordList.swift; sourceTree = "<group>"; };
 		4D254F1529C0411C0033838D /* HTMLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLParser.swift; sourceTree = "<group>"; };
+		4D60E8F82A1737A90011A295 /* ScoringParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoringParser.swift; sourceTree = "<group>"; };
 		4D74FE9329AE7B9800401178 /* DiveMeets.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DiveMeets.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D74FE9629AE7B9800401178 /* DiveMeetsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiveMeetsApp.swift; sourceTree = "<group>"; };
 		4D74FE9829AE7B9800401178 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
@@ -83,6 +87,8 @@
 		4D74FEAE29AEB02100401178 /* Meet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meet.swift; sourceTree = "<group>"; };
 		4D74FEBF29AEBD6F00401178 /* MeetList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetList.swift; sourceTree = "<group>"; };
 		4D74FEC529AEC95500401178 /* MeetPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetPage.swift; sourceTree = "<group>"; };
+		4D753DDF2A214F640029138B /* EventResultPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventResultPage.swift; sourceTree = "<group>"; };
+		4D753DE22A2158370029138B /* EventPageParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventPageParser.swift; sourceTree = "<group>"; };
 		4D8B9C1829F8D395002B53AD /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
 		4D8B9C1C29FB4EBD002B53AD /* LoginProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginProfile.swift; sourceTree = "<group>"; };
 		4D9DD0992A058EF700F6D31C /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
@@ -104,6 +110,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4D50E7722A24050E009BFBFA /* Parsers */ = {
+			isa = PBXGroup;
+			children = (
+				0037877F29D501F600D3CD59 /* ProfileParser.swift */,
+				4D60E8F82A1737A90011A295 /* ScoringParser.swift */,
+				4D753DE22A2158370029138B /* EventPageParser.swift */,
+				4D9DD09B2A05981300F6D31C /* EventParser.swift */,
+			);
+			path = Parsers;
+			sourceTree = "<group>";
+		};
 		4D74FE8A29AE7B9800401178 = {
 			isa = PBXGroup;
 			children = (
@@ -148,6 +165,7 @@
 		4D74FEB229AEB47000401178 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				4D50E7722A24050E009BFBFA /* Parsers */,
 				4D8B9C1229F898DD002B53AD /* Home */,
 				4D8B9C1429F89A72002B53AD /* Live Results */,
 				4D8B9C1129F898D5002B53AD /* Login */,
@@ -198,14 +216,13 @@
 				4D09308429D3A1B7003AAA90 /* LoginScreen.swift */,
 				4DE6CFC229E25A0D00831D1D /* LoginWebView.swift */,
 				4D8B9C1C29FB4EBD002B53AD /* LoginProfile.swift */,
+				4D753DDF2A214F640029138B /* EventResultPage.swift */,
 				4D74FEBF29AEBD6F00401178 /* MeetList.swift */,
 				4D9DD0992A058EF700F6D31C /* Event.swift */,
 				4D74FEC529AEC95500401178 /* MeetPage.swift */,
 				4D74FEA429AE7C2B00401178 /* ProfileImage.swift */,
-				0037877F29D501F600D3CD59 /* ProfileParser.swift */,
 				4D74FE9829AE7B9800401178 /* ProfileView.swift */,
 				00E0D4992A042A8D00B01D98 /* LoginTextFieldClearButton.swift */,
-				4D9DD09B2A05981300F6D31C /* EventParser.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -323,7 +340,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D753DE32A2158370029138B /* EventPageParser.swift in Sources */,
 				00F9667B29AFDA1500F3720B /* ContentView.swift in Sources */,
+				4D60E8F92A1737A90011A295 /* ScoringParser.swift in Sources */,
 				4D9DD09A2A058EF700F6D31C /* Event.swift in Sources */,
 				4D8B9C1929F8D395002B53AD /* Home.swift in Sources */,
 				4D74FEAF29AEB02100401178 /* Meet.swift in Sources */,
@@ -350,6 +369,7 @@
 				4D74FEA529AE7C2B00401178 /* ProfileImage.swift in Sources */,
 				0095BD2D29B1491D004D7EFD /* SearchView.swift in Sources */,
 				4D8B9C1D29FB4EBD002B53AD /* LoginProfile.swift in Sources */,
+				4D753DE02A214F640029138B /* EventResultPage.swift in Sources */,
 				0037877C29D4F41800D3CD59 /* MeetParser.swift in Sources */,
 				0037877A29D4F40900D3CD59 /* ProfileMeetCache.swift in Sources */,
 				4DD868ED29F0E69C00FF988D /* keychain-swift.swift in Sources */,
