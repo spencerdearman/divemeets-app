@@ -13,7 +13,10 @@ import SwiftSoup
 
 struct MeetPageView: View {
     @State private var meetData: MeetPageData?
+    // Only meetEventData OR meetResultsEventData should be nil at a time (event is nil when passed
+    //     a results link, and resultsEvent is nil when passed an info link)
     @State private var meetEventData: MeetEventData?
+    @State private var meetResultsEventData: MeetResultsEventData?
     @State private var meetDiverData: MeetDiverData?
     @State private var meetCoachData: MeetCoachData?
     @State private var meetInfoData: MeetInfoJointData?
@@ -30,6 +33,19 @@ struct MeetPageView: View {
             let rule = event.3
             let entries = String(event.4)
             result.append([date, number, name, rule, entries])
+        }
+        
+        return result
+    }
+    
+    private func tupleToList(data: MeetResultsEventData) -> [[String]] {
+        var result: [[String]] = []
+        for event in data {
+            let name = event.0
+            let link = event.1
+            let entries = String(event.2)
+            let date = event.3
+            result.append([name, link, entries, date])
         }
         
         return result
@@ -96,13 +112,13 @@ struct MeetPageView: View {
     var body: some View {
         ZStack {
             VStack {
-//                ForEach(tupleToList(data: meetEventData ?? []), id: \.self) { elem in
-//                    Text("Date: " + elem[0])
-//                    Text("Event: " + elem[1])
-//                    Text("Name: " + elem[2])
-//                    Text("Rule: " + elem[3])
-//                    Text("Entries: " + elem[4])
-//                }
+                ForEach(tupleToList(data: meetEventData ?? []), id: \.self) { elem in
+                    Text("Date: " + elem[0])
+                    Text("Event: " + elem[1])
+                    Text("Name: " + elem[2])
+                    Text("Rule: " + elem[3])
+                    Text("Entries: " + elem[4])
+                }
                 
 //                ForEach(tupleToList(data: meetDiverData ?? []), id: \.self) { elem in
 //                    Text("Name: " + elem[0])
@@ -110,10 +126,17 @@ struct MeetPageView: View {
 //                    Text("Link: " + elem[2])
 //                }
                 
-                ForEach(tupleToList(data: meetCoachData ?? []), id: \.self) { elem in
+//                ForEach(tupleToList(data: meetCoachData ?? []), id: \.self) { elem in
+//                    Text("Name: " + elem[0])
+//                    Text("Team: " + elem[1])
+//                    Text("Link: " + elem[2])
+//                }
+                
+                ForEach(tupleToList(data: meetResultsEventData ?? []), id: \.self) { elem in
                     Text("Name: " + elem[0])
-                    Text("Team: " + elem[1])
-                    Text("Link: " + elem[2])
+                    Text("Link: " + elem[1])
+                    Text("Entries: " + elem[2])
+                    Text("Date: " + elem[3])
                 }
             }
         }
@@ -129,6 +152,7 @@ struct MeetPageView: View {
                     meetData = try await mpp.parseMeetPage(link: meetLink, html: html)
                     if meetData != nil {
                         meetEventData = await mpp.getEventData(data: meetData!)
+                        meetResultsEventData = mpp.getResultsEventData(data: meetData!)
                         meetDiverData = mpp.getDiverListData(data: meetData!)
                         meetCoachData = mpp.getCoachListData(data: meetData!)
                         meetInfoData = mpp.getMeetInfoData(data: meetData!)
