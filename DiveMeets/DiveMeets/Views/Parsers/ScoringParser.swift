@@ -21,9 +21,13 @@ final class ScoreHTMLParser: ObservableObject {
         let main = try body.getElementsByTag("tbody")
         //let scores = try main[0].getElementsByTag("tr")
         let scores = try main.select("td[style*=color:000000]")
+        var value = 0.0
         for (i, t) in scores.enumerated() {
             //starting at 1 for the key because matching judge number
-            scoreData[i + 1] = Double(try t.text())
+            value = Double(try t.text())!
+            await MainActor.run { [value] in
+                scoreData[i + 1] = value
+            }
         }
         return scoreData
     }

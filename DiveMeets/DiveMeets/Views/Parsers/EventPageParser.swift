@@ -12,9 +12,9 @@ final class EventPageHTMLParser: ObservableObject {
     //                             Place  Name   NameLink  Team  TeamLink Score ScoreLink Score Diff.
     @Published var eventPageData = [[String]]()
     @Published var parsingPageData = [[String]]()
-
+    
     let getTextModel = GetTextAsyncModel()
-
+    
     func parseEventPage(html: String) async throws -> [[String]]{
         let document: Document = try SwiftSoup.parse(html)
         guard let body = document.body() else {
@@ -43,22 +43,23 @@ final class EventPageHTMLParser: ObservableObject {
                 partScoreLink = try line[3].getElementsByTag("a").attr("href")
                 tempList.append(beginning + partScoreLink)
                 tempList.append(try line[4].text())
+                tempList.append(try overall[2].text())
+                
                 await MainActor.run { [tempList] in
                     parsingPageData.append(tempList)
                 }
             }
         }
-        print(parsingPageData)
         return parsingPageData
     }
-
+    
     
     func parse(urlString: String) async {
         guard let url = URL(string: urlString) else { return }
-
+        
         // This sets getTextModel's text field equal to the HTML from url
         await getTextModel.fetchText(url: url)
-
+        
         if let html = getTextModel.text {
             do {
                 let data = try await parseEventPage(html: html)
@@ -72,5 +73,5 @@ final class EventPageHTMLParser: ObservableObject {
             print("Could not fetch text")
         }
     }
-
+    
 }
