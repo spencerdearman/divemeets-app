@@ -20,11 +20,11 @@ typealias MeetPageData = [String: [Element]]
 //                        [(date  , number, name, rule , entries)]
 typealias MeetEventData = [(String, Int, String, String, Int)]
 
-//                        [(name  , team  , [events])]
-typealias MeetDiverData = [(String, String, [String])]
+//                        [(name  , team  , link  , [events])]
+typealias MeetDiverData = [(String, String, String, [String])]
 
-//                        [name  : team  ]
-typealias MeetCoachData = [String: String]
+//                        [name  , team  , coachLink]
+typealias MeetCoachData = [(String, String, String)]
 
 class MeetPageParser: ObservableObject {
     @Published var meetData: MeetPageData?
@@ -86,7 +86,7 @@ class MeetPageParser: ObservableObject {
                     
                     let ruleLink = try body.getElementsByTag("a").first()?.attr("href")
                     let ruleHtml = try await textLoader.getText(url: URL(
-                        string: "https://secure.meetcontrol.com/divemeets/system/" + ruleLink!)!)!
+                        string: leadingLink + ruleLink!)!)!
                     let tds = try SwiftSoup.parse(ruleHtml).body()!.getElementsByTag("td")
                     let rule = try tds[tds.count - 2].text()
                     
@@ -97,6 +97,66 @@ class MeetPageParser: ObservableObject {
             }
         } catch {
             print("Getting event data failed")
+        }
+        
+        return nil
+    }
+    
+    func getDiverListData(data: MeetPageData) -> MeetDiverData? {
+        var result: MeetDiverData = []
+        
+        if let divers = data["divers"] {
+            do {
+                for diver in divers {
+                    let text = try diver.text()
+                    let noPlace = text.split(separator: ". ", maxSplits: 1).last!
+                    let nameSplit = noPlace.components(separatedBy: " - ")
+                    // Switches name order from Last, First to First Last
+                    let name = nameSplit.first!.components(separatedBy: ", ")
+                        .reversed()
+                        .joined(separator: " ")
+                    
+                    let teamSplit = nameSplit.last!.split(separator: " ( ")
+                    let team = String(teamSplit.first!)
+                    
+                    let link = try leadingLink + diver.getElementsByTag("a").attr("href")
+                    
+                    let eventsStr = teamSplit.last!
+                    var events = eventsStr.components(separatedBy: " | ")
+                    events[events.count - 1].removeLast(2)
+                    
+                    result.append((name, team, link, events))
+                }
+                
+                return result
+            } catch {
+                print("Getting diver list data failed")
+            }
+        }
+        
+        return nil
+    }
+    
+    func getCoachListData(data: MeetPageData) -> MeetCoachData? {
+        var result: MeetCoachData = []
+        
+        if let coaches = data["coaches"] {
+            do {
+                for coach in coaches {
+                    let text = try coach.text()
+                    let noPlace = text.split(separator: ". ", maxSplits: 1).last!
+                    let nameSplit = noPlace.components(separatedBy: " - ")
+                    let name = nameSplit.last!
+                    let team = nameSplit.first!
+                    let link = try leadingLink + coach.getElementsByTag("a").attr("href")
+                    
+                    result.append((name, team, link))
+                }
+                
+                return result
+            } catch {
+                print("Getting coach list data failed")
+            }
         }
         
         return nil
