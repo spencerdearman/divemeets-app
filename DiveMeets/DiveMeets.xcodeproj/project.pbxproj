@@ -119,12 +119,10 @@
 		4D50E7722A24050E009BFBFA /* Parsers */ = {
 			isa = PBXGroup;
 			children = (
-				00FEF7B82A2A972800AAFC7C /* EntriesParser.swift */,
 				00F2C3132A25B1B800B1CD01 /* EventParser.swift */,
 				0037877F29D501F600D3CD59 /* ProfileParser.swift */,
 				4D60E8F82A1737A90011A295 /* ScoringParser.swift */,
 				4D753DE22A2158370029138B /* EventPageParser.swift */,
-				0097478E2A24549A004E7C73 /* MeetPageParser.swift */,
 			);
 			path = Parsers;
 			sourceTree = "<group>";
@@ -231,7 +229,6 @@
 				4D74FEA429AE7C2B00401178 /* ProfileImage.swift */,
 				4D74FE9829AE7B9800401178 /* ProfileView.swift */,
 				00E0D4992A042A8D00B01D98 /* LoginTextFieldClearButton.swift */,
-				4D9DD09B2A05981300F6D31C /* EventParser.swift */,
 				0097478E2A24549A004E7C73 /* MeetPageParser.swift */,
 			);
 			path = Login;
@@ -354,7 +351,6 @@
 				00F9667B29AFDA1500F3720B /* ContentView.swift in Sources */,
 				4D60E8F92A1737A90011A295 /* ScoringParser.swift in Sources */,
 				00F2C3142A25B1B800B1CD01 /* EventParser.swift in Sources */,
-				00FEF7BB2A2A990900AAFC7C /* EntryPageView.swift in Sources */,
 				4D9DD09A2A058EF700F6D31C /* Event.swift in Sources */,
 				4D8B9C1929F8D395002B53AD /* Home.swift in Sources */,
 				4D74FEAF29AEB02100401178 /* Meet.swift in Sources */,
@@ -365,7 +361,6 @@
 				000D28DF29E1201200B184E9 /* LiveResultsWebView.swift in Sources */,
 				4D74FEC029AEBD6F00401178 /* MeetList.swift in Sources */,
 				0051C9D129E4CEE300C4C9E7 /* PastMeetResults.swift in Sources */,
-				00FEF7B92A2A972800AAFC7C /* EntriesParser.swift in Sources */,
 				4D1A5C3929CCA1B400F3DA2B /* RecordList.swift in Sources */,
 				0037877929D4F40900D3CD59 /* Cache.swift in Sources */,
 				4D74FEC629AEC95500401178 /* MeetPageView.swift in Sources */,
