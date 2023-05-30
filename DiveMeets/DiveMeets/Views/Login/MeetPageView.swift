@@ -8,10 +8,6 @@
 
 import SwiftUI
 
-// Caches meet info and results data for each meet link to avoid reparsing
-//                  [meetLink: meetData]
-var cachedMeetData: [String: (MeetInfoJointData?, MeetResultsData?)] = [:]
-
 struct MeetPageView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var meetData: MeetPageData?
