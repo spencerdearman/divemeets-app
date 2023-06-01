@@ -8,32 +8,59 @@
 import SwiftUI
 
 struct ListOptimizer: View {
-    @State var oneMeterDiveDict =
-    //FRONTS
-    ["101A" : ("Forward Dive Straight", 1.4),
-     "101B": ("Forward Dive Pike", 1.3),
-     "101C": ("Forward Dive Tuck", 1.2),
-     "102A": ("Forward Somersault Straight", 1.6),
-     "102B": ("Forward Somersault Pike", 1.5),
-     "102C": ("Forward Somersault Tuck", 1.4),
-     "103A": ("Forward 1 ½ Somersault Straight", 2.0),
-     "103B": ("Forward 1 ½ Somersault Pike", 1.7),
-     "103C": ("Forward 1 ½ Somersault Tuck", 1.6),
-     "104A": ("Forward Double Somersault Straight", 2.6),
-     "104B": ("Forward Double Somersault Pike", 2.3),
-     "104C": ("Forward Double Somersault Tuck", 2.2),
-     "105B": ("Forward 2 ½ Somersault Pike", 2.6),
-     "105C": ("Forward 2 ½ Somersault Tuck", 2.4),
-     "106B": ("Forward Triple Somersault Pike", 3.2),
-     "106C": ("Forward Triple Somersault Tuck", 2.9),
-     "107B": ("Forward 3 ½ Somersault Pike", 3.3),
-     "107C": ("Forward 3 ½ Somersault Tuck", 3.0),
-     "112B": ("Forward Flying Somersault Pike", 1.7),
-     "112C": ("Forward Flying Somersault Tuck", 1.6),
-     "113B": ("Forward Flying 1 ½ Somersault Pike", 1.9),
-     "113C": ("Forward Flying 1 ½ Somersault Tuck", 1.8),
-     
-     //BACKS
+    
+    func generateJSONString(from dictionary: [String: Any]) -> String? {
+        do {
+            var dic = dictionary
+            for (key, value) in dic {
+                if let nestedTuple = value as? (String, [Float: Float]) {
+                    let nestedDic: [String: Any] = [
+                        "name": nestedTuple.0,
+                        "values": nestedTuple.1
+                    ]
+                    dic[key] = nestedDic
+                }
+            }
+            
+            let jsonData = try JSONSerialization.data(withJSONObject: dic, options: .prettyPrinted)
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                return jsonString
+            }
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+        return nil
+    }
+    
+    // Usage example
+    let dictionary: [String: Any] =
+    ["101A" : ("Forward Dive Straight", [1: 1.4, 3: 1.6, 5: 1.4, 7.5: 1.6, 10: 1.6]),
+     "101B": ("Forward Dive Pike", [1: 1.3, 3: 1.5, 5: 1.3, 7.5: 1.5, 10: 1.5]),
+     "101C": ("Forward Dive Tuck", [1: 1.2, 3: 1.4, 5: 1.2, 7.5: 1.4, 10: 1.4]),
+     "102A": ("Forward Somersault Straight", [1: 1.6, 3: 1.7, 5: 1.6, 7.5: 1.7, 10: 1.8]),
+     "102B": ("Forward Somersault Pike", [1: 1.5, 3: 1.6]),
+     "102C": ("Forward Somersault Tuck", [1: 1.4]),
+     "103A": ("Forward 1 ½ Somersault Straight", [1: 2.0]),
+     "103B": ("Forward 1 ½ Somersault Pike", [1: 1.7]),
+     "103C": ("Forward 1 ½ Somersault Tuck", [1: 1.6]),
+     "104A": ("Forward Double Somersault Straight", [1: 2.6]),
+     "104B": ("Forward Double Somersault Pike", [1: 2.3]),
+     "104C": ("Forward Double Somersault Tuck", [1: 2.2]),
+     "105A": ("Forward 2 ½ Somersault Straight", [3: 2.8]),
+     "105B": ("Forward 2 ½ Somersault Pike", [1: 2.6]),
+     "105C": ("Forward 2 ½ Somersault Tuck", [1: 2.4]),
+     "106B": ("Forward Triple Somersault Pike", [1: 3.2]),
+     "106C": ("Forward Triple Somersault Tuck", [1: 2.9]),
+     "107B": ("Forward 3 ½ Somersault Pike", [1: 3.3]),
+     "107C": ("Forward 3 ½ Somersault Tuck", [1: 3.0]),
+     "112B": ("Forward Flying Somersault Pike", [1: 1.7]),
+     "112C": ("Forward Flying Somersault Tuck", [1: 1.6]),
+     "113B": ("Forward Flying 1 ½ Somersault Pike", [1: 1.9]),
+     "113C": ("Forward Flying 1 ½ Somersault Tuck", [1: 1.8]),
+     "114C": ("Forward Flying Double Somersault Tuck", [7: 2.2, 10: 2.3]),
+     "115B": ("Forward Flying 2 ½ Somersault Pike", [3: 2.7]),
+     "115C": ("Forward Flying 2 ½ Somersault Tuck", [3: 2.5]),
      "201A": ("Back Dive Straight", 1.7),
      "201B": ("Back Dive Pike", 1.6),
      "201C": ("Back Dive Tuck", 1.5),
@@ -51,8 +78,6 @@ struct ListOptimizer: View {
      "206C": ("Back Triple Somersault Tuck", 2.9),
      "212B": ("Back Flying Somersault Pike", 1.7),
      "212C": ("Back Flying Somersault Tuck", 1.6),
-     
-     //REVERSES
      "301A": ("Reverse Dive Straight", 1.8),
      "301B": ("Reverse Dive Pike", 1.7),
      "301C": ("Reverse Dive Tuck", 1.6),
@@ -73,8 +98,6 @@ struct ListOptimizer: View {
      "312C": ("Reverse Flying Somersault Tuck", 1.7),
      "313B": ("Reverse Flying 1 ½ Somersault Pike", 2.6),
      "313C": ("Reverse Flying 1 ½ Somersault Tuck", 2.3),
-     
-     //INWARDS
      "401A": ("Inward Dive Straight", 1.8),
      "401B": ("Inward Dive Pike", 1.5),
      "401C": ("Inward Dive Tuck", 1.4),
@@ -91,8 +114,6 @@ struct ListOptimizer: View {
      "412C": ("Inward Flying Somersault Tuck", 2.0),
      "413B": ("Inward Flying 1 ½ Somersault Pike", 2.9),
      "413C": ("Inward Flying 1 ½ Somersault Tuck", 2.7),
-     
-     //FRONT TWISTERS
      "5111A": ("Forward Dive ½ Twist Straight", 1.8),
      "5111B": ("Forward Dive ½ Twist Pike", 1.7),
      "5111C": ("Forward Dive ½ Twist Tuck", 1.6),
@@ -113,8 +134,6 @@ struct ListOptimizer: View {
      "5152C": ("Forward 2 ½ Somersault 1 Twist Tuck", 3.0),
      "5154B": ("Forward 2 ½ Somersault 2 Twists Pike", 3.6),
      "5154C": ("Forward 2 ½ Somersault 2 Twists Tuck", 3.4),
-     
-     //BACK TWISTERS
      "5211A": ("Back Dive ½ Twist Straight", 1.8),
      "5211B": ("Back Dive ½ Twist Pike", 1.7),
      "5211C": ("Back Dive ½ Twist Tuck", 1.6),
@@ -129,8 +148,6 @@ struct ListOptimizer: View {
      "5235D": ("Back 1 ½ Somersault 2 ½ Twist Free", 2.9),
      "5251B": ("Back 2 ½ Somersault ½ Twist Pike", 2.9),
      "5251C": ("Back 2 ½ Somersault ½ Twist Tuck", 2.7),
-     
-     //REVERSE TWISTERS
      "5311A": ("Reverse Dive ½ Twist Straight", 1.9),
      "5311B": ("Reverse Dive ½ Twist Pike", 1.8),
      "5311C": ("Reverse Dive ½ Twist Tuck", 1.7),
@@ -146,8 +163,6 @@ struct ListOptimizer: View {
      "5351B": ("Rev. 2 ½ Somersault ½ Twist Pike", 2.9),
      "5351C": ("Rev. 2 ½ Somersault ½ Twist Tuck", 2.7),
      "5353C": ("Rev. 2 ½ Somersault 1 ½ Twist Tuck", 3.5),
-     
-     //INWARD TWISTERS
      "5411A": ("Inward Dive ½ Twist Straight", 2.0),
      "5411B": ("Inward Dive ½ Twist Pike", 1.7),
      "5411C": ("Inward Dive ½ Twist Tuck", 1.6),
@@ -159,13 +174,13 @@ struct ListOptimizer: View {
      "5432D": ("Inward 1 ½ Somersault 1 Twist Free", 2.7),
      "5434D": ("Inward 1 ½ Somersault 2 Twist Free", 3.1)
     ]
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
-
-struct ListOptimizer_Previews: PreviewProvider {
-    static var previews: some View {
-        ListOptimizer()
+        ZStack{}
+            .onAppear{
+                if let jsonString = generateJSONString(from: dictionary) {
+                    print(jsonString)
+                }
+            }
     }
 }
