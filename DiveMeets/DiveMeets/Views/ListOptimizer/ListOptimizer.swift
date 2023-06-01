@@ -10,8 +10,7 @@ import Foundation
 
 struct ListOptimizer: View {
     var body: some View {
-        // Call the function with a key and display the retrieved information
-        Text(lookupInformation(forKey: "101A") ?? "No information found")
+        Text(lookupInformation(forKey: "109C") ?? "No information found")
             .padding()
     }
     
@@ -21,11 +20,11 @@ struct ListOptimizer: View {
                 let data = try Data(contentsOf: url)
                 let decoder = JSONDecoder()
                 
-                let decodedData = try decoder.decode(YourDataStructure.self, from: data)
+                let decodedData = try decoder.decode([String: DiveData].self, from: data)
                 
-                if let diveData = decodedData.data[key] {
+                if let diveData = decodedData[key] {
                     let name = diveData.name
-                    let difficulty = diveData.dd["1"] // Replace "1" with the desired difficulty level
+                    let difficulty = diveData.dd["3"] // Height
                     
                     return "Name: \(name), Difficulty: \(difficulty ?? 0.0)"
                 } else {
@@ -40,12 +39,8 @@ struct ListOptimizer: View {
     }
 }
 
-struct YourDataStructure: Codable {
-    struct DiveData: Codable {
-        let name: String
-        let dd: [String: Double]
-    }
-    
-    let data: [String: DiveData]
+struct DiveData: Codable {
+    let name: String
+    let dd: [String: Double]
 }
 
