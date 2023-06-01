@@ -32,6 +32,7 @@
 		4D1A5C3929CCA1B400F3DA2B /* RecordList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1A5C3829CCA1B400F3DA2B /* RecordList.swift */; };
 		4D254F1629C0411C0033838D /* HTMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D254F1529C0411C0033838D /* HTMLParser.swift */; };
 		4D50E78D2A2714A2009BFBFA /* ListOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D50E78C2A2714A2009BFBFA /* ListOptimizer.swift */; };
+		4D50E7902A29106E009BFBFA /* diveTable.json in Resources */ = {isa = PBXBuildFile; fileRef = 4D50E78F2A29106E009BFBFA /* diveTable.json */; };
 		4D60E8F92A1737A90011A295 /* ScoringParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D60E8F82A1737A90011A295 /* ScoringParser.swift */; };
 		4D74FE9729AE7B9800401178 /* DiveMeetsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FE9629AE7B9800401178 /* DiveMeetsApp.swift */; };
 		4D74FE9929AE7B9800401178 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FE9829AE7B9800401178 /* ProfileView.swift */; };
@@ -79,7 +80,7 @@
 		4D1A5C3829CCA1B400F3DA2B /* RecordList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordList.swift; sourceTree = "<group>"; };
 		4D254F1529C0411C0033838D /* HTMLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLParser.swift; sourceTree = "<group>"; };
 		4D50E78C2A2714A2009BFBFA /* ListOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListOptimizer.swift; sourceTree = "<group>"; };
-		4D50E78E2A27AB45009BFBFA /* DiveTable.geojson */ = {isa = PBXFileReference; lastKnownFileType = text; path = DiveTable.geojson; sourceTree = "<group>"; };
+		4D50E78F2A29106E009BFBFA /* diveTable.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = diveTable.json; sourceTree = "<group>"; };
 		4D60E8F82A1737A90011A295 /* ScoringParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoringParser.swift; sourceTree = "<group>"; };
 		4D74FE9329AE7B9800401178 /* DiveMeets.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DiveMeets.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D74FE9629AE7B9800401178 /* DiveMeetsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiveMeetsApp.swift; sourceTree = "<group>"; };
@@ -128,6 +129,7 @@
 			isa = PBXGroup;
 			children = (
 				4D50E78C2A2714A2009BFBFA /* ListOptimizer.swift */,
+				4D50E78F2A29106E009BFBFA /* diveTable.json */,
 			);
 			path = ListOptimizer;
 			sourceTree = "<group>";
@@ -206,7 +208,6 @@
 			isa = PBXGroup;
 			children = (
 				4DD868EC29F0E69C00FF988D /* keychain-swift.swift */,
-				4D50E78E2A27AB45009BFBFA /* DiveTable.geojson */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -341,6 +342,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D50E7902A29106E009BFBFA /* diveTable.json in Resources */,
 				4D74FE9E29AE7B9800401178 /* Preview Assets.xcassets in Resources */,
 				4D74FE9B29AE7B9800401178 /* Assets.xcassets in Resources */,
 			);
