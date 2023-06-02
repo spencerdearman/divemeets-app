@@ -17,8 +17,8 @@ private enum InfoStage {
 //                       [key   : [elements]
 typealias MeetPageData = [String: [Element]]
 
-//                        [(date  , number, name, rule , entries)]
-typealias MeetEventData = [(String, Int, String, String, Int)]
+//                        [(date  , number, name, rule , entriesLink)]
+typealias MeetEventData = [(String, Int, String, String, String)]
 
 //                               [(name  , link  , entries, date)]
 typealias MeetResultsEventData = [(String, String, Int, String)]
@@ -151,13 +151,15 @@ class MeetPageParser: ObservableObject {
                     let comps = try body.text().components(separatedBy: "***")
                     let name = comps[0].components(separatedBy: "(").first!
                         .trimmingCharacters(in: .whitespacesAndNewlines)
-                    let entries = Int(comps.last!.components(separatedBy: " ").first!)!
+//                    let entries = Int(comps.last!.components(separatedBy: " ").first!)!
                     
                     let ruleLink = try body.getElementsByTag("a").first()?.attr("href")
                     let ruleHtml = try await textLoader.getText(url: URL(
                         string: leadingLink + ruleLink!)!)!
                     let tds = try SwiftSoup.parse(ruleHtml).body()!.getElementsByTag("td")
                     let rule = try tds[tds.count - 2].text()
+                    
+                    let entries = try leadingLink + (body.getElementsByTag("a").last()?.attr("href"))!
                     
                     result.append((date, number, name, rule, entries))
                 }
