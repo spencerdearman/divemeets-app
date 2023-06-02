@@ -97,6 +97,16 @@ class MeetPageParser: ObservableObject {
         return df.string(from: date!)
     }
     
+    private func correctTimeFormatting(_ str: String) throws -> String {
+        let df = DateFormatter()
+        df.dateFormat = "hh:mm a"
+        let date = df.date(from: str)!
+        
+        df.dateFormat = "h:mm a"
+        return df.string(from: date)
+        
+    }
+    
     private func getEventRule(link: String) async -> String? {
         let textModel: GetTextAsyncModel = GetTextAsyncModel()
         let url: URL = URL(string: link)!
@@ -283,6 +293,12 @@ class MeetPageParser: ObservableObject {
                     if text.contains("In order to") {
                         text = text.replacingOccurrences(of: "(In order to avoid late fee) ", with: "")
                     }
+                    if text.contains("Pool") {
+                        let poolHtml = try res.html().replacingOccurrences(of: "<br>", with: "$")
+                        text = try SwiftSoup.parseBodyFragment(poolHtml)
+                            .body()!.text()
+                            .replacingOccurrences(of: "$", with: "\n")
+                    }
                     if !addToTime && text.components(separatedBy: ": ").count < 2 {
                         print("Text split failed for: ", text)
                         continue
@@ -302,7 +318,7 @@ class MeetPageParser: ObservableObject {
                         if time[curDay] == nil {
                             time[curDay] = [:]
                         }
-                        time[curDay]![split[0]] = split[1]
+                        time[curDay]![split[0]] = try correctTimeFormatting(split[1])
                     } else if split[0].contains("Online Signup Closes at") {
                         let dateSplit = split[1].split(separator: " ", maxSplits: 1)
                         

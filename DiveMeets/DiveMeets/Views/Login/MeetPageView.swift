@@ -21,6 +21,8 @@ struct MeetPageView: View {
     @ObservedObject private var mpp: MeetPageParser = MeetPageParser()
     @State private var meetDetailsExpanded: Bool = false
     @State private var warmupDetailsExpanded: Bool = false
+    @State private var showingAlert: Bool = false
+    @State private var alertText: String = ""
     private let getTextModel = GetTextAsyncModel()
     var meetLink: String
     var showBackButton: Bool = true
@@ -218,7 +220,7 @@ struct MeetPageView: View {
     }
     
     private func keyToHStack(data: [String: String], key: String) -> HStack<TupleView<(Text, Text)>> {
-        return HStack {
+        return HStack(alignment: .top) {
             Text("\(key): ")
                 .bold()
             Text(data[key]!)
@@ -240,18 +242,12 @@ struct MeetPageView: View {
         return data
     }
     
-    private func groupByDay(data: MeetEventData) -> [String: MeetEventData] {
-        var result: [String: MeetEventData] = [:]
-        
-        for e in data {
-            let date = e.0
-            if !result.keys.contains(date) {
-                result[date] = []
-            }
-            
-            result[date]!.append(e)
+    private func formatAddress(_ addr: String) -> String {
+        let idx = addr.firstIndex(where: { c in return c.isNumber })!
+        var result = addr
+        if result.distance(from: result.startIndex, to: idx) > 0 {
+            result.insert("\n", at: idx)
         }
-        
         return result
     }
     
@@ -274,14 +270,6 @@ struct MeetPageView: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .multilineTextAlignment(.trailing)
-                    HStack {
-                        Text("Signup Deadline: ")
-                            .font(.headline)
-                        Text(info["Online Signup Closes at"]!)
-                            .multilineTextAlignment(.trailing)
-                            .font(.body)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .center)
                     
                     Divider()
                     
@@ -289,11 +277,17 @@ struct MeetPageView: View {
                         isExpanded: $meetDetailsExpanded,
                         content: {
                             VStack(alignment: .leading, spacing: 10) {
+                                HStack(alignment: .top) {
+                                    Text("Signup Deadline: ")
+                                        .bold()
+                                    Text(info["Online Signup Closes at"]!)
+                                        .multilineTextAlignment(.trailing)
+                                }
                                 keyToHStack(data: info, key: "Time Left Before Late Fee")
                                 keyToHStack(data: info, key: "Type")
                                 keyToHStack(data: info, key: "Rules")
-                                keyToHStack(data: info, key: "Sponsor")
                                 keyToHStack(data: info, key: "Pool")
+                                
                                 keyToHStack(data: info, key: "Fee per event")
                                 keyToHStack(data: info, key: "USA Diving Per Event Insurance Surcharge Fee")
                                 keyToHStack(data: info, key: "Late Fee")
@@ -305,7 +299,7 @@ struct MeetPageView: View {
                         label: {
                             Text("Meet Details")
                                 .font(.headline)
-                                .foregroundColor(.black)
+                                .foregroundColor(Color.primary)
                         }
                     )
                     .padding([.leading, .trailing])
@@ -331,20 +325,27 @@ struct MeetPageView: View {
                         label: {
                             Text("Warmup Details")
                                 .font(.headline)
-                                .foregroundColor(.black)
+                                .foregroundColor(Color.primary)
                         }
                     )
                     .padding([.leading, .trailing])
                     
                     Divider()
                     
-//                    List {
-//
-//                    }
-                    
-                    Spacer()
+                    MeetEventListView(showingAlert: $showingAlert, alertText: $alertText, meetEventData: meetEventData!)
+                        .alert(alertText, isPresented: $showingAlert) {
+                            Button("OK", role: .cancel) {
+                                showingAlert = false
+                                alertText = ""
+                            }
+                        }
                 }
                 .padding()
+            } else {
+                VStack {
+                    Text("Getting meet information...")
+                    ProgressView()
+                }
             }
         }
         .onAppear {
@@ -366,373 +367,6 @@ struct MeetPageView: View {
                         print(meetEventData!)
                     }
                 }
-            }
-        }
-    }
-}
-
-struct MeetInfoPageView: View {
-    var meetInfoData: MeetInfoJointData
-    @State private var meetDetailsExpanded: Bool = false
-    @State private var warmupDetailsExpanded: Bool = false
-    @State private var showingAlert: Bool = false
-    @State private var alertText: String = ""
-    
-    private func keyToHStack(data: [String: String],
-                             key: String) -> HStack<TupleView<(Text, Text)>>? {
-        return data[key] != nil
-        ? HStack(alignment: .top) {
-            Text("\(key): ")
-                .bold()
-            Text(data[key]!)
-        }
-        : nil
-    }
-    
-    private func dateSorted(
-        _ time: MeetInfoTimeData) -> [(key: String, value: Dictionary<String, String>)] {
-            let data = time.sorted(by: {
-                let df = DateFormatter()
-                df.dateFormat = "EEEE, MMM dd, yyyy"
-                
-                let d1 = df.date(from: $0.key)
-                let d2 = df.date(from: $1.key)
-                
-                return d1! < d2!
-            })
-            
-            return data
-        }
-    
-    
-    var body: some View {
-        let info = meetInfoData.0
-        let time = meetInfoData.1
-        VStack(alignment: .leading, spacing: 10) {
-            Text(info["Name"]!)
-                .font(.title)
-                .fontWeight(.bold)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, alignment: .center)
-            Text(info["Sponsor"]!)
-                .font(.title3)
-                .fontWeight(.bold)
-                .frame(maxWidth: .infinity, alignment: .center)
-            Text(info["Start Date"]! + " - " + info["End Date"]!)
-                .font(.headline)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .multilineTextAlignment(.trailing)
-            
-            Divider()
-            
-            DisclosureGroup(
-                isExpanded: $meetDetailsExpanded,
-                content: {
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(alignment: .top) {
-                            Text("Signup Deadline: ")
-                                .bold()
-                            Text(info["Online Signup Closes at"]!)
-                                .multilineTextAlignment(.trailing)
-                        }
-                        keyToHStack(data: info, key: "Time Left Before Late Fee")
-                        keyToHStack(data: info, key: "Type")
-                        keyToHStack(data: info, key: "Rules")
-                        keyToHStack(data: info, key: "Pool")
-                        
-                        keyToHStack(data: info, key: "Fee per event")
-                        keyToHStack(data: info, key: "USA Diving Per Event Insurance Surcharge Fee")
-                        keyToHStack(data: info, key: "Late Fee")
-                        keyToHStack(data: info, key: "Fee must be paid by")
-                            .multilineTextAlignment(.trailing)
-                        keyToHStack(data: info, key: "Warm up time prior to event")
-                    }
-                },
-                label: {
-                    Text("Meet Details")
-                        .font(.headline)
-                        .foregroundColor(Color.primary)
-                }
-            )
-            .padding([.leading, .trailing])
-            
-            Divider()
-            
-            DisclosureGroup(
-                isExpanded: $warmupDetailsExpanded,
-                content: {
-                    VStack(alignment: .leading, spacing: 10) {
-                        ForEach(dateSorted(time), id: \.key) { key, value in
-                            Text(key)
-                                .bold()
-                            VStack(alignment: .leading) {
-                                keyToHStack(data: value, key: "Warmup Starts")
-                                keyToHStack(data: value, key: "Warmup Ends")
-                                keyToHStack(data: value, key: "Events Start")
-                            }
-                            .padding(.leading, 30)
-                        }
-                    }
-                },
-                label: {
-                    Text("Warmup Details")
-                        .font(.headline)
-                        .foregroundColor(Color.primary)
-                }
-            )
-            .padding([.leading, .trailing])
-            
-            Divider()
-            
-            if let meetEventData = meetInfoData.2 {
-                MeetEventListView(showingAlert: $showingAlert, alertText: $alertText,
-                                  meetEventData: meetEventData)
-                .alert(alertText, isPresented: $showingAlert) {
-                    Button("OK", role: .cancel) {
-                        showingAlert = false
-                        alertText = ""
-                    }
-                }
-            }
-        }
-        .padding()
-    }
-}
-
-struct MeetResultsPageView: View {
-    var meetResultsData: MeetResultsData
-    
-    private func fixDateFormatting(_ str: String) -> String? {
-        do {
-            return try correctDateFormatting(str)
-        } catch {
-            print("Fixing date formatting failed")
-        }
-        
-        return nil
-    }
-    
-    private func eventsToRecords(_ events: MeetResultsEventData) -> [[String]] {
-        var result: [[String]] = []
-        
-        for row in events {
-            result.append([row.0, row.1, String(row.2), row.3])
-        }
-        
-        return result
-    }
-    
-    private func liveResultsToRecords(_ results: MeetLiveResultsData) -> [[String]] {
-        var result: [[String]] = []
-        
-        for (key, value) in results {
-            result.append([key, value])
-        }
-        
-        return result
-    }
-    
-    private func diversToRecords(_ divers: MeetDiverData) -> [[String]] {
-        var result: [[String]] = []
-        
-        for diver in divers {
-            var row: [String] = []
-            row += [diver.0, diver.1, diver.2]
-            row += diver.3
-            result.append(row)
-        }
-        
-        return result
-    }
-    
-    var body: some View {
-        let name = meetResultsData.0
-        let date = meetResultsData.1
-        let dates = date.components(separatedBy: " to ")
-        let (startDate, endDate) = (fixDateFormatting(dates.first!) ?? "",
-                                    fixDateFormatting(dates.last!) ?? "")
-        let divers = meetResultsData.2
-        let events = meetResultsData.3
-        let liveResults = meetResultsData.4
-        
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 10) {
-                
-                Text(name)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                Text(startDate + " - " + endDate)
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .multilineTextAlignment(.trailing)
-                
-                Divider()
-                
-                if let liveResults = liveResults {
-                    DisclosureGroup(content: {
-                        ScalingScrollView(records: liveResultsToRecords(liveResults)) { (elems) in
-                            LiveResultsListView(elements: elems)
-                        }
-                        .frame(height: 300)
-                        .padding(.top)
-                        
-                    }, label: {
-                        Text("Live Results")
-                            .font(.title2)
-                            .bold()
-                            .foregroundColor(.primary)
-                    })
-                    Divider()
-                }
-                
-                if let events = events {
-                    DisclosureGroup(content: {
-                        ScalingScrollView(records: eventsToRecords(events)) { (elems) in
-                            EventResultsView(elements: elems)
-                        }
-                        .frame(height: 500)
-                        .padding(.top)
-                        
-                    }, label: {
-                        Text("Event Results")
-                            .font(.title2)
-                            .bold()
-                            .foregroundColor(.primary)
-                    })
-                    Divider()
-                }
-                
-                if let divers = divers {
-                    DisclosureGroup(content: {
-                        ScalingScrollView(records: diversToRecords(divers)) { (elems) in
-                            DiverListView(elements: elems)
-                        }
-                        .frame(height: 500)
-                        .padding(.top)
-                        
-                    }, label: {
-                        Text("Divers Entered")
-                            .font(.title2)
-                            .bold()
-                            .foregroundColor(.primary)
-                    })
-                }
-                Spacer()
-            }
-            .padding()
-        }
-    }
-}
-
-struct EventResultsView: View {
-    @Environment(\.colorScheme) var currentMode
-    
-    private var bubbleColor: Color {
-        currentMode == .light ? .white : .black
-    }
-    //            [name, link, entries, date]
-    var elements: [String]
-    
-    var body: some View {
-        NavigationLink(destination: EventResultPage(meetLink: elements[1])) {
-            ZStack {
-                Rectangle()
-                    .foregroundColor(bubbleColor)
-                VStack {
-                    Text(elements[0]) // name
-                        .font(.title3)
-                        .bold()
-                        .fixedSize(horizontal: false, vertical: true)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.primary)
-                    Spacer()
-                    HStack {
-                        Text(elements[2] + " Entries") // entries
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
-                        Spacer()
-                        Text(elements[3]) // date
-                            .font(.subheadline)
-                            .scaledToFit()
-                            .minimumScaleFactor(0.5)
-                            .foregroundColor(.primary)
-                    }
-                }
-                .padding()
-            }
-        }
-    }
-}
-
-struct LiveResultsListView: View {
-    @Environment(\.colorScheme) var currentMode
-    
-    private var bubbleColor: Color {
-        currentMode == .light ? .white : .black
-    }
-    //            [name, link]
-    var elements: [String]
-    
-    var body: some View {
-        NavigationLink(destination: EventResultPage(meetLink: elements[1])) {
-            ZStack {
-                Rectangle()
-                    .foregroundColor(bubbleColor)
-                VStack {
-                    Text(elements[0]) // name
-                        .font(.title3)
-                        .bold()
-                        .fixedSize(horizontal: false, vertical: true)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.primary)
-                }
-                .padding()
-            }
-        }
-    }
-}
-
-struct DiverListView: View {
-    @Environment(\.colorScheme) var currentMode
-    
-    private var bubbleColor: Color {
-        currentMode == .light ? .white : .black
-    }
-    //            [name, team, link, event1, event2, ...]
-    var elements: [String]
-    
-    var body: some View {
-        NavigationLink(destination: ProfileView(profileLink: elements[2])) {
-            ZStack {
-                Rectangle()
-                    .foregroundColor(bubbleColor)
-                VStack(alignment: .leading) {
-                    HStack() {
-                        Text(elements[0]) // name
-                            .font(.title3)
-                            .bold()
-                        
-                        Text(elements[1]) // org
-                            .font(.headline)
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                        Spacer()
-                    }
-                    
-                    HStack {
-                        ForEach(elements[3...], id: \.self) { event in
-                            Text(event) // each event
-                                .font(.subheadline)
-                                .foregroundColor(.primary)
-                        }
-                        
-                    }
-                }
-                .padding()
             }
         }
     }
@@ -780,17 +414,15 @@ struct MeetEventListView: View {
                 Section {
                     ForEach(value.indices, id: \.self) { index in
                         HStack {
-                            NavigationLink(value[index].2) {
-                                EntryPageView(entriesLink: value[index].4)
-                            }
+                            Text(value[index].2)
+                                .onTapGesture {
+                                    print(value[index].4)
+                                }
                             Spacer()
                         }
                         .swipeActions(allowsFullSwipe: false) {
-                            Button("Rule") {
-                                showingAlert = true
-                                alertText = value[index].3
-                            }
-                            .tint(.blue)
+                            MeetPageRuleButtonView(showingAlert: $showingAlert, alertText: $alertText, rule: value[index].3)
+                                .tint(.blue)
                         }
                     }
                 } header: {
@@ -799,6 +431,18 @@ struct MeetEventListView: View {
                 }
             }
         }
-        .listStyle(.insetGrouped)
+    }
+}
+
+struct MeetPageRuleButtonView: View {
+    @Binding var showingAlert: Bool
+    @Binding var alertText: String
+    var rule: String
+    
+    var body: some View {
+        Button("Rule") {
+            showingAlert = true
+            alertText = rule
+        }
     }
 }
