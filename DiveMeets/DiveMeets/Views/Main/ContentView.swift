@@ -12,7 +12,7 @@ struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
     @Environment(\.meetsDB) var db
     @EnvironmentObject private var p: MeetParser
-    @State private var selectedTab: Tab = .magnifyingglass
+    @State private var selectedTab: Tab = .gearshape
     @State var isIndexingMeets: Bool = false
     @FetchRequest(sortDescriptors: []) private var meets: FetchedResults<DivingMeet>
     
@@ -46,11 +46,8 @@ struct ContentView: View {
                             case .house:
                                 Home()
                             case .gearshape:
-                                ListOptimizer()
-//                                Image(systemName: tab.rawValue)
-//                                Text("Settings")
-//                                    .bold()
-//                                    .animation(nil, value: selectedTab)
+                                LiveResultsView()
+                                //ToolsMenu()
                             case .magnifyingglass:
                                 SearchView(isIndexingMeets: $isIndexingMeets)
                             case .person:
