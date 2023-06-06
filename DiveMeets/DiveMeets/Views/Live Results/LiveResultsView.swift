@@ -18,11 +18,22 @@ struct LiveResultsView: View {
     @State var rows: [[String: String]] = []
     @State var columns: [String] = []
     @State private var moveRightLeft = false
+    @State private var offset: CGFloat = 0
+    @State private var currentViewIndex = 0
+    @State private var roundString = ""
+    @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
+    private var maxHeightOffset: CGFloat {
+        min(maxHeightOffsetScaled, 90)
+    }
     @State var lastDiverInformation:
     //  name, link, last round place, last round total, order, place, total, dive, height, dd, score total, [judges scores]
     (String, String, Int, Double, Int, Int, Double, String, String, Double, Double, String) =
     ("", "", 0, 0.0, 0, 0, 0.0, "", "", 0.0, 0.0, "")
     @State var nextDiverInformation: (String, String, Int, Double, Int, String, String, Double, Double, Double, Double) = ("", "", 0, 0.0, 0, "", "", 0.0, 0.0, 0.0, 0.0)
+    //[Place: (Left to dive, order, last round place, last round score, current place,
+    //current score, name, last dive average, event average score, avg round score
+    @State var diveTable: [[String]] = []
+    
     let screenFrame = Color(.systemBackground)
     
     var body: some View {
@@ -111,25 +122,78 @@ struct LiveResultsView: View {
                         }
                         forFirstPlace = Double(result)!
                         nextDiverInformation = (nextDiverName, nextDiverProfileLink, lastRoundPlace, lastRoundTotalScore, order, nextDive, height, dd, avgScore, maxScore, forFirstPlace)
+                        
+                        //Current Round
+                        let currentRound = try rows![8].getElementsByTag("td")
+                        roundString = try currentRound[0].text()
+                        
+                        //Diving Table
+                        
+                        for (i, t) in rows!.enumerated(){
+                            if i < rows!.count - 1 && i >= 10{
+                                var tempList: [String] = []
+                                for (i, v) in try t.getElementsByTag("td").enumerated() {
+                                    if i == 0{
+                                        if try v.text() == "" {
+                                            tempList.append("true")
+                                        } else {
+                                            tempList.append("false")
+                                        }
+                                    }
+                                    if i == 1{
+                                        tempList.append(try v.text())
+                                    }
+                                    if i == 2{
+                                        tempList.append(try v.text())
+                                    }
+                                    if i == 3{
+                                        tempList.append(try v.text())
+                                    }
+                                    if i == 4{
+                                        tempList.append(try v.text())
+                                    }
+                                    if i == 5{
+                                        tempList.append(try v.text())
+                                    }
+                                    if i == 6{
+                                        tempList.append(try v.text())
+                                        var halfLink = try v.getElementsByTag("a").attr("href")
+                                        tempList.append(linkHead + halfLink)
+                                    }
+                                    if i == 7{
+                                        tempList.append(try v.text())
+                                    }
+                                    if i == 8{
+                                        tempList.append(try v.text())
+                                    }
+                                    if i == 9{
+                                        tempList.append(try v.text())
+                                    }
+                                }
+                                diveTable.append(tempList)
+                            }
+                        }
+                        print(diveTable)
+                        
                     } catch  {
                         print("Parsing finished live event failed")
                     }
                 }
             
             Color.white.ignoresSafeArea()
-            VStack{
-                LiveBarAnimation()
-                //LoadingThreeBallsTriangle()
-                Spacer()
-                LastDiverView(lastInfo: $lastDiverInformation)
-                    .frame(width: 400, height: 300) // Adjust the size as per your requirement
-                    .background(Color.blue) // Bubble color
-                    .cornerRadius(40) // Rounded corners
-                    .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2) // Shadow effect
-                Spacer()
-                //LiveBarAnimation()
+            NavigationView{
+                VStack{
+                    //LiveBarAnimation()
+                    SwipingView(lastInfo: $lastDiverInformation, nextInfo: $nextDiverInformation)
+                        .frame(height: 350)
+                        .padding(.vertical)
+                    Text(roundString)
+                    ScalingScrollView(records: diveTable) { (elem) in
+                        ResultsBubbleView(elements: elem)
+                    }
+                    .padding(.bottom, maxHeightOffset)
+                }
             }
-            
         }
     }
 }
@@ -157,56 +221,6 @@ struct LiveBarAnimation: View {
     }
 }
 
-struct LoadingThreeBallsTriangle: View {
-    
-    @State var isAnimating: Bool = false
-    let timing: Double
-    
-    let maxCounter = 3
-    
-    let frame: CGSize
-    let primaryColor: Color
-
-    init(color: Color = .black, size: CGFloat = 50, speed: Double = 0.5) {
-        timing = speed * 2
-        frame = CGSize(width: size, height: size)
-        primaryColor = color
-    }
-
-    var body: some View {
-        ZStack {
-            Circle()
-                .fill(primaryColor)
-                .frame(height: frame.height / 3)
-                .offset(
-                    x: 0,
-                    y: isAnimating ? -frame.height / 3 : 0)
-
-            Circle()
-                .fill(primaryColor)
-                .frame(height: frame.height / 3)
-                .offset(
-                    x: isAnimating ? -frame.height / 3 : 0,
-                    y: isAnimating ? frame.height / 3 : 0)
-
-            Circle()
-                .fill(primaryColor)
-                .frame(height: frame.height / 3)
-                .offset(
-                    x: isAnimating ? frame.height / 3 : 0,
-                    y: isAnimating ? frame.height / 3 : 0)
-        }
-        .animation(Animation.easeInOut(duration: timing).repeatForever(autoreverses: true))
-        .frame(width: frame.width, height: frame.height, alignment: .center)
-        .rotationEffect(Angle(degrees: isAnimating ? 360 : 0))
-        .animation(Animation.easeInOut(duration: timing).repeatForever(autoreverses: false))
-        .onAppear {
-            isAnimating = true
-        }
-    }
-}
-
-
 struct LastDiverView: View
 {
     @Binding var lastInfo:
@@ -216,8 +230,9 @@ struct LastDiverView: View
         VStack{
             Group{
                 HStack{
-                    VStack{
-                        Text("Name: " + lastInfo.0)
+                    VStack(alignment: .leading){
+                        Text(lastInfo.0)
+                            .font(.title3).bold()
                         Text("Last Round Place: " + String(lastInfo.2))
                         Text("Last Round Total: " + String(lastInfo.3))
                         HStack{
@@ -227,16 +242,18 @@ struct LastDiverView: View
                         Text("Current Total: " + String(lastInfo.6))
                             .font(.headline)
                     }
+                    .padding()
                     MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
                         .scaledToFit()
+                        .padding(.horizontal)
                 }
-                Text("Dive: " + lastInfo.7)
+                Text(lastInfo.7)
+                    .font(.title3).bold()
                 HStack{
                     Text("Height: " + lastInfo.8)
                     Text("DD: " + String(lastInfo.9))
                     Text("Score Total: " + String(lastInfo.10))
                 }
-                //Text("Link: " + lastInfo.1)
             }
             Group{
                 Text("Judges Scores")
@@ -244,8 +261,139 @@ struct LastDiverView: View
                 Text(lastInfo.11)
                     .font(.headline)
             }
-            //Text("Score Total: " + String(lastInfo.10))
-            //Text("Judges Scores: " + lastInfo.11)
+        }
+    }
+}
+
+struct NextDiverView: View
+{
+    //nextDiverInformation = (nextDiverName, nextDiverProfileLink, lastRoundPlace, lastRoundTotalScore, order, nextDive, height, dd, avgScore, maxScore, forFirstPlace)
+    @Binding var nextInfo: (String, String, Int, Double, Int, String, String, Double, Double, Double, Double)
+    var body: some View {
+        VStack{
+            Group{
+                HStack{
+                    VStack(alignment: .leading){
+                        Text(nextInfo.0)
+                            .font(.title3).bold()
+                        Text("Last Round Place: " + String(nextInfo.2))
+                        Text("Last Round Total: " + String(nextInfo.3))
+                        HStack{
+                            Text("Order: " + String(nextInfo.4))
+                        }
+                    }
+                    .padding()
+                    MiniProfileImage(diverID: String(nextInfo.1.utf16.dropFirst(67)) ?? "")
+                        .scaledToFit()
+                        .padding(.horizontal)
+                }
+            }
+            Group{
+                VStack{
+                    Text(nextInfo.5)
+                        .font(.title3)
+                        .bold()
+                    HStack{
+                        Text("Height: " + nextInfo.6)
+                        Text("DD: " + String(nextInfo.7))
+                    }
+                    HStack{
+                        Text("Average Score: " + String(nextInfo.8))
+                        Text("Max Score: " + String(nextInfo.9))
+                    }
+                    Text("For First Place: " + String(nextInfo.10))
+                }
+                .padding(.bottom)
+            }
+        }
+    }
+}
+
+struct SwipingView: View
+{
+    @Binding var lastInfo:
+    (String, String, Int, Double, Int, Int, Double, String, String, Double, Double, String)
+    @Binding var nextInfo:
+    (String, String, Int, Double, Int, String, String, Double, Double, Double, Double)
+    var body: some View {
+        TabView {
+            LastDiverView(lastInfo: $lastInfo)
+                .frame(width: 400, height: 250)
+                .background(Color(.systemGray4).opacity(0.95))
+                .cornerRadius(40)
+                .shadow(color: Color.black.opacity(0.7), radius: 5, x: 0, y: 2)
+                .padding()
+                .tabItem {
+                    Text("Last Diver")
+                }
+            
+            NextDiverView(nextInfo: $nextInfo)
+                .frame(width: 400, height: 250)
+                .background(Color(.systemGray4).opacity(0.95))
+                .cornerRadius(40)
+                .shadow(color: Color.black.opacity(0.7), radius: 5, x: 0, y: 2)
+                .padding()
+                .tabItem {
+                    Text("Next Diver")
+                }
+        }
+        .tabViewStyle(PageTabViewStyle())
+        .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+    }
+}
+
+struct ResultsBubbleView: View {
+    @Environment(\.colorScheme) var currentMode
+    
+    private var bubbleColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    private var elements: [String]
+    
+    init(elements: [String]) {
+        self.elements = elements
+    }
+    
+    //[Place: (Left to dive, order, last round place, last round score, current place,
+    //current score, name, last dive average, event average score, avg round score
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .foregroundColor(bubbleColor)
+            VStack {
+                VStack {
+                    HStack(alignment: .lastTextBaseline) {
+                        if Bool(elements[0])!{
+                            Image(systemName: "checkmark.circle")
+                        }
+                        let link = elements[7]
+                        NavigationLink {
+                            ProfileView(
+                                link: link,
+                                diverID: String(link.utf16.dropFirst(67)) ?? "")
+                        } label: {
+                            Text(elements[6])
+                                .font(.title3)
+                                .bold()
+                                .scaledToFit()
+                                .minimumScaleFactor(0.5)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .lineLimit(1)
+                        }
+                        Text(elements[5])
+                            .font(.title3).foregroundColor(.red)
+                        Spacer()
+                    }
+                    HStack{
+                        Text("Diving Order: " + elements[1])
+                        Text("Last Round Place: " + elements[2])
+                    }
+                }
+            }
+            .padding()
+        }
+        .onTapGesture {
+            print(elements[3])
         }
     }
 }
