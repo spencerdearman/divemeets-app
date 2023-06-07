@@ -24,7 +24,7 @@ class EntriesParser: ObservableObject {
         let content = try body.getElementById("dm_content")
         let tables = try content?.getElementsByTag("table")
         
-        var result: [EventEntry]?
+        var result: [EventEntry] = []
         do {
             if tables?.count ?? 0 < 2 { return nil }
             if let rows = try tables?[1].getElementsByTag("tr") {
@@ -55,10 +55,7 @@ class EntriesParser: ObservableObject {
                                 entry.totalDD = try Double(bolds[1].text())
                             }
                             
-                            if result == nil {
-                                result = []
-                            }
-                            result!.append(entry)
+                            result.append(entry)
                             entry = EventEntry()
                             
                         } else {
@@ -79,8 +76,27 @@ class EntriesParser: ObservableObject {
                             entry.dives!.append(dive)
                         }
                     }
+                    
+                    //                    print(try r.text())
                 }
                 
+                //                result.append(entry)
+                print("----------------------------")
+                //            result["name"] = [upperRows[0]]
+                //            result["date"] = [upperRows[1]]
+                //            result["events"] = try tables[0].getElementsByAttribute("bgcolor").array()
+                //
+                //            if tables.count < 2 { return nil }
+                //            let lowerRows = try tables[1].getElementsByTag("tr")
+                //            result["divers"] = []
+                //
+                //            for r in lowerRows {
+                //                if r == lowerRows.first()! {
+                //                    continue
+                //                }
+                //                result["divers"]!.append(r)
+                //            }
+                //                print(result[0])
                 return result
             }
         } catch {
