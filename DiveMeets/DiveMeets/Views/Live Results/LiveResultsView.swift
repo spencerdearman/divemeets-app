@@ -21,6 +21,7 @@ struct LiveResultsView: View {
     @State private var offset: CGFloat = 0
     @State private var currentViewIndex = 0
     @State private var roundString = ""
+    @State private var title: String = ""
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
@@ -56,6 +57,9 @@ struct LiveResultsView: View {
                         let individualTables = try upperTables[0].getElementsByTag("table")
                         
                         let linkHead = "https://secure.meetcontrol.com/divemeets/system/"
+                        
+                        //Title
+                        title = try rows![0].getElementsByTag("td")[0].text().replacingOccurrences(of: "Unofficial Statistics ", with: "")
                         
                         //Last Diver
                         
@@ -183,15 +187,20 @@ struct LiveResultsView: View {
             Color.white.ignoresSafeArea()
             NavigationView{
                 VStack{
+                    Text(title)
+                        .font(.title2).bold()
                     //LiveBarAnimation()
-                    SwipingView(lastInfo: $lastDiverInformation, nextInfo: $nextDiverInformation)
-                        .frame(height: 350)
-                        .padding(.vertical)
-                    Text(roundString)
-                    ScalingScrollView(records: diveTable) { (elem) in
-                        ResultsBubbleView(elements: elem)
+                    VStack{
+                        SwipingView(lastInfo: $lastDiverInformation, nextInfo: $nextDiverInformation)
+                            .frame(height: 350)
+                            .padding(.vertical)
+                        Text(roundString)
+                        ScalingScrollView(records: diveTable) { (elem) in
+                            ResultsBubbleView(elements: elem)
+                        }
+                        .padding(.bottom, maxHeightOffset)
                     }
-                    .padding(.bottom, maxHeightOffset)
+                    .offset(y: -50)
                 }
             }
         }
@@ -397,3 +406,5 @@ struct ResultsBubbleView: View {
         }
     }
 }
+
+

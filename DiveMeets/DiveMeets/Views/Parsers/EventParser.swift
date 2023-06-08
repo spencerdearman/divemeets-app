@@ -28,7 +28,8 @@ final class EventHTMLParser: ObservableObject {
         let main = try body.getElementsByTag("table")
         
         //Getting the overarching td and then pulling the 3 items within
-        let overall = try main[1].getElementsByTag("tr")
+        var hasUpcomingMeets = false
+        var overall = try main[1].getElementsByTag("tr")
         var string = [String]()
         var eventLinkAppend = ""
         var counter = 0
@@ -37,6 +38,16 @@ final class EventHTMLParser: ObservableObject {
         var eventScore = 0.0
         var eventLink = ""
         var meetName = ""
+        for (_, t) in overall.enumerated(){
+            let tester = try t.getElementsByTag("td")
+            if try tester.count >= 3 && tester[2].text().contains("Dive Sheet"){
+                hasUpcomingMeets = true
+                print("Has Upcoming Meets")
+            }
+        }
+        if hasUpcomingMeets{
+            overall = try main[2].getElementsByTag("tr")
+        }
         for (i, t) in overall.enumerated(){
             let testString = try t.text()
             if i == 0 {
@@ -69,6 +80,8 @@ final class EventHTMLParser: ObservableObject {
         }
         return mainDictionary
     }
+    
+    
     
     func parseEvent(html: String) async throws -> (String, String, String, Double, Double, Double, String) {
         let document: Document = try SwiftSoup.parse(html)
