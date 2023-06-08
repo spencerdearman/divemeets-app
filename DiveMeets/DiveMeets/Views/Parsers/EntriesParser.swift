@@ -24,7 +24,7 @@ class EntriesParser: ObservableObject {
         let content = try body.getElementById("dm_content")
         let tables = try content?.getElementsByTag("table")
         
-        var result: [EventEntry] = []
+        var result: [EventEntry]?
         do {
             if tables?.count ?? 0 < 2 { return nil }
             if let rows = try tables?[1].getElementsByTag("tr") {
@@ -55,7 +55,10 @@ class EntriesParser: ObservableObject {
                                 entry.totalDD = try Double(bolds[1].text())
                             }
                             
-                            result.append(entry)
+                            if result == nil {
+                                result = []
+                            }
+                            result!.append(entry)
                             entry = EventEntry()
                             
                         } else {
