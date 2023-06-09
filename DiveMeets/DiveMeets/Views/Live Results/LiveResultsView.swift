@@ -189,12 +189,15 @@ struct LiveResultsView: View {
                 VStack{
                     Text(title)
                         .font(.title2).bold()
+                    Text(roundString)
                     //LiveBarAnimation()
                     VStack{
                         SwipingView(lastInfo: $lastDiverInformation, nextInfo: $nextDiverInformation)
                             .frame(height: 350)
                             .padding(.vertical)
-                        Text(roundString)
+                        Text("Live Rankings")
+                            .font(.title2).bold()
+                            .offset(y: -15)
                         ScalingScrollView(records: diveTable) { (elem) in
                             ResultsBubbleView(elements: elem)
                         }
