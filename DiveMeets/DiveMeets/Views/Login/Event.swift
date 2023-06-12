@@ -14,7 +14,6 @@ struct Event: View {
     @State var diverData : (String, String, String, Double, Double, Double, String) = ("", "", "", 0.0, 0.0, 0.0, "")
     @State var diverTableData: [Int: (String, String, String, Double, Double, Double, String)] = [:]
     @State var scoreDictionary: [String: String] = [:]
-    @State var scoreData : [Int: Double] = [:]
     @State var isExpanded: Bool = false
     @State var expandedIndices: Set<Int> = []
     @State var scoreString: String = ""
@@ -49,26 +48,14 @@ struct Event: View {
                     .padding(.horizontal)
                 }
                 
-                ForEach(diverTableData.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
-                    ZStack{}
-                        .onAppear{
-                            Task {
-                                await scoreParser.parse(urlString: value.6)
-                                scoreData = scoreParser.scoreData
-                                let sorted = scoreData.sorted { $0.key < $1.key }
-                                let formatted = scoreData.map { " \($0.value) "  }.joined(separator:" | ")
-                                scoreString = "| \(formatted) |"
-                                scoreDictionary[value.0] = scoreString
-                            }
-                        }
-                    
-                }
-                
                 VStack(alignment: .leading, spacing: 10) {
                     Text(meet.name)
                         .font(.title)
                         .fontWeight(.bold)
                         .padding()
+                        .onAppear{
+                            print(scoreDictionary)
+                        }
                     
                     Divider()
                     Text("Dates: " + diverData.1)
@@ -110,6 +97,11 @@ struct Event: View {
                                         .font(.headline)
                                 }
                             )
+                            .onAppear{
+                                Task {
+                                    scoreDictionary[value.0] = await scoreParser.parse(urlString: value.6)
+                                }
+                            }
                         }
                     }
                     .frame(height: 500)

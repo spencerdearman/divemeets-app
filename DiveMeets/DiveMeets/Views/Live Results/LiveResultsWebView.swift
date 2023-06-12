@@ -17,9 +17,20 @@ struct LiveResultsWebView: View {
     var body: some View {
         VStack {
             LRWebView(request: $request, html: $html)
+//                .onAppear {
+//                    startTimer()
+//                }
         }
     }
+    
+    private func startTimer() {
+            Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { _ in
+                // Update the request binding to reload the web page
+                request = request
+            }
+        }
 }
+
 
 // Use this struct for the WebView functionality and having bindings to request
 // and html available on init
