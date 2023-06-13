@@ -114,24 +114,24 @@ struct MeetPageView: View {
         return HStack(alignment: .top) {
             Text("\(key): ")
                 .bold()
-            Text(data[key]!)
+            data[key] != nil ? Text(data[key]!) : Text("")
         }
     }
     
     private func dateSorted(
         _ time: MeetInfoTimeData) -> [(key: String, value: Dictionary<String, String>)] {
-        let data = time.sorted(by: {
-            let df = DateFormatter()
-            df.dateFormat = "EEEE, MMM dd, yyyy"
+            let data = time.sorted(by: {
+                let df = DateFormatter()
+                df.dateFormat = "EEEE, MMM dd, yyyy"
+                
+                let d1 = df.date(from: $0.key)
+                let d2 = df.date(from: $1.key)
+                
+                return d1! < d2!
+            })
             
-            let d1 = df.date(from: $0.key)
-            let d2 = df.date(from: $1.key)
-            
-            return d1! < d2!
-        })
-        
-        return data
-    }
+            return data
+        }
     
     private func formatAddress(_ addr: String) -> String {
         let idx = addr.firstIndex(where: { c in return c.isNumber })!
@@ -300,25 +300,26 @@ struct MeetEventListView: View {
     
     var body: some View {
         let data = dateSorted(groupByDay(data: meetEventData))
-        List {
-            ForEach(data, id: \.key) { key, value in
-                Section {
-                    ForEach(value.indices, id: \.self) { index in
-                        HStack {
-                            Text(value[index].2)
-                                .onTapGesture {
-                                    print(value[index].4)
+        NavigationView {
+            List {
+                ForEach(data, id: \.key) { key, value in
+                    Section {
+                        ForEach(value.indices, id: \.self) { index in
+                            HStack {
+                                NavigationLink(value[index].2) {
+                                    EntryPageView()
                                 }
-                            Spacer()
+                                Spacer()
+                            }
+                            .swipeActions(allowsFullSwipe: false) {
+                                MeetPageRuleButtonView(showingAlert: $showingAlert, alertText: $alertText, rule: value[index].3)
+                                    .tint(.blue)
+                            }
                         }
-                        .swipeActions(allowsFullSwipe: false) {
-                            MeetPageRuleButtonView(showingAlert: $showingAlert, alertText: $alertText, rule: value[index].3)
-                                .tint(.blue)
-                        }
+                    } header: {
+                        Text(key)
+                            .font(.subheadline)
                     }
-                } header: {
-                    Text(key)
-                        .font(.subheadline)
                 }
             }
         }

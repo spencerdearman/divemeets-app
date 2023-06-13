@@ -13,32 +13,35 @@ struct EntryPageView: View {
     @ObservedObject var ep: EntriesParser = EntriesParser()
     private let getTextModel = GetTextAsyncModel()
     private var grayColor: Color {
-        currentMode == .light ? Color(red: 0.9, green: 0.9, blue: 0.9) : Color(red: 0.1, green: 0.1, blue: 0.1)
+        currentMode == .light
+        ? Color(red: 0.9, green: 0.9, blue: 0.9)
+        : Color(red: 0.1, green: 0.1, blue: 0.1)
     }
     
     var body: some View {
         ZStack {
             grayColor
+            
             if entries != nil {
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: 0) {
+                    VStack(spacing: 10) {
                         ForEach(entries!, id: \.self) { entry in
                             ZStack {
                                 Rectangle()
-                                    .fill(.white)
+                                    .fill(currentMode == .light ? .white : .black)
                                     .cornerRadius(15)
                                 EntryView(entry: entry)
                                     .padding()
                             }
-                            .padding()
                         }
                     }
+                    .padding(10)
                 }
             }
         }
         .onAppear {
             Task {
-                let link = "https://secure.meetcontrol.com/divemeets/system/divesheetext.php?meetnum=9032&eventnum=1030&eventtype=9"
+                let link = "https://secure.meetcontrol.com/divemeets/system/divesheetext.php?meetnum=9033&eventnum=200&eventtype=9"
                 // Initialize meet parse from index page
                 let url = URL(string: link)!
                 
@@ -69,20 +72,53 @@ struct EntryView: View {
         DisclosureGroup(
             isExpanded: $isExpanded,
             content: {
-                HStack {
-                    VStack {
-                        ForEach(entry.dives ?? [], id: \.self) { dive in
-                            Text(dive.number)
+                VStack(alignment: .leading) {
+                    Text(entry.board != nil ? "Board: " + entry.board! : "")
+                    HStack(alignment: .top) {
+                        VStack {
+                            Text("Number")
+                                .bold()
+                            ForEach(entry.dives ?? [], id: \.self) { dive in
+                                Text(dive.number)
+                            }
+                        }
+                        Spacer()
+                        VStack {
+                            Text("Height")
+                                .bold()
+                            ForEach(entry.dives ?? [], id: \.self) { dive in
+                                Text(String(dive.height) + "M")
+                            }
+                        }
+                        Spacer()
+                        VStack {
+                            Text("Name")
+                                .bold()
+                            ForEach(entry.dives ?? [], id: \.self) { dive in
+                                Text(dive.name)
+                                    .lineLimit(1)
+                            }
+                        }
+                        Spacer()
+                        VStack {
+                            Text("DD")
+                                .bold()
+                            ForEach(entry.dives ?? [], id: \.self) { dive in
+                                Text(String(dive.dd))
+                            }
                         }
                     }
-                    Text(String(entry.totalDD ?? 0.0))
-                    Text(entry.board ?? "")
                 }
+                .scaledToFit()
+                .minimumScaleFactor(0.1)
             },
             label: {
                 Text(getHeaderString(entry))
                     .font(.headline)
                     .foregroundColor(Color.primary)
+                    .scaledToFit()
+                    .minimumScaleFactor(0.1)
+                    .lineLimit(1)
             }
         )
     }
