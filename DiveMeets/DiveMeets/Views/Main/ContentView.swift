@@ -45,8 +45,7 @@ struct ContentView: View {
                             switch tab {
                             case .house:
 //                                Home()
-//                                    MeetPageView(meetLink: "https://secure.meetcontrol.com/divemeets/system/meetinfoext.php?meetnum=8996")
-                                    EntryPageView()
+                                    MeetPageView(meetLink: "https://secure.meetcontrol.com/divemeets/system/meetinfoext.php?meetnum=8996")
                             case .gearshape:
                                 Image(systemName: tab.rawValue)
                                 Text("Settings")
