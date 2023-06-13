@@ -79,27 +79,8 @@ class EntriesParser: ObservableObject {
                             entry.dives!.append(dive)
                         }
                     }
-                    
-                    //                    print(try r.text())
                 }
                 
-                //                result.append(entry)
-                print("----------------------------")
-                //            result["name"] = [upperRows[0]]
-                //            result["date"] = [upperRows[1]]
-                //            result["events"] = try tables[0].getElementsByAttribute("bgcolor").array()
-                //
-                //            if tables.count < 2 { return nil }
-                //            let lowerRows = try tables[1].getElementsByTag("tr")
-                //            result["divers"] = []
-                //
-                //            for r in lowerRows {
-                //                if r == lowerRows.first()! {
-                //                    continue
-                //                }
-                //                result["divers"]!.append(r)
-                //            }
-                //                print(result[0])
                 return result
             }
         } catch {
