@@ -143,7 +143,7 @@ struct MeetPageView: View {
     }
     
     var body: some View {
-        ZStack {
+        NavigationView {
             if meetInfoData != nil {
                 let info = meetInfoData!.0
                 let time = meetInfoData!.1
@@ -300,29 +300,28 @@ struct MeetEventListView: View {
     
     var body: some View {
         let data = dateSorted(groupByDay(data: meetEventData))
-        NavigationView {
-            List {
-                ForEach(data, id: \.key) { key, value in
-                    Section {
-                        ForEach(value.indices, id: \.self) { index in
-                            HStack {
-                                NavigationLink(value[index].2) {
-                                    EntryPageView()
-                                }
-                                Spacer()
+        List {
+            ForEach(data, id: \.key) { key, value in
+                Section {
+                    ForEach(value.indices, id: \.self) { index in
+                        HStack {
+                            NavigationLink(value[index].2) {
+                                EntryPageView()
                             }
-                            .swipeActions(allowsFullSwipe: false) {
-                                MeetPageRuleButtonView(showingAlert: $showingAlert, alertText: $alertText, rule: value[index].3)
-                                    .tint(.blue)
-                            }
+                            Spacer()
                         }
-                    } header: {
-                        Text(key)
-                            .font(.subheadline)
+                        .swipeActions(allowsFullSwipe: false) {
+                            MeetPageRuleButtonView(showingAlert: $showingAlert, alertText: $alertText, rule: value[index].3)
+                                .tint(.blue)
+                        }
                     }
+                } header: {
+                    Text(key)
+                        .font(.subheadline)
                 }
             }
         }
+        .listStyle(.insetGrouped)
     }
 }
 
