@@ -111,12 +111,21 @@ struct childView: View{
 
 struct parentView: View{
     @Binding var meet: MeetEvent
+    @State var meetShowing: Bool = false
     
     var body: some View{
         HStack {
-            Image(systemName: "link")
-                .foregroundColor(.secondary)
-                .padding()
+            Button(action: {}, label: {
+                Image(systemName: "link")
+                    .foregroundColor(.secondary)
+                    .padding()
+            })
+            .simultaneousGesture(TapGesture().onEnded {
+                meetShowing = true
+            })
+            .fullScreenCover(isPresented: $meetShowing) {
+                MeetPageView(meetLink: meet.link ?? "")
+            }
             
             Spacer()
             
