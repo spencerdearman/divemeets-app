@@ -22,6 +22,7 @@ struct LiveResultsView: View {
     @State private var currentViewIndex = 0
     @State private var roundString = ""
     @State private var title: String = ""
+    @State private var focusViewOn: Bool = false
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
@@ -187,24 +188,32 @@ struct LiveResultsView: View {
             Color.white.ignoresSafeArea()
             NavigationView{
                 VStack{
-                    Text(title)
-                        .font(.title2).bold()
-                    Text(roundString)
                     //LiveBarAnimation()
-                    VStack{
-                        SwipingView(lastInfo: $lastDiverInformation, nextInfo: $nextDiverInformation)
-                            .frame(height: 350)
-                            .padding(.vertical)
-                        Text("Live Rankings")
-                            .font(.title2).bold()
-                            .offset(y: -15)
-                        ScalingScrollView(records: diveTable) { (elem) in
-                            ResultsBubbleView(elements: elem)
+                    Spacer()
+                    Spacer()
+                    Spacer()
+                    Spacer()
+                    Spacer()
+                    Spacer()
+                    if !focusViewOn{
+                        VStack{
+                            Text(title)
+                                .font(.title2).bold()
+                            Text(roundString)
+                            SwipingView(lastInfo: $lastDiverInformation, nextInfo: $nextDiverInformation)
+                                .frame(height: 350)
+                            Text("Live Rankings")
+                                .font(.title2).bold()
+                                .offset(y: -15)
                         }
-                        .padding(.bottom, maxHeightOffset)
                     }
-                    .offset(y: -50)
+                    ScalingScrollView(records: diveTable) { (elem) in
+                        ResultsBubbleView(elements: elem)
+                    }
+                    .padding(.bottom, maxHeightOffset)
+                    .padding(.top)
                 }
+                .offset(y: -50)
             }
         }
     }
@@ -356,14 +365,16 @@ struct SwipingView: View
 
 struct ResultsBubbleView: View {
     @Environment(\.colorScheme) var currentMode
+    @State private var focusViewOn: Bool = false
     
     private var bubbleColor: Color {
         currentMode == .light ? .white : .black
     }
     private var elements: [String]
     
-    init(elements: [String]) {
+    init(elements: [String], focusViewOn: Bool = false) {
         self.elements = elements
+        _focusViewOn = State(initialValue: focusViewOn)
     }
     
     //[Place: (Left to dive, order, last round place, last round score, current place,
@@ -373,7 +384,7 @@ struct ResultsBubbleView: View {
             Rectangle()
                 .foregroundColor(bubbleColor)
             VStack {
-                VStack {
+                VStack(alignment: .leading) {
                     HStack(alignment: .lastTextBaseline) {
                         if Bool(elements[0])!{
                             Image(systemName: "checkmark.circle")
@@ -397,6 +408,15 @@ struct ResultsBubbleView: View {
                         Spacer()
                     }
                     HStack{
+                        Button {
+                            focusViewOn.toggle()
+                        } label: {
+                            if focusViewOn{
+                                Image(systemName: "star.fill")
+                            } else {
+                                Image(systemName: "star")
+                            }
+                        }
                         Text("Diving Order: " + elements[1])
                         Text("Last Round Place: " + elements[2])
                     }
