@@ -9,18 +9,18 @@ import SwiftUI
 import SwiftSoup
 
 final class EventHTMLParser: ObservableObject {
-    @Published var myData = [Int:[String:[String:(String, Double, String)]]]()
+    @Published var myData = [Int:[String:[String:(String, Double, String, String)]]]()
     @Published var diveTableData = [Int: (String, String, String, Double, Double, Double, String)]()
     @Published var eventData: (String, String, String, Double, Double, Double, String) =
     ("","", "", 0.0, 0.0, 0.0, "")
-    @Published var eventDictionary = [String:(String, Double, String)]()
-    @Published var innerDictionary = [String:[String:(String, Double, String)]]()
-    @Published var mainDictionary = [Int:[String:[String:(String, Double, String)]]]()
+    @Published var eventDictionary = [String:(String, Double, String, String)]()
+    @Published var innerDictionary = [String:[String:(String, Double, String, String)]]()
+    @Published var mainDictionary = [Int:[String:[String:(String, Double, String, String)]]]()
     @Published var meetScores = [Int: (String, String, String, Double, Double, Double, String)]()
     
     let getTextModel = GetTextAsyncModel()
     
-    func parse(html: String) async throws -> [Int:[String:[String:(String, Double, String)]]] {
+    func parse(html: String) async throws -> [Int:[String:[String:(String, Double, String, String)]]] {
         let document: Document = try SwiftSoup.parse(html)
         guard let body = document.body() else {
             return [:]
@@ -37,6 +37,9 @@ final class EventHTMLParser: ObservableObject {
         var eventScore = 0.0
         var eventLink = ""
         var meetName = ""
+        var meetLink = ""
+        var eventLinkParsed = false
+        
         for (i, t) in overall.enumerated(){
             let testString = try t.text()
             if i == 0 {
@@ -50,8 +53,22 @@ final class EventHTMLParser: ObservableObject {
                 eventLinkAppend = try t.getElementsByTag("a").attr("href")
                 eventLink = "https://secure.meetcontrol.com/divemeets/system/" + eventLinkAppend
                 string.append(try t.text())
-                await MainActor.run { [meetEvent, eventPlace, eventScore, eventLink] in
-                    eventDictionary[meetEvent] = (eventPlace, eventScore, eventLink)
+                
+                if !eventLinkParsed{
+                    await getTextModel.fetchText(url: URL(string: eventLink)!)
+                    if let meetHtml = getTextModel.text {
+                        print("coming inside meetHTML")
+                        let eventDocument: Document = try SwiftSoup.parse(meetHtml)
+                        let meetBody = eventDocument.body()
+                        let main = try meetBody!.getElementsByTag("table")
+                        let tr = try main[0].getElementsByTag("tr")[0]
+                        meetLink = try "https://secure.meetcontrol.com/divemeets/system/" + tr.getElementsByTag("a").attr("href")
+                        eventLinkParsed = true
+                    }
+                }
+                
+                await MainActor.run { [meetEvent, eventPlace, eventScore, eventLink, meetLink] in
+                    eventDictionary[meetEvent] = (eventPlace, eventScore, eventLink, meetLink)
                 }
             } else if counter != 0 {
                 await MainActor.run { [meetName, counter] in
@@ -61,8 +78,10 @@ final class EventHTMLParser: ObservableObject {
                     eventDictionary = [:]
                 }
                 meetName = try t.text()
+                eventLinkParsed = false
                 counter += 1
             } else {
+                eventLinkParsed = false
                 meetName = try t.text()
                 counter += 1
             }
