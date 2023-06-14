@@ -10,7 +10,7 @@ import SwiftUI
 struct MeetList: View {
     @Environment(\.colorScheme) var currentMode
     var profileLink: String
-    @State var diverData: [Int:[String:[String:(String, Double, String)]]] = [:]
+    @State var diverData: [Int:[String:[String:(String, Double, String, String)]]] = [:]
     @State var offset: CGFloat = 0
     @State var lastOffset: CGFloat = 0
     @State var meets: [MeetEvent] = []
@@ -28,7 +28,9 @@ struct MeetList: View {
         return Color(red: gray, green: gray, blue: gray)
     }
     
-    func createMeets(data: [Int:[String:[String:(String, Double, String)]]]) -> [MeetEvent]? {
+    func createMeets(data: [Int:[String:[String:(String, Double, String, String)]]]) -> [MeetEvent]? {
+        var mainMeetLink: String = ""
+        
         if data.count < 1 {
             return nil
         }
@@ -41,10 +43,11 @@ struct MeetList: View {
             if let value = diverData[i] {
                 for (name, meetEvent) in value{
                     for event in meetEvent {
-                        let(place, score, link) = event.value
+                        let(place, score, link, meetLink) = event.value
+                        mainMeetLink = meetLink
                         currentMeetEvents!.append(MeetEvent(name: event.key, place: Int(place), score: score, isChild: true, link: link))
                     }
-                    let meet = MeetEvent(name: name, children: currentMeetEvents)
+                    let meet = MeetEvent(name: name, children: currentMeetEvents, link: mainMeetLink)
                     meets.append(meet)
                     currentMeetEvents = []
                 }
