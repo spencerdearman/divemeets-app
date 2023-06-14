@@ -36,6 +36,32 @@ typealias MeetInfoTimeData = [String: [String: String]]
 
 typealias MeetInfoJointData = (MeetInfoData, MeetInfoTimeData)
 
+//                          (meetName, date, divers,        events              )
+typealias MeetResultsData = (String, String, MeetDiverData, MeetResultsEventData)
+
+// Corrects date formatting to consistent usage, e.g. Tuesday, May 16, 2023
+func correctDateFormatting(_ str: String) throws -> String {
+    let df = DateFormatter()
+    let formatters = ["yyyy-MM-dd", "MM-dd-yyyy", "MMM dd, yyyy"]
+    var date: Date? = nil
+    
+    for formatter in formatters {
+        df.dateFormat = formatter
+        date = df.date(from: str)
+        
+        if date != nil {
+            break
+        }
+    }
+    
+    if date == nil {
+        throw NSError()
+    }
+    
+    df.dateFormat = "EEEE, MMM d, yyyy"
+    return df.string(from: date!)
+}
+
 class MeetPageParser: ObservableObject {
     @Published var meetData: MeetPageData?
     private let leadingLink: String = "https://secure.meetcontrol.com/divemeets/system/"
@@ -49,29 +75,6 @@ class MeetPageParser: ObservableObject {
         }
         
         return false
-    }
-    
-    // Corrects date formatting to consistent usage, e.g. Tuesday, May 16, 2023
-    private func correctDateFormatting(_ str: String) throws -> String {
-        let df = DateFormatter()
-        let formatters = ["yyyy-MM-dd", "MM-dd-yyyy"]
-        var date: Date? = nil
-        
-        for formatter in formatters {
-            df.dateFormat = formatter
-            date = df.date(from: str)
-            
-            if date != nil {
-                break
-            }
-        }
-        
-        if date == nil {
-            throw NSError()
-        }
-        
-        df.dateFormat = "EEEE, MMM d, yyyy"
-        return df.string(from: date!)
     }
     
     // Corrects date time formatting to consistent usage, e.g. Tuesday, May 16, 2023 5:00 PM
@@ -268,7 +271,7 @@ class MeetPageParser: ObservableObject {
         return nil
     }
     
-    func getMeetInfoData(data: MeetPageData) -> (MeetInfoData, MeetInfoTimeData)? {
+    func getMeetInfoData(data: MeetPageData) -> MeetInfoJointData? {
         var infoResult: [String: String] = [:]
         var time: [String: [String: String]] = [:]
         var curDay: String = ""
@@ -346,6 +349,34 @@ class MeetPageParser: ObservableObject {
             } catch {
                 print("Getting meet info data failed")
             }
+        }
+        
+        return nil
+    }
+    
+    func getMeetResultsData(data: MeetPageData) -> MeetResultsData? {
+        var name: String = ""
+        var date: String = ""
+        var divers: MeetDiverData = []
+        var events: MeetResultsEventData = []
+        
+        do {
+            if let nameElem = data["name"] {
+                name = try nameElem.first!.getElementsByTag("strong").text()
+            }
+            if let dateElem = data["date"] {
+                date = try dateElem.first!.getElementsByTag("strong").text()
+            }
+            if let diversList = getDiverListData(data: data) {
+                divers = diversList
+            }
+            if let eventsList = getResultsEventData(data: data) {
+                events = eventsList
+            }
+            
+            return (name, date, divers, events)
+        } catch {
+            print("Getting meet results data failed")
         }
         
         return nil
