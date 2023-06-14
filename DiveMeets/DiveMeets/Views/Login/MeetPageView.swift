@@ -223,13 +223,16 @@ struct MeetPageView: View {
                     
                     Divider()
                     
-                    MeetEventListView(showingAlert: $showingAlert, alertText: $alertText, meetEventData: meetEventData!)
+                    if let meetEventData = meetEventData {
+                        MeetEventListView(showingAlert: $showingAlert, alertText: $alertText,
+                                          meetEventData: meetEventData)
                         .alert(alertText, isPresented: $showingAlert) {
                             Button("OK", role: .cancel) {
                                 showingAlert = false
                                 alertText = ""
                             }
                         }
+                    }
                 }
                 .padding()
             } else {
@@ -242,20 +245,21 @@ struct MeetPageView: View {
         .onAppear {
             Task {
                 // Initialize meet parse from index page
-                let url = URL(string: meetLink)!
+                let url = URL(string: meetLink)
                 
-                // This sets getTextModel's text field equal to the HTML from url
-                await getTextModel.fetchText(url: url)
-                
-                if let html = getTextModel.text {
-                    meetData = try await mpp.parseMeetPage(link: meetLink, html: html)
-                    if meetData != nil {
-                        meetEventData = await mpp.getEventData(data: meetData!)
-                        meetResultsEventData = mpp.getResultsEventData(data: meetData!)
-                        meetDiverData = mpp.getDiverListData(data: meetData!)
-                        meetCoachData = mpp.getCoachListData(data: meetData!)
-                        meetInfoData = mpp.getMeetInfoData(data: meetData!)
-                        print(meetEventData!)
+                if let url = url {
+                    // This sets getTextModel's text field equal to the HTML from url
+                    await getTextModel.fetchText(url: url)
+                    
+                    if let html = getTextModel.text {
+                        meetData = try await mpp.parseMeetPage(link: meetLink, html: html)
+                        if let meetData = meetData {
+                            meetEventData = await mpp.getEventData(data: meetData)
+                            meetResultsEventData = mpp.getResultsEventData(data: meetData)
+                            meetDiverData = mpp.getDiverListData(data: meetData)
+                            meetCoachData = mpp.getCoachListData(data: meetData)
+                            meetInfoData = mpp.getMeetInfoData(data: meetData)
+                        }
                     }
                 }
             }
@@ -311,8 +315,11 @@ struct MeetEventListView: View {
                             Spacer()
                         }
                         .swipeActions(allowsFullSwipe: false) {
-                            MeetPageRuleButtonView(showingAlert: $showingAlert, alertText: $alertText, rule: value[index].3)
-                                .tint(.blue)
+                            Button("Rule") {
+                                showingAlert = true
+                                alertText = value[index].3
+                            }
+                            .tint(.blue)
                         }
                     }
                 } header: {
@@ -322,18 +329,5 @@ struct MeetEventListView: View {
             }
         }
         .listStyle(.insetGrouped)
-    }
-}
-
-struct MeetPageRuleButtonView: View {
-    @Binding var showingAlert: Bool
-    @Binding var alertText: String
-    var rule: String
-    
-    var body: some View {
-        Button("Rule") {
-            showingAlert = true
-            alertText = rule
-        }
     }
 }
