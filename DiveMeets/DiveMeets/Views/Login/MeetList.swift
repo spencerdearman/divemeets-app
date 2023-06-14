@@ -143,9 +143,7 @@ struct parentView: View{
                 meetShowing = true
             })
             .fullScreenCover(isPresented: $meetShowing) {
-                NavigationView {
-                    MeetPageView(meetLink: meet.link ?? "")
-                }
+                MeetPageView(meetLink: meet.link ?? "")
             }
             
             Spacer()
