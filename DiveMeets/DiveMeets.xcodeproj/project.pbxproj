@@ -36,7 +36,6 @@
 		4D50E7922A2939B9009BFBFA /* ToolsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D50E7912A2939B9009BFBFA /* ToolsMenu.swift */; };
 		4D50E7942A293A22009BFBFA /* MeetPredictor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D50E7932A293A22009BFBFA /* MeetPredictor.swift */; };
 		4D50E7962A293DEC009BFBFA /* DiveStatisticsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D50E7952A293DEC009BFBFA /* DiveStatisticsParser.swift */; };
-		4D50E7982A29509A009BFBFA /* testView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D50E7972A29509A009BFBFA /* testView.swift */; };
 		4D60E8F92A1737A90011A295 /* ScoringParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D60E8F82A1737A90011A295 /* ScoringParser.swift */; };
 		4D74FE9729AE7B9800401178 /* DiveMeetsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FE9629AE7B9800401178 /* DiveMeetsApp.swift */; };
 		4D74FE9929AE7B9800401178 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FE9829AE7B9800401178 /* ProfileView.swift */; };
@@ -90,7 +89,6 @@
 		4D50E7912A2939B9009BFBFA /* ToolsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsMenu.swift; sourceTree = "<group>"; };
 		4D50E7932A293A22009BFBFA /* MeetPredictor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetPredictor.swift; sourceTree = "<group>"; };
 		4D50E7952A293DEC009BFBFA /* DiveStatisticsParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiveStatisticsParser.swift; sourceTree = "<group>"; };
-		4D50E7972A29509A009BFBFA /* testView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testView.swift; sourceTree = "<group>"; };
 		4D60E8F82A1737A90011A295 /* ScoringParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoringParser.swift; sourceTree = "<group>"; };
 		4D74FE9329AE7B9800401178 /* DiveMeets.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DiveMeets.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D74FE9629AE7B9800401178 /* DiveMeetsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiveMeetsApp.swift; sourceTree = "<group>"; };
@@ -141,7 +139,6 @@
 			isa = PBXGroup;
 			children = (
 				4D50E78C2A2714A2009BFBFA /* ListOptimizer.swift */,
-				4D50E7972A29509A009BFBFA /* testView.swift */,
 				4D50E78F2A29106E009BFBFA /* diveTable.json */,
 				4D50E7912A2939B9009BFBFA /* ToolsMenu.swift */,
 				4D50E7932A293A22009BFBFA /* MeetPredictor.swift */,
@@ -385,7 +382,6 @@
 				00F9667B29AFDA1500F3720B /* ContentView.swift in Sources */,
 				4D60E8F92A1737A90011A295 /* ScoringParser.swift in Sources */,
 				4D9DD09A2A058EF700F6D31C /* Event.swift in Sources */,
-				4D50E7982A29509A009BFBFA /* testView.swift in Sources */,
 				4D50E7962A293DEC009BFBFA /* DiveStatisticsParser.swift in Sources */,
 				4D8118092A2D6E05000BD2C9 /* LiveView.swift in Sources */,
 				4D8B9C1929F8D395002B53AD /* Home.swift in Sources */,

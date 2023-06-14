@@ -12,17 +12,18 @@ import Combine
 import SwiftSoup
 
 struct LiveResultsView: View {
-    @State var request: String =
+    var request: String =
     "https://secure.meetcontrol.com/divemeets/system/livestats.php?event=stats-9037-3470-9-Started"
     @State var html: String = ""
     @State var rows: [[String: String]] = []
     @State var columns: [String] = []
+    @State var focusViewList: [String: Bool] = [:]
     @State private var moveRightLeft = false
     @State private var offset: CGFloat = 0
     @State private var currentViewIndex = 0
     @State private var roundString = ""
     @State private var title: String = ""
-    @State private var focusViewOn: Bool = false
+    @State private var starSelected: Bool = false
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
@@ -40,12 +41,8 @@ struct LiveResultsView: View {
     
     var body: some View {
         ZStack {
-            LRWebView(request: $request, html: $html)
+            LRWebView(request: request, html: $html)
                 .onChange(of: html) { newValue in
-                    var result: LiveResults = LiveResults(meetName: "Test",
-                                                          eventName: "Test Event",
-                                                          link: request,
-                                                          isFinished: true)
                     
                     do {
                         let document: Document = try SwiftSoup.parse(newValue)
@@ -138,47 +135,26 @@ struct LiveResultsView: View {
                             if i < rows!.count - 1 && i >= 10{
                                 var tempList: [String] = []
                                 for (i, v) in try t.getElementsByTag("td").enumerated() {
-                                    if i == 0{
+                                    if i > 9 { break }
+                                    if i == 0 {
                                         if try v.text() == "" {
                                             tempList.append("true")
                                         } else {
                                             tempList.append("false")
                                         }
-                                    }
-                                    if i == 1{
+                                    } else if i == 6 {
+                                        focusViewList[try v.text()] = false
                                         tempList.append(try v.text())
-                                    }
-                                    if i == 2{
-                                        tempList.append(try v.text())
-                                    }
-                                    if i == 3{
-                                        tempList.append(try v.text())
-                                    }
-                                    if i == 4{
-                                        tempList.append(try v.text())
-                                    }
-                                    if i == 5{
-                                        tempList.append(try v.text())
-                                    }
-                                    if i == 6{
-                                        tempList.append(try v.text())
-                                        var halfLink = try v.getElementsByTag("a").attr("href")
+                                        let halfLink = try v.getElementsByTag("a").attr("href")
                                         tempList.append(linkHead + halfLink)
-                                    }
-                                    if i == 7{
-                                        tempList.append(try v.text())
-                                    }
-                                    if i == 8{
-                                        tempList.append(try v.text())
-                                    }
-                                    if i == 9{
+                                    } else {
                                         tempList.append(try v.text())
                                     }
                                 }
                                 diveTable.append(tempList)
                             }
                         }
-                        print(diveTable)
+                        //print(diveTable)
                         
                     } catch  {
                         print("Parsing finished live event failed")
@@ -195,7 +171,7 @@ struct LiveResultsView: View {
                     Spacer()
                     Spacer()
                     Spacer()
-                    if !focusViewOn{
+                    if !starSelected {
                         VStack{
                             Text(title)
                                 .font(.title2).bold()
@@ -208,10 +184,16 @@ struct LiveResultsView: View {
                         }
                     }
                     ScalingScrollView(records: diveTable) { (elem) in
-                        ResultsBubbleView(elements: elem)
+                        ResultsBubbleView(elements: elem, focusViewList: $focusViewList)
                     }
+                    .onChange(of: focusViewList, perform: {[focusViewList] newValue in
+                        if focusViewList.count == newValue.count{
+                            starSelected.toggle()
+                        }
+                    })
                     .padding(.bottom, maxHeightOffset)
                     .padding(.top)
+                    .animation(.easeOut(duration: 1), value: starSelected)
                 }
                 .offset(y: -50)
             }
@@ -365,16 +347,17 @@ struct SwipingView: View
 
 struct ResultsBubbleView: View {
     @Environment(\.colorScheme) var currentMode
-    @State private var focusViewOn: Bool = false
+    @Binding private var focusViewList: [String: Bool]
+    @State private var focusBool: Bool = false
     
     private var bubbleColor: Color {
         currentMode == .light ? .white : .black
     }
     private var elements: [String]
     
-    init(elements: [String], focusViewOn: Bool = false) {
+    init(elements: [String], focusViewList: Binding<[String: Bool]>) {
         self.elements = elements
-        _focusViewOn = State(initialValue: focusViewOn)
+        self._focusViewList = focusViewList
     }
     
     //[Place: (Left to dive, order, last round place, last round score, current place,
@@ -409,9 +392,10 @@ struct ResultsBubbleView: View {
                     }
                     HStack{
                         Button {
-                            focusViewOn.toggle()
+                            focusBool.toggle()
+                            focusViewList[elements[6]] = focusBool
                         } label: {
-                            if focusViewOn{
+                            if focusBool {
                                 Image(systemName: "star.fill")
                             } else {
                                 Image(systemName: "star")
@@ -424,10 +408,18 @@ struct ResultsBubbleView: View {
             }
             .padding()
         }
+        .onAppear {
+            focusBool = focusViewList[elements[6]] ?? false
+        }
         .onTapGesture {
             print(elements[3])
         }
     }
 }
 
-
+struct testView: View {
+    var body: some View {
+        Rectangle()
+        Text("This is the Testing View")
+    }
+}

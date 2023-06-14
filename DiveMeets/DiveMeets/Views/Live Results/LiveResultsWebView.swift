@@ -16,10 +16,7 @@ struct LiveResultsWebView: View {
     
     var body: some View {
         VStack {
-            LRWebView(request: $request, html: $html)
-//                .onAppear {
-//                    startTimer()
-//                }
+            LRWebView(request: request, html: $html)
         }
     }
     
@@ -36,9 +33,12 @@ struct LiveResultsWebView: View {
 // and html available on init
 struct LRWebView: UIViewRepresentable {
     let htmlParser: HTMLParser = HTMLParser()
-    @Binding var request: String
+    var request: String
     @Binding var html: String
     static private var delay: UInt32 = 1_000_000
+    var urlRequest: URLRequest {
+        URLRequest(url: URL(string: request)!)
+    }
     
     func makeUIView(context: Context) -> WKWebView {
         let webView: WKWebView = {
@@ -49,6 +49,7 @@ struct LRWebView: UIViewRepresentable {
             let webview = WKWebView(frame: .zero,
                                     configuration: config)
             webview.translatesAutoresizingMaskIntoConstraints = false
+            webview.load(urlRequest)
             return webview
         }()
         webView.navigationDelegate = context.coordinator
@@ -58,8 +59,8 @@ struct LRWebView: UIViewRepresentable {
     
     // from SwiftUI to UIKit
     func updateUIView(_ uiView: WKWebView, context: Context) {
-        guard let url = URL(string: request) else { return }
-        uiView.load(URLRequest(url: url))
+        //guard let url = URL(string: request) else { return }
+        //uiView.load(urlRequest)
     }
     
     // From UIKit to SwiftUI
@@ -84,6 +85,7 @@ struct LRWebView: UIViewRepresentable {
                 guard let html = result as? String, error == nil else { return }
                 self?.html = html
             }
+            print("being called")
         }
     }
 }
