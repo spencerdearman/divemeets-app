@@ -133,7 +133,7 @@ struct MeetPageView: View {
                 .padding(.horizontal)
                 
                 if meetInfoData != nil {
-                    MeetInfoPageView(meetInfoData: meetInfoData!, meetEventData: meetEventData)
+                    MeetInfoPageView(meetInfoData: meetInfoData!)
                     Spacer()
                 } else if meetResultsData != nil {
                     MeetResultsPageView(meetResultsData: meetResultsData!)
@@ -158,12 +158,13 @@ struct MeetPageView: View {
                     if let html = getTextModel.text {
                         meetData = try await mpp.parseMeetPage(link: meetLink, html: html)
                         if let meetData = meetData {
-                            meetEventData = await mpp.getEventData(data: meetData)
+//                            meetEventData = await mpp.getEventData(data: meetData)
+//                            print(meetEventData != nil ? meetEventData : nil)
 //                            meetResultsEventData = mpp.getResultsEventData(data: meetData)
 //                            meetDiverData = mpp.getDiverListData(data: meetData)
 //                            meetCoachData = mpp.getCoachListData(data: meetData)
-                            meetInfoData = mpp.getMeetInfoData(data: meetData)
-                            meetResultsData = mpp.getMeetResultsData(data: meetData)
+                            meetInfoData = await mpp.getMeetInfoData(data: meetData)
+                            meetResultsData = await mpp.getMeetResultsData(data: meetData)
                         }
                     }
                 }
@@ -174,7 +175,6 @@ struct MeetPageView: View {
 
 struct MeetInfoPageView: View {
     var meetInfoData: MeetInfoJointData
-    var meetEventData: MeetEventData?
     @State private var meetDetailsExpanded: Bool = false
     @State private var warmupDetailsExpanded: Bool = false
     @State private var showingAlert: Bool = false
@@ -284,7 +284,7 @@ struct MeetInfoPageView: View {
             
             Divider()
             
-            if let meetEventData = meetEventData {
+            if let meetEventData = meetInfoData.2 {
                 MeetEventListView(showingAlert: $showingAlert, alertText: $alertText,
                                   meetEventData: meetEventData)
                 .alert(alertText, isPresented: $showingAlert) {
@@ -357,10 +357,10 @@ struct MeetResultsPageView: View {
             let date = meetResultsData.1
             let divers = meetResultsData.2
             let events = meetResultsData.3
-            print(name)
-            print(date)
-            print(divers)
-            print(events)
+//            print(name)
+//            print(date)
+//            print(divers)
+//            print(events)
         }
     }
 }
