@@ -34,7 +34,7 @@ typealias MeetInfoData = [String: String]
 //                           [day   : [warmup/event start/end: time]]
 typealias MeetInfoTimeData = [String: [String: String]]
 
-typealias MeetInfoJointData = (MeetInfoData, MeetInfoTimeData)
+typealias MeetInfoJointData = (MeetInfoData, MeetInfoTimeData, MeetEventData?)
 
 //                          (meetName, date, divers,        events              )
 typealias MeetResultsData = (String, String, MeetDiverData, MeetResultsEventData)
@@ -187,13 +187,14 @@ class MeetPageParser: ObservableObject {
                     // This line catches cases where info events are passed into this function
                     if event == events.first! && containsDayOfWeek(text) { return nil }
                     
-                    let nameSplit = text.components(separatedBy: ") ")
-                    var name = nameSplit[0]
-                    name.append(")")
+                    guard let lastParen = text.lastIndex(of: ")") else { continue }
+                    let rest = String(text[text.index(lastParen, offsetBy: 2)...])
+                    
+                    let name = String(text[text.startIndex...lastParen])
                     
                     let link = try leadingLink + event.getElementsByTag("a").attr("href")
                     
-                    let secSplit = nameSplit.last!.components(separatedBy: " ")
+                    let secSplit = rest.components(separatedBy: " ")
                     let entries = Int(secSplit.first!)!
                     
                     // Converts date to proper format, then turns back into string
@@ -271,9 +272,9 @@ class MeetPageParser: ObservableObject {
         return nil
     }
     
-    func getMeetInfoData(data: MeetPageData) -> MeetInfoJointData? {
-        var infoResult: [String: String] = [:]
-        var time: [String: [String: String]] = [:]
+    func getMeetInfoData(data: MeetPageData) async -> MeetInfoJointData? {
+        var infoResult: MeetInfoData = [:]
+        var time: MeetInfoTimeData = [:]
         var curDay: String = ""
         var addToTime: Bool = false
         
@@ -345,7 +346,7 @@ class MeetPageParser: ObservableObject {
                     }
                 }
                 
-                return (infoResult, time)
+                return (infoResult, time, await getEventData(data: data))
             } catch {
                 print("Getting meet info data failed")
             }
@@ -354,7 +355,7 @@ class MeetPageParser: ObservableObject {
         return nil
     }
     
-    func getMeetResultsData(data: MeetPageData) -> MeetResultsData? {
+    func getMeetResultsData(data: MeetPageData) async -> MeetResultsData? {
         var name: String = ""
         var date: String = ""
         var divers: MeetDiverData = []
