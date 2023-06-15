@@ -14,6 +14,10 @@ private enum InfoStage {
     case coaches
 }
 
+enum CustomError: Error {
+    case FormatError
+}
+
 //                       [key   : [elements]
 typealias MeetPageData = [String: [Element]]
 
@@ -58,7 +62,7 @@ func correctDateFormatting(_ str: String) throws -> String {
     }
     
     if date == nil {
-        throw NSError()
+        throw CustomError.FormatError
     }
     
     df.dateFormat = "EEEE, MMM d, yyyy"
@@ -81,10 +85,19 @@ class MeetPageParser: ObservableObject {
     }
     
     // Corrects date time formatting to consistent usage, e.g. Tuesday, May 16, 2023 5:00 PM
-    private func correctDateTimeFormatting(_ str: String) throws -> String {
+    private func correctDateTimeFormatting(_ input: String) throws -> String {
         let df = DateFormatter()
-        let formatters = ["MM/dd/yyyy h:mm:ss a"]
+        let formatters = ["MM/dd/yyyy h:mm:ss a", "MM-dd-yyyy h:mm a", "MM/dd/yyyy h:mm:ss"]
         var date: Date? = nil
+        var str: String = input
+        
+        // Adjusts for using "Noon" to denote 12 PM instead of writing 12 PM
+        let removeCharacters: Set<Character> = ["N", "o", "n"]
+        str.removeAll(where: { removeCharacters.contains($0) } )
+        str = str.trimmingCharacters(in: .whitespacesAndNewlines)
+        if str.count < input.count {
+            str += " PM"
+        }
         
         for formatter in formatters {
             df.dateFormat = formatter
@@ -96,7 +109,8 @@ class MeetPageParser: ObservableObject {
         }
         
         if date == nil {
-            throw NSError()
+            print("Date \(str) failed to format")
+            throw CustomError.FormatError
         }
         
         df.dateFormat = "EEEE, MMM d, yyyy h:mm a"
@@ -318,45 +332,49 @@ class MeetPageParser: ObservableObject {
                         continue
                     }
                     
-                    var split = text.components(separatedBy: ": ")
+                    let split = text.split(separator: ": ", maxSplits: 1)
+                    var label = String(split[0])
+                    var value = String(split[1])
+
                     // Fix capitalization error for word "Date"
-                    if split[0].contains("date") {
-                        split[0] = split[0].replacingOccurrences(of: "date", with: "Date")
+                    if label.contains("date") {
+                        label = label.replacingOccurrences(of: "date", with: "Date")
                     }
                     // Fix inconsistent spacing after $
-                    if split[1].contains("$ ") {
-                        split[1] = split[1].replacingOccurrences(of: "$ ", with: "$")
+                    if value.contains("$ ") {
+                        value = value.replacingOccurrences(of: "$ ", with: "$")
                     }
                     
                     if addToTime {
                         if time[curDay] == nil {
                             time[curDay] = [:]
                         }
-                        time[curDay]![split[0]] = try correctTimeFormatting(split[1])
-                    } else if split[0].contains("Online Signup Closes at") {
-                        let dateSplit = split[1].split(separator: " ", maxSplits: 1)
+                        time[curDay]![label] = try correctTimeFormatting(value)
+                    } else if label.contains("Online Signup Closes at") {
+                        let dateSplit = value.split(separator: "(", maxSplits: 1)
                         
-                        let date = try correctDateFormatting(String(dateSplit.first!))
-                        infoResult[split[0]] = date + " " + dateSplit.last!
-                    } else if split[0].contains("Date") {
-                        let dateSplit = split[1].components(separatedBy: " ")
+                        let date = try correctDateTimeFormatting(String(dateSplit.first!)
+                            .trimmingCharacters(in: .whitespacesAndNewlines))
+                        infoResult[label] = date + " (" + dateSplit.last!
+                    } else if label.contains("Date") {
+                        let dateSplit = value.components(separatedBy: " ")
 
                         let date = try correctDateFormatting(dateSplit.first!)
-                        infoResult[split[0]] = date
-                    } else if split[0].contains("Fee must be paid by") {
-                        let dateSplit = split[1].components(separatedBy: " ")
+                        infoResult[label] = date
+                    } else if label.contains("Fee must be paid by") {
+                        let dateSplit = value.components(separatedBy: " ")
                         let dateTime = dateSplit[..<3].joined(separator: " ")
                         
                         let date = try correctDateTimeFormatting(dateTime)
-                        infoResult[split[0]] = date + " (Local Time)"
+                        infoResult[label] = date + " (Local Time)"
                     } else {
-                        infoResult[split[0]] = split[1]
+                        infoResult[label] = value
                     }
                 }
                 
                 return (infoResult, time, await getEventData(data: data))
             } catch {
-                print("Getting meet info data failed")
+                print("Getting meet info data failed, \(error) caught")
             }
         }
         
@@ -373,18 +391,28 @@ class MeetPageParser: ObservableObject {
         do {
             if let nameElem = data["name"] {
                 name = try nameElem.first!.getElementsByTag("strong").text()
+            } else {
+                return nil
             }
             if let dateElem = data["date"] {
                 date = try dateElem.first!.getElementsByTag("strong").text()
+            } else {
+                return nil
             }
             if let diversList = getDiverListData(data: data) {
                 divers = diversList
+            } else {
+                return nil
             }
             if let eventsList = getResultsEventData(data: data) {
                 events = eventsList
+            } else {
+                return nil
             }
             if let liveResultsDict = getLiveResultsData(data: data) {
                 liveResults = liveResultsDict
+            } else {
+                return nil
             }
             
             return (name, date, divers, events, liveResults)
