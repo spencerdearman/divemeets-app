@@ -9,6 +9,7 @@ import SwiftUI
 
 struct EntryPageView: View {
     @Environment(\.colorScheme) var currentMode
+    var entriesLink: String
     @State var entries: [EventEntry]?
     @ObservedObject var ep: EntriesParser = EntriesParser()
     private let getTextModel = GetTextAsyncModel()
@@ -41,15 +42,16 @@ struct EntryPageView: View {
         }
         .onAppear {
             Task {
-                let link = "https://secure.meetcontrol.com/divemeets/system/divesheetext.php?meetnum=9033&eventnum=200&eventtype=9"
                 // Initialize meet parse from index page
-                let url = URL(string: link)!
+                let url = URL(string: entriesLink)
                 
-                // This sets getTextModel's text field equal to the HTML from url
-                await getTextModel.fetchText(url: url)
-                
-                if let html = getTextModel.text {
-                    entries = try await ep.parseEntries(html: html)
+                if let url = url {
+                    // This sets getTextModel's text field equal to the HTML from url
+                    await getTextModel.fetchText(url: url)
+                    
+                    if let html = getTextModel.text {
+                        entries = try await ep.parseEntries(html: html)
+                    }
                 }
                 
             }
@@ -121,11 +123,5 @@ struct EntryView: View {
                     .lineLimit(1)
             }
         )
-    }
-}
-
-struct EntryPageView_Previews: PreviewProvider {
-    static var previews: some View {
-        EntryPageView()
     }
 }

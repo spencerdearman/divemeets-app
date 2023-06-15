@@ -335,11 +335,7 @@ struct MeetBubbleView: View {
     }
     
     var body: some View {
-        NavigationLink(destination:
-                        elements.count == 10
-                       ? AnyView(CurrentMeetsPageView(infoLink: elements[3], resultsLink: elements[9]))
-                       :
-                        AnyView(MeetPageView(meetLink: elements[3], showBackButton: false))) {
+        NavigationLink(destination: MeetPageView(meetLink: elements[3])) {
             ZStack {
                 Rectangle()
                     .foregroundColor(bubbleColor)
@@ -377,5 +373,6 @@ struct MeetBubbleView: View {
                 .padding()
             }
         }
+        
     }
 }

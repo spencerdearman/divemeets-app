@@ -134,9 +134,15 @@ struct MeetPageView: View {
                 
                 if meetInfoData != nil {
                     MeetInfoPageView(meetInfoData: meetInfoData!)
+                        .onAppear {
+                            print("Info View")
+                        }
                     Spacer()
                 } else if meetResultsData != nil {
                     MeetResultsPageView(meetResultsData: meetResultsData!)
+                        .onAppear {
+                            print("Results View")
+                        }
                     Spacer()
                 } else {
                     VStack {
@@ -181,12 +187,14 @@ struct MeetInfoPageView: View {
     @State private var alertText: String = ""
     
     private func keyToHStack(data: [String: String],
-                             key: String) -> HStack<TupleView<(Text, Text)>> {
-        return HStack(alignment: .top) {
+                             key: String) -> HStack<TupleView<(Text, Text)>>? {
+        return data[key] != nil
+        ? HStack(alignment: .top) {
             Text("\(key): ")
                 .bold()
-            data[key] != nil ? Text(data[key]!) : Text("")
+            Text(data[key]!)
         }
+        : nil
     }
     
     private func dateSorted(
@@ -583,7 +591,7 @@ struct MeetEventListView: View {
                     ForEach(value.indices, id: \.self) { index in
                         HStack {
                             NavigationLink(value[index].2) {
-                                EntryPageView()
+                                EntryPageView(entriesLink: value[index].4)
                             }
                             Spacer()
                         }
