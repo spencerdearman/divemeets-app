@@ -171,7 +171,6 @@ class MeetPageParser: ObservableObject {
                     let comps = try body.text().components(separatedBy: "***")
                     let name = comps[0].components(separatedBy: "(").first!
                         .trimmingCharacters(in: .whitespacesAndNewlines)
-//                    let entries = Int(comps.last!.components(separatedBy: " ").first!)!
                     
                     let ruleLink = try body.getElementsByTag("a").first()?.attr("href")
                     let ruleHtml = try await textLoader.getText(url: URL(
@@ -335,7 +334,7 @@ class MeetPageParser: ObservableObject {
                     let split = text.split(separator: ": ", maxSplits: 1)
                     var label = String(split[0])
                     var value = String(split[1])
-
+                    
                     // Fix capitalization error for word "Date"
                     if label.contains("date") {
                         label = label.replacingOccurrences(of: "date", with: "Date")
@@ -358,7 +357,7 @@ class MeetPageParser: ObservableObject {
                         infoResult[label] = date + " (" + dateSplit.last!
                     } else if label.contains("Date") {
                         let dateSplit = value.components(separatedBy: " ")
-
+                        
                         let date = try correctDateFormatting(dateSplit.first!)
                         infoResult[label] = date
                     } else if label.contains("Fee must be paid by") {
