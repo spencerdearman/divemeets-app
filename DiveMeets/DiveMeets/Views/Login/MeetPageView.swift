@@ -158,11 +158,11 @@ struct MeetPageView: View {
                     if let html = getTextModel.text {
                         meetData = try await mpp.parseMeetPage(link: meetLink, html: html)
                         if let meetData = meetData {
-//                            meetEventData = await mpp.getEventData(data: meetData)
-//                            print(meetEventData != nil ? meetEventData : nil)
-//                            meetResultsEventData = mpp.getResultsEventData(data: meetData)
-//                            meetDiverData = mpp.getDiverListData(data: meetData)
-//                            meetCoachData = mpp.getCoachListData(data: meetData)
+                            //                            meetEventData = await mpp.getEventData(data: meetData)
+                            //                            print(meetEventData != nil ? meetEventData : nil)
+                            //                            meetResultsEventData = mpp.getResultsEventData(data: meetData)
+                            //                            meetDiverData = mpp.getDiverListData(data: meetData)
+                            //                            meetCoachData = mpp.getCoachListData(data: meetData)
                             meetInfoData = await mpp.getMeetInfoData(data: meetData)
                             meetResultsData = await mpp.getMeetResultsData(data: meetData)
                         }
@@ -322,6 +322,29 @@ struct MeetResultsPageView: View {
         return result
     }
     
+    private func liveResultsToRecords(_ results: MeetLiveResultsData) -> [[String]] {
+        var result: [[String]] = []
+        
+        for (key, value) in results {
+            result.append([key, value])
+        }
+        
+        return result
+    }
+    
+    private func diversToRecords(_ divers: MeetDiverData) -> [[String]] {
+        var result: [[String]] = []
+        
+        for diver in divers {
+            var row: [String] = []
+            row += [diver.0, diver.1, diver.2]
+            row += diver.3
+            result.append(row)
+        }
+        
+        return result
+    }
+    
     var body: some View {
         let name = meetResultsData.0
         let date = meetResultsData.1
@@ -330,41 +353,77 @@ struct MeetResultsPageView: View {
                                     fixDateFormatting(dates.last!) ?? "")
         let divers = meetResultsData.2
         let events = meetResultsData.3
+        let liveResults = meetResultsData.4
         
         NavigationView {
-            VStack(spacing: 10) {
-                
-                Text(name)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                Text(startDate + " - " + endDate)
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .multilineTextAlignment(.trailing)
-                
-                Divider()
-                
-                Text("Event Results")
-                    .font(.title2)
-                    .bold()
-                
-                ScalingScrollView(records: eventsToRecords(events)) { (elems) in
-                    EventResultsView(elements: elems)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 10) {
+                    
+                    Text(name)
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    Text(startDate + " - " + endDate)
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .multilineTextAlignment(.trailing)
+                    
+                    Divider()
+                    
+                    if let liveResults = liveResults {
+                        DisclosureGroup(content: {
+                            ScalingScrollView(records: liveResultsToRecords(liveResults)) { (elems) in
+                                LiveResultsListView(elements: elems)
+                            }
+                            .frame(height: 300)
+                            .padding(.top)
+                            
+                        }, label: {
+                            Text("Live Results")
+                                .font(.title2)
+                                .bold()
+                                .foregroundColor(.primary)
+                        })
+                        Divider()
+                    }
+                    
+                    if let events = events {
+                        DisclosureGroup(content: {
+                            ScalingScrollView(records: eventsToRecords(events)) { (elems) in
+                                EventResultsView(elements: elems)
+                            }
+                            .frame(height: 500)
+                            .padding(.top)
+                            
+                        }, label: {
+                            Text("Event Results")
+                                .font(.title2)
+                                .bold()
+                                .foregroundColor(.primary)
+                        })
+                        Divider()
+                    }
+                    
+                    if let divers = divers {
+                        DisclosureGroup(content: {
+                            ScalingScrollView(records: diversToRecords(divers)) { (elems) in
+                                DiverListView(elements: elems)
+                            }
+                            .frame(height: 500)
+                            .padding(.top)
+                            
+                        }, label: {
+                            Text("Divers Entered")
+                                .font(.title2)
+                                .bold()
+                                .foregroundColor(.primary)
+                        })
+                    }
+                    Spacer()
                 }
+                .padding()
             }
-            .padding()
-        }
-        .onAppear {
-            let name = meetResultsData.0
-            let date = meetResultsData.1
-            let divers = meetResultsData.2
-            let events = meetResultsData.3
-//            print(name)
-//            print(date)
-//            print(divers)
-//            print(events)
         }
     }
 }
@@ -384,17 +443,13 @@ struct EventResultsView: View {
                 Rectangle()
                     .foregroundColor(bubbleColor)
                 VStack {
-                    VStack {
-                        Text(elements[0]) // name
-                            .font(.title3)
-                            .bold()
-                        //                        .scaledToFit()
-                        //                        .minimumScaleFactor(0.5)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.primary)
-                    }
+                    Text(elements[0]) // name
+                        .font(.title3)
+                        .bold()
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.primary)
                     Spacer()
                     HStack {
                         Text(elements[2] + " Entries") // entries
@@ -406,6 +461,77 @@ struct EventResultsView: View {
                             .scaledToFit()
                             .minimumScaleFactor(0.5)
                             .foregroundColor(.primary)
+                    }
+                }
+                .padding()
+            }
+        }
+    }
+}
+
+struct LiveResultsListView: View {
+    @Environment(\.colorScheme) var currentMode
+    
+    private var bubbleColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    //            [name, link]
+    var elements: [String]
+    
+    var body: some View {
+        NavigationLink(destination: EventResultPage(meetLink: elements[1])) {
+            ZStack {
+                Rectangle()
+                    .foregroundColor(bubbleColor)
+                VStack {
+                    Text(elements[0]) // name
+                        .font(.title3)
+                        .bold()
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.primary)
+                }
+                .padding()
+            }
+        }
+    }
+}
+
+struct DiverListView: View {
+    @Environment(\.colorScheme) var currentMode
+    
+    private var bubbleColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    //            [name, team, link, event1, event2, ...]
+    var elements: [String]
+    
+    var body: some View {
+        NavigationLink(destination: ProfileView(link: elements[2])) {
+            ZStack {
+                Rectangle()
+                    .foregroundColor(bubbleColor)
+                VStack(alignment: .leading) {
+                    HStack() {
+                        Text(elements[0]) // name
+                            .font(.title3)
+                            .bold()
+                        
+                        Text(elements[1]) // org
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                        Spacer()
+                    }
+                    
+                    HStack {
+                        ForEach(elements[3...], id: \.self) { event in
+                            Text(event) // each event
+                                .font(.subheadline)
+                                .foregroundColor(.primary)
+                        }
+                        
                     }
                 }
                 .padding()
