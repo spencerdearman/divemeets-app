@@ -69,63 +69,65 @@ struct Home: View {
     
     @ViewBuilder
     var body: some View {
-        ZStack {
-            (currentMode == .light ? Color.white : Color.black)
-                .ignoresSafeArea()
-            
-            VStack {
+        NavigationView {
+            ZStack {
+                (currentMode == .light ? Color.white : Color.black)
+                    .ignoresSafeArea()
+                
                 VStack {
-                    Text("Home")
-                        .font(.title)
-                        .bold()
-                    ZStack {
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .frame(width: typeBubbleWidth * 2 + 5,
-                                   height: typeBGWidth)
-                            .foregroundColor(typeBGColor)
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .frame(width: typeBubbleWidth,
-                                   height: typeBubbleHeight)
-                            .foregroundColor(typeBubbleColor)
-                            .offset(x: selection == .upcoming
-                                    ? -typeBubbleWidth / 2
-                                    : typeBubbleWidth / 2)
-                            .animation(.spring(response: 0.2), value: selection)
-                        HStack(spacing: 0) {
-                            Button(action: {
-                                if selection == .current {
-                                    selection = .upcoming
-                                }
-                            }, label: {
-                                Text(ViewType.upcoming.rawValue)
-                                    .animation(nil, value: selection)
-                            })
-                            .frame(width: typeBubbleWidth,
-                                   height: typeBubbleHeight)
-                            .foregroundColor(textColor)
-                            .cornerRadius(cornerRadius)
-                            Button(action: {
-                                if selection == .upcoming {
-                                    selection = .current
-                                }
-                            }, label: {
-                                Text(ViewType.current.rawValue)
-                                    .animation(nil, value: selection)
-                            })
-                            .frame(width: typeBubbleWidth + 2,
-                                   height: typeBubbleHeight)
-                            .foregroundColor(textColor)
-                            .cornerRadius(cornerRadius)
+                    VStack {
+                        Text("Home")
+                            .font(.title)
+                            .bold()
+                        ZStack {
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .frame(width: typeBubbleWidth * 2 + 5,
+                                       height: typeBGWidth)
+                                .foregroundColor(typeBGColor)
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .frame(width: typeBubbleWidth,
+                                       height: typeBubbleHeight)
+                                .foregroundColor(typeBubbleColor)
+                                .offset(x: selection == .upcoming
+                                        ? -typeBubbleWidth / 2
+                                        : typeBubbleWidth / 2)
+                                .animation(.spring(response: 0.2), value: selection)
+                            HStack(spacing: 0) {
+                                Button(action: {
+                                    if selection == .current {
+                                        selection = .upcoming
+                                    }
+                                }, label: {
+                                    Text(ViewType.upcoming.rawValue)
+                                        .animation(nil, value: selection)
+                                })
+                                .frame(width: typeBubbleWidth,
+                                       height: typeBubbleHeight)
+                                .foregroundColor(textColor)
+                                .cornerRadius(cornerRadius)
+                                Button(action: {
+                                    if selection == .upcoming {
+                                        selection = .current
+                                    }
+                                }, label: {
+                                    Text(ViewType.current.rawValue)
+                                        .animation(nil, value: selection)
+                                })
+                                .frame(width: typeBubbleWidth + 2,
+                                       height: typeBubbleHeight)
+                                .foregroundColor(textColor)
+                                .cornerRadius(cornerRadius)
+                            }
                         }
                     }
+                    Spacer()
+                    if selection == .upcoming {
+                        UpcomingMeetsView(meetParser: meetParser)
+                    } else {
+                        CurrentMeetsView(meetParser: meetParser)
+                    }
+                    Spacer()
                 }
-                Spacer()
-                if selection == .upcoming {
-                    UpcomingMeetsView(meetParser: meetParser)
-                } else {
-                    CurrentMeetsView(meetParser: meetParser)
-                }
-                Spacer()
             }
         }
         .onAppear {
@@ -182,7 +184,7 @@ struct CurrentMeetsView: View {
             ScalingScrollView(records: current) { (elem) in
                 MeetBubbleView(elements: elem)
             }
-                .padding(.bottom, maxHeightOffset)
+            .padding(.bottom, maxHeightOffset)
         } else if meetParser.currentMeets != nil {
             Text("No current meets found")
         } else {
@@ -207,40 +209,44 @@ struct MeetBubbleView: View {
     }
     
     var body: some View {
-        ZStack {
-            Rectangle()
-                .foregroundColor(bubbleColor)
-            VStack {
+        NavigationLink(destination: MeetPageView(meetLink: elements[3])) {
+            ZStack {
+                Rectangle()
+                    .foregroundColor(bubbleColor)
                 VStack {
-                    Text(elements[1]) // name
-                        .font(.title3)
-                        .bold()
-                        .scaledToFit()
-                        .minimumScaleFactor(0.5)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .lineLimit(1)
+                    VStack {
+                        Text(elements[1]) // name
+                            .font(.title3)
+                            .bold()
+                            .scaledToFit()
+                            .minimumScaleFactor(0.5)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(1)
+                        
+                        Spacer()
+                        
+                        Text(elements[2]) // org
+                            .font(.headline)
+                    }
+                    .foregroundColor(.primary)
                     
                     Spacer()
                     
-                    Text(elements[2]) // org
-                        .font(.headline)
+                    HStack {
+                        Text(elements[6] + ", " + elements[7]) // city, state
+                        
+                        Spacer()
+                        
+                        Text(elements[4] + " - " + elements[5]) // startDate - endDate
+                    }
+                    .font(.subheadline)
+                    .scaledToFit()
+                    .minimumScaleFactor(0.5)
+                    .foregroundColor(.primary)
                 }
-                Spacer()
-                HStack {
-                    Text(elements[6] + ", " + elements[7]) // city, state
-                    
-                    Spacer()
-                    
-                    Text(elements[4] + " - " + elements[5]) // startDate - endDate
-                }
-                .font(.subheadline)
-                .scaledToFit()
-                .minimumScaleFactor(0.5)
+                .padding()
             }
-            .padding()
         }
-        .onTapGesture {
-            print(elements[3])
-        }
+        
     }
 }
