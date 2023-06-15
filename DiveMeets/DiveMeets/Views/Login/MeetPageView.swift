@@ -312,6 +312,16 @@ struct MeetResultsPageView: View {
         return nil
     }
     
+    private func eventsToRecords(_ events: MeetResultsEventData) -> [[String]] {
+        var result: [[String]] = []
+        
+        for row in events {
+            result.append([row.0, row.1, String(row.2), row.3])
+        }
+        
+        return result
+    }
+    
     var body: some View {
         let name = meetResultsData.0
         let date = meetResultsData.1
@@ -320,6 +330,7 @@ struct MeetResultsPageView: View {
                                     fixDateFormatting(dates.last!) ?? "")
         let divers = meetResultsData.2
         let events = meetResultsData.3
+        
         VStack(spacing: 10) {
             
             Text(name)
@@ -334,21 +345,12 @@ struct MeetResultsPageView: View {
             
             Divider()
             
-            VStack {
-                ForEach(events.indices, id: \.self) { index in
-                    let event = events[index]
-                    let name = event.0
-                    let link = event.1
-                    let entries = event.2
-                    let date = event.3
-                    HStack {
-                        Text(name)
-                        Spacer()
-                        Text(String(entries))
-                        Spacer()
-                        Text(date)
-                    }
-                }
+            Text("Event Results")
+                .font(.title2)
+                .bold()
+            
+            ScalingScrollView(records: eventsToRecords(events)) { (elems) in
+                EventResultsView(elements: elems)
             }
         }
         .padding()
@@ -361,6 +363,49 @@ struct MeetResultsPageView: View {
 //            print(date)
 //            print(divers)
 //            print(events)
+        }
+    }
+}
+
+struct EventResultsView: View {
+    @Environment(\.colorScheme) var currentMode
+    
+    private var bubbleColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    //            [name, link, entries, date]
+    var elements: [String]
+    
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .foregroundColor(bubbleColor)
+            VStack {
+                VStack {
+                    Text(elements[0]) // name
+                        .font(.title3)
+                        .bold()
+//                        .scaledToFit()
+//                        .minimumScaleFactor(0.5)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+                }
+                Spacer()
+                HStack {
+                    Text(elements[2] + " Entries") // entries
+                        .font(.body)
+                    Spacer()
+                    Text(elements[3]) // date
+                        .font(.body)
+                        .scaledToFit()
+                        .minimumScaleFactor(0.5)
+                }
+            }
+            .padding()
+        }
+        .onTapGesture {
+            print(elements[1]) // link
         }
     }
 }
