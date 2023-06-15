@@ -331,29 +331,31 @@ struct MeetResultsPageView: View {
         let divers = meetResultsData.2
         let events = meetResultsData.3
         
-        VStack(spacing: 10) {
-            
-            Text(name)
-                .font(.title)
-                .fontWeight(.bold)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, alignment: .center)
-            Text(startDate + " - " + endDate)
-                .font(.headline)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .multilineTextAlignment(.trailing)
-            
-            Divider()
-            
-            Text("Event Results")
-                .font(.title2)
-                .bold()
-            
-            ScalingScrollView(records: eventsToRecords(events)) { (elems) in
-                EventResultsView(elements: elems)
+        NavigationView {
+            VStack(spacing: 10) {
+                
+                Text(name)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                Text(startDate + " - " + endDate)
+                    .font(.headline)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .multilineTextAlignment(.trailing)
+                
+                Divider()
+                
+                Text("Event Results")
+                    .font(.title2)
+                    .bold()
+                
+                ScalingScrollView(records: eventsToRecords(events)) { (elems) in
+                    EventResultsView(elements: elems)
+                }
             }
+            .padding()
         }
-        .padding()
         .onAppear {
             let name = meetResultsData.0
             let date = meetResultsData.1
@@ -377,35 +379,37 @@ struct EventResultsView: View {
     var elements: [String]
     
     var body: some View {
-        ZStack {
-            Rectangle()
-                .foregroundColor(bubbleColor)
-            VStack {
+        NavigationLink(destination: EventResultPage(meetLink: elements[1])) {
+            ZStack {
+                Rectangle()
+                    .foregroundColor(bubbleColor)
                 VStack {
-                    Text(elements[0]) // name
-                        .font(.title3)
-                        .bold()
-//                        .scaledToFit()
-//                        .minimumScaleFactor(0.5)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.center)
-                }
-                Spacer()
-                HStack {
-                    Text(elements[2] + " Entries") // entries
-                        .font(.body)
+                    VStack {
+                        Text(elements[0]) // name
+                            .font(.title3)
+                            .bold()
+                        //                        .scaledToFit()
+                        //                        .minimumScaleFactor(0.5)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.primary)
+                    }
                     Spacer()
-                    Text(elements[3]) // date
-                        .font(.body)
-                        .scaledToFit()
-                        .minimumScaleFactor(0.5)
+                    HStack {
+                        Text(elements[2] + " Entries") // entries
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
+                        Spacer()
+                        Text(elements[3]) // date
+                            .font(.subheadline)
+                            .scaledToFit()
+                            .minimumScaleFactor(0.5)
+                            .foregroundColor(.primary)
+                    }
                 }
+                .padding()
             }
-            .padding()
-        }
-        .onTapGesture {
-            print(elements[1]) // link
         }
     }
 }

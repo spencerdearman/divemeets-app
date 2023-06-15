@@ -35,6 +35,7 @@ struct EventResultPage: View {
                 .font(.title)
                 .bold()
                 .padding()
+                .multilineTextAlignment(.center)
             Divider()
             ScalingScrollView(records: resultData) { (elem) in
                 PersonBubbleView(elements: elem, eventTitle: eventTitle)
