@@ -36,8 +36,11 @@ typealias MeetInfoTimeData = [String: [String: String]]
 
 typealias MeetInfoJointData = (MeetInfoData, MeetInfoTimeData, MeetEventData?)
 
+//                              [name  : link  ]
+typealias MeetLiveResultsData = [String: String]
+
 //                          (meetName, date, divers,        events              )
-typealias MeetResultsData = (String, String, MeetDiverData, MeetResultsEventData)
+typealias MeetResultsData = (String, String, MeetDiverData?, MeetResultsEventData?, MeetLiveResultsData?)
 
 // Corrects date formatting to consistent usage, e.g. Tuesday, May 16, 2023
 func correctDateFormatting(_ str: String) throws -> String {
@@ -212,6 +215,11 @@ class MeetPageParser: ObservableObject {
         return nil
     }
     
+    func getLiveResultsData(data: MeetPageData) -> MeetLiveResultsData? {
+        // TODO: update this
+        return ["Women 3m Championship (11Div Vol 1st.) (Prelim/Quarterfinal)": "https://secure.meetcontrol.com/divemeets/system/eventresultsext.php?meetnum=8958&eventnum=7320&eventtype=1"]
+    }
+    
     func getDiverListData(data: MeetPageData) -> MeetDiverData? {
         var result: MeetDiverData = []
         
@@ -358,8 +366,9 @@ class MeetPageParser: ObservableObject {
     func getMeetResultsData(data: MeetPageData) async -> MeetResultsData? {
         var name: String = ""
         var date: String = ""
-        var divers: MeetDiverData = []
-        var events: MeetResultsEventData = []
+        var divers: MeetDiverData?
+        var events: MeetResultsEventData?
+        var liveResults: MeetLiveResultsData?
         
         do {
             if let nameElem = data["name"] {
@@ -374,8 +383,11 @@ class MeetPageParser: ObservableObject {
             if let eventsList = getResultsEventData(data: data) {
                 events = eventsList
             }
+            if let liveResultsDict = getLiveResultsData(data: data) {
+                liveResults = liveResultsDict
+            }
             
-            return (name, date, divers, events)
+            return (name, date, divers, events, liveResults)
         } catch {
             print("Getting meet results data failed")
         }
@@ -447,6 +459,8 @@ class MeetPageParser: ObservableObject {
             result["name"] = [upperRows[0]]
             result["date"] = [upperRows[1]]
             result["events"] = try tables[0].getElementsByAttribute("bgcolor").array()
+            // TODO: update this
+            result["live"] = []
             
             if tables.count < 2 { return nil }
             let lowerRows = try tables[1].getElementsByTag("tr")
