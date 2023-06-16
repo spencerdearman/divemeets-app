@@ -86,6 +86,40 @@ func tupleToList(tuples: CurrentMeetRecords) -> [[String]] {
     return result
 }
 
+// Converts MeetRecord tuples with additional results link to 2d list of Strings for views
+func tupleToList(tuples: CurrentMeetRecords) -> [[String]] {
+    var result: [[String]] = []
+    //  (id, name, org, link, startDate, endDate, city, state, country, resultsLink?)
+    for ((id, name, org, link, startDate, endDate, city, state, country), resultsLink) in tuples.sorted(
+        by: { (lhs, rhs) in
+            let df = DateFormatter()
+            df.dateFormat = "MMM d, yyyy"
+            
+            // Sorts first by start date, then end date, then name in that order
+            if lhs.0.4 == rhs.0.4 {
+                if lhs.0.5 == rhs.0.5 {
+                    return lhs.0.1! < rhs.0.1!
+                }
+                
+                let a = lhs.0.5!
+                let b = rhs.0.5!
+                
+                return df.date(from: a)! < df.date(from: b)!
+            }
+            
+            let a = lhs.0.4!
+            let b = rhs.0.4!
+            
+            return df.date(from: a)! < df.date(from: b)!
+        }) {
+        let idStr = id != nil ? String(id!) : ""
+        result.append([idStr, name ?? "", org ?? "", link ?? "",
+                       startDate ?? "", endDate ?? "", city ?? "", state ?? "", country ?? "",
+                       resultsLink ?? ""])
+    }
+    return result
+}
+
 struct Home: View {
     @Environment(\.colorScheme) var currentMode
     @Environment(\.meetsDB) var db
@@ -262,58 +296,60 @@ struct CurrentMeetsPageView: View {
     
     @ViewBuilder
     var body: some View {
-        ZStack {
-            (currentMode == .light ? Color.white : Color.black)
-                .ignoresSafeArea()
-            
-            VStack {
-                ZStack {
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .frame(width: typeBubbleWidth * 2 + 5,
-                               height: typeBGWidth)
-                        .foregroundColor(typeBGColor)
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .frame(width: typeBubbleWidth,
-                               height: typeBubbleHeight)
-                        .foregroundColor(typeBubbleColor)
-                        .offset(x: selection == .info
-                                ? -typeBubbleWidth / 2
-                                : typeBubbleWidth / 2)
-                        .animation(.spring(response: 0.2), value: selection)
-                    HStack(spacing: 0) {
-                        Button(action: {
-                            if selection == .results {
-                                selection = .info
-                            }
-                        }, label: {
-                            Text(CurrentMeetPageType.info.rawValue)
-                                .animation(nil, value: selection)
-                        })
-                        .frame(width: typeBubbleWidth,
-                               height: typeBubbleHeight)
-                        .foregroundColor(textColor)
-                        .cornerRadius(cornerRadius)
-                        Button(action: {
-                            if selection == .info {
-                                selection = .results
-                            }
-                        }, label: {
-                            Text(CurrentMeetPageType.results.rawValue)
-                                .animation(nil, value: selection)
-                        })
-                        .frame(width: typeBubbleWidth + 2,
-                               height: typeBubbleHeight)
-                        .foregroundColor(textColor)
-                        .cornerRadius(cornerRadius)
+        NavigationView {
+            ZStack {
+                (currentMode == .light ? Color.white : Color.black)
+                    .ignoresSafeArea()
+                
+                VStack {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .frame(width: typeBubbleWidth * 2 + 5,
+                                   height: typeBGWidth)
+                            .foregroundColor(typeBGColor)
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .frame(width: typeBubbleWidth,
+                                   height: typeBubbleHeight)
+                            .foregroundColor(typeBubbleColor)
+                            .offset(x: selection == .info
+                                    ? -typeBubbleWidth / 2
+                                    : typeBubbleWidth / 2)
+                            .animation(.spring(response: 0.2), value: selection)
+                        HStack(spacing: 0) {
+                            Button(action: {
+                                if selection == .results {
+                                    selection = .info
+                                }
+                            }, label: {
+                                Text(CurrentMeetPageType.info.rawValue)
+                                    .animation(nil, value: selection)
+                            })
+                            .frame(width: typeBubbleWidth,
+                                   height: typeBubbleHeight)
+                            .foregroundColor(textColor)
+                            .cornerRadius(cornerRadius)
+                            Button(action: {
+                                if selection == .info {
+                                    selection = .results
+                                }
+                            }, label: {
+                                Text(CurrentMeetPageType.results.rawValue)
+                                    .animation(nil, value: selection)
+                            })
+                            .frame(width: typeBubbleWidth + 2,
+                                   height: typeBubbleHeight)
+                            .foregroundColor(textColor)
+                            .cornerRadius(cornerRadius)
+                        }
                     }
+                    Spacer()
+                    if selection == .info {
+                        MeetPageView(meetLink: infoLink)
+                    } else {
+                        MeetPageView(meetLink: resultsLink)
+                    }
+                    Spacer()
                 }
-                Spacer()
-                if selection == .info {
-                    MeetPageView(meetLink: infoLink, showBackButton: false)
-                } else {
-                    MeetPageView(meetLink: resultsLink, showBackButton: false)
-                }
-                Spacer()
             }
         }
     }
@@ -335,7 +371,11 @@ struct MeetBubbleView: View {
     }
     
     var body: some View {
-        NavigationLink(destination: MeetPageView(meetLink: elements[3])) {
+        NavigationLink(destination:
+                        elements.count == 10
+                       ? AnyView(CurrentMeetsPageView(infoLink: elements[3], resultsLink: elements[9]))
+                       :
+                        AnyView(MeetPageView(meetLink: elements[3]))) {
             ZStack {
                 Rectangle()
                     .foregroundColor(bubbleColor)
@@ -373,6 +413,5 @@ struct MeetBubbleView: View {
                 .padding()
             }
         }
-        
     }
 }
