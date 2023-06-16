@@ -229,8 +229,44 @@ class MeetPageParser: ObservableObject {
     }
     
     func getLiveResultsData(data: MeetPageData) -> MeetLiveResultsData? {
-        // TODO: update this
-        return ["Women 3m Championship (11Div Vol 1st.) (Prelim/Quarterfinal)": "https://secure.meetcontrol.com/divemeets/system/eventresultsext.php?meetnum=8958&eventnum=7320&eventtype=1"]
+        var result: MeetLiveResultsData = [:]
+        var name: String = ""
+        var link: String = ""
+        
+        if let live = data["live"] {
+            do {
+                for elem in live {
+                    name = ""
+                    link = ""
+                    
+                    let nameElem = try elem.getElementsByTag("strong").first()
+                    if let nameElem = nameElem {
+                        name = try nameElem.text()
+                        print(name)
+                    } else {
+                        print("Could not get name from element")
+                        continue
+                    }
+                    
+                    let linkElem = try elem.getElementsByTag("a").first()
+                    if let linkElem = linkElem {
+                        link = try linkElem.attr("href")
+                        print(link)
+                    } else {
+                        print("Could not get link from element")
+                        continue
+                    }
+                    
+                    result[name] = leadingLink + link
+                }
+                
+                return result
+            } catch {
+                print("Getting live results failed")
+            }
+        }
+        
+        return nil
     }
     
     func getDiverListData(data: MeetPageData) -> MeetDiverData? {
@@ -486,8 +522,12 @@ class MeetPageParser: ObservableObject {
             result["name"] = [upperRows[0]]
             result["date"] = [upperRows[1]]
             result["events"] = try tables[0].getElementsByAttribute("bgcolor").array()
-            // TODO: update this
-            result["live"] = []
+            
+            let live = try tables[0].getElementsByAttributeValue("style", "font-size: 10px").array()
+            if !live.isEmpty {
+                result["live"] = live
+                print("Elements: \(live)")
+            }
             
             if tables.count < 2 { return nil }
             let lowerRows = try tables[1].getElementsByTag("tr")
