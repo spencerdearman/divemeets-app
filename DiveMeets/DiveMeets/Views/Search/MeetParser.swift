@@ -90,17 +90,22 @@ final class MeetParser: ObservableObject {
         }
         
         storedPastMeetYears = Set<Int>(entries.map {
-            Calendar.current.dateComponents([.year], from: $0.startDate!).year!
+            if let startDate = $0.startDate,
+                let year = Calendar.current.dateComponents([.year], from: startDate).year {
+                return year
+            }
+            
+            return 0
         })
     }
     
     // Gets the list of meet names and links to their pages from an org page
     private func getMeetInfo(text: String) -> [MeetDictBody]? {
-        var result: [MeetDictBody]?
+        var result: [MeetDictBody] = []
         do {
             let document: Document = try SwiftSoup.parse(text)
             guard let body = document.body() else { return [] }
-            let content = try body.getElementById("dm_content")!
+            guard let content = try body.getElementById("dm_content") else { return [] }
             let trs = try content.getElementsByTag("tr")
             let filtered = trs.filter({ (elem: Element) -> Bool in
                 do {
@@ -141,9 +146,6 @@ final class MeetParser: ObservableObject {
                 for e in elem {
                     if try e.tagName() == "a"
                         && e.attr("href").starts(with: "meet") {
-                        if result == nil {
-                            result = []
-                        }
                         
                         // Gets name from link if meetinfo link, gets name from div if
                         // meetresults link
@@ -153,15 +155,17 @@ final class MeetParser: ObservableObject {
                     }
                 }
                 
-                if result != nil && link != nil {
-                    result!.append((name, link!, startDate, endDate, city, state, country))
+                if let link = link {
+                    result.append((name, link, startDate, endDate, city, state, country))
                 }
             }
+            
+            return result
         } catch {
             print("Parse failed")
         }
         
-        return result
+        return nil
     }
     
     // Parses current meets from homepage sidebar since "Current" tab is not reliable
@@ -169,22 +173,19 @@ final class MeetParser: ObservableObject {
         var result: CurrentMeetList = []
         do {
             let document: Document = try SwiftSoup.parse(html)
-            guard let body = document.body() else {
-                return
-            }
+            guard let body = document.body() else { return }
             let content = try body.getElementById("dm_content")
             let sidebar = try content?.getElementsByTag("div")[3]
             // Gets table of all current meet rows
             let currentTable = try sidebar?.getElementsByTag("table")
                 .first()?.children().first()
             // Gets list of Elements for each current meet
-            let currentRows = try currentTable?.getElementsByTag("table")
-            for row in currentRows! {
+            guard let currentRows = try currentTable?.getElementsByTag("table")  else { return }
+            for row in currentRows {
                 var resultElem: [String: [String: CurrentMeetDictBody]] = [:]
                 let rowRows = try row.getElementsByTag("td")
                 
                 let meetElem = rowRows[0]
-                var meetResults: Element? = nil
                 
                 resultElem[try meetElem.text()] = [:]
                 
@@ -194,9 +195,9 @@ final class MeetParser: ObservableObject {
                 var resultsLink: String? = nil
                 
                 if rowRows.count > 1 {
-                    meetResults = rowRows[1]
+                    let meetResults = rowRows[1]
                     do {
-                        let resultsLinks = try meetResults!.getElementsByAttribute("href")
+                        let resultsLinks = try meetResults.getElementsByAttribute("href")
                         
                         if (resultsLinks.count == 0) {
                             throw ParseError("No results page found in row")
@@ -209,14 +210,14 @@ final class MeetParser: ObservableObject {
                 }
                 
                 let meetLoc = try rowRows[2].text()
-                let commaIdx = meetLoc.firstIndex(of: ",")!
+                guard let commaIdx = meetLoc.firstIndex(of: ",") else { return }
                 let city = String(meetLoc[..<commaIdx])
                 let state = String(meetLoc[meetLoc.index(commaIdx, offsetBy: 2)...])
                 let country = "US"
                 
                 let meetDates = try rowRows[3].text()
-                let dashIdx = meetDates.firstIndex(of: "-")!
-                let yearCommaIdx = meetDates.firstIndex(of: ",")!
+                guard let dashIdx = meetDates.firstIndex(of: "-") else { return }
+                guard let yearCommaIdx = meetDates.firstIndex(of: ",") else { return }
                 let startDate = String(meetDates[..<dashIdx]
                     .trimmingCharacters(in: .whitespacesAndNewlines))
                 + meetDates[yearCommaIdx...]
@@ -225,9 +226,9 @@ final class MeetParser: ObservableObject {
                 resultElem[try meetElem.text()]!["info"] =
                 (infoLink, startDate, endDate, city, state, country)
                 
-                if resultsLink != nil {
+                if let resultsLink = resultsLink {
                     resultElem[try meetElem.text()]!["results"] =
-                    (resultsLink!, startDate, endDate, city, state, country)
+                    (resultsLink, startDate, endDate, city, state, country)
                 }
                 
                 result.append(resultElem)
@@ -246,7 +247,8 @@ final class MeetParser: ObservableObject {
     // Parses the results page of an event in a past meet's results page
     private func parsePastMeetEventResults(eventName: String,
                                            link: String) async -> PastMeetEvent? {
-        await getTextModel.fetchText(url: URL(string: link)!)
+        guard let url = URL(string: link) else { return nil }
+        await getTextModel.fetchText(url: url)
         var tableRows: [[String: String]] = []
         if let text = getTextModel.text {
             do {
@@ -284,7 +286,8 @@ final class MeetParser: ObservableObject {
     // meet results page is eventually loaded
     func parsePastMeetResults(meetName: String, link: String
     ) async -> PastMeetResults? {
-        await getTextModel.fetchText(url: URL(string: link)!)
+        guard let url = URL(string: link) else { return nil }
+        await getTextModel.fetchText(url: url)
         var events: [PastMeetEvent] = []
         
         if let text = getTextModel.text {
@@ -302,9 +305,10 @@ final class MeetParser: ObservableObject {
                     let eventName = try event.text()
                     let eventLink = try event.getElementsByTag("a")[0].attr("href")
                     
-                    await events.append(
-                        parsePastMeetEventResults(eventName: eventName,
-                                                  link: leadingLink + eventLink)!)
+                    if let results = await parsePastMeetEventResults(eventName: eventName,
+                                                               link: leadingLink + eventLink) {
+                        events.append(results)
+                    }
                 }
                 
                 return PastMeetResults(meetName: meetName, meetLink: link, events: events)
@@ -323,7 +327,7 @@ final class MeetParser: ObservableObject {
         do {
             let document: Document = try SwiftSoup.parse(text)
             guard let body = document.body() else { return nil }
-            let content = try body.getElementById("dm_content")!
+            guard let content = try body.getElementById("dm_content") else { return nil }
             let rows = try content.getElementsByTag("td")
             for row in rows {
                 // Only continues on rows w/o align field and w valign == top
@@ -380,9 +384,9 @@ final class MeetParser: ObservableObject {
             do {
                 let document: Document = try SwiftSoup.parse(html)
                 guard let body = document.body() else { return }
-                let menu = try body.getElementById("dm_menu_centered")
-                let menuTabs = try menu?.getElementsByTag("ul")[0].getElementsByTag("li")
-                for tab in menuTabs! {
+                guard let menu = try body.getElementById("dm_menu_centered") else { return }
+                let menuTabs = try menu.getElementsByTag("ul")[0].getElementsByTag("li")
+                for tab in menuTabs {
                     // tabElem is one of the links from the tabs in the menu bar
                     let tabElem = try tab.getElementsByAttribute("href")[0]
                     if try tabElem.text() == "Find" {
@@ -415,7 +419,8 @@ final class MeetParser: ObservableObject {
                             .replacingOccurrences(of: "\t", with: "")
                         // Gets HTML from subpage link and sets linkText to HTML;
                         // This pulls the html for an org's page
-                        await fetchLinkText(url: URL(string: link)!)
+                        guard let url = URL(string: link) else { return }
+                        await fetchLinkText(url: url)
                         await MainActor.run {
                             // Parses subpage and gets meet names and links
                             if let text = linkText,
@@ -430,13 +435,16 @@ final class MeetParser: ObservableObject {
                     }
                     else if stage == .past {
                         // Gets a set of all past years currently in the database
-                        if storedMeets != nil && storedPastMeetYears == nil {
-                            pullStoredPastMeetYears(storedMeets: storedMeets!)
+                        if let storedMeets = storedMeets, storedPastMeetYears == nil {
+                            pullStoredPastMeetYears(storedMeets: storedMeets)
                         }
                         
                         // Skip years that are earlier than current year and already in the database
-                        if Int(pastYear)! < Int(currentYear)!
-                            && storedPastMeetYears!.contains(Int(pastYear)!) {
+                        if let past = Int(pastYear),
+                            let current = Int(currentYear),
+                            past < current,
+                            let storedPastMeetYears = storedPastMeetYears,
+                            storedPastMeetYears.contains(past) {
                             continue
                         }
                         
@@ -447,7 +455,8 @@ final class MeetParser: ObservableObject {
                         
                         // Gets HTML from subpage link and sets linkText to HTML;
                         // This pulls the html for an org's page
-                        await fetchLinkText(url: URL(string: link)!)
+                        guard let url = URL(string: link) else { return }
+                        await fetchLinkText(url: url)
                         
                         // Counts subpage and gets number of meet names
                         await MainActor.run {
@@ -471,7 +480,7 @@ final class MeetParser: ObservableObject {
     func parsePresentMeets() async throws {
         do {
             // Initialize meet parse from index page
-            let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/index.php")!
+            guard let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/index.php") else { return }
             
             // This sets getTextModel's text field equal to the HTML from url
             await getTextModel.fetchText(url: url)
@@ -482,8 +491,8 @@ final class MeetParser: ObservableObject {
                     return
                 }
                 let menu = try body.getElementById("dm_menu_centered")
-                let menuTabs = try menu?.getElementsByTag("ul")[0].getElementsByTag("li")
-                for tab in menuTabs! {
+                guard let menuTabs = try menu?.getElementsByTag("ul")[0].getElementsByTag("li") else { return }
+                for tab in menuTabs {
                     // tabElem is one of the links from the tabs in the menu bar
                     let tabElem = try tab.getElementsByAttribute("href")[0]
                     
@@ -524,7 +533,8 @@ final class MeetParser: ObservableObject {
                             .replacingOccurrences(of: "\t", with: "")
                         // Gets HTML from subpage link and sets linkText to HTML;
                         // This pulls the html for an org's page
-                        await fetchLinkText(url: URL(string: link)!)
+                        guard let url = URL(string: link) else { return }
+                        await fetchLinkText(url: url)
                         try await MainActor.run {
                             // Parses subpage and gets meet names and links
                             if let text = linkText,
@@ -545,7 +555,7 @@ final class MeetParser: ObservableObject {
     func parseMeets(storedMeets: FetchedResults<DivingMeet>? = nil, skipCount: Bool = false) async throws {
         do {
             // Initialize meet parse from index page
-            let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/index.php")!
+            guard let url = URL(string: "https://secure.meetcontrol.com/divemeets/system/index.php") else { return }
             
             // This sets getTextModel's text field equal to the HTML from url
             await getTextModel.fetchText(url: url)
@@ -566,8 +576,8 @@ final class MeetParser: ObservableObject {
                     return
                 }
                 let menu = try body.getElementById("dm_menu_centered")
-                let menuTabs = try menu?.getElementsByTag("ul")[0].getElementsByTag("li")
-                for tab in menuTabs! {
+                guard let menuTabs = try menu?.getElementsByTag("ul")[0].getElementsByTag("li") else { return }
+                for tab in menuTabs {
                     // tabElem is one of the links from the tabs in the menu bar
                     let tabElem = try tab.getElementsByAttribute("href")[0]
                     if try tabElem.text() == "Find" {
@@ -618,7 +628,8 @@ final class MeetParser: ObservableObject {
                             .replacingOccurrences(of: "\t", with: "")
                         // Gets HTML from subpage link and sets linkText to HTML;
                         // This pulls the html for an org's page
-                        await fetchLinkText(url: URL(string: link)!)
+                        guard let url = URL(string: link) else { return }
+                        await fetchLinkText(url: url)
                         try await MainActor.run {
                             // Parses subpage and gets meet names and links
                             if let text = linkText,
@@ -646,13 +657,16 @@ final class MeetParser: ObservableObject {
                         }
                         
                         // Gets a set of all past years currently in the database
-                        if storedMeets != nil && storedPastMeetYears == nil {
-                            pullStoredPastMeetYears(storedMeets: storedMeets!)
+                        if let storedMeets = storedMeets, storedPastMeetYears == nil {
+                            pullStoredPastMeetYears(storedMeets: storedMeets)
                         }
                         
                         // Skip years that are earlier than current year and already in the database
-                        if Int(pastYear)! < Int(currentYear)!
-                            && storedPastMeetYears!.contains(Int(pastYear)!) {
+                        if let past = Int(pastYear),
+                           let current = Int(currentYear),
+                           past < current,
+                           let storedPastMeetYears = storedPastMeetYears,
+                           storedPastMeetYears.contains(past) {
                             continue
                         }
                         
@@ -663,7 +677,8 @@ final class MeetParser: ObservableObject {
                         
                         // Gets HTML from subpage link and sets linkText to HTML;
                         // This pulls the html for an org's page
-                        await fetchLinkText(url: URL(string: link)!)
+                        guard let url = URL(string: link) else { return }
+                        await fetchLinkText(url: url)
                         
                         // Parses subpage and gets meet names and links
                         try await MainActor.run {
@@ -686,17 +701,17 @@ final class MeetParser: ObservableObject {
     }
     
     func printPastMeets() {
-        if pastMeets != nil {
-            let keys = Array(pastMeets!.keys)
+        if let pastMeets = pastMeets {
+            let keys = Array(pastMeets.keys)
             let left = keys[0 ..< keys.count / 2]
             let right = keys[keys.count / 2 ..< keys.count]
             
             print("[")
             for k in left {
-                print("\(k): \(pastMeets![k]!),")
+                print("\(k): \(pastMeets[k]!),")
             }
             for k in right {
-                print("\(k): \(pastMeets![k]!),")
+                print("\(k): \(pastMeets[k]!),")
             }
             print("]")
         } else {
@@ -734,15 +749,16 @@ struct MeetParserView: View {
                 ProgressView()
             } else {
                 Button("Print Past Meet Results") {
-                    let meetName = "Phoenix Fall Classic @ UChicago"
-                    let choice = p.pastMeets!["2022"]![
-                        "National Collegiate Athletic Association (NCAA)"]![0].1
-                    Task {
-                        let result = await p.parsePastMeetResults(meetName: meetName,
-                                                                  link: choice)
-                        print(result!)
+                    if let pastMeets = p.pastMeets {
+                        let meetName = "Phoenix Fall Classic @ UChicago"
+                        let choice = pastMeets["2022"]![
+                            "National Collegiate Athletic Association (NCAA)"]![0].1
+                        Task {
+                            let result = await p.parsePastMeetResults(meetName: meetName,
+                                                                      link: choice)
+                            print(result!)
+                        }
                     }
-                    
                 }
             }
             

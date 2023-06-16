@@ -24,7 +24,7 @@ final class ScoreHTMLParser: ObservableObject {
         var value = 0.0
         for (i, t) in scores.enumerated() {
             //starting at 1 for the key because matching judge number
-            value = Double(try t.text())!
+            value = Double(try t.text()) ?? 0.0
             await MainActor.run { [value] in
                 scoreData[i + 1] = value
             }

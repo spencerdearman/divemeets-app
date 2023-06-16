@@ -27,10 +27,12 @@ struct Event: View {
         ZStack{}
             .onAppear {
                 Task {
-                    await parser.eventParse(urlString: meet.link!)
-                    diverData = parser.eventData
-                    await parser.tableDataParse(urlString: meet.link!)
-                    diverTableData = parser.diveTableData
+                    if let link = meet.link {
+                        await parser.eventParse(urlString: link)
+                        diverData = parser.eventData
+                        await parser.tableDataParse(urlString: link)
+                        diverTableData = parser.diveTableData
+                    }
                 }
             }
         NavigationView{
