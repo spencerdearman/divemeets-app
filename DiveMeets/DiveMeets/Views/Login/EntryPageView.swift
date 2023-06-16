@@ -21,12 +21,12 @@ struct EntryPageView: View {
     
     var body: some View {
         ZStack {
-            grayColor
-            
-            if entries != nil {
+            if let entries = entries {
+                grayColor
+                
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 10) {
-                        ForEach(entries!, id: \.self) { entry in
+                        ForEach(entries, id: \.self) { entry in
                             ZStack {
                                 Rectangle()
                                     .fill(currentMode == .light ? .white : .black)
@@ -37,6 +37,11 @@ struct EntryPageView: View {
                         }
                     }
                     .padding(10)
+                }
+            } else {
+                VStack {
+                    Text("No entries found for this event")
+                    Text("(This event may have already started)")
                 }
             }
         }
