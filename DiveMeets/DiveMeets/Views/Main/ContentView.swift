@@ -44,13 +44,13 @@ struct ContentView: View {
                             // Add different page views here for different tabs
                             switch tab {
                             case .house:
-//                                Home()
-                                    MeetPageView(meetLink: "https://secure.meetcontrol.com/divemeets/system/meetresultsext.php?meetnum=8958")
+                                Home()
                             case .gearshape:
-                                Image(systemName: tab.rawValue)
-                                Text("Settings")
-                                    .bold()
-                                    .animation(nil, value: selectedTab)
+//                                Image(systemName: tab.rawValue)
+//                                Text("Settings")
+//                                    .bold()
+//                                    .animation(nil, value: selectedTab)
+                                    MeetPageView(meetLink: "https://secure.meetcontrol.com/divemeets/system/meetresultsext.php?meetnum=8958")
                             case .magnifyingglass:
                                 SearchView(isIndexingMeets: $isIndexingMeets)
                             case .person:

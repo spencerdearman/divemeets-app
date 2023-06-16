@@ -53,6 +53,44 @@ func decomposeRow(row: Element) -> [String] {
     }
 }
 
+// Only used for views, not to be used for database
+func dictToCurrentTuple(dict: CurrentMeetList) -> CurrentMeetRecords {
+    var result: CurrentMeetRecords = []
+    var meetId: Int?
+    var meetLink: String?
+    var meetStartDate: String?
+    var meetEndDate: String?
+    var meetCity: String?
+    var meetState: String?
+    var meetCountry: String?
+    var resultsLink: String?
+    
+    for elem in dict {
+        for (name, typeDict) in elem {
+            resultsLink = nil
+            for (typ, (link, startDate, endDate, city, state, country)) in typeDict {
+                if typ == "results" {
+                    resultsLink = link
+                    continue
+                }
+                meetId = Int(link.split(separator: "=").last!)!
+                meetLink = link
+                meetStartDate = startDate
+                meetEndDate = endDate
+                meetCity = city
+                meetState = state
+                meetCountry = country
+            }
+            result.append(
+                ((meetId, name, nil, meetLink, meetStartDate, meetEndDate, meetCity, meetState,
+                  meetCountry),
+                 resultsLink))
+        }
+    }
+    
+    return result
+}
+
 
 final class MeetParser: ObservableObject {
     // Upcoming meets happening in the future
