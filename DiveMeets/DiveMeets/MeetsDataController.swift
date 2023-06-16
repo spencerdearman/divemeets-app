@@ -18,6 +18,9 @@ enum RecordType: Int, CaseIterable {
 //                      id  , name   , org    , link   , startDate, endDate, city , state  , country
 typealias MeetRecord = (Int?, String?, String?, String?, String?, String?, String?, String?, String?)
 
+//                             [(MeetRecord, resultsLink)]
+typealias CurrentMeetRecords = [(MeetRecord, String?)]
+
 class MeetsDataController: ObservableObject {
     let container = NSPersistentContainer(name: "Meets")
     static var instances: Int? = nil
