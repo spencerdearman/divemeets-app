@@ -262,60 +262,58 @@ struct CurrentMeetsPageView: View {
     
     @ViewBuilder
     var body: some View {
-        NavigationView {
-            ZStack {
-                (currentMode == .light ? Color.white : Color.black)
-                    .ignoresSafeArea()
-                
-                VStack {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .frame(width: typeBubbleWidth * 2 + 5,
-                                   height: typeBGWidth)
-                            .foregroundColor(typeBGColor)
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .frame(width: typeBubbleWidth,
-                                   height: typeBubbleHeight)
-                            .foregroundColor(typeBubbleColor)
-                            .offset(x: selection == .info
-                                    ? -typeBubbleWidth / 2
-                                    : typeBubbleWidth / 2)
-                            .animation(.spring(response: 0.2), value: selection)
-                        HStack(spacing: 0) {
-                            Button(action: {
-                                if selection == .results {
-                                    selection = .info
-                                }
-                            }, label: {
-                                Text(CurrentMeetPageType.info.rawValue)
-                                    .animation(nil, value: selection)
-                            })
-                            .frame(width: typeBubbleWidth,
-                                   height: typeBubbleHeight)
-                            .foregroundColor(textColor)
-                            .cornerRadius(cornerRadius)
-                            Button(action: {
-                                if selection == .info {
-                                    selection = .results
-                                }
-                            }, label: {
-                                Text(CurrentMeetPageType.results.rawValue)
-                                    .animation(nil, value: selection)
-                            })
-                            .frame(width: typeBubbleWidth + 2,
-                                   height: typeBubbleHeight)
-                            .foregroundColor(textColor)
-                            .cornerRadius(cornerRadius)
-                        }
+        ZStack {
+            (currentMode == .light ? Color.white : Color.black)
+                .ignoresSafeArea()
+            
+            VStack {
+                ZStack {
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .frame(width: typeBubbleWidth * 2 + 5,
+                               height: typeBGWidth)
+                        .foregroundColor(typeBGColor)
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .frame(width: typeBubbleWidth,
+                               height: typeBubbleHeight)
+                        .foregroundColor(typeBubbleColor)
+                        .offset(x: selection == .info
+                                ? -typeBubbleWidth / 2
+                                : typeBubbleWidth / 2)
+                        .animation(.spring(response: 0.2), value: selection)
+                    HStack(spacing: 0) {
+                        Button(action: {
+                            if selection == .results {
+                                selection = .info
+                            }
+                        }, label: {
+                            Text(CurrentMeetPageType.info.rawValue)
+                                .animation(nil, value: selection)
+                        })
+                        .frame(width: typeBubbleWidth,
+                               height: typeBubbleHeight)
+                        .foregroundColor(textColor)
+                        .cornerRadius(cornerRadius)
+                        Button(action: {
+                            if selection == .info {
+                                selection = .results
+                            }
+                        }, label: {
+                            Text(CurrentMeetPageType.results.rawValue)
+                                .animation(nil, value: selection)
+                        })
+                        .frame(width: typeBubbleWidth + 2,
+                               height: typeBubbleHeight)
+                        .foregroundColor(textColor)
+                        .cornerRadius(cornerRadius)
                     }
-                    Spacer()
-                    if selection == .info {
-                        MeetPageView(meetLink: infoLink)
-                    } else {
-                        MeetPageView(meetLink: resultsLink)
-                    }
-                    Spacer()
                 }
+                Spacer()
+                if selection == .info {
+                    MeetPageView(meetLink: infoLink)
+                } else {
+                    MeetPageView(meetLink: resultsLink)
+                }
+                Spacer()
             }
         }
     }
