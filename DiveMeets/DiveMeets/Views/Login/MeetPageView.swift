@@ -118,37 +118,35 @@ struct MeetPageView: View {
     }
     
     var body: some View {
-        NavigationView {
-            VStack {
-                HStack {
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .font(.title)
-                            .foregroundColor(.blue)
-                    }
-                    Spacer()
+        VStack {
+            HStack {
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .font(.title)
+                        .foregroundColor(.blue)
                 }
-                .padding(.horizontal)
-                
-                if meetInfoData != nil {
-                    MeetInfoPageView(meetInfoData: meetInfoData!)
-                        .onAppear {
-                            print("Info View")
-                        }
-                    Spacer()
-                } else if meetResultsData != nil {
-                    MeetResultsPageView(meetResultsData: meetResultsData!)
-                        .onAppear {
-                            print("Results View")
-                        }
-                    Spacer()
-                } else {
-                    VStack {
-                        Text("Getting meet information...")
-                        ProgressView()
+                Spacer()
+            }
+            .padding(.horizontal)
+            
+            if meetInfoData != nil {
+                MeetInfoPageView(meetInfoData: meetInfoData!)
+                    .onAppear {
+                        print("Info View")
                     }
+                Spacer()
+            } else if meetResultsData != nil {
+                MeetResultsPageView(meetResultsData: meetResultsData!)
+                    .onAppear {
+                        print("Results View")
+                    }
+                Spacer()
+            } else {
+                VStack {
+                    Text("Getting meet information...")
+                    ProgressView()
                 }
             }
         }
@@ -363,75 +361,73 @@ struct MeetResultsPageView: View {
         let events = meetResultsData.3
         let liveResults = meetResultsData.4
         
-        NavigationView {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 10) {
-                    
-                    Text(name)
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                    Text(startDate + " - " + endDate)
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .multilineTextAlignment(.trailing)
-                    
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 10) {
+                
+                Text(name)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                Text(startDate + " - " + endDate)
+                    .font(.headline)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .multilineTextAlignment(.trailing)
+                
+                Divider()
+                
+                if let liveResults = liveResults {
+                    DisclosureGroup(content: {
+                        ScalingScrollView(records: liveResultsToRecords(liveResults)) { (elems) in
+                            LiveResultsListView(elements: elems)
+                        }
+                        .frame(height: 300)
+                        .padding(.top)
+                        
+                    }, label: {
+                        Text("Live Results")
+                            .font(.title2)
+                            .bold()
+                            .foregroundColor(.primary)
+                    })
                     Divider()
-                    
-                    if let liveResults = liveResults {
-                        DisclosureGroup(content: {
-                            ScalingScrollView(records: liveResultsToRecords(liveResults)) { (elems) in
-                                LiveResultsListView(elements: elems)
-                            }
-                            .frame(height: 300)
-                            .padding(.top)
-                            
-                        }, label: {
-                            Text("Live Results")
-                                .font(.title2)
-                                .bold()
-                                .foregroundColor(.primary)
-                        })
-                        Divider()
-                    }
-                    
-                    if let events = events {
-                        DisclosureGroup(content: {
-                            ScalingScrollView(records: eventsToRecords(events)) { (elems) in
-                                EventResultsView(elements: elems)
-                            }
-                            .frame(height: 500)
-                            .padding(.top)
-                            
-                        }, label: {
-                            Text("Event Results")
-                                .font(.title2)
-                                .bold()
-                                .foregroundColor(.primary)
-                        })
-                        Divider()
-                    }
-                    
-                    if let divers = divers {
-                        DisclosureGroup(content: {
-                            ScalingScrollView(records: diversToRecords(divers)) { (elems) in
-                                DiverListView(elements: elems)
-                            }
-                            .frame(height: 500)
-                            .padding(.top)
-                            
-                        }, label: {
-                            Text("Divers Entered")
-                                .font(.title2)
-                                .bold()
-                                .foregroundColor(.primary)
-                        })
-                    }
-                    Spacer()
                 }
-                .padding()
+                
+                if let events = events {
+                    DisclosureGroup(content: {
+                        ScalingScrollView(records: eventsToRecords(events)) { (elems) in
+                            EventResultsView(elements: elems)
+                        }
+                        .frame(height: 500)
+                        .padding(.top)
+                        
+                    }, label: {
+                        Text("Event Results")
+                            .font(.title2)
+                            .bold()
+                            .foregroundColor(.primary)
+                    })
+                    Divider()
+                }
+                
+                if let divers = divers {
+                    DisclosureGroup(content: {
+                        ScalingScrollView(records: diversToRecords(divers)) { (elems) in
+                            DiverListView(elements: elems)
+                        }
+                        .frame(height: 500)
+                        .padding(.top)
+                        
+                    }, label: {
+                        Text("Divers Entered")
+                            .font(.title2)
+                            .bold()
+                            .foregroundColor(.primary)
+                    })
+                }
+                Spacer()
             }
+            .padding()
         }
     }
 }
