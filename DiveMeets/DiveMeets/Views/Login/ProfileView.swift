@@ -9,14 +9,12 @@ import SwiftUI
 
 struct ProfileView: View {
     var profileLink: String
-    var diverID : String
     @State var diverData : [[String]] = []
     @State var profileType : String = ""
     @StateObject private var parser = HTMLParser()
     
-    init(link: String, diverID: String = "00000") {
-        self.profileLink = link
-        self.diverID = diverID
+    var diverID: String {
+        String(profileLink.suffix(5))
     }
     
     var body: some View {
@@ -26,9 +24,8 @@ struct ProfileView: View {
                 Task {
                     await parser.parse(urlString: profileLink)
                     diverData = parser.myData
-                    //                    print(diverData)
                     let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
-                    print(divers)
+                    
                     if divers != "" {
                         profileType = "Coach"
                     } else {
@@ -45,8 +42,8 @@ struct ProfileView: View {
                     VStack {
                         VStack(alignment: .leading) {
                             HStack (alignment: .firstTextBaseline) {
-                                var firstName = diverData[0][0].slice(from: "Name: ", to: " ") ?? ""
-                                var lastName =
+                                let firstName = diverData[0][0].slice(from: "Name: ", to: " ") ?? ""
+                                let lastName =
                                 diverData[0][0].slice(from: firstName + " ", to: " ") ?? ""
                                 
                                 diverData != []

@@ -524,7 +524,7 @@ struct DiverListView: View {
     var elements: [String]
     
     var body: some View {
-        NavigationLink(destination: ProfileView(link: elements[2])) {
+        NavigationLink(destination: ProfileView(profileLink: elements[2])) {
             ZStack {
                 Rectangle()
                     .foregroundColor(bubbleColor)
