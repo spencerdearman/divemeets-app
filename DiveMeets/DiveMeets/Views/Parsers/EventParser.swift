@@ -18,6 +18,9 @@ final class EventHTMLParser: ObservableObject {
     @Published var mainDictionary = [Int:[String:[String:(String, Double, String, String)]]]()
     @Published var meetScores = [Int: (String, String, String, Double, Double, Double, String)]()
     
+    // Keeps track of main meet links for each event parsed, relays back to global for each diverID
+    @Published var cachedMainMeetLinks: [String: String] = [:]
+    
     let getTextModel = GetTextAsyncModel()
     
     func parse(html: String) async throws -> [Int:[String:[String:(String, Double, String, String)]]] {
@@ -38,7 +41,6 @@ final class EventHTMLParser: ObservableObject {
         var eventLink = ""
         var meetName = ""
         var meetLink = ""
-        var eventLinkParsed = false
         
         for (i, t) in overall.enumerated(){
             let testString = try t.text()
@@ -49,23 +51,27 @@ final class EventHTMLParser: ObservableObject {
                     .replacingOccurrences(of: "  ", with: "")
                 eventPlace = try t.getElementsByTag("td")[1].text()
                     .replacingOccurrences(of: " ", with: "")
-                print(try t.text())
+                
                 eventScore = Double(try t.getElementsByTag("td")[2].text())!
                 eventLinkAppend = try t.getElementsByTag("a").attr("href")
                 eventLink = "https://secure.meetcontrol.com/divemeets/system/" + eventLinkAppend
                 string.append(try t.text())
                 
-                if !eventLinkParsed{
+                if !cachedMainMeetLinks.keys.contains(meetName) {
                     await getTextModel.fetchText(url: URL(string: eventLink)!)
                     if let meetHtml = getTextModel.text {
-                        print("coming inside meetHTML")
                         let eventDocument: Document = try SwiftSoup.parse(meetHtml)
                         guard let meetBody = eventDocument.body() else { return [:] }
                         let main = try meetBody.getElementsByTag("table")
                         let tr = try main[0].getElementsByTag("tr")[0]
                         meetLink = try "https://secure.meetcontrol.com/divemeets/system/" + tr.getElementsByTag("a").attr("href")
-                        eventLinkParsed = true
+                        
+                        await MainActor.run { [meetName, meetLink] in
+                            cachedMainMeetLinks[meetName] = meetLink
+                        }
                     }
+                } else {
+                    meetLink = cachedMainMeetLinks[meetName] ?? ""
                 }
                 
                 await MainActor.run { [meetEvent, eventPlace, eventScore, eventLink, meetLink] in
@@ -79,10 +85,8 @@ final class EventHTMLParser: ObservableObject {
                     eventDictionary = [:]
                 }
                 meetName = try t.text()
-                eventLinkParsed = false
                 counter += 1
             } else {
-                eventLinkParsed = false
                 meetName = try t.text()
                 counter += 1
             }
