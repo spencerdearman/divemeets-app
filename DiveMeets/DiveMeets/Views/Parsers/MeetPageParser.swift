@@ -436,18 +436,12 @@ class MeetPageParser: ObservableObject {
             }
             if let diversList = getDiverListData(data: data) {
                 divers = diversList
-            } else {
-                return nil
             }
             if let eventsList = getResultsEventData(data: data) {
                 events = eventsList
-            } else {
-                return nil
             }
             if let liveResultsDict = getLiveResultsData(data: data) {
                 liveResults = liveResultsDict
-            } else {
-                return nil
             }
             
             return (name, date, divers, events, liveResults)
@@ -534,7 +528,7 @@ class MeetPageParser: ObservableObject {
             result["divers"] = []
             
             for r in lowerRows {
-                if r == lowerRows.first()! {
+                if let first = lowerRows.first(), r == first {
                     continue
                 }
                 result["divers"]!.append(r)
