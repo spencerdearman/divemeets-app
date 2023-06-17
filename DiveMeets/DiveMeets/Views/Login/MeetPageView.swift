@@ -8,6 +8,10 @@
 
 import SwiftUI
 
+// Caches meet info and results data for each meet link to avoid reparsing
+//                  [meetLink: meetData]
+var cachedMeetData: [String: (MeetInfoJointData?, MeetResultsData?)] = [:]
+
 struct MeetPageView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var meetData: MeetPageData?
@@ -162,25 +166,28 @@ struct MeetPageView: View {
         }
         .onAppear {
             Task {
-                // Initialize meet parse from index page
-                let url = URL(string: meetLink)
-                
-                if let url = url {
-                    // This sets getTextModel's text field equal to the HTML from url
-                    await getTextModel.fetchText(url: url)
+                // Checks first for cached info and results data before parsing
+                if let (info, results) = cachedMeetData[meetLink] {
+                    meetInfoData = info
+                    meetResultsData = results
+                } else {
+                    // Initialize meet parse from index page
+                    let url = URL(string: meetLink)
                     
-                    if let html = getTextModel.text {
-                        meetData = try await mpp.parseMeetPage(link: meetLink, html: html)
-                        if let meetData = meetData {
-                            //                            meetEventData = await mpp.getEventData(data: meetData)
-                            //                            print(meetEventData != nil ? meetEventData : nil)
-                            //                            meetResultsEventData = mpp.getResultsEventData(data: meetData)
-                            //                            meetDiverData = mpp.getDiverListData(data: meetData)
-                            //                            meetCoachData = mpp.getCoachListData(data: meetData)
-                            meetInfoData = await mpp.getMeetInfoData(data: meetData)
-                            meetResultsData = await mpp.getMeetResultsData(data: meetData)
-                        } else {
-                            print("Meet page failed to parse")
+                    if let url = url {
+                        // This sets getTextModel's text field equal to the HTML from url
+                        await getTextModel.fetchText(url: url)
+                        
+                        if let html = getTextModel.text {
+                            meetData = try await mpp.parseMeetPage(link: meetLink, html: html)
+                            if let meetData = meetData {
+                                meetInfoData = await mpp.getMeetInfoData(data: meetData)
+                                meetResultsData = await mpp.getMeetResultsData(data: meetData)
+                                
+                                cachedMeetData[meetLink] = (meetInfoData, meetResultsData)
+                            } else {
+                                print("Meet page failed to parse")
+                            }
                         }
                     }
                 }
