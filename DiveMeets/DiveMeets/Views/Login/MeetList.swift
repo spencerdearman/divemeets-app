@@ -75,7 +75,6 @@ struct MeetList: View {
                     
                     diverData = parser.myData
                     meets = createMeets(data: diverData) ?? []
-                    print(meets)
                 }
             }
         
