@@ -64,7 +64,7 @@ final class EventHTMLParser: ObservableObject {
                     .replacingOccurrences(of: "  ", with: "")
                 eventPlace = try t.getElementsByTag("td")[1].text()
                     .replacingOccurrences(of: " ", with: "")
-                print(try t.text())
+                
                 eventScore = Double(try t.getElementsByTag("td")[2].text())!
                 eventLinkAppend = try t.getElementsByTag("a").attr("href")
                 eventLink = "https://secure.meetcontrol.com/divemeets/system/" + eventLinkAppend
