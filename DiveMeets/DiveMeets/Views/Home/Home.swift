@@ -309,9 +309,9 @@ struct CurrentMeetsPageView: View {
                 }
                 Spacer()
                 if selection == .info {
-                    MeetPageView(meetLink: infoLink)
+                    MeetPageView(meetLink: infoLink, showBackButton: false)
                 } else {
-                    MeetPageView(meetLink: resultsLink)
+                    MeetPageView(meetLink: resultsLink, showBackButton: false)
                 }
                 Spacer()
             }
@@ -339,7 +339,7 @@ struct MeetBubbleView: View {
                         elements.count == 10
                        ? AnyView(CurrentMeetsPageView(infoLink: elements[3], resultsLink: elements[9]))
                        :
-                        AnyView(MeetPageView(meetLink: elements[3]))) {
+                        AnyView(MeetPageView(meetLink: elements[3], showBackButton: false))) {
             ZStack {
                 Rectangle()
                     .foregroundColor(bubbleColor)
