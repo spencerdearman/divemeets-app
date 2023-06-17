@@ -22,6 +22,7 @@ struct MeetPageView: View {
     @ObservedObject private var mpp: MeetPageParser = MeetPageParser()
     private let getTextModel = GetTextAsyncModel()
     var meetLink: String
+    var showBackButton: Bool = true
     
     private func tupleToList(data: MeetEventData) -> [[String]] {
         var result: [[String]] = []
@@ -133,16 +134,20 @@ struct MeetPageView: View {
     var body: some View {
         VStack {
             if let meetInfoData = meetInfoData {
-                getBackButton()
-                    .padding(.horizontal)
+                if showBackButton {
+                    getBackButton()
+                        .padding(.horizontal)
+                }
                 MeetInfoPageView(meetInfoData: meetInfoData)
                     .onAppear {
                         print("Info View")
                     }
                 Spacer()
             } else if let meetResultsData = meetResultsData {
-                getBackButton()
-                    .padding(.horizontal)
+                if showBackButton {
+                    getBackButton()
+                        .padding(.horizontal)
+                }
                 MeetResultsPageView(meetResultsData: meetResultsData)
                     .onAppear {
                         print("Results View")
