@@ -36,11 +36,7 @@ struct RecordList: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: rowSpacing) {
                         ForEach(records.sorted(by: <), id: \.key) { key, value in
-                            NavigationLink(
-
-                                destination: ProfileView(
-                                    link: value,
-                                    diverID: String(value.utf16.dropFirst(67)) ?? "")) {
+                            NavigationLink(destination: ProfileView(profileLink: value)) {
                                             HStack {
                                                 Text(key)
                                                     .foregroundColor(textColor)

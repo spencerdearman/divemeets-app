@@ -71,9 +71,7 @@ struct PersonBubbleView: View {
                     HStack(alignment: .lastTextBaseline) {
                         let link = elements[2]
                         NavigationLink {
-                            ProfileView(
-                                link: link,
-                                diverID: String(link.utf16.dropFirst(67)) ?? "")
+                            ProfileView(profileLink: link)
                         } label: {
                             Text(elements[1])
                                 .font(.title3)
