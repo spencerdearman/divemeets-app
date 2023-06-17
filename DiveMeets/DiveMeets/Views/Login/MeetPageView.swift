@@ -117,28 +117,33 @@ struct MeetPageView: View {
         return result
     }
     
+    private func getBackButton() -> HStack<TupleView<(Button<some View>, Spacer)>> {
+        return HStack {
+            Button(action: {
+                presentationMode.wrappedValue.dismiss()
+            }) {
+                Image(systemName: "chevron.left")
+                    .font(.title)
+                    .foregroundColor(.blue)
+            }
+            Spacer()
+        }
+    }
+    
     var body: some View {
         VStack {
-            HStack {
-                Button(action: {
-                    presentationMode.wrappedValue.dismiss()
-                }) {
-                    Image(systemName: "chevron.left")
-                        .font(.title)
-                        .foregroundColor(.blue)
-                }
-                Spacer()
-            }
-            .padding(.horizontal)
-            
-            if meetInfoData != nil {
-                MeetInfoPageView(meetInfoData: meetInfoData!)
+            if let meetInfoData = meetInfoData {
+                getBackButton()
+                    .padding(.horizontal)
+                MeetInfoPageView(meetInfoData: meetInfoData)
                     .onAppear {
                         print("Info View")
                     }
                 Spacer()
-            } else if meetResultsData != nil {
-                MeetResultsPageView(meetResultsData: meetResultsData!)
+            } else if let meetResultsData = meetResultsData {
+                getBackButton()
+                    .padding(.horizontal)
+                MeetResultsPageView(meetResultsData: meetResultsData)
                     .onAppear {
                         print("Results View")
                     }
@@ -169,6 +174,8 @@ struct MeetPageView: View {
                             //                            meetCoachData = mpp.getCoachListData(data: meetData)
                             meetInfoData = await mpp.getMeetInfoData(data: meetData)
                             meetResultsData = await mpp.getMeetResultsData(data: meetData)
+                        } else {
+                            print("Meet page failed to parse")
                         }
                     }
                 }
