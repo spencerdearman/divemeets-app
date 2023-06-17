@@ -242,7 +242,6 @@ class MeetPageParser: ObservableObject {
                     let nameElem = try elem.getElementsByTag("strong").first()
                     if let nameElem = nameElem {
                         name = try nameElem.text()
-                        print(name)
                     } else {
                         print("Could not get name from element")
                         continue
@@ -251,7 +250,6 @@ class MeetPageParser: ObservableObject {
                     let linkElem = try elem.getElementsByTag("a").first()
                     if let linkElem = linkElem {
                         link = try linkElem.attr("href")
-                        print(link)
                     } else {
                         print("Could not get link from element")
                         continue
@@ -520,7 +518,6 @@ class MeetPageParser: ObservableObject {
             let live = try tables[0].getElementsByAttributeValue("style", "font-size: 10px").array()
             if !live.isEmpty {
                 result["live"] = live
-                print("Elements: \(live)")
             }
             
             if tables.count < 2 { return nil }
