@@ -8,12 +8,10 @@
 
 
 import SwiftUI
-import Combine
 import SwiftSoup
 
 struct LiveResultsView: View {
-    var request: String =
-    "https://secure.meetcontrol.com/divemeets/system/livestats.php?event=stats-9030-190-9-Started"
+    var request: String
     @State var shiftingBool: Bool = false
     let screenFrame = Color(.systemBackground)
     
@@ -428,9 +426,7 @@ struct ResultsBubbleView: View {
                         }
                         let link = elements[7]
                         NavigationLink {
-                            ProfileView(
-                                link: link,
-                                diverID: String(link.utf16.dropFirst(67)) ?? "")
+                            ProfileView(profileLink: link)
                         } label: {
                             Text(elements[6])
                                 .font(.title3)

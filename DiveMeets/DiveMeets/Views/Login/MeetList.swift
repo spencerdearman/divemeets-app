@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+// Global that keeps main meet links for each diverID
+//                        [diverId:[meetName: meetLink]]
+var profileMainMeetLinks: [String: [String: String]] = [:]
+
 struct MeetList: View {
     @Environment(\.colorScheme) var currentMode
     var profileLink: String
@@ -46,7 +50,8 @@ struct MeetList: View {
                     for event in meetEvent {
                         let(place, score, link, meetLink) = event.value
                         mainMeetLink = meetLink
-                        currentMeetEvents!.append(MeetEvent(name: event.key, place: Int(place), score: score, isChild: true, link: link))
+                        currentMeetEvents!.append(MeetEvent(name: event.key, place: Int(place),
+                                                            score: score, isChild: true, link: link))
                     }
                     let meet = MeetEvent(name: name, children: currentMeetEvents, link: mainMeetLink)
                     meets.append(meet)
@@ -63,29 +68,38 @@ struct MeetList: View {
         ZStack{}
             .onAppear {
                 Task {
+                    if let links = profileMainMeetLinks[String(profileLink.suffix(5))] {
+                        parser.cachedMainMeetLinks = links
+                    }
                     await parser.parse(urlString: profileLink)
+                    profileMainMeetLinks[String(profileLink.suffix(5))] = parser.cachedMainMeetLinks
+                    
                     diverData = parser.myData
                     meets = createMeets(data: diverData) ?? []
                 }
             }
-        
-        let rowColor: Color = currentMode == .light
-        ? Color.white
-        : Color.black
-        
+
         NavigationView {
             ZStack {
                 // Background color for View
                 customGray.ignoresSafeArea()
-                List($meets, children: \.children) { $meet in
-                    (!meet.isChild ?
-                     AnyView(
-                        parentView(meet: $meet)
-                     ) : AnyView(
-                        childView(meet: $meet, navStatus: $navStatus)
-                     ))
-                    .frame(width: frameWidth,
-                           height: meet.isOpen ? 400: 45)
+                
+                if meets != [] {
+                    List($meets, children: \.children) { $meet in
+                        (!meet.isChild ?
+                         AnyView(
+                            parentView(meet: $meet)
+                         ) : AnyView(
+                            childView(meet: $meet, navStatus: $navStatus)
+                         ))
+                        .frame(width: frameWidth,
+                               height: meet.isOpen ? 400: 45)
+                    }
+                } else {
+                    VStack {
+                        Text("Getting meets list...")
+                        ProgressView()
+                    }
                 }
             }
             .navigationTitle("Meets")
@@ -112,12 +126,23 @@ struct childView: View{
 
 struct parentView: View{
     @Binding var meet: MeetEvent
+    @State var meetShowing: Bool = false
     
-    var body: some View{
+    var body: some View {
         HStack {
-            Image(systemName: "link")
-                .foregroundColor(.secondary)
-                .padding()
+            Button(action: {}, label: {
+                Image(systemName: "link")
+                    .foregroundColor(.secondary)
+                    .padding()
+            })
+            .simultaneousGesture(TapGesture().onEnded {
+                meetShowing = true
+            })
+            .fullScreenCover(isPresented: $meetShowing) {
+                NavigationView {
+                    MeetPageView(meetLink: meet.link ?? "")
+                }
+            }
             
             Spacer()
             
