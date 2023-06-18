@@ -68,13 +68,6 @@ struct EntryView: View {
     var entry: EventEntry
     @State var isExpanded: Bool = false
     
-    private func getHeaderString(_ entry: EventEntry) -> String {
-        let last = entry.lastName ?? ""
-        let first = entry.firstName ?? ""
-        let team = entry.team ?? ""
-        return last + ", " + first + " (" + team + ")"
-    }
-    
     var body: some View {
         DisclosureGroup(
             isExpanded: $isExpanded,
@@ -94,7 +87,10 @@ struct EntryView: View {
                             Text("Height")
                                 .bold()
                             ForEach(entry.dives ?? [], id: \.self) { dive in
-                                Text(String(dive.height) + "M")
+                                // Converts Double to Int if it is a x.0 decimal (all but 7.5M)
+                                floor(dive.height) == dive.height
+                                ? Text(String(Int(dive.height)) + "M")
+                                : Text(String(dive.height) + "M")
                             }
                         }
                         Spacer()
@@ -120,12 +116,22 @@ struct EntryView: View {
                 .minimumScaleFactor(0.1)
             },
             label: {
-                Text(getHeaderString(entry))
-                    .font(.headline)
-                    .foregroundColor(Color.primary)
-                    .scaledToFit()
-                    .minimumScaleFactor(0.1)
-                    .lineLimit(1)
+                
+                HStack {
+                    NavigationLink(destination: ProfileView(profileLink: entry.link ?? ""),
+                                   label: {
+                        Text((entry.lastName ?? "") + ", " + (entry.firstName ?? ""))
+                            .font(.headline)
+                            .scaledToFit()
+                            .lineLimit(1)
+                    })
+                    Text(entry.team ?? "")
+                        .font(.subheadline)
+                        .foregroundColor(Color.secondary)
+                        .scaledToFit()
+                        .lineLimit(1)
+                    Spacer()
+                }
             }
         )
     }

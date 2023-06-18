@@ -70,7 +70,7 @@ class EntriesParser: ObservableObject {
                         if vals.count > 4 {
                             let dive: EntryDive = try EntryDive(
                                 number: vals[1].text(),
-                                height: Int(String(vals[2].text().dropLast())) ?? 0,
+                                height: Double(String(vals[2].text().dropLast())) ?? 0.0,
                                 name: vals[3].text(),
                                 dd: Double(vals[4].text()) ?? 0.0)
                             if entry.dives == nil {
@@ -93,7 +93,7 @@ class EntriesParser: ObservableObject {
 
 struct EntryDive: Hashable {
     var number: String
-    var height: Int
+    var height: Double
     var name: String
     var dd: Double
 }
