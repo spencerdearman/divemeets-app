@@ -542,7 +542,7 @@ class MeetPageParser: ObservableObject {
     func parseMeetPage(link: String, html: String) async throws -> MeetPageData? {
         let document: Document = try SwiftSoup.parse(html)
         guard let body = document.body() else { return nil }
-        let content = try body.getElementById("dm_content")!
+        guard let content = try body.getElementById("dm_content") else { return nil }
         let tables = try content.getElementsByTag("table")
         
         if (link.contains("meetinfo")) {
