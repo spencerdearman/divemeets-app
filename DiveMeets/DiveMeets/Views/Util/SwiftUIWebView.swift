@@ -105,9 +105,9 @@ struct WebView: UIViewRepresentable {
                     [weak self] result, error in
                     guard let html = result as? String, error == nil else { return }
                     self?.parsedHTML = html
-                    self?.parsedLinks = (self?.htmlParser.getRecords(html))!
+                    self?.parsedLinks = (self?.htmlParser.getRecords(html)) ?? [:]
                     self?.linksParsed = true
-                    print((self?.parsedLinks)!)
+                    print((self?.parsedLinks) ?? [:])
                 }
             }
         }

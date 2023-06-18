@@ -41,16 +41,18 @@ final class ProfileParser: ObservableObject {
                 guard let match = match else { return }
                 
                 for i in 0..<match.numberOfRanges {
-                    let m = text[Range(match.range(at: i), in: text)!]
-                    let trimmedM = m.trimmingCharacters(in: .whitespacesAndNewlines)
-                        .replacingOccurrences(of: "&nbsp;", with: "")
-                    
-                    if trimmedM.count > minStringLen {
-                        if seen.contains(m) {
-                            continue
+                    if let range = Range(match.range(at: i), in: text) {
+                        let m = text[range]
+                        let trimmedM = m.trimmingCharacters(in: .whitespacesAndNewlines)
+                            .replacingOccurrences(of: "&nbsp;", with: "")
+                        
+                        if trimmedM.count > minStringLen {
+                            if seen.contains(m) {
+                                continue
+                            }
+                            result = result.replacingOccurrences(of: m, with: "<div>" + m + "</div>")
+                            seen.insert(m)
                         }
-                        result = result.replacingOccurrences(of: m, with: "<div>" + m + "</div>")
-                        seen.insert(m)
                     }
                 }
             }
@@ -119,7 +121,7 @@ final class ProfileParser: ObservableObject {
             }
             
             let rows = try body.getElementsByTag("td")
-            let first = rows.first()!
+            if let first = rows.first() {
             
             let doc: Document = try SwiftSoup.parseBodyFragment(
                 wrapLooseText(text: try first.html()))
@@ -218,6 +220,7 @@ final class ProfileParser: ObservableObject {
                         return (nil, nil, nil, nil)
                 }
             }
+            }
         } catch {
             print("Error parsing profile")
         }
@@ -230,33 +233,37 @@ final class ProfileParser: ObservableObject {
         let session = URLSession.shared
         let diverID: String = String(
             profileLink[profileLink.index(profileLink.endIndex, offsetBy: -5)...])
-        let url = URL(string: profileLink)!
+        if let url = URL(string: profileLink) {
         
-        var resultText: String?
-        
-        // Checks cache first to see if there is a value already loaded, avoids network
-        guard let cachedData = GlobalCaches.caches["profileHTML"]![diverID] as? String else {
-            print("cachedData is nil")
-            let sem = DispatchSemaphore.init(value: 0)
-            let task = session.dataTask(with: url) { data, response, error in
-                defer { sem.signal() }
-                // Check whether data is not nil
-                guard let loadedData = data else { return }
-                // Load HTML code as string
-                let text = String(data: loadedData, encoding: .utf8)
-                
-                // Adds HTML to cache
-                GlobalCaches.caches["profileHTML"]![diverID] = text!
-                resultText = text!
-            }
-            task.resume()
-            sem.wait()
+            var resultText: String?
             
-            return resultText!
+            // Checks cache first to see if there is a value already loaded, avoids network
+            guard let cachedData = GlobalCaches.caches["profileHTML"]![diverID] as? String else {
+                print("cachedData is nil")
+                let sem = DispatchSemaphore.init(value: 0)
+                let task = session.dataTask(with: url) { data, response, error in
+                    defer { sem.signal() }
+                    // Check whether data is not nil
+                    guard let loadedData = data else { return }
+                    // Load HTML code as string
+                    if let text = String(data: loadedData, encoding: .utf8) {
+                        
+                        // Adds HTML to cache
+                        GlobalCaches.caches["profileHTML"]![diverID] = text
+                        resultText = text
+                    }
+                }
+                task.resume()
+                sem.wait()
+                
+                return resultText ?? ""
+            }
+            
+            print("cachedData is not nil")
+            return cachedData
         }
-        print("cachedData is not nil")
-        return cachedData
         
+        return ""
     }
 }
 

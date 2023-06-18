@@ -43,13 +43,13 @@ class MeetsDataController: ObservableObject {
         df.dateFormat = "MMM d, yyyy"
         var startDateN: NSDate?
         var endDateN: NSDate?
-        if startDate != nil {
-            startDateN = df.date(from: startDate!) as? NSDate
+        if let startDate = startDate {
+            startDateN = df.date(from: startDate) as? NSDate
         } else {
             startDateN = nil
         }
-        if endDate != nil {
-            endDateN = df.date(from: endDate!) as? NSDate
+        if let endDate = endDate {
+            endDateN = df.date(from: endDate) as? NSDate
         } else {
             endDateN = nil
         }
@@ -82,10 +82,10 @@ class MeetsDataController: ObservableObject {
         
         // Deletes all meets that match in every field but organization and type and deletes all
         // meets that have a lower type value (upcoming < current < past)
-        if result!.count > 0 {
+        if let result = result, result.count > 0 {
             let resultData = result as! [DivingMeet]
             for meet in resultData {
-                if type != nil && Int(meet.meetType) < type!.rawValue {
+                if let type = type, Int(meet.meetType) < type.rawValue {
                     moc.delete(meet)
                 }
             }
@@ -96,24 +96,24 @@ class MeetsDataController: ObservableObject {
         result = try? moc.fetch(fetchRequest)
         
         // Only adds to the database if it couldn't be found already (exact duplicates)
-        if result!.count == 0 {
+        if let result = result, result.count == 0 {
             let meet = DivingMeet(context: moc)
             
             meet.id = UUID()
-            if meetId != nil {
-                meet.meetId = Int32(meetId!)
+            if let meetId = meetId {
+                meet.meetId = Int32(meetId)
             }
             meet.name = name
             meet.organization = org
             meet.link = link
-            if type != nil {
-                meet.meetType = Int16(type!.rawValue)
+            if let type = type {
+                meet.meetType = Int16(type.rawValue)
             }
-            if startDate != nil {
-                meet.startDate = df.date(from: startDate!)
+            if let startDate = startDate {
+                meet.startDate = df.date(from: startDate)
             }
-            if endDate != nil {
-                meet.endDate = df.date(from: endDate!)
+            if let endDate = endDate {
+                meet.endDate = df.date(from: endDate)
             }
             meet.city = city
             meet.state = state
@@ -141,11 +141,11 @@ class MeetsDataController: ObservableObject {
         df.dateFormat = "MMM d, yyyy"
         var startDateN: NSDate? = nil
         var endDateN: NSDate? = nil
-        if startDate != nil {
-            startDateN = df.date(from: startDate!) as? NSDate
+        if let startDate = startDate {
+            startDateN = df.date(from: startDate) as? NSDate
         }
-        if endDate != nil {
-            endDateN = df.date(from: endDate!) as? NSDate
+        if let endDate = endDate {
+            endDateN = df.date(from: endDate) as? NSDate
         }
         
         // Add formatting here so we can properly format nil if meetId or year is nil
@@ -216,9 +216,12 @@ class MeetsDataController: ObservableObject {
         for (_, orgDict) in dict {
             for (org, meetDict) in orgDict {
                 for (name, link, startDate, endDate, city, state, country) in meetDict {
-                    let meetId: Int = Int(link.split(separator: "=").last!)!
-                    result.append(
-                        (meetId, name, org, link, startDate, endDate, city, state, country))
+                    if let linkSplit = link.split(separator: "=").last {
+                        if let meetId = Int(linkSplit) {
+                            result.append(
+                                (meetId, name, org, link, startDate, endDate, city, state, country))
+                        }
+                    }
                 }
             }
         }
@@ -237,9 +240,12 @@ class MeetsDataController: ObservableObject {
                     if typ == "results" {
                         continue
                     }
-                    let meetId: Int = Int(link.split(separator: "=").last!)!
-                    result.append(
-                        (meetId, name, nil, link, startDate, endDate, city, state, country))
+                    if let linkSplit = link.split(separator: "=").last {
+                        if let meetId = Int(linkSplit) {
+                            result.append(
+                                (meetId, name, nil, link, startDate, endDate, city, state, country))
+                        }
+                    }
                 }
             }
         }
