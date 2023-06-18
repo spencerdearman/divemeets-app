@@ -19,6 +19,12 @@ struct EntryPageView: View {
         : Color(red: 0.1, green: 0.1, blue: 0.1)
     }
     
+    @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
+    
+    private var maxHeightOffset: CGFloat {
+        min(maxHeightOffsetScaled, 90)
+    }
+    
     var body: some View {
         ZStack {
             if let entries = entries {
@@ -45,6 +51,7 @@ struct EntryPageView: View {
                 }
             }
         }
+        .padding(.bottom, maxHeightOffset)
         .onAppear {
             Task {
                 // Initialize meet parse from index page

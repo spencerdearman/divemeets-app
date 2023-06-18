@@ -25,6 +25,13 @@ struct MeetPageView: View {
     @State private var meetResultsData: MeetResultsData?
     @ObservedObject private var mpp: MeetPageParser = MeetPageParser()
     private let getTextModel = GetTextAsyncModel()
+    
+    @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
+    
+    private var maxHeightOffset: CGFloat {
+        min(maxHeightOffsetScaled, 90)
+    }
+    
     var meetLink: String
     var showBackButton: Bool = true
     
@@ -164,6 +171,7 @@ struct MeetPageView: View {
                 }
             }
         }
+        .padding(.bottom, maxHeightOffset)
         .onAppear {
             Task {
                 // Checks first for cached info and results data before parsing
