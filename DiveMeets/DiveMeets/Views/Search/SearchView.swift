@@ -127,20 +127,22 @@ private func argsToPredParams(
             endDate = df.date(from: endDateStr) as? NSDate
         }
         
-        if haveName && haveOrg && haveYear {
-            return NSPredicate(format: pred, name, org, startDate!, endDate!)
-        } else if haveName && haveOrg {
-            return NSPredicate(format: pred, name, org)
-        } else if haveName && haveYear {
-            return NSPredicate(format: pred, name, startDate!, endDate!)
-        } else if haveOrg && haveYear {
-            return NSPredicate(format: pred, org, startDate!, endDate!)
-        } else if haveName {
-            return NSPredicate(format: pred, name)
-        } else if haveOrg {
-            return NSPredicate(format: pred, org)
-        } else if haveYear {
-            return NSPredicate(format: pred, startDate!, endDate!)
+        if let startDate = startDate, let endDate = endDate {
+            if haveName && haveOrg && haveYear {
+                return NSPredicate(format: pred, name, org, startDate, endDate)
+            } else if haveName && haveOrg {
+                return NSPredicate(format: pred, name, org)
+            } else if haveName && haveYear {
+                return NSPredicate(format: pred, name, startDate, endDate)
+            } else if haveOrg && haveYear {
+                return NSPredicate(format: pred, org, startDate, endDate)
+            } else if haveName {
+                return NSPredicate(format: pred, name)
+            } else if haveOrg {
+                return NSPredicate(format: pred, org)
+            } else if haveYear {
+                return NSPredicate(format: pred, startDate, endDate)
+            }
         }
         
         return nil
@@ -711,29 +713,32 @@ struct MeetResultsView : View {
                             Rectangle()
                                 .foregroundColor(currentMode == .light ? .white : .black)
                             VStack {
-                                HStack(alignment: .top) {
-                                    Text(e.name!)
-                                        .font(.title3)
-                                        .bold()
+                                if let name = e.name, let city = e.city, let state = e.state,
+                                    let startDate = e.startDate, let endDate = e.endDate {
+                                    HStack(alignment: .top) {
+                                        Text(name)
+                                            .font(.title3)
+                                            .bold()
+                                        Spacer()
+                                        Text(city + ", " + state)
+                                    }
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .lineLimit(2)
                                     Spacer()
-                                    Text(e.city! + ", " + e.state!)
+                                    HStack {
+                                        Text(e.organization ?? "")
+                                        Spacer()
+                                        Text(dateToString(startDate)
+                                             + " - " + dateToString(endDate))
+                                    }
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .lineLimit(1)
                                 }
-                                .fixedSize(horizontal: false, vertical: true)
-                                .lineLimit(2)
-                                Spacer()
-                                HStack {
-                                    Text(e.organization ?? "")
-                                    Spacer()
-                                    Text(dateToString(e.startDate!)
-                                         + " - " + dateToString(e.endDate!))
-                                }
-                                .fixedSize(horizontal: false, vertical: true)
-                                .lineLimit(1)
                             }
                             .padding()
                         }
                         .onTapGesture {
-                            print(e.link!)
+                            print(e.link ?? "")
                         }
                     }
                     .padding(.bottom, maxHeightOffset)

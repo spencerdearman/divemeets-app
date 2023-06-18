@@ -23,19 +23,21 @@ func tupleToList(tuples: [MeetRecord]) -> [[String]] {
             // Sorts first by start date, then end date, then name in that order
             if lhs.4 == rhs.4 {
                 if lhs.5 == rhs.5 {
-                    return lhs.1! < rhs.1!
+                    return lhs.1 ?? "" < rhs.1 ?? ""
                 }
                 
-                let a = lhs.5!
-                let b = rhs.5!
-                
-                return df.date(from: a)! < df.date(from: b)!
+                if let a = lhs.5, let b = rhs.5,
+                    let date1 = df.date(from: a), let date2 = df.date(from: b) {
+                    return date1 < date2
+                }
             }
             
-            let a = lhs.4!
-            let b = rhs.4!
+            if let a = lhs.4, let b = rhs.4,
+               let date1 = df.date(from: a), let date2 = df.date(from: b) {
+                return date1 < date2
+            }
             
-            return df.date(from: a)! < df.date(from: b)!
+            return false
         }) {
         let idStr = id != nil ? String(id!) : ""
         result.append([idStr, name ?? "", org ?? "", link ?? "",
@@ -150,14 +152,16 @@ struct UpcomingMeetsView: View {
     }
     
     var body: some View {
-        if meetParser.upcomingMeets != nil && !meetParser.upcomingMeets!.isEmpty {
-            let upcoming = tupleToList(tuples: db.dictToTuple(dict: meetParser.upcomingMeets!))
-            ScalingScrollView(records: upcoming) { (elem) in
-                MeetBubbleView(elements: elem)
+        if let meets = meetParser.upcomingMeets {
+            if !meets.isEmpty {
+                let upcoming = tupleToList(tuples: db.dictToTuple(dict: meets))
+                ScalingScrollView(records: upcoming) { (elem) in
+                    MeetBubbleView(elements: elem)
+                }
+                .padding(.bottom, maxHeightOffset)
+            } else {
+                Text("No upcoming meets found")
             }
-            .padding(.bottom, maxHeightOffset)
-        } else if meetParser.upcomingMeets != nil {
-            Text("No upcoming meets found")
         } else {
             Text("Getting upcoming meets")
             ProgressView()
@@ -177,14 +181,16 @@ struct CurrentMeetsView: View {
     }
     
     var body: some View {
-        if meetParser.currentMeets != nil && !meetParser.currentMeets!.isEmpty {
-            let current = tupleToList(tuples: db.dictToTuple(dict: meetParser.currentMeets ?? []))
-            ScalingScrollView(records: current) { (elem) in
-                MeetBubbleView(elements: elem)
-            }
+        if let meets = meetParser.currentMeets {
+            if !meets.isEmpty {
+                let current = tupleToList(tuples: db.dictToTuple(dict: meets))
+                ScalingScrollView(records: current) { (elem) in
+                    MeetBubbleView(elements: elem)
+                }
                 .padding(.bottom, maxHeightOffset)
-        } else if meetParser.currentMeets != nil {
-            Text("No current meets found")
+            } else {
+                Text("No current meets found")
+            }
         } else {
             Text("Getting current meets")
             ProgressView()
