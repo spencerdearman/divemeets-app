@@ -37,7 +37,11 @@ struct LRWebView: UIViewRepresentable {
     @Binding var html: String
     static private var delay: UInt32 = 1_000_000
     var urlRequest: URLRequest {
-        URLRequest(url: URL(string: request)!)
+        guard let url = URL(string: request) else {
+            return URLRequest(url: URL(string:"https://google.com")!)
+        }
+        
+        return URLRequest(url: url)
     }
     
     func makeUIView(context: Context) -> WKWebView {

@@ -64,19 +64,25 @@ struct parseBody: View {
                 
                 do {
                     diveTable = []
+                    var upperTables: Elements = Elements()
+                    var individualTables: Elements = Elements()
                     let document: Document = try SwiftSoup.parse(newValue)
                     guard let body = document.body() else {
                         return
                     }
                     let table = try body.getElementById("Results")
-                    let rows = try table?.getElementsByTag("tr")
-                    let upperTables = try rows![1].getElementsByTag("tbody")
-                    let individualTables = try upperTables[0].getElementsByTag("table")
+                    guard let rows = try table?.getElementsByTag("tr") else { return }
+                    if rows.count < 9 { return }
+                    upperTables = try rows[1].getElementsByTag("tbody")
+                    
+                    if upperTables.isEmpty() { return }
+                    individualTables = try upperTables[0].getElementsByTag("table")
                     
                     let linkHead = "https://secure.meetcontrol.com/divemeets/system/"
                     
                     //Title
-                    title = try rows![0].getElementsByTag("td")[0].text().replacingOccurrences(of: "Unofficial Statistics ", with: "")
+                    title = try rows[0].getElementsByTag("td")[0].text()
+                        .replacingOccurrences(of: "Unofficial Statistics ", with: "")
                     
                     //Last Diver
                     
@@ -93,29 +99,37 @@ struct parseBody: View {
                     var score = 0.0
                     var judgesScores = ""
                     
+                    if individualTables.count < 3 { return }
                     let lastDiverStr = try individualTables[0].text()
                     let lastDiver = try individualTables[0].getElementsByTag("a")
+                    
+                    if lastDiver.isEmpty() { return }
                     lastDiverName = try lastDiver[0].text()
                     var tempLink = try individualTables[0].getElementsByTag("a").attr("href")
                     lastDiverProfileLink = linkHead + tempLink
                     
                     lastRoundPlace = Int(lastDiverStr.slice(from: "Last Round Place: ",
-                                                            to: " Last Round") ?? "")!
-                    lastRoundTotalScore = Double(lastDiverStr.slice(from: "Last Round Total Score: ", to: " Diver O") ?? "")!
-                    order = Int(lastDiverStr.slice(from: "Diver Order: ", to: " Current") ?? "")!
+                                                            to: " Last Round") ?? "") ?? 0
+                    lastRoundTotalScore = Double(lastDiverStr.slice(from: "Last Round Total Score: ",
+                                                                    to: " Diver O") ?? "") ?? 0.0
+                    order = Int(lastDiverStr.slice(from: "Diver Order: ", to: " Current") ?? "") ?? 0
                     currentPlace = Int(lastDiverStr.slice(from: "Current Place: ",
-                                                          to: " Current") ?? "")!
+                                                          to: " Current") ?? "") ?? 0
                     currentTotal = Double(lastDiverStr.slice(from: "Current Total Score: ",
-                                                             to: " Current") ?? "")!
+                                                             to: " Current") ?? "") ?? 0.0
                     currentDive = lastDiverStr.slice(from: "Current Dive:   ", to: " Height") ?? ""
                     height = lastDiverStr.slice(from: "Height: ", to: " DD:") ?? ""
-                    dd = Double(lastDiverStr.slice(from: "DD: ", to: " Score") ?? "")!
-                    score = Double(lastDiverStr.slice(from: String(dd) + " Score: ", to: " Judges") ?? "")!
+                    dd = Double(lastDiverStr.slice(from: "DD: ", to: " Score") ?? "") ?? 0.0
+                    score = Double(lastDiverStr.slice(from: String(dd) + " Score: ",
+                                                      to: " Judges") ?? "") ?? 0.0
                     if let lastIndex = lastDiverStr.lastIndex(of: ":") {
-                        let distance = lastDiverStr.distance(from: lastIndex, to: lastDiverStr.endIndex) - 1
+                        let distance = lastDiverStr.distance(from: lastIndex,
+                                                             to: lastDiverStr.endIndex) - 1
                         judgesScores = String(lastDiverStr.suffix(distance - 1))
                     }
-                    lastDiverInformation = (lastDiverName, lastDiverProfileLink, lastRoundPlace, lastRoundTotalScore, order, currentPlace, currentTotal, currentDive, height, dd, score, judgesScores)
+                    lastDiverInformation = (lastDiverName, lastDiverProfileLink, lastRoundPlace,
+                                            lastRoundTotalScore, order, currentPlace, currentTotal,
+                                            currentDive, height, dd, score, judgesScores)
                     
                     //Upcoming Diver
                     
@@ -128,18 +142,24 @@ struct parseBody: View {
                     
                     let upcomingDiverStr = try individualTables[2].text()
                     let nextDiver = try individualTables[2].getElementsByTag("a")
+                    
+                    if nextDiver.isEmpty() { return }
                     nextDiverName = try nextDiver[0].text()
                     tempLink = try individualTables[2].getElementsByTag("a").attr("href")
                     nextDiverProfileLink = linkHead + tempLink
                     
-                    lastRoundPlace = Int(upcomingDiverStr.slice(from: "Last Round Place: ", to: " Last Round") ?? "")!
-                    lastRoundTotalScore = Double(upcomingDiverStr.slice(from: "Last Round Total Score: ", to: " Diver O") ?? "")!
-                    order = Int(upcomingDiverStr.slice(from: "Order: ", to: " Next Dive") ?? "")!
+                    lastRoundPlace = Int(upcomingDiverStr.slice(from: "Last Round Place: ",
+                                                                to: " Last Round") ?? "") ?? 0
+                    lastRoundTotalScore = Double(upcomingDiverStr.slice(from: "Last Round Total Score: ",
+                                                                        to: " Diver O") ?? "") ?? 0.0
+                    order = Int(upcomingDiverStr.slice(from: "Order: ", to: " Next Dive") ?? "") ?? 0
                     nextDive = upcomingDiverStr.slice(from: "Next Dive:   ", to: " Height") ?? ""
                     height = upcomingDiverStr.slice(from: "Height: ", to: " DD:") ?? ""
-                    dd = Double(upcomingDiverStr.slice(from: "DD: ", to: " History for") ?? "")!
-                    avgScore = Double(upcomingDiverStr.slice(from: "Avg Score: ", to: "  Max Score") ?? "")!
-                    maxScore = Double(upcomingDiverStr.slice(from: "Max Score Ever: ", to: " Needed") ?? "")!
+                    dd = Double(upcomingDiverStr.slice(from: "DD: ", to: " History for") ?? "") ?? 0.0
+                    avgScore = Double(upcomingDiverStr.slice(from: "Avg Score: ",
+                                                             to: "  Max Score") ?? "") ?? 0.0
+                    maxScore = Double(upcomingDiverStr.slice(from: "Max Score Ever: ",
+                                                             to: " Needed") ?? "") ?? 0.0
                     var result = ""
                     for char in upcomingDiverStr.reversed() {
                         if char == " " {
@@ -147,19 +167,21 @@ struct parseBody: View {
                         }
                         result = String(char) + result
                     }
-                    forFirstPlace = Double(result)!
+                    forFirstPlace = Double(result) ?? 999.99
                     nextDiverInformation = (nextDiverName, nextDiverProfileLink, lastRoundPlace,
                                             lastRoundTotalScore, order, nextDive, height, dd,
                                             avgScore, maxScore, forFirstPlace)
                     
                     //Current Round
-                    let currentRound = try rows![8].getElementsByTag("td")
+                    let currentRound = try rows[8].getElementsByTag("td")
+                    
+                    if currentRound.isEmpty() { return }
                     roundString = try currentRound[0].text()
                     
                     //Diving Table
                     
-                    for (i, t) in rows!.enumerated(){
-                        if i < rows!.count - 1 && i >= 10{
+                    for (i, t) in rows.enumerated(){
+                        if i < rows.count - 1 && i >= 10 {
                             var tempList: [String] = []
                             for (i, v) in try t.getElementsByTag("td").enumerated() {
                                 if i > 9 { break }
@@ -195,8 +217,10 @@ struct parseBody: View {
 }
 
 struct mainView: View{
-    @Binding var lastDiverInformation: (String, String, Int, Double, Int, Int, Double, String, String, Double, Double, String)
-    @Binding var nextDiverInformation: (String, String, Int, Double, Int, String, String, Double, Double, Double, Double)
+    @Binding var lastDiverInformation:
+    (String, String, Int, Double, Int, Int, Double, String, String, Double, Double, String)
+    @Binding var nextDiverInformation:
+    (String, String, Int, Double, Int, String, String, Double, Double, Double, Double)
     @Binding var diveTable: [[String]]
     @Binding var focusViewList: [String: Bool]
     @Binding var starSelected: Bool
@@ -263,8 +287,9 @@ struct LiveBarAnimation: View {
                     .frame(width: 100, height: 6, alignment: .leading)
                     .foregroundColor(Color(.systemMint))
                     .offset(x: moveRightLeft ? 14 : -14)
-                    .animation(Animation.easeInOut(duration: 0.5).delay(0.2).repeatForever(autoreverses: true))
-                    .onAppear{
+                    .animation(Animation.easeInOut(duration: 0.5).delay(0.2).repeatForever(autoreverses: true),
+                               value: moveRightLeft)
+                    .onAppear {
                         moveRightLeft.toggle()
                     }
             }
@@ -421,7 +446,7 @@ struct ResultsBubbleView: View {
             VStack {
                 VStack(alignment: .leading) {
                     HStack(alignment: .lastTextBaseline) {
-                        if Bool(elements[0])!{
+                        if Bool(elements[0]) ?? false {
                             Image(systemName: "checkmark.circle")
                         }
                         let link = elements[7]
