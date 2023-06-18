@@ -1,5 +1,5 @@
 //
-//  MeetsResultsTestView.swift
+//  MeetDBTestView.swift
 //  DiveMeets
 //
 //  Created by Logan Sherwin on 4/3/23.
@@ -8,7 +8,7 @@
 import SwiftUI
 import CoreData
 
-struct MeetsResultsTestView: View {
+struct MeetDBTestView: View {
     @Environment(\.managedObjectContext) var moc
     @Environment(\.meetsDB) var db
     @State var liveResultsLink: String = ""
@@ -38,10 +38,6 @@ struct MeetsResultsTestView: View {
             Text(meet.name ?? "Unknown")
             Text(meet.organization ?? "Unknown")
             Text(meet.state ?? "Unknown")
-//            Text(meet.link != nil
-//                 ? meet.link![meet.link!.index(
-//                    meet.link!.startIndex, offsetBy: linkHead.count)..<meet.link!.endIndex]
-//                 : "Unknown")
             Text(df.string(from: meet.startDate ?? Date()))
         }
     }

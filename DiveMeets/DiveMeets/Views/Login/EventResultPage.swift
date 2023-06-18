@@ -92,7 +92,9 @@ struct PersonBubbleView: View {
                         Spacer()
                         Text("Score: ")
                         NavigationLink {
-                            Event(isFirstNav: $navStatus, meet: .constant(MeetEvent(name: eventTitle, link: elements[6], firstNavigation: false)))
+                            Event(isFirstNav: $navStatus,
+                                  meet: .constant(MeetEvent(name: eventTitle, link: elements[6],
+                                                            firstNavigation: false)))
                         } label: {
                             Text(elements[5])
                         }
