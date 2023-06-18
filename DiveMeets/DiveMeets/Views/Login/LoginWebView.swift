@@ -126,7 +126,7 @@ struct LoginWebView: UIViewRepresentable {
         
         func checkIfLoggedIn(_ webView: WKWebView) {
             webView.evaluateJavaScript("document.body.innerHTML") { [weak self] result, error in
-                guard var html = result as? String, error == nil else {
+                guard let html = result as? String, error == nil else {
                     self?.loginSuccessful = false
                     print("Error getting HTML:", error ?? "unknown error")
                     return

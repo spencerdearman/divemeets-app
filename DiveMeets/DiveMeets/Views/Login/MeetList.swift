@@ -78,11 +78,7 @@ struct MeetList: View {
                     meets = createMeets(data: diverData) ?? []
                 }
             }
-        
-        let rowColor: Color = currentMode == .light
-        ? Color.white
-        : Color.black
-        
+
         NavigationView {
             ZStack {
                 // Background color for View
@@ -94,7 +90,7 @@ struct MeetList: View {
                          AnyView(
                             parentView(meet: $meet)
                          ) : AnyView(
-                            childView(meet: $meet)
+                            childView(meet: $meet, navStatus: $navStatus)
                          ))
                         .frame(width: frameWidth,
                                height: meet.isOpen ? 400: 45)
@@ -132,7 +128,7 @@ struct parentView: View{
     @Binding var meet: MeetEvent
     @State var meetShowing: Bool = false
     
-    var body: some View{
+    var body: some View {
         HStack {
             Button(action: {}, label: {
                 Image(systemName: "link")

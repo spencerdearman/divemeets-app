@@ -502,7 +502,7 @@ struct LiveResultsListView: View {
     var elements: [String]
     
     var body: some View {
-        NavigationLink(destination: EventResultPage(meetLink: elements[1])) {
+        NavigationLink(destination: LiveResultsView(request: elements[1])) {
             ZStack {
                 Rectangle()
                     .foregroundColor(bubbleColor)

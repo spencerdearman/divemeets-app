@@ -90,8 +90,8 @@ struct LoginProfile: View {
                         VStack {
                             VStack(alignment: .leading) {
                                 HStack (alignment: .firstTextBaseline) {
-                                    var firstName = diverData[0][0].slice(from: "Name: ", to: " ") ?? ""
-                                    var lastName =
+                                    let firstName = diverData[0][0].slice(from: "Name: ", to: " ") ?? ""
+                                    let lastName =
                                     diverData[0][0].slice(from: firstName + " ", to: " ") ?? ""
                                     
                                     diverData != []

@@ -42,7 +42,6 @@ final class EventHTMLParser: ObservableObject {
         var eventLink = ""
         var meetName = ""
         var meetLink = ""
-        var eventLinkParsed = false
       
         for (_, t) in overall.enumerated(){
             let tester = try t.getElementsByTag("td")
@@ -51,7 +50,7 @@ final class EventHTMLParser: ObservableObject {
                 print("Has Upcoming Meets")
             }
         }
-        if hasUpcomingMeets{
+        if hasUpcomingMeets {
             overall = try main[2].getElementsByTag("tr")
         }
         

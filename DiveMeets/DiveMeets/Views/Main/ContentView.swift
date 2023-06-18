@@ -46,11 +46,7 @@ struct ContentView: View {
                             case .house:
                                 Home()
                             case .gearshape:
-//                                Image(systemName: tab.rawValue)
-//                                Text("Settings")
-//                                    .bold()
-//                                    .animation(nil, value: selectedTab)
-                                    MeetPageView(meetLink: "https://secure.meetcontrol.com/divemeets/system/meetresultsext.php?meetnum=8958")
+                                ToolsMenu()
                             case .magnifyingglass:
                                 SearchView(isIndexingMeets: $isIndexingMeets)
                             case .person:

@@ -31,7 +31,6 @@ struct MeetsResultsTestView: View {
     ) var filteredMeets: FetchedResults<DivingMeet>
     
     func displayDivingMeet(meet: DivingMeet) -> HStack<TupleView<(Text, Text, Text, Text, Text)>> {
-        let linkHead = "https://secure.meetcontrol.com/divemeets/system/"
         let df = DateFormatter()
         df.dateFormat = "MMM d, yyyy"
         return HStack {
