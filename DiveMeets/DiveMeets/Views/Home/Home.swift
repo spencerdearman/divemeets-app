@@ -86,6 +86,40 @@ func tupleToList(tuples: CurrentMeetRecords) -> [[String]] {
     return result
 }
 
+// Converts MeetRecord tuples with additional results link to 2d list of Strings for views
+func tupleToList(tuples: CurrentMeetRecords) -> [[String]] {
+    var result: [[String]] = []
+    //  (id, name, org, link, startDate, endDate, city, state, country, resultsLink?)
+    for ((id, name, org, link, startDate, endDate, city, state, country), resultsLink) in tuples.sorted(
+        by: { (lhs, rhs) in
+            let df = DateFormatter()
+            df.dateFormat = "MMM d, yyyy"
+            
+            // Sorts first by start date, then end date, then name in that order
+            if lhs.0.4 == rhs.0.4 {
+                if lhs.0.5 == rhs.0.5 {
+                    return lhs.0.1! < rhs.0.1!
+                }
+                
+                let a = lhs.0.5!
+                let b = rhs.0.5!
+                
+                return df.date(from: a)! < df.date(from: b)!
+            }
+            
+            let a = lhs.0.4!
+            let b = rhs.0.4!
+            
+            return df.date(from: a)! < df.date(from: b)!
+        }) {
+        let idStr = id != nil ? String(id!) : ""
+        result.append([idStr, name ?? "", org ?? "", link ?? "",
+                       startDate ?? "", endDate ?? "", city ?? "", state ?? "", country ?? "",
+                       resultsLink ?? ""])
+    }
+    return result
+}
+
 struct Home: View {
     @Environment(\.colorScheme) var currentMode
     @Environment(\.meetsDB) var db
