@@ -14,6 +14,7 @@ struct MeetList: View {
     @State var offset: CGFloat = 0
     @State var lastOffset: CGFloat = 0
     @State var meets: [MeetEvent] = []
+    @State var navStatus: Bool = true
     @StateObject private var parser = EventHTMLParser()
     
     // Style adjustments for elements of list
@@ -81,7 +82,7 @@ struct MeetList: View {
                      AnyView(
                         parentView(meet: $meet)
                      ) : AnyView(
-                        childView(meet: $meet)
+                        childView(meet: $meet, navStatus: $navStatus)
                      ))
                     .frame(width: frameWidth,
                            height: meet.isOpen ? 400: 45)
@@ -94,7 +95,7 @@ struct MeetList: View {
 
 struct childView: View{
     @Binding var meet: MeetEvent
-    @State var navStatus: Bool = true
+    @Binding var navStatus: Bool
     
     var body: some View{
         Button(action: {}, label: {

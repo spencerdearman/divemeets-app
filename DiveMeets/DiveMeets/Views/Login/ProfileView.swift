@@ -40,6 +40,8 @@ struct ProfileView: View {
         if profileType == "Diver" {
             VStack {
                 VStack {
+                    Spacer()
+                    Spacer()
                     ProfileImage(diverID: diverID)
                         .offset(y:-100)
                     VStack {
@@ -99,6 +101,7 @@ struct ProfileView: View {
         } else {
             VStack {
                 VStack {
+                    Spacer()
                     ProfileImage(diverID: diverID)
                         .offset(y:-100)
                     VStack{

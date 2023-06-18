@@ -23,7 +23,6 @@
 		0069DC5B2A0DC5610096C04B /* ScalingScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0069DC5A2A0DC5610096C04B /* ScalingScrollView.swift */; };
 		006CF0842A02340500E7C2A5 /* TextFieldClearButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 006CF0832A02340500E7C2A5 /* TextFieldClearButton.swift */; };
 		0095BD2D29B1491D004D7EFD /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0095BD2C29B1491D004D7EFD /* SearchView.swift */; };
-		00A81A3329F455DC00BFAE4E /* LiveResultsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A81A3229F455DC00BFAE4E /* LiveResultsParser.swift */; };
 		00E0D49A2A042A8D00B01D98 /* LoginTextFieldClearButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00E0D4992A042A8D00B01D98 /* LoginTextFieldClearButton.swift */; };
 		00F9665F29AEEF0900F3720B /* FloatingMenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */; };
 		00F9667B29AFDA1500F3720B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9667A29AFDA1500F3720B /* ContentView.swift */; };
@@ -31,6 +30,11 @@
 		4D1A5C3729CB953300F3DA2B /* SwiftUIWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */; };
 		4D1A5C3929CCA1B400F3DA2B /* RecordList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1A5C3829CCA1B400F3DA2B /* RecordList.swift */; };
 		4D254F1629C0411C0033838D /* HTMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D254F1529C0411C0033838D /* HTMLParser.swift */; };
+		4D50E78D2A2714A2009BFBFA /* ListOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D50E78C2A2714A2009BFBFA /* ListOptimizer.swift */; };
+		4D50E7902A29106E009BFBFA /* diveTable.json in Resources */ = {isa = PBXBuildFile; fileRef = 4D50E78F2A29106E009BFBFA /* diveTable.json */; };
+		4D50E7922A2939B9009BFBFA /* ToolsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D50E7912A2939B9009BFBFA /* ToolsMenu.swift */; };
+		4D50E7942A293A22009BFBFA /* MeetPredictor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D50E7932A293A22009BFBFA /* MeetPredictor.swift */; };
+		4D50E7962A293DEC009BFBFA /* DiveStatisticsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D50E7952A293DEC009BFBFA /* DiveStatisticsParser.swift */; };
 		4D60E8F92A1737A90011A295 /* ScoringParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D60E8F82A1737A90011A295 /* ScoringParser.swift */; };
 		4D74FE9729AE7B9800401178 /* DiveMeetsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FE9629AE7B9800401178 /* DiveMeetsApp.swift */; };
 		4D74FE9929AE7B9800401178 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FE9829AE7B9800401178 /* ProfileView.swift */; };
@@ -42,6 +46,8 @@
 		4D74FEC629AEC95500401178 /* MeetPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D74FEC529AEC95500401178 /* MeetPage.swift */; };
 		4D753DE02A214F640029138B /* EventResultPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D753DDF2A214F640029138B /* EventResultPage.swift */; };
 		4D753DE32A2158370029138B /* EventPageParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D753DE22A2158370029138B /* EventPageParser.swift */; };
+		4D8118072A2D6DD7000BD2C9 /* LiveParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8118062A2D6DD7000BD2C9 /* LiveParser.swift */; };
+		4D8118092A2D6E05000BD2C9 /* LiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8118082A2D6E05000BD2C9 /* LiveView.swift */; };
 		4D8B9C1929F8D395002B53AD /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8B9C1829F8D395002B53AD /* Home.swift */; };
 		4D8B9C1D29FB4EBD002B53AD /* LoginProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8B9C1C29FB4EBD002B53AD /* LoginProfile.swift */; };
 		4D9DD09A2A058EF700F6D31C /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D9DD0992A058EF700F6D31C /* Event.swift */; };
@@ -68,7 +74,6 @@
 		0069DC5A2A0DC5610096C04B /* ScalingScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScalingScrollView.swift; sourceTree = "<group>"; };
 		006CF0832A02340500E7C2A5 /* TextFieldClearButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldClearButton.swift; sourceTree = "<group>"; };
 		0095BD2C29B1491D004D7EFD /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
-		00A81A3229F455DC00BFAE4E /* LiveResultsParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveResultsParser.swift; sourceTree = "<group>"; };
 		00E0D4992A042A8D00B01D98 /* LoginTextFieldClearButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginTextFieldClearButton.swift; sourceTree = "<group>"; };
 		00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingMenuBar.swift; sourceTree = "<group>"; };
 		00F9667A29AFDA1500F3720B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -77,6 +82,11 @@
 		4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIWebView.swift; sourceTree = "<group>"; };
 		4D1A5C3829CCA1B400F3DA2B /* RecordList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordList.swift; sourceTree = "<group>"; };
 		4D254F1529C0411C0033838D /* HTMLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLParser.swift; sourceTree = "<group>"; };
+		4D50E78C2A2714A2009BFBFA /* ListOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListOptimizer.swift; sourceTree = "<group>"; };
+		4D50E78F2A29106E009BFBFA /* diveTable.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = diveTable.json; sourceTree = "<group>"; };
+		4D50E7912A2939B9009BFBFA /* ToolsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsMenu.swift; sourceTree = "<group>"; };
+		4D50E7932A293A22009BFBFA /* MeetPredictor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetPredictor.swift; sourceTree = "<group>"; };
+		4D50E7952A293DEC009BFBFA /* DiveStatisticsParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiveStatisticsParser.swift; sourceTree = "<group>"; };
 		4D60E8F82A1737A90011A295 /* ScoringParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoringParser.swift; sourceTree = "<group>"; };
 		4D74FE9329AE7B9800401178 /* DiveMeets.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DiveMeets.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D74FE9629AE7B9800401178 /* DiveMeetsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiveMeetsApp.swift; sourceTree = "<group>"; };
@@ -89,6 +99,8 @@
 		4D74FEC529AEC95500401178 /* MeetPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetPage.swift; sourceTree = "<group>"; };
 		4D753DDF2A214F640029138B /* EventResultPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventResultPage.swift; sourceTree = "<group>"; };
 		4D753DE22A2158370029138B /* EventPageParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventPageParser.swift; sourceTree = "<group>"; };
+		4D8118062A2D6DD7000BD2C9 /* LiveParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveParser.swift; sourceTree = "<group>"; };
+		4D8118082A2D6E05000BD2C9 /* LiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveView.swift; sourceTree = "<group>"; };
 		4D8B9C1829F8D395002B53AD /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
 		4D8B9C1C29FB4EBD002B53AD /* LoginProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginProfile.swift; sourceTree = "<group>"; };
 		4D9DD0992A058EF700F6D31C /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
@@ -119,6 +131,18 @@
 				4D9DD09B2A05981300F6D31C /* EventParser.swift */,
 			);
 			path = Parsers;
+			sourceTree = "<group>";
+		};
+		4D50E78B2A27148B009BFBFA /* ListOptimizer */ = {
+			isa = PBXGroup;
+			children = (
+				4D50E78C2A2714A2009BFBFA /* ListOptimizer.swift */,
+				4D50E78F2A29106E009BFBFA /* diveTable.json */,
+				4D50E7912A2939B9009BFBFA /* ToolsMenu.swift */,
+				4D50E7932A293A22009BFBFA /* MeetPredictor.swift */,
+				4D50E7952A293DEC009BFBFA /* DiveStatisticsParser.swift */,
+			);
+			path = ListOptimizer;
 			sourceTree = "<group>";
 		};
 		4D74FE8A29AE7B9800401178 = {
@@ -165,6 +189,8 @@
 		4D74FEB229AEB47000401178 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				4D8118052A2D6DB8000BD2C9 /* Live Results Testing */,
+				4D50E78B2A27148B009BFBFA /* ListOptimizer */,
 				4D50E7722A24050E009BFBFA /* Parsers */,
 				4D8B9C1229F898DD002B53AD /* Home */,
 				4D8B9C1429F89A72002B53AD /* Live Results */,
@@ -196,6 +222,15 @@
 				4DD868EC29F0E69C00FF988D /* keychain-swift.swift */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		4D8118052A2D6DB8000BD2C9 /* Live Results Testing */ = {
+			isa = PBXGroup;
+			children = (
+				4D8118062A2D6DD7000BD2C9 /* LiveParser.swift */,
+				4D8118082A2D6E05000BD2C9 /* LiveView.swift */,
+			);
+			path = "Live Results Testing";
 			sourceTree = "<group>";
 		};
 		4D8B9C1029F898AD002B53AD /* Search */ = {
@@ -247,7 +282,6 @@
 		4D8B9C1429F89A72002B53AD /* Live Results */ = {
 			isa = PBXGroup;
 			children = (
-				00A81A3229F455DC00BFAE4E /* LiveResultsParser.swift */,
 				000D28E029E122B700B184E9 /* LiveResultsView.swift */,
 				000D28DE29E1201200B184E9 /* LiveResultsWebView.swift */,
 			);
@@ -328,6 +362,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D50E7902A29106E009BFBFA /* diveTable.json in Resources */,
 				4D74FE9E29AE7B9800401178 /* Preview Assets.xcassets in Resources */,
 				4D74FE9B29AE7B9800401178 /* Assets.xcassets in Resources */,
 			);
@@ -344,15 +379,17 @@
 				00F9667B29AFDA1500F3720B /* ContentView.swift in Sources */,
 				4D60E8F92A1737A90011A295 /* ScoringParser.swift in Sources */,
 				4D9DD09A2A058EF700F6D31C /* Event.swift in Sources */,
+				4D50E7962A293DEC009BFBFA /* DiveStatisticsParser.swift in Sources */,
+				4D8118092A2D6E05000BD2C9 /* LiveView.swift in Sources */,
 				4D8B9C1929F8D395002B53AD /* Home.swift in Sources */,
 				4D74FEAF29AEB02100401178 /* Meet.swift in Sources */,
 				4D1A5C3729CB953300F3DA2B /* SwiftUIWebView.swift in Sources */,
 				002A1B7E29DB93FC00A26FED /* MeetsDataController.swift in Sources */,
-				00A81A3329F455DC00BFAE4E /* LiveResultsParser.swift in Sources */,
 				0069DC5B2A0DC5610096C04B /* ScalingScrollView.swift in Sources */,
 				000D28DF29E1201200B184E9 /* LiveResultsWebView.swift in Sources */,
 				4D74FEC029AEBD6F00401178 /* MeetList.swift in Sources */,
 				0051C9D129E4CEE300C4C9E7 /* PastMeetResults.swift in Sources */,
+				4D50E78D2A2714A2009BFBFA /* ListOptimizer.swift in Sources */,
 				4D9DD09C2A05981300F6D31C /* EventParser.swift in Sources */,
 				4D1A5C3929CCA1B400F3DA2B /* RecordList.swift in Sources */,
 				0037877929D4F40900D3CD59 /* Cache.swift in Sources */,
@@ -360,8 +397,10 @@
 				002A1BB629DCF2F900A26FED /* GetTextAsync.swift in Sources */,
 				000D28E129E122B700B184E9 /* LiveResultsView.swift in Sources */,
 				4D74FE9929AE7B9800401178 /* ProfileView.swift in Sources */,
+				4D50E7922A2939B9009BFBFA /* ToolsMenu.swift in Sources */,
 				002A1B8029DB94A400A26FED /* MeetsResultsTestView.swift in Sources */,
 				4D254F1629C0411C0033838D /* HTMLParser.swift in Sources */,
+				4D8118072A2D6DD7000BD2C9 /* LiveParser.swift in Sources */,
 				002A1B7C29DB937C00A26FED /* Meets.xcdatamodeld in Sources */,
 				4D09308529D3A1B7003AAA90 /* LoginScreen.swift in Sources */,
 				002A1B3429DB7C4700A26FED /* ProfileHTMLCache.swift in Sources */,
@@ -375,6 +414,7 @@
 				4DD868ED29F0E69C00FF988D /* keychain-swift.swift in Sources */,
 				0037878029D501F600D3CD59 /* ProfileParser.swift in Sources */,
 				000D28DD29E0EF9100B184E9 /* LiveResults.swift in Sources */,
+				4D50E7942A293A22009BFBFA /* MeetPredictor.swift in Sources */,
 				00F9665F29AEEF0900F3720B /* FloatingMenuBar.swift in Sources */,
 				4D74FE9729AE7B9800401178 /* DiveMeetsApp.swift in Sources */,
 				4DE6CFC329E25A0D00831D1D /* LoginWebView.swift in Sources */,
