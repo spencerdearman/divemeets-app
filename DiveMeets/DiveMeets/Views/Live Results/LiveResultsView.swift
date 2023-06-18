@@ -251,6 +251,7 @@ struct mainView: View{
     }
 }
 
+
 struct LiveBarAnimation: View {
     @State private var moveRightLeft = false
     var body: some View {
