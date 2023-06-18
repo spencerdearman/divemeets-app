@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ScalingScrollView<T: RandomAccessCollection, U: View>: View where T.Element: Hashable {
     @Environment(\.colorScheme) var currentMode
-    @ScaledMetric private var frameHeight: CGFloat = 100
     
     private let grayValue: CGFloat = 0.95
     private let grayValueDark: CGFloat = 0.10
@@ -22,8 +21,16 @@ struct ScalingScrollView<T: RandomAccessCollection, U: View>: View where T.Eleme
     
     var records: T
     var bgColor: Color? = nil
+    var viewHeight: CGFloat = 100
     var rowSpacing: CGFloat = 20
     var viewGenerator: (T.Element) -> U
+    
+    @ScaledMetric private var scaledFrameHeight: CGFloat = 100
+    private let defaultHeight: CGFloat = 100
+    
+    var frameHeight: CGFloat {
+        viewHeight + (scaledFrameHeight - defaultHeight)
+    }
     
     var body: some View {
         GeometryReader { mainView in
