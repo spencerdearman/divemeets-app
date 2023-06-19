@@ -16,15 +16,9 @@ struct LiveResultsView: View {
     let screenFrame = Color(.systemBackground)
     
     var body: some View {
-        if shiftingBool{
             ZStack {
                 parseBody(request: request, shiftingBool: $shiftingBool)
             }
-        } else{
-            ZStack {
-                parseBody(request: request, shiftingBool: $shiftingBool)
-            }
-        }
     }
 }
 
@@ -55,164 +49,181 @@ struct parseBody: View {
     //[Place: (Left to dive, order, last round place, last round score, current place,
     //current score, name, last dive average, event average score, avg round score
     @State var diveTable: [[String]] = []
+    @State var loadingStatus: Bool = false
+    @State var loaded: Bool = true
     
     let screenFrame = Color(.systemBackground)
     
     var body: some View {
-        LRWebView(request: request, html: $html)
-            .onChange(of: html) { newValue in
-                
-                do {
-                    diveTable = []
-                    var upperTables: Elements = Elements()
-                    var individualTables: Elements = Elements()
-                    let document: Document = try SwiftSoup.parse(newValue)
-                    guard let body = document.body() else {
-                        return
-                    }
-                    let table = try body.getElementById("Results")
-                    guard let rows = try table?.getElementsByTag("tr") else { return }
-                    if rows.count < 9 { return }
-                    upperTables = try rows[1].getElementsByTag("tbody")
-                    
-                    if upperTables.isEmpty() { return }
-                    individualTables = try upperTables[0].getElementsByTag("table")
-                    
-                    let linkHead = "https://secure.meetcontrol.com/divemeets/system/"
-                    
-                    //Title
-                    title = try rows[0].getElementsByTag("td")[0].text()
-                        .replacingOccurrences(of: "Unofficial Statistics ", with: "")
-                    
-                    //Last Diver
-                    
-                    var lastDiverName = ""
-                    var lastDiverProfileLink = ""
-                    var lastRoundPlace = 0
-                    var lastRoundTotalScore = 0.0
-                    var order = 0
-                    var currentPlace = 0
-                    var currentTotal = 0.0
-                    var currentDive = ""
-                    var height = ""
-                    var dd = 0.0
-                    var score = 0.0
-                    var judgesScores = ""
-                    
-                    if individualTables.count < 3 { return }
-                    let lastDiverStr = try individualTables[0].text()
-                    let lastDiver = try individualTables[0].getElementsByTag("a")
-                    
-                    if lastDiver.isEmpty() { return }
-                    lastDiverName = try lastDiver[0].text()
-                    var tempLink = try individualTables[0].getElementsByTag("a").attr("href")
-                    lastDiverProfileLink = linkHead + tempLink
-                    
-                    lastRoundPlace = Int(lastDiverStr.slice(from: "Last Round Place: ",
-                                                            to: " Last Round") ?? "") ?? 0
-                    lastRoundTotalScore = Double(lastDiverStr.slice(from: "Last Round Total Score: ",
-                                                                    to: " Diver O") ?? "") ?? 0.0
-                    order = Int(lastDiverStr.slice(from: "Diver Order: ", to: " Current") ?? "") ?? 0
-                    currentPlace = Int(lastDiverStr.slice(from: "Current Place: ",
-                                                          to: " Current") ?? "") ?? 0
-                    currentTotal = Double(lastDiverStr.slice(from: "Current Total Score: ",
-                                                             to: " Current") ?? "") ?? 0.0
-                    currentDive = lastDiverStr.slice(from: "Current Dive:   ", to: " Height") ?? ""
-                    height = lastDiverStr.slice(from: "Height: ", to: " DD:") ?? ""
-                    dd = Double(lastDiverStr.slice(from: "DD: ", to: " Score") ?? "") ?? 0.0
-                    score = Double(lastDiverStr.slice(from: String(dd) + " Score: ",
-                                                      to: " Judges") ?? "") ?? 0.0
-                    if let lastIndex = lastDiverStr.lastIndex(of: ":") {
-                        let distance = lastDiverStr.distance(from: lastIndex,
-                                                             to: lastDiverStr.endIndex) - 1
-                        judgesScores = String(lastDiverStr.suffix(distance - 1))
-                    }
-                    lastDiverInformation = (lastDiverName, lastDiverProfileLink, lastRoundPlace,
-                                            lastRoundTotalScore, order, currentPlace, currentTotal,
-                                            currentDive, height, dd, score, judgesScores)
-                    
-                    //Upcoming Diver
-                    
-                    var nextDiverName = ""
-                    var nextDiverProfileLink = ""
-                    var nextDive = ""
-                    var avgScore = 0.0
-                    var maxScore = 0.0
-                    var forFirstPlace = 0.0
-                    
-                    let upcomingDiverStr = try individualTables[2].text()
-                    let nextDiver = try individualTables[2].getElementsByTag("a")
-                    
-                    if nextDiver.isEmpty() { return }
-                    nextDiverName = try nextDiver[0].text()
-                    tempLink = try individualTables[2].getElementsByTag("a").attr("href")
-                    nextDiverProfileLink = linkHead + tempLink
-                    
-                    lastRoundPlace = Int(upcomingDiverStr.slice(from: "Last Round Place: ",
-                                                                to: " Last Round") ?? "") ?? 0
-                    lastRoundTotalScore = Double(upcomingDiverStr.slice(from: "Last Round Total Score: ",
-                                                                        to: " Diver O") ?? "") ?? 0.0
-                    order = Int(upcomingDiverStr.slice(from: "Order: ", to: " Next Dive") ?? "") ?? 0
-                    nextDive = upcomingDiverStr.slice(from: "Next Dive:   ", to: " Height") ?? ""
-                    height = upcomingDiverStr.slice(from: "Height: ", to: " DD:") ?? ""
-                    dd = Double(upcomingDiverStr.slice(from: "DD: ", to: " History for") ?? "") ?? 0.0
-                    avgScore = Double(upcomingDiverStr.slice(from: "Avg Score: ",
-                                                             to: "  Max Score") ?? "") ?? 0.0
-                    maxScore = Double(upcomingDiverStr.slice(from: "Max Score Ever: ",
-                                                             to: " Needed") ?? "") ?? 0.0
-                    var result = ""
-                    for char in upcomingDiverStr.reversed() {
-                        if char == " " {
-                            break
-                        }
-                        result = String(char) + result
-                    }
-                    forFirstPlace = Double(result) ?? 999.99
-                    nextDiverInformation = (nextDiverName, nextDiverProfileLink, lastRoundPlace,
-                                            lastRoundTotalScore, order, nextDive, height, dd,
-                                            avgScore, maxScore, forFirstPlace)
-                    
-                    //Current Round
-                    let currentRound = try rows[8].getElementsByTag("td")
-                    
-                    if currentRound.isEmpty() { return }
-                    roundString = try currentRound[0].text()
-                    
-                    //Diving Table
-                    
-                    for (i, t) in rows.enumerated(){
-                        if i < rows.count - 1 && i >= 10 {
-                            var tempList: [String] = []
-                            for (i, v) in try t.getElementsByTag("td").enumerated() {
-                                if i > 9 { break }
-                                if i == 0 {
-                                    if try v.text() == "" {
-                                        tempList.append("true")
-                                    } else {
-                                        tempList.append("false")
-                                    }
-                                } else if i == 6 {
-                                    focusViewList[try v.text()] = false
-                                    tempList.append(try v.text())
-                                    let halfLink = try v.getElementsByTag("a").attr("href")
-                                    tempList.append(linkHead + halfLink)
-                                } else {
-                                    tempList.append(try v.text())
-                                }
+        if shiftingBool{
+            LRWebView(request: request, html: $html)
+                .onChange(of: html) { newValue in
+                    loaded = parseHelper(newValue: newValue)
+                }
+        } else {
+            LRWebView(request: request, html: $html)
+                .onChange(of: html) { newValue in
+                    loaded = parseHelper(newValue: newValue)
+                }
+        }
+        if loaded {
+            mainView(lastDiverInformation: $lastDiverInformation, nextDiverInformation:
+                        $nextDiverInformation, diveTable: $diveTable, focusViewList: $focusViewList,
+                     starSelected: $starSelected, shiftingBool: $shiftingBool, title: $title,
+                     roundString: $roundString)
+        } else {
+            errorView()
+        }
+    }
+    
+    private func parseHelper(newValue: String) -> Bool{
+        do {
+            diveTable = []
+            var upperTables: Elements = Elements()
+            var individualTables: Elements = Elements()
+            let document: Document = try SwiftSoup.parse(newValue)
+            guard let body = document.body() else {
+                return false
+            }
+            let table = try body.getElementById("Results")
+            guard let rows = try table?.getElementsByTag("tr") else { return false }
+            if rows.count < 9 { return false}
+            upperTables = try rows[1].getElementsByTag("tbody")
+            
+            if upperTables.isEmpty() { return false}
+            individualTables = try upperTables[0].getElementsByTag("table")
+            
+            let linkHead = "https://secure.meetcontrol.com/divemeets/system/"
+            
+            //Title
+            title = try rows[0].getElementsByTag("td")[0].text()
+                .replacingOccurrences(of: "Unofficial Statistics ", with: "")
+            
+            //Last Diver
+            
+            var lastDiverName = ""
+            var lastDiverProfileLink = ""
+            var lastRoundPlace = 0
+            var lastRoundTotalScore = 0.0
+            var order = 0
+            var currentPlace = 0
+            var currentTotal = 0.0
+            var currentDive = ""
+            var height = ""
+            var dd = 0.0
+            var score = 0.0
+            var judgesScores = ""
+            
+            if individualTables.count < 3 { return false }
+            let lastDiverStr = try individualTables[0].text()
+            let lastDiver = try individualTables[0].getElementsByTag("a")
+            
+            if lastDiver.isEmpty() { return false }
+            lastDiverName = try lastDiver[0].text()
+            var tempLink = try individualTables[0].getElementsByTag("a").attr("href")
+            lastDiverProfileLink = linkHead + tempLink
+            
+            lastRoundPlace = Int(lastDiverStr.slice(from: "Last Round Place: ",
+                                                    to: " Last Round") ?? "") ?? 0
+            lastRoundTotalScore = Double(lastDiverStr.slice(from: "Last Round Total Score: ",
+                                                            to: " Diver O") ?? "") ?? 0.0
+            order = Int(lastDiverStr.slice(from: "Diver Order: ", to: " Current") ?? "") ?? 0
+            currentPlace = Int(lastDiverStr.slice(from: "Current Place: ",
+                                                  to: " Current") ?? "") ?? 0
+            currentTotal = Double(lastDiverStr.slice(from: "Current Total Score: ",
+                                                     to: " Current") ?? "") ?? 0.0
+            currentDive = lastDiverStr.slice(from: "Current Dive:   ", to: " Height") ?? ""
+            height = lastDiverStr.slice(from: "Height: ", to: " DD:") ?? ""
+            dd = Double(lastDiverStr.slice(from: "DD: ", to: " Score") ?? "") ?? 0.0
+            score = Double(lastDiverStr.slice(from: String(dd) + " Score: ",
+                                              to: " Judges") ?? "") ?? 0.0
+            if let lastIndex = lastDiverStr.lastIndex(of: ":") {
+                let distance = lastDiverStr.distance(from: lastIndex,
+                                                     to: lastDiverStr.endIndex) - 1
+                judgesScores = String(lastDiverStr.suffix(distance - 1))
+            }
+            lastDiverInformation = (lastDiverName, lastDiverProfileLink, lastRoundPlace,
+                                    lastRoundTotalScore, order, currentPlace, currentTotal,
+                                    currentDive, height, dd, score, judgesScores)
+            
+            //Upcoming Diver
+            
+            var nextDiverName = ""
+            var nextDiverProfileLink = ""
+            var nextDive = ""
+            var avgScore = 0.0
+            var maxScore = 0.0
+            var forFirstPlace = 0.0
+            
+            let upcomingDiverStr = try individualTables[2].text()
+            let nextDiver = try individualTables[2].getElementsByTag("a")
+            
+            if nextDiver.isEmpty() { return false }
+            nextDiverName = try nextDiver[0].text()
+            tempLink = try individualTables[2].getElementsByTag("a").attr("href")
+            nextDiverProfileLink = linkHead + tempLink
+            
+            lastRoundPlace = Int(upcomingDiverStr.slice(from: "Last Round Place: ",
+                                                        to: " Last Round") ?? "") ?? 0
+            lastRoundTotalScore = Double(upcomingDiverStr.slice(from: "Last Round Total Score: ",
+                                                                to: " Diver O") ?? "") ?? 0.0
+            order = Int(upcomingDiverStr.slice(from: "Order: ", to: " Next Dive") ?? "") ?? 0
+            nextDive = upcomingDiverStr.slice(from: "Next Dive:   ", to: " Height") ?? ""
+            height = upcomingDiverStr.slice(from: "Height: ", to: " DD:") ?? ""
+            dd = Double(upcomingDiverStr.slice(from: "DD: ", to: " History for") ?? "") ?? 0.0
+            avgScore = Double(upcomingDiverStr.slice(from: "Avg Score: ",
+                                                     to: "  Max Score") ?? "") ?? 0.0
+            maxScore = Double(upcomingDiverStr.slice(from: "Max Score Ever: ",
+                                                     to: " Needed") ?? "") ?? 0.0
+            var result = ""
+            for char in upcomingDiverStr.reversed() {
+                if char == " " {
+                    break
+                }
+                result = String(char) + result
+            }
+            forFirstPlace = Double(result) ?? 999.99
+            nextDiverInformation = (nextDiverName, nextDiverProfileLink, lastRoundPlace,
+                                    lastRoundTotalScore, order, nextDive, height, dd,
+                                    avgScore, maxScore, forFirstPlace)
+            
+            //Current Round
+            let currentRound = try rows[8].getElementsByTag("td")
+            
+            if currentRound.isEmpty() { return false }
+            roundString = try currentRound[0].text()
+            
+            //Diving Table
+            
+            for (i, t) in rows.enumerated(){
+                if i < rows.count - 1 && i >= 10 {
+                    var tempList: [String] = []
+                    for (i, v) in try t.getElementsByTag("td").enumerated() {
+                        if i > 9 { break }
+                        if i == 0 {
+                            if try v.text() == "" {
+                                tempList.append("true")
+                            } else {
+                                tempList.append("false")
                             }
-                            diveTable.append(tempList)
+                        } else if i == 6 {
+                            focusViewList[try v.text()] = false
+                            tempList.append(try v.text())
+                            let halfLink = try v.getElementsByTag("a").attr("href")
+                            tempList.append(linkHead + halfLink)
+                        } else {
+                            tempList.append(try v.text())
                         }
                     }
-                    
-                } catch  {
-                    print("Parsing finished live event failed")
+                    diveTable.append(tempList)
                 }
             }
-        
-        mainView(lastDiverInformation: $lastDiverInformation, nextDiverInformation:
-                    $nextDiverInformation, diveTable: $diveTable, focusViewList: $focusViewList,
-                 starSelected: $starSelected, shiftingBool: $shiftingBool, title: $title,
-                 roundString: $roundString)
+            
+        } catch  {
+            print("Parsing finished live event failed")
+            return false
+        }
+        return true
     }
 }
 
@@ -273,6 +284,12 @@ struct mainView: View{
     }
 }
 
+struct errorView: View {
+    var body: some View {
+        Color.white.ignoresSafeArea()
+        Text("Error with LiveResults, Event may have ended already")
+    }
+}
 
 struct LiveBarAnimation: View {
     @State private var moveRightLeft = false
