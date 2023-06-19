@@ -16,15 +16,9 @@ struct LiveResultsView: View {
     let screenFrame = Color(.systemBackground)
     
     var body: some View {
-        if shiftingBool{
             ZStack {
                 parseBody(request: request, shiftingBool: $shiftingBool)
             }
-        } else{
-            ZStack {
-                parseBody(request: request, shiftingBool: $shiftingBool)
-            }
-        }
     }
 }
 
@@ -61,10 +55,17 @@ struct parseBody: View {
     let screenFrame = Color(.systemBackground)
     
     var body: some View {
-        LRWebView(request: request, html: $html)
-            .onChange(of: html) { newValue in
-                loaded = parseHelper(newValue: newValue)
-            }
+        if shiftingBool{
+            LRWebView(request: request, html: $html)
+                .onChange(of: html) { newValue in
+                    loaded = parseHelper(newValue: newValue)
+                }
+        } else {
+            LRWebView(request: request, html: $html)
+                .onChange(of: html) { newValue in
+                    loaded = parseHelper(newValue: newValue)
+                }
+        }
         if loaded {
             mainView(lastDiverInformation: $lastDiverInformation, nextDiverInformation:
                         $nextDiverInformation, diveTable: $diveTable, focusViewList: $focusViewList,
