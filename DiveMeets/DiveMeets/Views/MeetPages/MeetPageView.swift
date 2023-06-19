@@ -142,27 +142,75 @@ struct MeetPageView: View {
         }
     }
     
+    private func getMeetData(info: MeetInfoJointData?, results: MeetResultsData?) async throws {
+        // Checks first for cached info and results data before parsing
+        if let (info, results) = cachedMeetData[meetLink] {
+            meetInfoData = info
+            meetResultsData = results
+        } else {
+            // Initialize meet parse from index page
+            let url = URL(string: meetLink)
+            
+            if let url = url {
+                // This sets getTextModel's text field equal to the HTML from url
+                await getTextModel.fetchText(url: url)
+                
+                if let html = getTextModel.text {
+                    meetData = try await mpp.parseMeetPage(link: meetLink, html: html)
+                    if let meetData = meetData {
+                        meetInfoData = await mpp.getMeetInfoData(data: meetData)
+                        meetResultsData = await mpp.getMeetResultsData(data: meetData)
+                        
+                        cachedMeetData[meetLink] = (meetInfoData, meetResultsData)
+                    } else {
+                        print("Meet page failed to parse")
+                    }
+                }
+            }
+        }
+    }
+    
+    private func clearMeetDataCache() {
+        meetInfoData = nil
+        meetResultsData = nil
+        cachedMeetData.removeValue(forKey: meetLink)
+    }
+    
+    // Gets back button (if applicable) and refresh button HStack
+    private func getPageHeader() -> HStack<TupleView<((some View)?, Spacer, some View)>> {
+        HStack {
+            if showBackButton {
+                getBackButton()
+                    .padding(.horizontal)
+            }
+            Spacer()
+            Button(action: {
+                clearMeetDataCache()
+                Task {
+                    try await getMeetData(info: meetInfoData, results: meetResultsData)
+                }
+            }, label: {
+                Image(systemName: "arrow.clockwise")
+                    .font(.title2)
+            })
+        }
+    }
+    
     var body: some View {
         VStack {
             if let meetInfoData = meetInfoData {
-                if showBackButton {
-                    getBackButton()
-                        .padding(.horizontal)
-                }
+                getPageHeader()
+                    .padding([.leading, .trailing])
+                
                 MeetInfoPageView(meetInfoData: meetInfoData)
-                    .onAppear {
-                        print("Info View")
-                    }
+                
                 Spacer()
             } else if let meetResultsData = meetResultsData {
-                if showBackButton {
-                    getBackButton()
-                        .padding(.horizontal)
-                }
+                getPageHeader()
+                    .padding([.leading, .trailing])
+                
                 MeetResultsPageView(meetResultsData: meetResultsData)
-                    .onAppear {
-                        print("Results View")
-                    }
+                
                 Spacer()
             } else {
                 VStack {
@@ -174,31 +222,7 @@ struct MeetPageView: View {
         .padding(.bottom, maxHeightOffset)
         .onAppear {
             Task {
-                // Checks first for cached info and results data before parsing
-                if let (info, results) = cachedMeetData[meetLink] {
-                    meetInfoData = info
-                    meetResultsData = results
-                } else {
-                    // Initialize meet parse from index page
-                    let url = URL(string: meetLink)
-                    
-                    if let url = url {
-                        // This sets getTextModel's text field equal to the HTML from url
-                        await getTextModel.fetchText(url: url)
-                        
-                        if let html = getTextModel.text {
-                            meetData = try await mpp.parseMeetPage(link: meetLink, html: html)
-                            if let meetData = meetData {
-                                meetInfoData = await mpp.getMeetInfoData(data: meetData)
-                                meetResultsData = await mpp.getMeetResultsData(data: meetData)
-                                
-                                cachedMeetData[meetLink] = (meetInfoData, meetResultsData)
-                            } else {
-                                print("Meet page failed to parse")
-                            }
-                        }
-                    }
-                }
+                try await getMeetData(info: meetInfoData, results: meetResultsData)
             }
         }
     }
