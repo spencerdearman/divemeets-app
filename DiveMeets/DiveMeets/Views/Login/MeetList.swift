@@ -79,7 +79,6 @@ struct MeetList: View {
                 }
             }
 
-        NavigationView {
             ZStack {
                 // Background color for View
                 customGray.ignoresSafeArea()
@@ -102,8 +101,6 @@ struct MeetList: View {
                     }
                 }
             }
-            .navigationTitle("Meets")
-        }
     }
 }
 
@@ -112,14 +109,10 @@ struct childView: View{
     @Binding var navStatus: Bool
     
     var body: some View{
-        Button(action: {}, label: {
-            Text(meet.name)
-        })
-        .simultaneousGesture(TapGesture().onEnded {
-            meet.isOpen = true
-        })
-        .fullScreenCover(isPresented: $meet.isOpen) {
+        NavigationLink {
             Event(isFirstNav: $navStatus, meet: $meet)
+        } label: {
+            Text(meet.name)
         }
     }
 }

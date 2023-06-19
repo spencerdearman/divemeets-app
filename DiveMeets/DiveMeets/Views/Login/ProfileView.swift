@@ -11,6 +11,10 @@ struct ProfileView: View {
     var profileLink: String
     @State var diverData : [[String]] = []
     @State var profileType : String = ""
+    @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
+    private var maxHeightOffset: CGFloat {
+        min(maxHeightOffsetScaled, 90)
+    }
     @StateObject private var parser = HTMLParser()
     
     var diverID: String {
@@ -37,10 +41,9 @@ struct ProfileView: View {
         if profileType == "Diver" {
             VStack {
                 VStack {
-                    Spacer()
-                    Spacer()
                     ProfileImage(diverID: diverID)
-                        .offset(y:-100)
+                        .frame(width: 200, height: 150)
+                        .padding()
                     VStack {
                         VStack(alignment: .leading) {
                             HStack (alignment: .firstTextBaseline) {
@@ -87,14 +90,17 @@ struct ProfileView: View {
                             .padding([.leading], 2)
                             Divider()
                         }
-                        .offset(y:-150)
                     }
                     .padding()
                     
                 }
+                Text("Meets")
+                    .font(.title2)
+                    .padding(.bottom)
                 MeetList(profileLink: profileLink)
-                    .offset(y: -160)
+                Spacer()
             }
+            .padding(.bottom, maxHeightOffset)
         } else {
             VStack {
                 VStack {
