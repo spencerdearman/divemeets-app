@@ -65,7 +65,6 @@ struct EntryPageView: View {
                         entries = try await ep.parseEntries(html: html)
                     }
                 }
-                
             }
         }
     }
