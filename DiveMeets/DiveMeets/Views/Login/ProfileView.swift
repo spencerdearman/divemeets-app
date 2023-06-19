@@ -16,9 +16,43 @@ struct ProfileView: View {
         min(maxHeightOffsetScaled, 90)
     }
     @StateObject private var parser = HTMLParser()
+    @State private var isExpanded: Bool = false
+    //                                          [meetName: [eventName: entriesLink]
+    @State private var upcomingDiveSheetsLinks: [String: [String: String]]?
+    private let getTextModel = GetTextAsyncModel()
+    private let ep = EntriesParser()
     
     var diverID: String {
         String(profileLink.suffix(5))
+    }
+    
+    private func getUpcomingDiveSheetsEntries(name: String) -> [String: [String: EventEntry]]? {
+        var result: [String: [String: EventEntry]] = [:]
+        guard let sheetsLinks = upcomingDiveSheetsLinks else { return nil }
+        
+        for (meetName, meetDict) in sheetsLinks {
+            result[meetName] = [:]
+            for (eventName, sheetLink) in meetDict {
+                // Initialize meet parse from index page
+                guard let url = URL(string: sheetLink) else { return nil }
+                
+                Task {
+                    // This sets getTextModel's text field equal to the HTML from url
+                    await getTextModel.fetchText(url: url)
+                    
+                    do {
+                        if let html = getTextModel.text,
+                           let entry = try await ep.parseNamedEntry(html: html, searchName: name) {
+                            result[meetName]![eventName] = entry
+                        }
+                    } catch {
+                        print("Parsing named entry failed")
+                    }
+                }
+            }
+        }
+//        print(result)
+        return result
     }
     
     var body: some View {
@@ -34,6 +68,13 @@ struct ProfileView: View {
                         profileType = "Coach"
                     } else {
                         profileType = "Diver"
+                    }
+                    
+                    guard let url = URL(string: profileLink) else { return }
+                    await getTextModel.fetchText(url: url)
+                    if let text = getTextModel.text {
+                        upcomingDiveSheetsLinks = try await ep.parseProfileUpcomingMeets(html: text)
+//                        print(upcomingDiveSheetsLinks)
                     }
                 }
             }
@@ -93,6 +134,28 @@ struct ProfileView: View {
                     }
                     .padding()
                     
+                    if upcomingDiveSheetsLinks != nil {
+                        DisclosureGroup(isExpanded: $isExpanded) {
+                            List {
+                                let nameText = diverData[0][0].slice(from: "Name: ", to: " State:")
+                                let comps = nameText?.split(separator: " ")
+                                let last = String(comps?.last ?? "")
+                                let first = String(comps?.dropLast().joined(separator: " ") ?? "")
+                                let entries = (getUpcomingDiveSheetsEntries(name: last + ", " + first) ?? [:])
+                                    .sorted(by: { $0.key < $1.key })
+                                ForEach(entries, id: \.key) { meetName, events in
+                                    ForEach(events.sorted(by: { $0.key < $1.key }), id: \.key) { eventName, entry in
+                                        EntryView(entry: entry) {
+                                            Text(eventName)
+                                        }
+                                    }
+                                }
+                            }
+                        } label: {
+                            Text("Upcoming Meets")
+                                .foregroundColor(Color.primary)
+                        }
+                    }
                 }
                 Text("Meets")
                     .font(.title2)
