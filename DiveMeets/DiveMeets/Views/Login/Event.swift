@@ -18,6 +18,10 @@ struct Event: View {
     @State var expandedIndices: Set<Int> = []
     @State var scoreString: String = ""
     @State var fullEventPageShown: Bool = false
+    @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
+    private var maxHeightOffset: CGFloat {
+        min(maxHeightOffsetScaled, 90)
+    }
     
     @StateObject private var parser = EventHTMLParser()
     @StateObject private var scoreParser = ScoreHTMLParser()
@@ -34,22 +38,7 @@ struct Event: View {
                     }
                 }
             }
-        NavigationView{
             VStack {
-                if isFirstNav{
-                    HStack {
-                        Button(action: {
-                            presentationMode.wrappedValue.dismiss()
-                        }) {
-                            Image(systemName: "chevron.left")
-                                .font(.title)
-                                .foregroundColor(.blue)
-                        }
-                        Spacer()
-                    }
-                    .padding(.horizontal)
-                }
-                
                 VStack(alignment: .leading, spacing: 10) {
                     Text(meet.name)
                         .font(.title)
@@ -106,12 +95,12 @@ struct Event: View {
                             }
                         }
                     }
-                    .frame(height: 500)
+                    .frame(height: 400)
                     .ignoresSafeArea()
                 }
                 .padding()
             }
-        }
+            .padding(.bottom, maxHeightOffset)
     }
     
     private func isExpanded(_ index: Int) -> Binding<Bool> {
