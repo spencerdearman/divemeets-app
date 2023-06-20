@@ -90,7 +90,7 @@ class EntriesParser: ObservableObject {
         return nil
     }
     
-    func parseNamedEntry(html: String, searchName: String) async throws -> EventEntry? {
+    func parseNamedEntry(html: String, searchName: String) throws -> EventEntry? {
         let document: Document = try SwiftSoup.parse(html)
         guard let body = document.body() else { return nil }
         let content = try body.getElementById("dm_content")
@@ -217,8 +217,8 @@ struct EntryDive: Hashable {
 struct EventEntry: Hashable {
     static func == (lhs: EventEntry, rhs: EventEntry) -> Bool {
         return lhs.firstName == rhs.firstName && lhs.lastName == rhs.lastName &&
-               lhs.team == rhs.team && lhs.link == rhs.link && lhs.dives == rhs.dives &&
-               lhs.totalDD == rhs.totalDD && lhs.board == rhs.board
+        lhs.team == rhs.team && lhs.link == rhs.link && lhs.dives == rhs.dives &&
+        lhs.totalDD == rhs.totalDD && lhs.board == rhs.board
     }
     
     var firstName: String?
