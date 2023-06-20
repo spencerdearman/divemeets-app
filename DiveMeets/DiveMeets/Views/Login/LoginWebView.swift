@@ -134,7 +134,9 @@ struct LoginWebView: UIViewRepresentable {
                 self?.loginSuccessful = false
                 self?.parsedUserHTML = html
                 if html.contains("there is a countdown timer") {
-                    self?.loginSuccessful = true
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)){
+                        self?.loginSuccessful = true
+                    }
                 } else {
                     print("Was not able to login")
                     self?.loginSuccessful = false
