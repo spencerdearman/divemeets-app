@@ -12,7 +12,7 @@ struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
     @Environment(\.meetsDB) var db
     @EnvironmentObject private var p: MeetParser
-    @State private var selectedTab: Tab = .house
+    @State private var selectedTab: Tab = .person
     @State var isIndexingMeets: Bool = false
     @FetchRequest(sortDescriptors: []) private var meets: FetchedResults<DivingMeet>
     
@@ -99,14 +99,6 @@ struct ContentView: View {
             } else if scenePhase == .active && newPhase == .inactive {
                 GlobalCaches.saveAllCaches()
             }
-        }
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ForEach(ColorScheme.allCases, id: \.self) {
-            ContentView().preferredColorScheme($0)
         }
     }
 }

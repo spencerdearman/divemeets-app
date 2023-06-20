@@ -91,9 +91,6 @@ struct LoginSearchInputView: View {
                     .zIndex(1)
                     .offset(y: 90)
                 } else {
-                    Text("Login")
-                        .font(.title)
-                        .bold()
                     
                     LoginPageSearchView(divemeetsID: $divemeetsID, password: $password,
                                         focusedField: $focusedField)
@@ -196,6 +193,35 @@ struct LoginPageSearchView: View {
     
     var body: some View {
         VStack {
+            GeometryReader { geometry in
+                ZStack{
+                    Circle()
+                        .fill(Custom.darkBlue) // Circle color
+                        .frame(width: geometry.size.width
+                               * 2.5, height: geometry.size.width * 2.5) // Adjust the size of the circle as desired
+                        .position(x: geometry.size.width / 2, y: -geometry.size.width * 0.55) // Center the circle
+                        .shadow(radius: 15)
+                    Circle()
+                        .fill(Custom.coolBlue) // Circle color
+                        .frame(width: geometry.size.width
+                               * 2.0, height: geometry.size.width * 2.0)
+                        .position(x: geometry.size.width / 2, y: -geometry.size.width * 0.55)
+                        .shadow(radius: 15)
+                    Circle()
+                        .fill(Custom.medBlue) // Circle color
+                        .frame(width: geometry.size.width
+                               * 1.5, height: geometry.size.width * 1.5)
+                        .position(x: geometry.size.width / 2, y: -geometry.size.width * 0.55)
+                        .shadow(radius: 15)
+                }
+            }
+            //            ZStack{
+            //                Rectangle()
+            //                    .ignoresSafeArea()
+            //                    .foregroundColor(Custom.darkBlue)
+            //                    .frame(height: 350)
+            //                Circle()
+            //                Text("Login")
             HStack {
                 Text("DiveMeets ID:")
                     .padding(.leading)
