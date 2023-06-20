@@ -73,9 +73,6 @@ struct LoginSearchInputView: View {
     @Binding var loggedIn: Bool
     private let cornerRadius: CGFloat = 30
     
-    //FOR CUSTOM ANIMATION
-    @Namespace var namespace
-    
     var body: some View {
         ZStack {
             (currentMode == .light ? Color.white : Color.black)
@@ -87,41 +84,43 @@ struct LoginSearchInputView: View {
             
             ZStack {
                 GeometryReader { geometry in
-                    ZStack{
-                        Circle()
-                            .fill(Custom.darkBlue) // Circle color
-                            .frame(width: geometry.size.width
-                                   * 2.5, height: geometry.size.width * 2.5) // Adjust the size of the circle as desired
-                            .position(x: loginSuccessful ? geometry.size.width: geometry.size.width / 2, y: loginSuccessful ? -geometry.size.width * 0.55 : -geometry.size.width * 0.55) // Center the circle
-                            .shadow(radius: 15)
-                            .matchedGeometryEffect(id: "sphere1", in: namespace)
-                        Circle()
-                            .fill(Custom.coolBlue) // Circle color
-                            .frame(width: loginSuccessful ? geometry.size.width
-                                   * 1.3 : geometry.size.width
-                                   * 2.0, height: loginSuccessful ? geometry.size.width * 1.3 : geometry.size.width * 2.0)
-                            .position(x: loginSuccessful ? geometry.size.width * 0.8 : geometry.size.width / 2, y: loginSuccessful ? geometry.size.width * 0.6 : -geometry.size.width * 0.55)
-                            .shadow(radius: 15)
-                            .matchedGeometryEffect(id: "sphere2", in: namespace)
-                        Circle()
-                            .fill(Custom.medBlue) // Circle color
-                            .frame(width: loginSuccessful ? geometry.size.width
-                                   * 1.1 : geometry.size.width
-                                   * 1.5, height: loginSuccessful ? geometry.size.width * 1.1 : geometry.size.width * 1.5)
-                            .position(x: loginSuccessful ? 0 : geometry.size.width / 2, y: loginSuccessful ? geometry.size.width * 0.65 : -geometry.size.width * 0.55)
-                            .shadow(radius: 15)
-                            .matchedGeometryEffect(id: "sphere3", in: namespace)
+                    VStack {
+                        ZStack{
+                            Circle()
+                                .fill(Custom.darkBlue) // Circle color
+                                .frame(width: geometry.size.width
+                                       * 2.5, height: geometry.size.width * 2.5) // Adjust the size of the circle as desired
+                                .position(x: loginSuccessful ? geometry.size.width: geometry.size.width / 2, y: loginSuccessful ? -geometry.size.width * 0.55 : -geometry.size.width * 0.55) // Center the circle
+                                .shadow(radius: 15)
+                            //.matchedGeometryEffect(id: "sphere1", in: namespace)
+                            Circle()
+                                .fill(Custom.coolBlue) // Circle color
+                                .frame(width: loginSuccessful ? geometry.size.width
+                                       * 1.3 : geometry.size.width
+                                       * 2.0, height: loginSuccessful ? geometry.size.width * 1.3 : geometry.size.width * 2.0)
+                                .position(x: loginSuccessful ? geometry.size.width * 0.8 : geometry.size.width / 2, y: loginSuccessful ? geometry.size.width * 0.6 : -geometry.size.width * 0.55)
+                                .shadow(radius: 15)
+                            //.matchedGeometryEffect(id: "sphere2", in: namespace)
+                            Circle()
+                                .fill(Custom.medBlue) // Circle color
+                                .frame(width: loginSuccessful ? geometry.size.width
+                                       * 1.1 : geometry.size.width
+                                       * 1.5, height: loginSuccessful ? geometry.size.width * 1.1 : geometry.size.width * 1.5)
+                                .position(x: loginSuccessful ? 0 : geometry.size.width / 2, y: loginSuccessful ? geometry.size.width * 0.65 : -geometry.size.width * 0.55)
+                                .shadow(radius: 15)
+                            //.matchedGeometryEffect(id: "sphere3", in: namespace)
+                        }
                     }
                 }
                 VStack {
                     if loginSuccessful {
                         LoginProfile(
                             link: "https://secure.meetcontrol.com/divemeets/system/profile.php?number="
-                            + divemeetsID, diverID: divemeetsID, loggedIn: $loggedIn, divemeetsID: $divemeetsID, password: $password, searchSubmitted: $searchSubmitted, loginSuccessful: $loginSuccessful, loginSearchSubmitted: $loginSearchSubmitted, namespace: namespace)
+                            + divemeetsID, diverID: divemeetsID, loggedIn: $loggedIn, divemeetsID: $divemeetsID, password: $password, searchSubmitted: $searchSubmitted, loginSuccessful: $loginSuccessful, loginSearchSubmitted: $loginSearchSubmitted)
                         .zIndex(1)
                         .offset(y: 90)
                     } else {
-                        LoginPageSearchView(showError: $showError, divemeetsID: $divemeetsID, password: $password, searchSubmitted: $searchSubmitted, loginSuccessful: $loginSuccessful, progressView: $progressView, errorMessage: $errorMessage, focusedField: $focusedField, namespace: namespace)
+                        LoginPageSearchView(showError: $showError, divemeetsID: $divemeetsID, password: $password, searchSubmitted: $searchSubmitted, loginSuccessful: $loginSuccessful, progressView: $progressView, errorMessage: $errorMessage, focusedField: $focusedField)
                             .toolbar {
                                 ToolbarItemGroup(placement: .keyboard) {
                                     Button(action: previous) {
@@ -167,7 +166,6 @@ struct LoginPageSearchView: View {
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
     }
-    let namespace: Namespace.ID
     
     var body: some View {
         VStack{
