@@ -149,7 +149,7 @@ struct ProfileView: View {
                                     Text(meetName)
                                         .font(.title3)
                                         .bold()
-                                    VStack(spacing: 0) {
+                                    VStack(spacing: 5) {
                                         ForEach(events.sorted(by: { $0.key < $1.key }),
                                                 id: \.key) { eventName, entry in
                                             EntryView(entry: entry) {
@@ -161,6 +161,7 @@ struct ProfileView: View {
                                         }
                                     }
                                     .padding(.leading)
+                                    .padding(.top, 5)
                                 }
                                 .padding(.top, 5)
                             }
