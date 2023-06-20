@@ -85,33 +85,62 @@ struct LoginSearchInputView: View {
                     focusedField = nil
                 }
             
-            VStack {
-                if loginSuccessful {
-                    LoginProfile(
-                        link: "https://secure.meetcontrol.com/divemeets/system/profile.php?number="
-                        + divemeetsID, diverID: divemeetsID, loggedIn: $loggedIn, divemeetsID: $divemeetsID, password: $password, searchSubmitted: $searchSubmitted, loginSuccessful: $loginSuccessful, loginSearchSubmitted: $loginSearchSubmitted, namespace: namespace)
-                    .zIndex(1)
-                    .offset(y: 90)
-                } else {
-                    LoginPageSearchView(showError: $showError, divemeetsID: $divemeetsID, password: $password, searchSubmitted: $searchSubmitted, loginSuccessful: $loginSuccessful, progressView: $progressView, errorMessage: $errorMessage, focusedField: $focusedField, namespace: namespace)
-                    .toolbar {
-                        ToolbarItemGroup(placement: .keyboard) {
-                            Button(action: previous) {
-                                Image(systemName: "chevron.up")
+            ZStack {
+                GeometryReader { geometry in
+                    ZStack{
+                        Circle()
+                            .fill(Custom.darkBlue) // Circle color
+                            .frame(width: geometry.size.width
+                                   * 2.5, height: geometry.size.width * 2.5) // Adjust the size of the circle as desired
+                            .position(x: loginSuccessful ? geometry.size.width: geometry.size.width / 2, y: loginSuccessful ? -geometry.size.width * 0.55 : -geometry.size.width * 0.55) // Center the circle
+                            .shadow(radius: 15)
+                            .matchedGeometryEffect(id: "sphere1", in: namespace)
+                        Circle()
+                            .fill(Custom.coolBlue) // Circle color
+                            .frame(width: loginSuccessful ? geometry.size.width
+                                   * 1.3 : geometry.size.width
+                                   * 2.0, height: loginSuccessful ? geometry.size.width * 1.3 : geometry.size.width * 2.0)
+                            .position(x: loginSuccessful ? geometry.size.width * 0.8 : geometry.size.width / 2, y: loginSuccessful ? geometry.size.width * 0.6 : -geometry.size.width * 0.55)
+                            .shadow(radius: 15)
+                            .matchedGeometryEffect(id: "sphere2", in: namespace)
+                        Circle()
+                            .fill(Custom.medBlue) // Circle color
+                            .frame(width: loginSuccessful ? geometry.size.width
+                                   * 1.1 : geometry.size.width
+                                   * 1.5, height: loginSuccessful ? geometry.size.width * 1.1 : geometry.size.width * 1.5)
+                            .position(x: loginSuccessful ? 0 : geometry.size.width / 2, y: loginSuccessful ? geometry.size.width * 0.65 : -geometry.size.width * 0.55)
+                            .shadow(radius: 15)
+                            .matchedGeometryEffect(id: "sphere3", in: namespace)
+                    }
+                }
+                VStack {
+                    if loginSuccessful {
+                        LoginProfile(
+                            link: "https://secure.meetcontrol.com/divemeets/system/profile.php?number="
+                            + divemeetsID, diverID: divemeetsID, loggedIn: $loggedIn, divemeetsID: $divemeetsID, password: $password, searchSubmitted: $searchSubmitted, loginSuccessful: $loginSuccessful, loginSearchSubmitted: $loginSearchSubmitted, namespace: namespace)
+                        .zIndex(1)
+                        .offset(y: 90)
+                    } else {
+                        LoginPageSearchView(showError: $showError, divemeetsID: $divemeetsID, password: $password, searchSubmitted: $searchSubmitted, loginSuccessful: $loginSuccessful, progressView: $progressView, errorMessage: $errorMessage, focusedField: $focusedField, namespace: namespace)
+                            .toolbar {
+                                ToolbarItemGroup(placement: .keyboard) {
+                                    Button(action: previous) {
+                                        Image(systemName: "chevron.up")
+                                    }
+                                    .disabled(hasReachedStart)
+                                    
+                                    Button(action: next) {
+                                        Image(systemName: "chevron.down")
+                                    }
+                                    .disabled(hasReachedEnd)
+                                    
+                                    Spacer()
+                                    
+                                    Button(action: dismissKeyboard) {
+                                        Text("**Done**")
+                                    }
+                                }
                             }
-                            .disabled(hasReachedStart)
-                            
-                            Button(action: next) {
-                                Image(systemName: "chevron.down")
-                            }
-                            .disabled(hasReachedEnd)
-                            
-                            Spacer()
-                            
-                            Button(action: dismissKeyboard) {
-                                Text("**Done**")
-                            }
-                        }
                     }
                 }
             }
@@ -141,142 +170,115 @@ struct LoginPageSearchView: View {
     let namespace: Namespace.ID
     
     var body: some View {
-        ZStack {
-            GeometryReader { geometry in
-                ZStack{
-                    Circle()
-                        .fill(Custom.darkBlue) // Circle color
-                        .frame(width: geometry.size.width
-                               * 2.5, height: geometry.size.width * 2.5) // Adjust the size of the circle as desired
-                        .position(x: geometry.size.width / 2, y: -geometry.size.width * 0.55) // Center the circle
-                        .shadow(radius: 15)
-                        .matchedGeometryEffect(id: "sphere1", in: namespace)
-                    Circle()
-                        .fill(Custom.coolBlue) // Circle color
-                        .frame(width: geometry.size.width
-                               * 2.0, height: geometry.size.width * 2.0)
-                        .position(x: geometry.size.width / 2, y: -geometry.size.width * 0.55)
-                        .shadow(radius: 15)
-                        .matchedGeometryEffect(id: "sphere2", in: namespace)
-                    Circle()
-                        .fill(Custom.medBlue) // Circle color
-                        .frame(width: geometry.size.width
-                               * 1.5, height: geometry.size.width * 1.5)
-                        .position(x: geometry.size.width / 2, y: -geometry.size.width * 0.55)
-                        .shadow(radius: 15)
-                        .matchedGeometryEffect(id: "sphere3", in: namespace)
-                }
-            }
+        VStack{
+            Spacer()
+            Spacer()
             VStack{
-                Spacer()
-                Spacer()
-                VStack{
-                    Text("Login")
-                }
-                .alignmentGuide(.leading) { _ in
-                            -UIScreen.main.bounds.width / 2 // Align the text to the leading edge of the screen
-                        }
-                .bold()
-                .font(.title)
-                .padding()
-                HStack {
-                    Text("DiveMeets ID:")
-                        .padding(.leading)
-                    TextField("DiveMeets ID", text: $divemeetsID)
-                        .modifier(LoginTextFieldClearButton(text: $divemeetsID,
-                                                            fieldType: .diveMeetsId,
-                                                            focusedField: focusedField))
-                        .textContentType(.username)
-                        .keyboardType(.numberPad)
-                        .textFieldStyle(.roundedBorder)
-                        .focused(focusedField, equals: .diveMeetsId)
-                    Image(systemName: "eye.circle")
-                        .opacity(0.0)
-                        .padding(.trailing)
-                }
-                HStack {
-                    Text("Password:")
-                        .padding(.leading)
-                    if isPasswordVisible {
-                        TextField("Password", text: $password)
-                            .modifier(LoginTextFieldClearButton(text: $password,
-                                                                fieldType: .passwd,
-                                                                focusedField: focusedField))
-                            .textContentType(.password)
-                            .autocapitalization(.none)
-                            .keyboardType(.default)
-                            .textFieldStyle(.roundedBorder)
-                            .focused(focusedField, equals: .passwd)
-                    } else {
-                        SecureField("Password", text: $password)
-                            .modifier(LoginTextFieldClearButton(text: $password,
-                                                                fieldType: .passwd,
-                                                                focusedField: focusedField))
-                            .textFieldStyle(.roundedBorder)
-                            .autocapitalization(.none)
-                            .focused(focusedField, equals: .passwd)
-                    }
-                    Button(action: {
-                        isPasswordVisible.toggle()
-                    }) {
-                        Image(systemName: isPasswordVisible ? "eye.circle" : "eye.slash.circle")
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.trailing)
-                }
-                
-                Button(action: {
-                    // Need to initially set search to false so webView gets recreated
-                    searchSubmitted = false
-                    errorMessage = false
-                    // Only submits a search if one of the relevant fields is filled,
-                    // otherwise toggles error
-                    if checkFields(divemeetsID: divemeetsID,
-                                   password: password) {
-                        showError = false
-                        searchSubmitted = true
-                    } else {
-                        showError = true
-                        searchSubmitted = false
-                    }
-                }, label: {
-                    Text("Submit")
-                        .animation(nil)
-                })
-                .buttonStyle(.bordered)
-                .cornerRadius(cornerRadius)
-                if (searchSubmitted && !loginSuccessful) {
-                    VStack {
-                        if progressView {
-                            ProgressView()
-                        }
-                    }
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-                            progressView = false
-                        }
-                    }
-                    VStack {
-                        if errorMessage {
-                            Text("Login unsuccessful, please try again")
-                                .padding()
-                        }
-                    }
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                            errorMessage = true
-                        }
-                    }
-                }
-                if showError {
-                    Text("You must enter both fields to search")
-                        .foregroundColor(Color.red)
-                    
-                } else {
-                    Text("")
-                }
-                Spacer()
+                Text("Login")
             }
+            .alignmentGuide(.leading) { _ in
+                -UIScreen.main.bounds.width / 2 // Align the text to the leading edge of the screen
+            }
+            .bold()
+            .font(.title)
+            .padding()
+            HStack {
+                Text("DiveMeets ID:")
+                    .padding(.leading)
+                TextField("DiveMeets ID", text: $divemeetsID)
+                    .modifier(LoginTextFieldClearButton(text: $divemeetsID,
+                                                        fieldType: .diveMeetsId,
+                                                        focusedField: focusedField))
+                    .textContentType(.username)
+                    .keyboardType(.numberPad)
+                    .textFieldStyle(.roundedBorder)
+                    .focused(focusedField, equals: .diveMeetsId)
+                Image(systemName: "eye.circle")
+                    .opacity(0.0)
+                    .padding(.trailing)
+            }
+            HStack {
+                Text("Password:")
+                    .padding(.leading)
+                if isPasswordVisible {
+                    TextField("Password", text: $password)
+                        .modifier(LoginTextFieldClearButton(text: $password,
+                                                            fieldType: .passwd,
+                                                            focusedField: focusedField))
+                        .textContentType(.password)
+                        .autocapitalization(.none)
+                        .keyboardType(.default)
+                        .textFieldStyle(.roundedBorder)
+                        .focused(focusedField, equals: .passwd)
+                } else {
+                    SecureField("Password", text: $password)
+                        .modifier(LoginTextFieldClearButton(text: $password,
+                                                            fieldType: .passwd,
+                                                            focusedField: focusedField))
+                        .textFieldStyle(.roundedBorder)
+                        .autocapitalization(.none)
+                        .focused(focusedField, equals: .passwd)
+                }
+                Button(action: {
+                    isPasswordVisible.toggle()
+                }) {
+                    Image(systemName: isPasswordVisible ? "eye.circle" : "eye.slash.circle")
+                        .foregroundColor(.gray)
+                }
+                .padding(.trailing)
+            }
+            
+            Button(action: {
+                // Need to initially set search to false so webView gets recreated
+                searchSubmitted = false
+                errorMessage = false
+                // Only submits a search if one of the relevant fields is filled,
+                // otherwise toggles error
+                if checkFields(divemeetsID: divemeetsID,
+                               password: password) {
+                    showError = false
+                    searchSubmitted = true
+                } else {
+                    showError = true
+                    searchSubmitted = false
+                }
+            }, label: {
+                Text("Submit")
+                    .animation(nil)
+            })
+            .buttonStyle(.bordered)
+            .cornerRadius(cornerRadius)
+            if (searchSubmitted && !loginSuccessful) {
+                VStack {
+                    if progressView {
+                        ProgressView()
+                    }
+                }
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+                        progressView = false
+                    }
+                }
+                VStack {
+                    if errorMessage {
+                        Text("Login unsuccessful, please try again")
+                            .padding()
+                    }
+                }
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                        errorMessage = true
+                    }
+                }
+            }
+            if showError {
+                Text("You must enter both fields to search")
+                    .foregroundColor(Color.red)
+                
+            } else {
+                Text("")
+            }
+            Spacer()
         }
         .padding(.bottom, maxHeightOffset)
         .onAppear {

@@ -73,31 +73,6 @@ struct LoginProfile: View {
         if profileType == "Diver" {
                 VStack {
                     VStack {
-                        GeometryReader { geometry in
-                            ZStack{
-                                Circle()
-                                    .fill(Custom.darkBlue) // Circle color
-                                    .frame(width: geometry.size.width
-                                           * 2.5, height: geometry.size.width * 2.5).animation(.easeInOut(duration: 1.0))// Adjust the size of the circle as desired
-                                    .position(x: geometry.size.width * 1, y: -geometry.size.width * 0.55) // Center the circle
-                                    .shadow(radius: 15)
-                                    .matchedGeometryEffect(id: "sphere1", in: namespace)
-                                Circle()
-                                    .fill(Custom.coolBlue) // Circle color
-                                    .frame(width: geometry.size.width
-                                           * 1.4, height: geometry.size.width * 1.4)
-                                    .position(x: geometry.size.width * 0.8, y: geometry.size.width * 0.6)
-                                    .shadow(radius: 15)
-                                    .matchedGeometryEffect(id: "sphere2", in: namespace)
-                                Circle()
-                                    .fill(Custom.medBlue) // Circle color
-                                    .frame(width: geometry.size.width
-                                           * 1.2, height: geometry.size.width * 1.2)
-                                    .position(x: 0, y: geometry.size.width * 0.35)
-                                    .shadow(radius: 15)
-                                    .matchedGeometryEffect(id: "sphere3", in: namespace)
-                            }
-                        }
                         ZStack{
                             Button("Logout", action: {
                                 withAnimation(.spring(response: 0.6, dampingFraction: 0.8)){
