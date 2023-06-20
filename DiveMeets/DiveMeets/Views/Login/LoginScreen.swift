@@ -59,7 +59,7 @@ struct LoginSearchView: View {
 
 struct LoginSearchInputView: View {
     @Environment(\.colorScheme) var currentMode
-    @State private var showError: Bool = false
+    @State var showError: Bool = false
     @FocusState private var focusedField: LoginField?
     @State private var errorMessage: Bool = false
     @State var progressView = true
@@ -91,9 +91,7 @@ struct LoginSearchInputView: View {
                     .zIndex(1)
                     .offset(y: 90)
                 } else {
-                    
-                    LoginPageSearchView(divemeetsID: $divemeetsID, password: $password,
-                                        focusedField: $focusedField)
+                    LoginPageSearchView(showError: $showError, divemeetsID: $divemeetsID, password: $password, searchSubmitted: $searchSubmitted, loginSuccessful: $loginSuccessful, progressView: $progressView, errorMessage: $errorMessage, focusedField: $focusedField)
                     .toolbar {
                         ToolbarItemGroup(placement: .keyboard) {
                             Button(action: previous) {
@@ -114,62 +112,62 @@ struct LoginSearchInputView: View {
                         }
                     }
                     
-                    VStack {
-                        Button(action: {
-                            // Need to initially set search to false so webView gets recreated
-                            searchSubmitted = false
-                            // Only submits a search if one of the relevant fields is filled,
-                            // otherwise toggles error
-                            if checkFields(divemeetsID: divemeetsID,
-                                           password: password) {
-                                showError = false
-                                searchSubmitted = true
-                            } else {
-                                showError = true
-                                searchSubmitted = false
-                            }
-                        }, label: {
-                            Text("Submit")
-                                .animation(nil)
-                        })
-                        .buttonStyle(.bordered)
-                        .cornerRadius(cornerRadius)
-                        if (searchSubmitted && !loginSuccessful) {
-                            VStack {
-                                if progressView {
-                                    ProgressView()
-                                }
-                            }
-                            .onAppear {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-                                    progressView = false
-                                }
-                            }
-                            VStack {
-                                if errorMessage {
-                                    Text("Login Not Successful")
-                                }
-                            }
-                            .onAppear {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                                    errorMessage = true
-                                }
-                            }
-                        }
-                        
-                        
-                    }
-                    if showError {
-                        Text("You must enter both fields to search")
-                            .foregroundColor(Color.red)
-                        
-                    } else {
-                        Text("")
-                    }
-                    
-                    Spacer()
-                    Spacer()
-                    Spacer()
+//                    VStack {
+//                        Button(action: {
+//                            // Need to initially set search to false so webView gets recreated
+//                            searchSubmitted = false
+//                            // Only submits a search if one of the relevant fields is filled,
+//                            // otherwise toggles error
+//                            if checkFields(divemeetsID: divemeetsID,
+//                                           password: password) {
+//                                showError = false
+//                                searchSubmitted = true
+//                            } else {
+//                                showError = true
+//                                searchSubmitted = false
+//                            }
+//                        }, label: {
+//                            Text("Submit")
+//                                .animation(nil)
+//                        })
+//                        .buttonStyle(.bordered)
+//                        .cornerRadius(cornerRadius)
+////                        if (searchSubmitted && !loginSuccessful) {
+////                            VStack {
+////                                if progressView {
+////                                    ProgressView()
+////                                }
+////                            }
+////                            .onAppear {
+////                                DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+////                                    progressView = false
+////                                }
+////                            }
+////                            VStack {
+////                                if errorMessage {
+////                                    Text("Login Not Successful")
+////                                }
+////                            }
+////                            .onAppear {
+////                                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+////                                    errorMessage = true
+////                                }
+////                            }
+////                        }
+//
+//
+////                    }
+//                    if showError {
+//                        Text("You must enter both fields to search")
+//                            .foregroundColor(Color.red)
+//
+//                    } else {
+//                        Text("")
+//                    }
+//
+//                    Spacer()
+//                    Spacer()
+//                    Spacer()
                 }
             }
         }
@@ -181,11 +179,18 @@ struct LoginSearchInputView: View {
 
 
 struct LoginPageSearchView: View {
+    @Binding var showError: Bool
     @Binding var divemeetsID: String
     @Binding var password: String
+    @Binding var searchSubmitted: Bool
+    @Binding var loginSuccessful: Bool
+    @Binding var progressView: Bool
+    @Binding var errorMessage: Bool
     @State private var isPasswordVisible = false
     fileprivate var focusedField: FocusState<LoginField?>.Binding
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
+    
+    private let cornerRadius: CGFloat = 30
     
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
@@ -215,58 +220,106 @@ struct LoginPageSearchView: View {
                         .shadow(radius: 15)
                 }
             }
-            //            ZStack{
-            //                Rectangle()
-            //                    .ignoresSafeArea()
-            //                    .foregroundColor(Custom.darkBlue)
-            //                    .frame(height: 350)
-            //                Circle()
-            //                Text("Login")
-            HStack {
-                Text("DiveMeets ID:")
-                    .padding(.leading)
-                TextField("DiveMeets ID", text: $divemeetsID)
-                    .modifier(LoginTextFieldClearButton(text: $divemeetsID,
-                                                        fieldType: .diveMeetsId,
-                                                        focusedField: focusedField))
-                    .textContentType(.username)
-                    .keyboardType(.numberPad)
-                    .textFieldStyle(.roundedBorder)
-                    .focused(focusedField, equals: .diveMeetsId)
-                Image(systemName: "eye.circle")
-                    .opacity(0.0)
+            VStack{
+                Text("Login")
+                    .bold()
+                    .font(.title)
+                HStack {
+                    Text("DiveMeets ID:")
+                        .padding(.leading)
+                    TextField("DiveMeets ID", text: $divemeetsID)
+                        .modifier(LoginTextFieldClearButton(text: $divemeetsID,
+                                                            fieldType: .diveMeetsId,
+                                                            focusedField: focusedField))
+                        .textContentType(.username)
+                        .keyboardType(.numberPad)
+                        .textFieldStyle(.roundedBorder)
+                        .focused(focusedField, equals: .diveMeetsId)
+                    Image(systemName: "eye.circle")
+                        .opacity(0.0)
+                        .padding(.trailing)
+                }
+                HStack {
+                    Text("Password:")
+                        .padding(.leading)
+                    if isPasswordVisible {
+                        TextField("Password", text: $password)
+                            .modifier(LoginTextFieldClearButton(text: $password,
+                                                                fieldType: .passwd,
+                                                                focusedField: focusedField))
+                            .textContentType(.password)
+                            .autocapitalization(.none)
+                            .keyboardType(.default)
+                            .textFieldStyle(.roundedBorder)
+                            .focused(focusedField, equals: .passwd)
+                    } else {
+                        SecureField("Password", text: $password)
+                            .modifier(LoginTextFieldClearButton(text: $password,
+                                                                fieldType: .passwd,
+                                                                focusedField: focusedField))
+                            .textFieldStyle(.roundedBorder)
+                            .autocapitalization(.none)
+                            .focused(focusedField, equals: .passwd)
+                    }
+                    Button(action: {
+                        isPasswordVisible.toggle()
+                    }) {
+                        Image(systemName: isPasswordVisible ? "eye.circle" : "eye.slash.circle")
+                            .foregroundColor(.gray)
+                    }
                     .padding(.trailing)
-            }
-            HStack {
-                Text("Password:")
-                    .padding(.leading)
-                if isPasswordVisible {
-                    TextField("Password", text: $password)
-                        .modifier(LoginTextFieldClearButton(text: $password,
-                                                            fieldType: .passwd,
-                                                            focusedField: focusedField))
-                        .textContentType(.password)
-                        .autocapitalization(.none)
-                        .keyboardType(.default)
-                        .textFieldStyle(.roundedBorder)
-                        .focused(focusedField, equals: .passwd)
-                } else {
-                    SecureField("Password", text: $password)
-                        .modifier(LoginTextFieldClearButton(text: $password,
-                                                            fieldType: .passwd,
-                                                            focusedField: focusedField))
-                        .textFieldStyle(.roundedBorder)
-                        .autocapitalization(.none)
-                        .focused(focusedField, equals: .passwd)
                 }
+                
                 Button(action: {
-                    isPasswordVisible.toggle()
-                }) {
-                    Image(systemName: isPasswordVisible ? "eye.circle" : "eye.slash.circle")
-                        .foregroundColor(.gray)
+                    // Need to initially set search to false so webView gets recreated
+                    searchSubmitted = false
+                    // Only submits a search if one of the relevant fields is filled,
+                    // otherwise toggles error
+                    if checkFields(divemeetsID: divemeetsID,
+                                   password: password) {
+                        showError = false
+                        searchSubmitted = true
+                    } else {
+                        showError = true
+                        searchSubmitted = false
+                    }
+                }, label: {
+                    Text("Submit")
+                        .animation(nil)
+                })
+                .buttonStyle(.bordered)
+                .cornerRadius(cornerRadius)
+                if (searchSubmitted && !loginSuccessful) {
+                    VStack {
+                        if progressView {
+                            ProgressView()
+                        }
+                    }
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+                            progressView = false
+                        }
+                    }
+                    VStack {
+                        if errorMessage {
+                            Text("Login Not Successful")
+                        }
+                    }
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                            errorMessage = true
+                        }
+                    }
                 }
-                .padding(.trailing)
+                if showError {
+                    Text("You must enter both fields to search")
+                        .foregroundColor(Color.red)
+                    
+                } else {
+                    Text("")
+                }
             }
+            .offset(y: -(UIScreen.main.bounds.size.height * 0.3))
         }
         .padding(.bottom, maxHeightOffset)
         .onAppear {
