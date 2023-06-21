@@ -80,6 +80,7 @@ struct LoginProfile: View {
                                 loginSearchSubmitted = false
                                 diverData = []
                                 profileType = ""
+                                searchSubmitted = false
                             }
                         })
                         .buttonStyle(.bordered)
