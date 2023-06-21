@@ -102,11 +102,3 @@ struct ContentView: View {
         }
     }
 }
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ForEach(ColorScheme.allCases, id: \.self) {
-            ContentView().preferredColorScheme($0)
-        }
-    }
-}

@@ -24,8 +24,6 @@ func fixPlacement(data: [[String]] ) -> [[String]] {
     return data
 }
 
-
-
 struct LoginProfile: View {
     var profileLink: String
     var diverID : String
@@ -38,6 +36,7 @@ struct LoginProfile: View {
     @State var diverData : [[String]] = []
     @State var profileType : String = ""
     @StateObject private var parser = HTMLParser()
+    
     
     init(link: String, diverID: String = "00000", loggedIn: Binding<Bool>, divemeetsID: Binding<String>, password: Binding<String>, searchSubmitted: Binding<Bool>, loginSuccessful: Binding<Bool>, loginSearchSubmitted: Binding<Bool>) {
         self.profileLink = link
@@ -68,10 +67,11 @@ struct LoginProfile: View {
             }
         
         if profileType == "Diver" {
+            VStack {
                 VStack {
-                    VStack {
-                        ZStack{
-                            Button("Logout", action: {
+                    ZStack{
+                        Button("Logout", action: {
+                            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)){
                                 loggedIn = false // add this
                                 divemeetsID = ""
                                 password = ""
@@ -80,67 +80,68 @@ struct LoginProfile: View {
                                 loginSearchSubmitted = false
                                 diverData = []
                                 profileType = ""
-                            })
-                            .buttonStyle(.bordered)
-                            .cornerRadius(30)
-                            .offset(x:-150, y:-215)
-                            ProfileImage(diverID: diverID)
-                                .offset(y:-100)
-                        }
-                        VStack {
-                            VStack(alignment: .leading) {
-                                HStack (alignment: .firstTextBaseline) {
-                                    let firstName = diverData[0][0].slice(from: "Name: ", to: " ") ?? ""
-                                    let lastName =
-                                    diverData[0][0].slice(from: firstName + " ", to: " ") ?? ""
-                                    
-                                    diverData != []
-                                    ? Text(firstName + " " + lastName) .font(.title)
-                                    : Text("")
-                                    
-                                    Text(diverID)
-                                        .font(.subheadline).foregroundColor(.secondary)
-                                }
-                                Divider()
-                                HStack (alignment: .firstTextBaseline) {
-                                    Image(systemName: "house.fill")
-                                    diverData != []
-                                    ? Text(
-                                        (diverData[0][0].slice(from: "State: ", to: " Country")  ?? "")
-                                        + ", "
-                                        + (diverData[0][0].slice(from: " Country: ",
-                                                                 to: " Gender") ?? ""))
-                                    : Text("")
-                                }
-                                .font(.subheadline)
-                                HStack (alignment: .firstTextBaseline) {
-                                    Image(systemName: "person.circle")
-                                    diverData != []
-                                    ? Text("Gender: " +
-                                           (diverData[0][0].slice(from: " Gender: ", to: " Age") ?? ""))
-                                    : Text("")
-                                    diverData != []
-                                    ? Text("Age: " +
-                                           (diverData[0][0].slice(from: " Age: ", to: " FINA") ?? ""))
-                                    : Text("")
-                                    diverData != []
-                                    ? Text("FINA Age: " +
-                                           (diverData[0][0].slice(from: " FINA Age: ",
-                                                                  to: " High") ?? ""))
-                                    : Text("")
-                                }
-                                .font(.subheadline)
-                                .padding([.leading], 2)
-                                Divider()
                             }
-                            .offset(y:-150)
-                        }
-                        .padding()
-                        
+                        })
+                        .buttonStyle(.bordered)
+                        .cornerRadius(30)
+                        .offset(x:-150, y:-215)
+                        ProfileImage(diverID: diverID)
+                            .offset(y:-100)
                     }
-                    MeetList(profileLink: profileLink)
-                        .offset(y: -160)
+                    VStack {
+                        VStack(alignment: .leading) {
+                            HStack (alignment: .firstTextBaseline) {
+                                let firstName = diverData[0][0].slice(from: "Name: ", to: " ") ?? ""
+                                let lastName =
+                                diverData[0][0].slice(from: firstName + " ", to: " ") ?? ""
+                                
+                                diverData != []
+                                ? Text(firstName + " " + lastName) .font(.title).foregroundColor(.white)
+                                : Text("")
+                                
+                                Text(diverID)
+                                    .font(.subheadline).foregroundColor(.secondary)
+                            }
+                            Divider()
+                            HStack (alignment: .firstTextBaseline) {
+                                Image(systemName: "house.fill")
+                                diverData != []
+                                ? Text(
+                                    (diverData[0][0].slice(from: "State: ", to: " Country")  ?? "")
+                                    + ", "
+                                    + (diverData[0][0].slice(from: " Country: ",
+                                                             to: " Gender") ?? ""))
+                                : Text("")
+                            }
+                            .font(.subheadline).foregroundColor(.white)
+                            HStack (alignment: .firstTextBaseline) {
+                                Image(systemName: "person.circle")
+                                diverData != []
+                                ? Text("Gender: " +
+                                       (diverData[0][0].slice(from: " Gender: ", to: " Age") ?? ""))
+                                : Text("")
+                                diverData != []
+                                ? Text("Age: " +
+                                       (diverData[0][0].slice(from: " Age: ", to: " FINA") ?? ""))
+                                : Text("")
+                                diverData != []
+                                ? Text("FINA Age: " +
+                                       (diverData[0][0].slice(from: " FINA Age: ",
+                                                              to: " High") ?? ""))
+                                : Text("")
+                            }
+                            .font(.subheadline).foregroundColor(.white)
+                            .padding([.leading], 2)
+                            Divider()
+                        }
+                        .offset(y:-150)
+                    }
+                    .padding()
+                    
                 }
+                MeetList(profileLink: profileLink)
+                    .offset(y: -160)
+            }
             
         } else {
             VStack {
