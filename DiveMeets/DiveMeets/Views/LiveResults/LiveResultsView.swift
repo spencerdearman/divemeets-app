@@ -362,7 +362,7 @@ struct LastDiverView: View
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(.gray)
+                .fill(Custom.lightBlue)
                 .cornerRadius(50)
                 .shadow(radius: 20)
             VStack{
@@ -410,7 +410,7 @@ struct NextDiverView: View
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(.gray)
+                .fill(Custom.coolBlue)
                 .cornerRadius(50)
                 .shadow(radius: 20)
             VStack{
