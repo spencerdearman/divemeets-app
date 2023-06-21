@@ -62,39 +62,3 @@ struct TileSwapView<U: View, V: View>: View {
         }
     }
 }
-
-//struct TopView: View {
-//    private let cornerRadius: CGFloat = 15
-//    private let shadowRadius: CGFloat = 20
-//
-//    var body: some View {
-//        ZStack {
-//            Rectangle()
-//                .fill(.red)
-//                .shadow(radius: shadowRadius)
-//                .cornerRadius(cornerRadius)
-//            VStack {
-//                Text("Logan")
-//                Text("Sherwin")
-//            }
-//        }
-//    }
-//}
-//
-//struct BottomView: View {
-//    private let cornerRadius: CGFloat = 15
-//    private let shadowRadius: CGFloat = 20
-//
-//    var body: some View {
-//        ZStack {
-//            Rectangle()
-//                .fill(.blue)
-//                .shadow(radius: shadowRadius)
-//                .cornerRadius(cornerRadius)
-//            VStack {
-//                Text("Spencer")
-//                Text("Dearman")
-//            }
-//        }
-//    }
-//}
