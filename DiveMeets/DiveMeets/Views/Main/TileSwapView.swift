@@ -15,6 +15,7 @@ struct TileSwapView<U: View, V: View>: View {
     var height: CGFloat
     var swapTime: CGFloat = 0.2
     var offset: CGFloat = 20
+    var scaleFactor: CGFloat = 0.9
      
     @State private var zIndices: [Double] = [1, 0]
     @State private var isInTransition: [Bool] = [false, false]
@@ -41,7 +42,7 @@ struct TileSwapView<U: View, V: View>: View {
     var body: some View {
         ZStack {
             topView
-                .frame(width: zIndices[0] == 1 ? width : width * 0.9, height: height)
+                .frame(width: zIndices[0] == 1 ? width : width * scaleFactor, height: height)
                 .zIndex(zIndices[0])
                 .offset(y: getYOffset(index: 0))
                 .onSwipeGesture(.up, trigger: .onEnded) {
@@ -50,7 +51,7 @@ struct TileSwapView<U: View, V: View>: View {
                 .animation(.spring(), value: isInTransition[0])
                 .animation(.spring(), value: zIndices)
             bottomView
-                .frame(width: zIndices[1] == 1 ? width : width * 0.9, height: height)
+                .frame(width: zIndices[1] == 1 ? width : width * scaleFactor, height: height)
                 .zIndex(zIndices[1])
                 .offset(y: getYOffset(index: 1))
                 .onSwipeGesture(.up, trigger: .onEnded) {
@@ -63,38 +64,38 @@ struct TileSwapView<U: View, V: View>: View {
     }
 }
 
-struct TopView: View {
-    private let cornerRadius: CGFloat = 15
-    private let shadowRadius: CGFloat = 20
-    
-    var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(.red)
-                .shadow(radius: shadowRadius)
-                .cornerRadius(cornerRadius)
-            VStack {
-                Text("Logan")
-                Text("Sherwin")
-            }
-        }
-    }
-}
-
-struct BottomView: View {
-    private let cornerRadius: CGFloat = 15
-    private let shadowRadius: CGFloat = 20
-    
-    var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(.blue)
-                .shadow(radius: shadowRadius)
-                .cornerRadius(cornerRadius)
-            VStack {
-                Text("Spencer")
-                Text("Dearman")
-            }
-        }
-    }
-}
+//struct TopView: View {
+//    private let cornerRadius: CGFloat = 15
+//    private let shadowRadius: CGFloat = 20
+//
+//    var body: some View {
+//        ZStack {
+//            Rectangle()
+//                .fill(.red)
+//                .shadow(radius: shadowRadius)
+//                .cornerRadius(cornerRadius)
+//            VStack {
+//                Text("Logan")
+//                Text("Sherwin")
+//            }
+//        }
+//    }
+//}
+//
+//struct BottomView: View {
+//    private let cornerRadius: CGFloat = 15
+//    private let shadowRadius: CGFloat = 20
+//
+//    var body: some View {
+//        ZStack {
+//            Rectangle()
+//                .fill(.blue)
+//                .shadow(radius: shadowRadius)
+//                .cornerRadius(cornerRadius)
+//            VStack {
+//                Text("Spencer")
+//                Text("Dearman")
+//            }
+//        }
+//    }
+//}
