@@ -61,7 +61,7 @@ struct ProfileView: View {
                 Task {
                     await parser.parse(urlString: profileLink)
                     diverData = parser.myData
-                    let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
+                     let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
                     
                     if divers != "" {
                         profileType = "Coach"
