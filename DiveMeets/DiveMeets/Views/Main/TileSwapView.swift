@@ -7,13 +7,15 @@
 
 import SwiftUI
 
-struct TileSwapView: View {
-    private let width: CGFloat = 300
-    private let height: CGFloat = 200
-    private let offset: CGFloat = 20
-    private let cornerRadius: CGFloat = 15
-    private let shadowRadius: CGFloat = 20
-    private let swapTime: CGFloat = 0.2
+// Only works with two views that have to be passed in directly
+struct TileSwapView<U: View, V: View>: View {
+    var topView: U
+    var bottomView: V
+    var width: CGFloat
+    var height: CGFloat
+    var swapTime: CGFloat = 0.2
+    var offset: CGFloat = 20
+     
     @State private var zIndices: [Double] = [1, 0]
     @State private var isInTransition: [Bool] = [false, false]
     
@@ -27,7 +29,7 @@ struct TileSwapView: View {
         }
     }
     
-    private func onTap(index: Int) {
+    private func swap(index: Int) {
         isInTransition[index] = true
         
         DispatchQueue.main.asyncAfter(deadline: .now() + swapTime) {
@@ -38,28 +40,22 @@ struct TileSwapView: View {
     
     var body: some View {
         ZStack {
-            Rectangle()
-                .fill(.red)
+            topView
                 .frame(width: zIndices[0] == 1 ? width : width * 0.9, height: height)
-                .shadow(radius: shadowRadius)
-                .cornerRadius(cornerRadius)
                 .zIndex(zIndices[0])
-                .onTapGesture {
-                    onTap(index: 0)
-                }
                 .offset(y: getYOffset(index: 0))
+                .onSwipeGesture(.up, trigger: .onEnded) {
+                    if zIndices[0] == 1 { swap(index: 0) }
+                }
                 .animation(.spring(), value: isInTransition[0])
                 .animation(.spring(), value: zIndices)
-            Rectangle()
-                .fill(.blue)
+            bottomView
                 .frame(width: zIndices[1] == 1 ? width : width * 0.9, height: height)
-                .shadow(radius: shadowRadius)
-                .cornerRadius(cornerRadius)
                 .zIndex(zIndices[1])
-                .onTapGesture {
-                    onTap(index: 1)
-                }
                 .offset(y: getYOffset(index: 1))
+                .onSwipeGesture(.up, trigger: .onEnded) {
+                    if zIndices[1] == 1 { swap(index: 1) }
+                }
                 .animation(.spring(), value: isInTransition[1])
                 .animation(.spring(), value: zIndices)
                 
@@ -67,8 +63,38 @@ struct TileSwapView: View {
     }
 }
 
-struct TileSwapView_Previews: PreviewProvider {
-    static var previews: some View {
-        TileSwapView()
+struct TopView: View {
+    private let cornerRadius: CGFloat = 15
+    private let shadowRadius: CGFloat = 20
+    
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(.red)
+                .shadow(radius: shadowRadius)
+                .cornerRadius(cornerRadius)
+            VStack {
+                Text("Logan")
+                Text("Sherwin")
+            }
+        }
+    }
+}
+
+struct BottomView: View {
+    private let cornerRadius: CGFloat = 15
+    private let shadowRadius: CGFloat = 20
+    
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(.blue)
+                .shadow(radius: shadowRadius)
+                .cornerRadius(cornerRadius)
+            VStack {
+                Text("Spencer")
+                Text("Dearman")
+            }
+        }
     }
 }
