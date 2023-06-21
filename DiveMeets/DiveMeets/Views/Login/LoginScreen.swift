@@ -34,26 +34,26 @@ struct LoginSearchView: View {
     @ViewBuilder
     var body: some View {
         
-        ZStack {
-            
-            if searchSubmitted {
-                LoginUIWebView(divemeetsID: $divemeetsID, password: $password,
-                               parsedUserHTML: $parsedUserHTML,
-                               loginSearchSubmitted: $loginSearchSubmitted,
-                               loginSuccessful: $loginSuccessful, loggedIn: $loggedIn)
+        NavigationView{
+            ZStack {
+                
+                if searchSubmitted {
+                    LoginUIWebView(divemeetsID: $divemeetsID, password: $password,
+                                   parsedUserHTML: $parsedUserHTML,
+                                   loginSearchSubmitted: $loginSearchSubmitted,
+                                   loginSuccessful: $loginSuccessful, loggedIn: $loggedIn)
+                }
+                
+                // Submit button doesn't switch pages in preview, but it works in Simulator
+                LoginSearchInputView(createdKey: $createdKey, divemeetsID: $divemeetsID,
+                                     password: $password, searchSubmitted: $searchSubmitted,
+                                     parsedUserHTML: $parsedUserHTML,
+                                     loginSearchSubmitted: $loginSearchSubmitted,
+                                     loginSuccessful: $loginSuccessful, loggedIn: $loggedIn)
             }
-            
-            // Submit button doesn't switch pages in preview, but it works in Simulator
-            LoginSearchInputView(createdKey: $createdKey, divemeetsID: $divemeetsID,
-                                 password: $password, searchSubmitted: $searchSubmitted,
-                                 parsedUserHTML: $parsedUserHTML,
-                                 loginSearchSubmitted: $loginSearchSubmitted,
-                                 loginSuccessful: $loginSuccessful, loggedIn: $loggedIn)
         }
-        .onDisappear {
-            searchSubmitted = false
-        }
-        
+        .navigationViewStyle(StackNavigationViewStyle())
+        .ignoresSafeArea(.keyboard)
     }
 }
 
