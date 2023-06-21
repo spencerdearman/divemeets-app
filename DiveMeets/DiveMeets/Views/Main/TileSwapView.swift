@@ -8,27 +8,61 @@
 import SwiftUI
 
 struct TileSwapView: View {
-    private let width: CGFloat = 100
-    private let height: CGFloat = 80
+    private let width: CGFloat = 300
+    private let height: CGFloat = 200
+    private let offset: CGFloat = 20
+    private let cornerRadius: CGFloat = 15
+    private let shadowRadius: CGFloat = 20
+    private let swapTime: CGFloat = 0.2
     @State private var zIndices: [Double] = [1, 0]
+    @State private var isInTransition: [Bool] = [false, false]
+    
+    private func getYOffset(index: Int) -> CGFloat {
+        if isInTransition[index] {
+            return -height + offset
+        } else if zIndices[index] == 1 {
+            return 0.0
+        } else {
+            return offset
+        }
+    }
+    
+    private func onTap(index: Int) {
+        isInTransition[index] = true
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + swapTime) {
+            zIndices.reverse()
+            isInTransition[index] = false
+        }
+    }
     
     var body: some View {
         ZStack {
             Rectangle()
                 .fill(.red)
-                .frame(width: width, height: height)
+                .frame(width: zIndices[0] == 1 ? width : width * 0.9, height: height)
+                .shadow(radius: shadowRadius)
+                .cornerRadius(cornerRadius)
                 .zIndex(zIndices[0])
                 .onTapGesture {
-                    zIndices.reverse()
+                    onTap(index: 0)
                 }
+                .offset(y: getYOffset(index: 0))
+                .animation(.spring(), value: isInTransition[0])
+                .animation(.spring(), value: zIndices)
             Rectangle()
                 .fill(.blue)
-                .frame(width: width, height: height)
-                .offset(y: 20)
+                .frame(width: zIndices[1] == 1 ? width : width * 0.9, height: height)
+                .shadow(radius: shadowRadius)
+                .cornerRadius(cornerRadius)
                 .zIndex(zIndices[1])
                 .onTapGesture {
-                    zIndices.reverse()
+                    onTap(index: 1)
                 }
+                .offset(y: getYOffset(index: 1))
+                .animation(.spring(), value: isInTransition[1])
+                .animation(.spring(), value: zIndices)
+                
         }
     }
 }
