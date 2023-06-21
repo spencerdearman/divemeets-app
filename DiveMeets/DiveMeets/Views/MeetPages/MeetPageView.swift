@@ -212,10 +212,15 @@ struct MeetPageView: View {
                 MeetResultsPageView(meetResultsData: meetResultsData)
                 
                 Spacer()
-            } else {
+            } else if meetLink != "" {
                 VStack {
                     Text("Getting meet information...")
                     ProgressView()
+                }
+            } else {
+                VStack {
+                    Text("There is not a results page available yet")
+                    Text("(Events may not have started yet)")
                 }
             }
         }
