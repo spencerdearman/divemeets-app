@@ -10,15 +10,27 @@
 import SwiftUI
 import SwiftSoup
 
+//  name, link, last round place, last round total, order, place, total, dive, height, dd,
+//score total, [judges scores]
+typealias LastDiverInfo = (String, String, Int, Double, Int, Int, Double, String, String, Double, Double, String)
+
+//nextDiverName, nextDiverProfileLink, lastRoundPlace, lastRoundTotalScore, order, nextDive,
+//height, dd, avgScore, maxScore, forFirstPlace
+typealias NextDiverInfo = (String, String, Int, Double, Int, String, String, Double, Double, Double, Double)
+
+//                    [[Left to dive, order, last round place, last round score, current place,
+//                      current score, name, link, last dive average, event average score, avg round score]]
+typealias DiveTable = [[String]]
+
 struct LiveResultsView: View {
     var request: String
     @State var shiftingBool: Bool = false
     let screenFrame = Color(.systemBackground)
     
     var body: some View {
-            ZStack {
-                parseBody(request: request, shiftingBool: $shiftingBool)
-            }
+        ZStack {
+            parseBody(request: request, shiftingBool: $shiftingBool)
+        }
     }
 }
 
@@ -39,40 +51,57 @@ struct parseBody: View {
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
     }
-    @State var lastDiverInformation:
-    //  name, link, last round place, last round total, order, place, total, dive, height, dd,
-    //score total, [judges scores]
-    (String, String, Int, Double, Int, Int, Double, String, String, Double, Double, String) =
-    ("", "", 0, 0.0, 0, 0, 0.0, "", "", 0.0, 0.0, "")
-    @State var nextDiverInformation: (String, String, Int, Double, Int, String, String, Double,
-                                      Double, Double, Double) = ("", "", 0, 0.0, 0, "", "", 0.0, 0.0, 0.0, 0.0)
-    //[Place: (Left to dive, order, last round place, last round score, current place,
-    //current score, name, last dive average, event average score, avg round score
-    @State var diveTable: [[String]] = []
+    
+    @State var lastDiverInformation: LastDiverInfo = ("", "", 0, 0.0, 0, 0, 0.0, "", "", 0.0, 0.0, "")
+    @State var nextDiverInformation: NextDiverInfo = ("", "", 0, 0.0, 0, "", "", 0.0, 0.0, 0.0, 0.0)
+    @State var diveTable: DiveTable = []
+    // Variable is unused \/
     @State var loadingStatus: Bool = false
     @State var loaded: Bool = true
+    
+    // Shows debug dataset, sets to true if "debug" is request string
+    @State private var debugMode: Bool = false
     
     let screenFrame = Color(.systemBackground)
     
     var body: some View {
-        if shiftingBool{
-            LRWebView(request: request, html: $html)
-                .onChange(of: html) { newValue in
-                    loaded = parseHelper(newValue: newValue)
+        ZStack {
+            // Only loads WebView if not in debug mode
+            if !debugMode {
+                if shiftingBool {
+                    LRWebView(request: request, html: $html)
+                        .onChange(of: html) { newValue in
+                            loaded = parseHelper(newValue: newValue)
+                        }
+                } else {
+                    LRWebView(request: request, html: $html)
+                        .onChange(of: html) { newValue in
+                            loaded = parseHelper(newValue: newValue)
+                        }
                 }
-        } else {
-            LRWebView(request: request, html: $html)
-                .onChange(of: html) { newValue in
-                    loaded = parseHelper(newValue: newValue)
-                }
+            }
+            
+            if loaded {
+                mainView(lastDiverInformation: $lastDiverInformation, nextDiverInformation:
+                            $nextDiverInformation, diveTable: $diveTable, focusViewList: $focusViewList,
+                         starSelected: $starSelected, shiftingBool: $shiftingBool, title: $title,
+                         roundString: $roundString)
+            } else {
+                errorView()
+            }
         }
-        if loaded {
-            mainView(lastDiverInformation: $lastDiverInformation, nextDiverInformation:
-                        $nextDiverInformation, diveTable: $diveTable, focusViewList: $focusViewList,
-                     starSelected: $starSelected, shiftingBool: $shiftingBool, title: $title,
-                     roundString: $roundString)
-        } else {
-            errorView()
+        .onAppear {
+            if request == "debug" {
+                debugMode = true
+            }
+            if debugMode {
+                lastDiverInformation = DebugDataset.lastDiverInfo
+                nextDiverInformation = DebugDataset.nextDiverInfo
+                diveTable = DebugDataset.diveTable
+                focusViewList = DebugDataset.focusViewDict
+                title = DebugDataset.title
+                roundString = DebugDataset.roundString
+            }
         }
     }
     
@@ -362,10 +391,7 @@ struct LastDiverView: View
 
 struct NextDiverView: View
 {
-    //nextDiverName, nextDiverProfileLink, lastRoundPlace, lastRoundTotalScore, order, nextDive,
-    //height, dd, avgScore, maxScore, forFirstPlace
-    @Binding var nextInfo:
-    (String, String, Int, Double, Int, String, String, Double, Double, Double, Double)
+    @Binding var nextInfo: NextDiverInfo
     var body: some View {
         VStack{
             Group{
@@ -408,10 +434,8 @@ struct NextDiverView: View
 
 struct SwipingView: View
 {
-    @Binding var lastInfo:
-    (String, String, Int, Double, Int, Int, Double, String, String, Double, Double, String)
-    @Binding var nextInfo:
-    (String, String, Int, Double, Int, String, String, Double, Double, Double, Double)
+    @Binding var lastInfo: LastDiverInfo
+    @Binding var nextInfo: NextDiverInfo
     var body: some View {
         TabView {
             LastDiverView(lastInfo: $lastInfo)
@@ -507,4 +531,39 @@ struct ResultsBubbleView: View {
             print(elements[3])
         }
     }
+}
+
+
+struct DebugDataset {
+    //  name, link, last round place, last round total, order, place, total, dive, height, dd,
+    //score total, [judges scores]
+    static let lastDiverInfo: LastDiverInfo =
+    ("Diver 1", "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961", 1,
+     225.00, 1, 1, 175.00, "107B", "3M", 3.1, 65.1, "7.0 | 7.0 | 7.0")
+    //nextDiverName, nextDiverProfileLink, lastRoundPlace, lastRoundTotalScore, order, nextDive,
+    //height, dd, avgScore, maxScore, forFirstPlace
+    static let nextDiverInfo: NextDiverInfo =
+    ("Diver 2", "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961", 3,
+     155.75, 2, "307C", "3M", 3.5, 55.0, 105.0, 69.25)
+    
+    //                    [[Left to dive, order, last round place, last round score, current place,
+    //                      current score, name, link, last dive average, event average score, avg round score]]
+    static let diver1: [String] = ["true", "1", "1", "175.00", "1", "225.00", "Diver 1",
+                                   "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961",
+                                   "7.0", "6.5", "55.5"]
+    static let diver2: [String] = ["false", "2", "3", "155.75", "3", "155.75", "Diver 2",
+                                   "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961",
+                                   "6.0", "5.7", "41.7"]
+    static let diver3: [String] = ["false", "3", "2", "158.20", "2", "158.20", "Diver 3",
+                                   "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961",
+                                   "6.5", "6.1", "45.3"]
+    static let diver4: [String] = ["false", "4", "4", "111.65", "4", "111.65", "Diver 4",
+                                   "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961",
+                                   "4.5", "4.8", "37.4"]
+    
+    static let diveTable: DiveTable = [diver1, diver3, diver2, diver4]
+    static let focusViewDict: [String: Bool] = [diver1[6]: false, diver2[6]: false,
+                                                diver3[6]: false, diver4[6]: false]
+    static let title: String = "Debug Live Results View"
+    static let roundString: String = "Round: 3 / 6"
 }
