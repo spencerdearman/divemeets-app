@@ -37,7 +37,23 @@ struct EntryPageView: View {
                                 Rectangle()
                                     .fill(currentMode == .light ? .white : .black)
                                     .cornerRadius(15)
-                                EntryView(entry: entry)
+                                EntryView(entry: entry) {
+                                    HStack {
+                                        NavigationLink(destination: ProfileView(profileLink: entry.link ?? ""),
+                                                       label: {
+                                            Text((entry.lastName ?? "") + ", " + (entry.firstName ?? ""))
+                                                .font(.headline)
+                                                .scaledToFit()
+                                                .lineLimit(1)
+                                        })
+                                        Text(entry.team ?? "")
+                                            .font(.subheadline)
+                                            .foregroundColor(Color.secondary)
+                                            .scaledToFit()
+                                            .lineLimit(1)
+                                        Spacer()
+                                    }
+                                }
                                     .padding()
                             }
                         }
@@ -72,6 +88,7 @@ struct EntryPageView: View {
 
 struct EntryView: View {
     var entry: EventEntry
+    var labelView: () -> any View
     @State var isExpanded: Bool = false
     
     var body: some View {
@@ -122,22 +139,7 @@ struct EntryView: View {
                 .minimumScaleFactor(0.1)
             },
             label: {
-                
-                HStack {
-                    NavigationLink(destination: ProfileView(profileLink: entry.link ?? ""),
-                                   label: {
-                        Text((entry.lastName ?? "") + ", " + (entry.firstName ?? ""))
-                            .font(.headline)
-                            .scaledToFit()
-                            .lineLimit(1)
-                    })
-                    Text(entry.team ?? "")
-                        .font(.subheadline)
-                        .foregroundColor(Color.secondary)
-                        .scaledToFit()
-                        .lineLimit(1)
-                    Spacer()
-                }
+                AnyView(labelView())
             }
         )
     }

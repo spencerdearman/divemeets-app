@@ -16,9 +16,42 @@ struct ProfileView: View {
         min(maxHeightOffsetScaled, 90)
     }
     @StateObject private var parser = HTMLParser()
+    @State private var isExpanded: Bool = false
+    //                                          [meetName: [eventName: entriesLink]
+    @State private var upcomingDiveSheetsLinks: [String: [String: String]]?
+    @State private var upcomingDiveSheetsEntries: [String: [String: EventEntry]]?
+    private let getTextModel = GetTextAsyncModel()
+    private let ep = EntriesParser()
     
     var diverID: String {
         String(profileLink.suffix(5))
+    }
+    
+    private func getUpcomingDiveSheetsEntries(name: String) async -> [String: [String: EventEntry]]? {
+        var result: [String: [String: EventEntry]] = [:]
+        guard let sheetsLinks = upcomingDiveSheetsLinks else { return nil }
+        
+        for (meetName, meetDict) in sheetsLinks {
+            result[meetName] = [:]
+            for (eventName, sheetLink) in meetDict {
+                // Initialize meet parse from index page
+                guard let url = URL(string: sheetLink) else { return nil }
+                
+                // This sets getTextModel's text field equal to the HTML from url
+                await getTextModel.fetchText(url: url)
+                
+                do {
+                    if let html = getTextModel.text,
+                       let entry = try ep.parseNamedEntry(html: html, searchName: name) {
+                        result[meetName]![eventName] = entry
+                    }
+                } catch {
+                    print("Parsing named entry failed")
+                }
+            }
+        }
+        
+        return result
     }
     
     var body: some View {
@@ -34,6 +67,21 @@ struct ProfileView: View {
                         profileType = "Coach"
                     } else {
                         profileType = "Diver"
+                    }
+                    
+                    guard let url = URL(string: profileLink) else { return }
+                    await getTextModel.fetchText(url: url)
+                    if let text = getTextModel.text {
+                        upcomingDiveSheetsLinks = try await ep.parseProfileUpcomingMeets(html: text)
+                        let nameText = diverData[0][0].slice(from: "Name: ", to: " State:")
+                        let comps = nameText?.split(separator: " ")
+                        let last = String(comps?.last ?? "")
+                        let first = String(comps?.dropLast().joined(separator: " ") ?? "")
+                        
+                        if upcomingDiveSheetsLinks != nil {
+                            upcomingDiveSheetsEntries = await getUpcomingDiveSheetsEntries(name: last + ", " + first)
+                        }
+                        
                     }
                 }
             }
@@ -91,8 +139,41 @@ struct ProfileView: View {
                             Divider()
                         }
                     }
-                    .padding()
+                    .padding([.leading, .trailing, .top])
                     
+                    if let upcomingDiveSheetsEntries = upcomingDiveSheetsEntries {
+                        DisclosureGroup(isExpanded: $isExpanded) {
+                            ForEach(upcomingDiveSheetsEntries.sorted(by: { $0.key < $1.key }),
+                                    id: \.key) { meetName, events in
+                                VStack(alignment: .leading, spacing: 0) {
+                                    Text(meetName)
+                                        .font(.title3)
+                                        .bold()
+                                    VStack(spacing: 5) {
+                                        ForEach(events.sorted(by: { $0.key < $1.key }),
+                                                id: \.key) { eventName, entry in
+                                            EntryView(entry: entry) {
+                                                Text(eventName)
+                                                    .font(.headline)
+                                                    .bold()
+                                                    .foregroundColor(Color.primary)
+                                            }
+                                        }
+                                    }
+                                    .padding(.leading)
+                                    .padding(.top, 5)
+                                }
+                                .padding(.top, 5)
+                            }
+                        } label: {
+                            Text("Upcoming Meets")
+                                .font(.title2)
+                                .bold()
+                                .foregroundColor(Color.primary)
+                        }
+                        .padding([.leading, .trailing])
+                        .padding(.bottom, 5)
+                    }
                 }
                 Text("Meets")
                     .font(.title2)
