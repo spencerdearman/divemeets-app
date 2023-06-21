@@ -44,8 +44,7 @@ struct ContentView: View {
                             // Add different page views here for different tabs
                             switch tab {
                                 case .house:
-                                    //                                Home()
-                                    TileSwapView()
+                                    Home()
                                 case .gearshape:
                                     ToolsMenu()
                                 case .magnifyingglass:
