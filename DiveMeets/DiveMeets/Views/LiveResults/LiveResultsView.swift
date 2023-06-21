@@ -267,6 +267,8 @@ struct mainView: View{
     @Binding var shiftingBool: Bool
     @Binding var title: String
     @Binding var roundString: String
+    @State var screenWidth: CGFloat = 0
+    @State var screenHeight: CGFloat = 0
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
@@ -281,6 +283,13 @@ struct mainView: View{
     
     var body: some View{
         Color.white.ignoresSafeArea()
+        GeometryReader { geometry in
+            Color.clear
+                .onAppear{
+                    screenWidth = geometry.size.width
+                    screenHeight = geometry.size.height
+                }
+        }
         NavigationView{
             VStack(spacing: 0.5){
                 if !starSelected {
@@ -288,8 +297,8 @@ struct mainView: View{
                         Text(title)
                             .font(.title2).bold()
                         Text(roundString)
-                        SwipingView(lastInfo: $lastDiverInformation, nextInfo: $nextDiverInformation)
-                            .frame(height: 350)
+                        TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation), bottomView: NextDiverView(nextInfo: $nextDiverInformation), width: screenWidth * 0.95, height: screenHeight * 0.32)
+                            .padding(.bottom)
                         Text("Live Rankings")
                             .font(.title2).bold()
                     }
@@ -351,39 +360,45 @@ struct LastDiverView: View
     //score total, [judges scores]
     (String, String, Int, Double, Int, Int, Double, String, String, Double, Double, String)
     var body: some View {
-        VStack{
-            Group{
-                HStack{
-                    VStack(alignment: .leading){
-                        Text(lastInfo.0)
-                            .font(.title3).bold()
-                        Text("Last Round Place: " + String(lastInfo.2))
-                        Text("Last Round Total: " + String(lastInfo.3))
-                        HStack{
-                            Text("Order: " + String(lastInfo.4))
-                            Text("Place: " + String(lastInfo.5))
+        ZStack {
+            Rectangle()
+                .fill(.gray)
+                .cornerRadius(50)
+                .shadow(radius: 20)
+            VStack{
+                Group{
+                    HStack{
+                        VStack(alignment: .leading){
+                            Text(lastInfo.0)
+                                .font(.title3).bold()
+                            Text("Last Round Place: " + String(lastInfo.2))
+                            Text("Last Round Total: " + String(lastInfo.3))
+                            HStack{
+                                Text("Order: " + String(lastInfo.4))
+                                Text("Place: " + String(lastInfo.5))
+                            }
+                            Text("Current Total: " + String(lastInfo.6))
+                                .font(.headline)
                         }
-                        Text("Current Total: " + String(lastInfo.6))
-                            .font(.headline)
+                        .padding()
+                        MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
+                            .scaledToFit()
+                            .padding(.horizontal)
                     }
-                    .padding()
-                    MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
-                        .scaledToFit()
-                        .padding(.horizontal)
+                    Text(lastInfo.7)
+                        .font(.title3).bold()
+                    HStack{
+                        Text("Height: " + lastInfo.8)
+                        Text("DD: " + String(lastInfo.9))
+                        Text("Score Total: " + String(lastInfo.10))
+                    }
                 }
-                Text(lastInfo.7)
-                    .font(.title3).bold()
-                HStack{
-                    Text("Height: " + lastInfo.8)
-                    Text("DD: " + String(lastInfo.9))
-                    Text("Score Total: " + String(lastInfo.10))
+                Group{
+                    Text("Judges Scores")
+                        .underline()
+                    Text(lastInfo.11)
+                        .font(.headline)
                 }
-            }
-            Group{
-                Text("Judges Scores")
-                    .underline()
-                Text(lastInfo.11)
-                    .font(.headline)
             }
         }
     }
@@ -393,75 +408,81 @@ struct NextDiverView: View
 {
     @Binding var nextInfo: NextDiverInfo
     var body: some View {
-        VStack{
-            Group{
-                HStack{
-                    VStack(alignment: .leading){
-                        Text(nextInfo.0)
-                            .font(.title3).bold()
-                        Text("Last Round Place: " + String(nextInfo.2))
-                        Text("Last Round Total: " + String(nextInfo.3))
-                        HStack{
-                            Text("Order: " + String(nextInfo.4))
+        ZStack {
+            Rectangle()
+                .fill(.gray)
+                .cornerRadius(50)
+                .shadow(radius: 20)
+            VStack{
+                Group{
+                    HStack{
+                        VStack(alignment: .leading){
+                            Text(nextInfo.0)
+                                .font(.title3).bold()
+                            Text("Last Round Place: " + String(nextInfo.2))
+                            Text("Last Round Total: " + String(nextInfo.3))
+                            HStack{
+                                Text("Order: " + String(nextInfo.4))
+                            }
                         }
+                        .padding()
+                        MiniProfileImage(diverID: String(nextInfo.1.utf16.dropFirst(67)) ?? "")
+                            .scaledToFit()
+                            .padding(.horizontal)
                     }
-                    .padding()
-                    MiniProfileImage(diverID: String(nextInfo.1.utf16.dropFirst(67)) ?? "")
-                        .scaledToFit()
-                        .padding(.horizontal)
                 }
-            }
-            Group{
-                VStack{
-                    Text(nextInfo.5)
-                        .font(.title3)
-                        .bold()
-                    HStack{
-                        Text("Height: " + nextInfo.6)
-                        Text("DD: " + String(nextInfo.7))
+                Group{
+                    VStack{
+                        Text(nextInfo.5)
+                            .font(.title3)
+                            .bold()
+                        HStack{
+                            Text("Height: " + nextInfo.6)
+                            Text("DD: " + String(nextInfo.7))
+                        }
+                        HStack{
+                            Text("Average Score: " + String(nextInfo.8))
+                            Text("Max Score: " + String(nextInfo.9))
+                        }
+                        Text("For First Place: " + String(nextInfo.10))
                     }
-                    HStack{
-                        Text("Average Score: " + String(nextInfo.8))
-                        Text("Max Score: " + String(nextInfo.9))
-                    }
-                    Text("For First Place: " + String(nextInfo.10))
+                    .padding(.bottom)
                 }
-                .padding(.bottom)
             }
         }
     }
 }
 
-struct SwipingView: View
-{
-    @Binding var lastInfo: LastDiverInfo
-    @Binding var nextInfo: NextDiverInfo
-    var body: some View {
-        TabView {
-            LastDiverView(lastInfo: $lastInfo)
-                .frame(width: 400, height: 250)
-                .background(Color(.systemGray4).opacity(0.95))
-                .cornerRadius(40)
-                .shadow(color: Color.black.opacity(0.7), radius: 5, x: 0, y: 2)
-                .padding()
-                .tabItem {
-                    Text("Last Diver")
-                }
-            
-            NextDiverView(nextInfo: $nextInfo)
-                .frame(width: 400, height: 250)
-                .background(Color(.systemGray4).opacity(0.95))
-                .cornerRadius(40)
-                .shadow(color: Color.black.opacity(0.7), radius: 5, x: 0, y: 2)
-                .padding()
-                .tabItem {
-                    Text("Next Diver")
-                }
-        }
-        .tabViewStyle(PageTabViewStyle())
-        .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-    }
-}
+//struct SwipingView: View
+//{
+//    @Binding var lastInfo: LastDiverInfo
+//    @Binding var nextInfo: NextDiverInfo
+//    var body: some View {
+//        TabView {
+//            LastDiverView(lastInfo: $lastInfo)
+//                .frame(width: 400, height: 250)
+//                .background(Color(.systemGray4).opacity(0.95))
+//                .cornerRadius(40)
+//                .shadow(color: Color.black.opacity(0.7), radius: 5, x: 0, y: 2)
+//                .padding()
+//                .tabItem {
+//                    Text("Last Diver")
+//                }
+//            
+//            NextDiverView(nextInfo: $nextInfo)
+//                .frame(width: 400, height: 250)
+//                .background(Color(.systemGray4).opacity(0.95))
+//                .cornerRadius(40)
+//                .shadow(color: Color.black.opacity(0.7), radius: 5, x: 0, y: 2)
+//                .padding()
+//                .tabItem {
+//                    Text("Next Diver")
+//                }
+//        }
+//        .tabViewStyle(PageTabViewStyle())
+//        .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+//    }
+//}
 
 struct ResultsBubbleView: View {
     @Environment(\.colorScheme) var currentMode
