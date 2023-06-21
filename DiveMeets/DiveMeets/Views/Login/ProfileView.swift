@@ -95,9 +95,10 @@ struct ProfileView: View {
                     VStack {
                         VStack(alignment: .leading) {
                             HStack (alignment: .firstTextBaseline) {
-                                let firstName = diverData[0][0].slice(from: "Name: ", to: " ") ?? ""
-                                let lastName =
-                                diverData[0][0].slice(from: firstName + " ", to: " ") ?? ""
+                                let nameComps = diverData[0][0].slice(from: "Name: ", to: " State:")?
+                                    .components(separatedBy: " ")
+                                let firstName = nameComps?.dropLast().joined(separator: " ") ?? ""
+                                let lastName = nameComps?.last ?? ""
                                 
                                 diverData != []
                                 ? Text(firstName + " " + lastName) .font(.title)
