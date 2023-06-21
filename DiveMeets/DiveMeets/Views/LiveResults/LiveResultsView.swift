@@ -304,8 +304,8 @@ struct mainView: View{
                                      bottomView: NextDiverView(nextInfo: $nextDiverInformation),
                                      width: screenWidth * 0.95,
                                      height: screenHeight * 0.32)
-                            .dynamicTypeSize(.xSmall ... .xxxLarge)
-                            .padding(.bottom)
+                        .dynamicTypeSize(.xSmall ... .xxxLarge)
+                        .padding(.bottom)
                         Text("Live Rankings")
                             .font(.title2).bold()
                             .padding(.top)
