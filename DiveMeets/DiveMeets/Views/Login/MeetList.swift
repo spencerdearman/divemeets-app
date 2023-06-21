@@ -18,6 +18,7 @@ struct MeetList: View {
     @State var offset: CGFloat = 0
     @State var lastOffset: CGFloat = 0
     @State var meets: [MeetEvent] = []
+    @State private var createdMeets: Bool = false
     @State var navStatus: Bool = true
     @StateObject private var parser = EventHTMLParser()
     
@@ -76,31 +77,38 @@ struct MeetList: View {
                     
                     diverData = parser.myData
                     meets = createMeets(data: diverData) ?? []
+                    createdMeets = true
                 }
             }
-
-            ZStack {
-                // Background color for View
-                customGray.ignoresSafeArea()
-                
-                if meets != [] {
-                    List($meets, children: \.children) { $meet in
-                        (!meet.isChild ?
-                         AnyView(
-                            parentView(meet: $meet)
-                         ) : AnyView(
-                            childView(meet: $meet, navStatus: $navStatus)
-                         ))
-                        .frame(width: frameWidth,
-                               height: meet.isOpen ? 400: 45)
-                    }
-                } else {
-                    VStack {
-                        Text("Getting meets list...")
-                        ProgressView()
-                    }
+        
+        ZStack {
+            // Background color for View
+            customGray.ignoresSafeArea()
+            
+            if meets != [] {
+                List($meets, children: \.children) { $meet in
+                    (!meet.isChild ?
+                     AnyView(
+                        parentView(meet: $meet)
+                     ) : AnyView(
+                        childView(meet: $meet, navStatus: $navStatus)
+                     ))
+                    .frame(width: frameWidth,
+                           height: meet.isOpen ? 400: 45)
+                }
+                // Waiting for parse results to finish
+            } else if !createdMeets {
+                VStack {
+                    Text("Getting meets list...")
+                    ProgressView()
+                }
+                // Parse results have finished and meet list is empty
+            } else {
+                VStack {
+                    Text("No meet data found")
                 }
             }
+        }
     }
 }
 

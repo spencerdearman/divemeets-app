@@ -32,6 +32,7 @@ final class EventHTMLParser: ObservableObject {
         
         //Getting the overarching td and then pulling the 3 items within
         var hasUpcomingMeets = false
+        if main.count < 2 { return [:] }
         var overall = try main[1].getElementsByTag("tr")
         var string = [String]()
         var eventLinkAppend = ""
