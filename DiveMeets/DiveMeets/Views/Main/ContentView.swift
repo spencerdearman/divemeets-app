@@ -43,14 +43,14 @@ struct ContentView: View {
                         HStack {
                             // Add different page views here for different tabs
                             switch tab {
-                            case .house:
-                                Home()
-                            case .gearshape:
-                                ToolsMenu()
-                            case .magnifyingglass:
-                                SearchView(isIndexingMeets: $isIndexingMeets)
-                            case .person:
-                                LoginSearchView()
+                                case .house:
+                                    Home()
+                                case .gearshape:
+                                    ToolsMenu()
+                                case .magnifyingglass:
+                                    SearchView(isIndexingMeets: $isIndexingMeets)
+                                case .person:
+                                    LoginSearchView()
                             }
                         }
                         .tag(tab)
