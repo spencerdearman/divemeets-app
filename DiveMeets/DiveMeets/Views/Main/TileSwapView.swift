@@ -16,7 +16,7 @@ struct TileSwapView<U: View, V: View>: View {
     var swapTime: CGFloat = 0.2
     var offset: CGFloat = 20
     var scaleFactor: CGFloat = 0.9
-     
+    
     @State private var zIndices: [Double] = [1, 0]
     @State private var isInTransition: [Bool] = [false, false]
     
@@ -59,7 +59,6 @@ struct TileSwapView<U: View, V: View>: View {
                 }
                 .animation(.spring(), value: isInTransition[1])
                 .animation(.spring(), value: zIndices)
-                
         }
     }
 }
