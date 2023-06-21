@@ -166,6 +166,7 @@ class EntriesParser: ObservableObject {
         guard let body = document.body() else { return nil }
         let main = try body.getElementsByTag("table")
         
+        if main.count < 2 { return nil }
         let overall = try main[1].getElementsByTag("tr")
         var hasUpcomingMeets = false
         
