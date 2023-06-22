@@ -280,6 +280,8 @@ struct MeetInfoPageView: View {
                 .font(.title3)
                 .fontWeight(.bold)
                 .frame(maxWidth: .infinity, alignment: .center)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
             Text(info["Start Date"]! + " - " + info["End Date"]!)
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .center)

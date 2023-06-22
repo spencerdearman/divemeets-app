@@ -97,9 +97,19 @@ struct Home: View {
     private let textColor: Color = Color.primary
     private let grayValue: CGFloat = 0.90
     private let grayValueDark: CGFloat = 0.10
-    @ScaledMetric private var typeBubbleWidth: CGFloat = 110
-    @ScaledMetric private var typeBubbleHeight: CGFloat = 35
-    @ScaledMetric private var typeBGWidth: CGFloat = 40
+    @ScaledMetric private var typeBubbleWidthScaled: CGFloat = 110
+    @ScaledMetric private var typeBubbleHeightScaled: CGFloat = 35
+    @ScaledMetric private var typeBGWidthScaled: CGFloat = 40
+    
+    private var typeBubbleWidth: CGFloat {
+        min(typeBubbleWidthScaled, 150)
+    }
+    private var typeBubbleHeight: CGFloat {
+        min(typeBubbleHeightScaled, 48)
+    }
+    private var typeBGWidth: CGFloat {
+        min(typeBGWidthScaled, 55)
+    }
     
     private var typeBGColor: Color {
         currentMode == .light ? Color(red: grayValue, green: grayValue, blue: grayValue)
@@ -161,6 +171,7 @@ struct Home: View {
                                 .cornerRadius(cornerRadius)
                             }
                         }
+                        .dynamicTypeSize(.xSmall ... .xLarge)
                     }
                     Spacer()
                     if selection == .upcoming {
@@ -172,6 +183,7 @@ struct Home: View {
                 }
             }
         }
+        .dynamicTypeSize(.xSmall ... .xxxLarge)
         .onAppear {
             if !meetsParsed {
                 Task {

@@ -63,6 +63,7 @@ struct ContentView: View {
             FloatingMenuBar(selectedTab: $selectedTab)
                 .offset(y: menuBarOffset)
                 .frame(maxHeight: .infinity, alignment: .bottom)
+                .dynamicTypeSize(.medium ... .xxxLarge)
         }
         .ignoresSafeArea(.keyboard)
         // Executes on app launch
