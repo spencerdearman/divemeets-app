@@ -296,11 +296,19 @@ struct mainView: View{
                     VStack{
                         Text(title)
                             .font(.title2).bold()
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.center)
                         Text(roundString)
-                        TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation), bottomView: NextDiverView(nextInfo: $nextDiverInformation), width: screenWidth * 0.95, height: screenHeight * 0.32)
-                            .padding(.bottom)
+                        TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation),
+                                     bottomView: NextDiverView(nextInfo: $nextDiverInformation),
+                                     width: screenWidth * 0.95,
+                                     height: screenHeight * 0.32)
+                        .dynamicTypeSize(.xSmall ... .xxxLarge)
+                        .padding(.bottom)
                         Text("Live Rankings")
                             .font(.title2).bold()
+                            .padding(.top)
                     }
                 }
                 ScalingScrollView(records: diveTable) { (elem) in
@@ -380,6 +388,8 @@ struct LastDiverView: View
                             Text("Current Total: " + String(lastInfo.6))
                                 .font(.headline)
                         }
+                        .scaledToFill()
+                        .minimumScaleFactor(0.5)
                         .padding()
                         MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
                             .scaledToFit()
@@ -392,6 +402,10 @@ struct LastDiverView: View
                         Text("DD: " + String(lastInfo.9))
                         Text("Score Total: " + String(lastInfo.10))
                     }
+                    .scaledToFit()
+                    .minimumScaleFactor(0.5)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(1)
                 }
                 Group{
                     Text("Judges Scores")
@@ -425,6 +439,8 @@ struct NextDiverView: View
                                 Text("Order: " + String(nextInfo.4))
                             }
                         }
+                        .scaledToFill()
+                        .minimumScaleFactor(0.5)
                         .padding()
                         MiniProfileImage(diverID: String(nextInfo.1.utf16.dropFirst(67)) ?? "")
                             .scaledToFit()
@@ -444,9 +460,13 @@ struct NextDiverView: View
                             Text("Average Score: " + String(nextInfo.8))
                             Text("Max Score: " + String(nextInfo.9))
                         }
+                        .scaledToFit()
+                        .minimumScaleFactor(0.5)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(1)
                         Text("For First Place: " + String(nextInfo.10))
                     }
-                    .padding(.bottom)
+                    .fixedSize(horizontal: false, vertical: true)
                 }
             }
         }
