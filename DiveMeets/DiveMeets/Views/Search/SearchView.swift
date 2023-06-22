@@ -217,6 +217,7 @@ struct SearchView: View {
                             dmSearchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed,
                             isIndexingMeets: $isIndexingMeets)
         }
+        .dynamicTypeSize(.xSmall ... .xxxLarge)
         .onDisappear {
             searchSubmitted = false
         }

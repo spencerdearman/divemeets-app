@@ -174,6 +174,7 @@ struct FloatingMenuBar: View {
                                              : deselectedColor)
                             .opacity(selectedTab == tab ? selectedTabOpacity : 1.0)
                             .font(.title2)
+                            .dynamicTypeSize(.medium ... .xxxLarge)
                             // Adds tab change and visible tabs change on button press
                             .onTapGesture() {
                                 if !hideTabBar {

@@ -143,6 +143,7 @@ struct LoginSearchInputView: View {
                     }
                 }
             }
+            .dynamicTypeSize(.xSmall ... .xxxLarge)
         }
         .onAppear {
             showError = false
