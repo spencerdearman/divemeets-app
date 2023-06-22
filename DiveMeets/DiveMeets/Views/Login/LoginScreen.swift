@@ -231,6 +231,7 @@ struct LoginPageSearchView: View {
                 // Need to initially set search to false so webView gets recreated
                 searchSubmitted = false
                 errorMessage = false
+                focusedField.wrappedValue = nil
                 // Only submits a search if one of the relevant fields is filled,
                 // otherwise toggles error
                 if checkFields(divemeetsID: divemeetsID,
