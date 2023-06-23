@@ -9,7 +9,7 @@ import SwiftUI
 
 enum Tab: String, CaseIterable {
     case house
-    case gearshape
+    case wrench
     case person
     case magnifyingglass
 }
@@ -56,18 +56,23 @@ struct FloatingMenuBar: View {
         "gearshape.circle": 1.6,
         "person.circle": 1.6,
         "magnifyingglass.circle": 1.5,
+        "wrench.and.screwdriver": 1.2,
     ]
     
     // Computes the image path to use when an image is selected
     private var fillImage: String {
         selectedTab.rawValue == "magnifyingglass"
         ? selectedTab.rawValue + ".circle.fill"
-        : selectedTab.rawValue + ".fill"
+        : (selectedTab.rawValue == "wrench"
+           ? selectedTab.rawValue + ".and.screwdriver.fill"
+           : selectedTab.rawValue + ".fill")
     }
     
     // Computes the image path for the selected image when it is relaxed
     private var selectedImageInverse: String {
-        selectedTab.rawValue + ".circle"
+        selectedTab.rawValue == "wrench"
+        ? selectedTab.rawValue + ".and.screwdriver"
+        : selectedTab.rawValue + ".circle"
     }
     
     // Computes the image path for the selected image when the state is relaxed vs not
@@ -165,7 +170,9 @@ struct FloatingMenuBar: View {
                             Spacer()
                             Image(systemName: selectedTab == tab
                                   ? selectedTabImage
-                                  : tab.rawValue)
+                                  : (tab == .wrench
+                                     ? tab.rawValue + ".and.screwdriver"
+                                     : tab.rawValue))
                             .scaleEffect(tab == selectedTab
                                          ? sizeMults[selectedTabImage] ?? 1.25
                                          : 1.0)
