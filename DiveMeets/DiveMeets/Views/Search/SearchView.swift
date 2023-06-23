@@ -509,6 +509,14 @@ struct SearchInputView: View {
                 .animation(.linear(duration: 0.2), value: fullScreenResults)
             }
         }
+        .onSwipeGesture(trigger: .onEnded) { direction in
+            if direction == .left && selection == .person {
+                selection = .meet
+            } else if direction == .right && selection == .meet {
+                selection = .person
+            }
+            
+        }
         .onAppear {
             showError = false
         }

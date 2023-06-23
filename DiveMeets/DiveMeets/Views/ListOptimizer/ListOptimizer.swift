@@ -105,6 +105,14 @@ struct ListOptimizer: View {
                 Spacer()
             }
         }
+        .onSwipeGesture(trigger: .onEnded) { direction in
+            if direction == .left && selection == .six {
+                selection = .eleven
+            } else if direction == .right && selection == .eleven {
+                selection = .six
+            }
+            
+        }
     }
 }
 

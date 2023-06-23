@@ -184,6 +184,14 @@ struct Home: View {
             }
         }
         .dynamicTypeSize(.xSmall ... .xxxLarge)
+        .onSwipeGesture(trigger: .onEnded) { direction in
+            if direction == .left && selection == .upcoming {
+                selection = .current
+            } else if direction == .right && selection == .current {
+                selection = .upcoming
+            }
+            
+        }
         .onAppear {
             if !meetsParsed {
                 Task {
@@ -327,6 +335,14 @@ struct CurrentMeetsPageView: View {
                 }
                 Spacer()
             }
+        }
+        .onSwipeGesture(trigger: .onEnded) { direction in
+            if direction == .left && selection == .info {
+                selection = .results
+            } else if direction == .right && selection == .results {
+                selection = .info
+            }
+            
         }
     }
 }
