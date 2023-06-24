@@ -18,8 +18,13 @@ struct RecordList: View {
     private let cornerRadius: CGFloat = 30
     private let rowSpacing: CGFloat = 3
     private let textColor: Color = Color.primary
-    private let animation: Animation = .spring(response: 0.6, dampingFraction: 0.9)
+    private let animationSpeed: CGFloat = 0.5
     @ScaledMetric private var viewPadding: CGFloat = 58
+    
+    private var animation: Animation {
+        Animation.spring(response: animationSpeed,
+                         dampingFraction: 0.9)
+    }
     
     private var rowColor: Color {
         currentMode == .light ? Color.white : Color.black
@@ -31,6 +36,7 @@ struct RecordList: View {
     }
     
     var body: some View {
+        GeometryReader { g in
             ZStack {
                 // Background color for View
                 customGray.ignoresSafeArea()
@@ -45,69 +51,24 @@ struct RecordList: View {
                         ScrollView(.vertical, showsIndicators: false) {
                             VStack(spacing: rowSpacing) {
                                 ForEach(records.sorted(by: <), id: \.key) { key, value in
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 30)
-                                            .foregroundColor(rowColor)
-                                            .matchedGeometryEffect(id: "rect", in: namespace)
-                                            .frame(height: 0)
-                                        HStack {
-                                            Text(key)
-                                                .foregroundColor(textColor)
-                                                .font(.title3)
-                                                .padding()
-                                            
-                                            Spacer()
-                                            
-                                            Image(systemName: "chevron.right")
-                                                .foregroundColor(Color.gray)
-                                                .padding()
-                                        }
-                                        .background(rowColor)
-                                        .cornerRadius(cornerRadius)
-                                    }
-                                    .padding([.leading, .trailing])
-                                    .matchedGeometryEffect(id: "row", in: namespace)
-                                    .onTapGesture {
-                                        withAnimation(animation) {
-                                            result = value
-                                            resultSelected = true
-                                        }
-                                    }
+                                    RecordView(resultSelected: $resultSelected, result: $result,
+                                               key: key, value: value, namespace: namespace,
+                                               animationSpeed: animationSpeed)
                                 }
                             }
                             .padding()
                             .onAppear {
                                 resultSelected = false
+                                result = ""
                             }
                         }
                     }
-                } else if result != "" {
-                    NavigationView {
-                        GeometryReader { g in
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 30)
-                                    .foregroundColor(rowColor)
-                                    .matchedGeometryEffect(id: "rect", in: namespace)
-                                    .frame(height: g.size.height + 50)
-                                ZStack(alignment: .topLeading) {
-                                    ProfileView(profileLink: result)
-                                        .matchedGeometryEffect(id: "row", in: namespace)
-                                    Button(action: {
-                                        withAnimation(animation) {
-                                            resultSelected = false
-                                            result = ""
-                                        }
-                                    }) {
-                                        Image(systemName: "chevron.left")
-                                            .font(.system(size: 22))
-                                    }
-                                    .padding()
-                                }
-                            }
-                        }
-                    }
+                } else {
+                    ExpandedRecordView(resultSelected: $resultSelected, result: $result, proxy: g,
+                                       namespace: namespace, animationSpeed: animationSpeed)
                 }
             }
-            .padding(.bottom, viewPadding)
+        }
+        .padding(.bottom, viewPadding)
     }
 }
