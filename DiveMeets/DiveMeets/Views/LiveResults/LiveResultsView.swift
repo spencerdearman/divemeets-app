@@ -406,7 +406,12 @@ struct LastDiverView: View
                             .padding(.horizontal)
                     }
                     Text(lastInfo.7)
-                        .font(.title3).bold()
+                        .font(.title3)
+                        .bold()
+                        .scaledToFill()
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                        .padding()
                     HStack{
                         Text("Height: " + lastInfo.8)
                         Text("DD: " + String(lastInfo.9))
@@ -462,6 +467,10 @@ struct NextDiverView: View
                         Text(nextInfo.5)
                             .font(.title3)
                             .bold()
+                            .scaledToFill()
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                            .padding()
                         HStack{
                             Text("Height: " + nextInfo.6)
                             Text("DD: " + String(nextInfo.7))
@@ -559,7 +568,7 @@ struct DebugDataset {
     //score total, [judges scores]
     static let lastDiverInfo: LastDiverInfo =
     ("Diver 1", "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961", 1,
-     225.00, 1, 1, 175.00, "107B", "3M", 3.1, 65.1, "7.0 | 7.0 | 7.0")
+     225.00, 1, 1, 175.00, "5337D - Reverse 1 1/2 Somersaults 3 1/2 Twist", "3M", 3.3, 69.3, "7.0 | 7.0 | 7.0")
     //nextDiverName, nextDiverProfileLink, lastRoundPlace, lastRoundTotalScore, order, nextDive,
     //height, dd, avgScore, maxScore, forFirstPlace
     static let nextDiverInfo: NextDiverInfo =
