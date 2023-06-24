@@ -85,3 +85,125 @@ struct RecordList: View {
         .padding(.bottom, viewPadding)
     }
 }
+
+struct RecordView: View {
+    @Environment(\.colorScheme) var currentMode
+    @Binding var resultSelected: Bool
+    @Binding var result: String
+    
+    let key: String
+    let value: String
+    let namespace: Namespace.ID
+    let animationSpeed: CGFloat
+    
+    private let cornerRadius: CGFloat = 30
+    private let textColor: Color = Color.primary
+    
+    private var animation: Animation {
+        Animation.spring(response: animationSpeed,
+                         dampingFraction: 0.9)
+    }
+    
+    private var rowColor: Color {
+        currentMode == .light ? Color.white : Color.black
+    }
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .foregroundColor(rowColor)
+                .matchedGeometryEffect(id: "rect_" + value, in: namespace)
+                .frame(height: 0)
+            HStack {
+                Text(key)
+                    .foregroundColor(textColor)
+                    .font(.title3)
+                    .padding()
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .foregroundColor(Color.gray)
+                    .padding()
+            }
+            .background(rowColor)
+            .cornerRadius(cornerRadius)
+            .matchedGeometryEffect(id: value, in: namespace)
+        }
+        .padding([.leading, .trailing])
+        .onTapGesture {
+            Task {
+                await animate(duration: animationSpeed,
+                              animation: animation) {
+                    resultSelected = true
+                }
+                result = value
+            }
+        }
+    }
+}
+
+struct ExpandedRecordView: View {
+    @Environment(\.colorScheme) var currentMode
+    @Binding var resultSelected: Bool
+    @Binding var result: String
+    
+    let proxy: GeometryProxy
+    let namespace: Namespace.ID
+    let animationSpeed: CGFloat
+    
+    private let cornerRadius: CGFloat = 30
+    private let textColor: Color = Color.primary
+    
+    private var animation: Animation {
+        Animation.spring(response: animationSpeed,
+                         dampingFraction: 0.9)
+    }
+    
+    private var rowColor: Color {
+        currentMode == .light ? Color.white : Color.black
+    }
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .foregroundColor(rowColor)
+                .matchedGeometryEffect(id: "rect_" + result, in: namespace)
+                .frame(height: proxy.size.height + 50)
+            
+            if result != "" {
+                ZStack(alignment: .topLeading) {
+                    NavigationView {
+                        ProfileView(profileLink: result)
+                            .matchedGeometryEffect(id: result, in: namespace)
+                    }
+                    Button(action: {
+                        withAnimation(animation) {
+                            resultSelected = false
+                            result = ""
+                        }
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 22))
+                    }
+                    .padding()
+                }
+            }
+        }
+    }
+}
+
+// Supports actions after a given delay
+extension View {
+    func animate(duration: CGFloat, animation: Animation, _ execute: @escaping () -> Void) async {
+        await withCheckedContinuation { continuation in
+            withAnimation(animation) {
+                execute()
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+                continuation.resume()
+            }
+        }
+    }
+}
