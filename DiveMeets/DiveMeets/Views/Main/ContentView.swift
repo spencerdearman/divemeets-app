@@ -46,7 +46,9 @@ struct ContentView: View {
                                 case .house:
                                     Home()
                                 case .gearshape:
-                                    LiveResultsView(request: "debug")
+                                    NavigationView {
+                                        LiveResultsView(request: "debug")
+                                    }
                                     //ToolsMenu()
                                 case .magnifyingglass:
                                     SearchView(isIndexingMeets: $isIndexingMeets)

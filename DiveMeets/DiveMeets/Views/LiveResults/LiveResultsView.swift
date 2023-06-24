@@ -409,7 +409,7 @@ struct LastDiverView: View
                         .scaledToFill()
                         .minimumScaleFactor(0.5)
                         .lineLimit(1)
-                        .padding()
+                        .padding([.leading, .trailing])
                     HStack{
                         Text("Height: " + lastInfo.8)
                         Text("DD: " + String(lastInfo.9))
@@ -468,7 +468,7 @@ struct NextDiverView: View
                             .scaledToFill()
                             .minimumScaleFactor(0.5)
                             .lineLimit(1)
-                            .padding()
+                            .padding([.leading, .trailing])
                         HStack{
                             Text("Height: " + nextInfo.6)
                             Text("DD: " + String(nextInfo.7))
