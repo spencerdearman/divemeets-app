@@ -389,7 +389,7 @@ struct LastDiverView: View
                         VStack(alignment: .leading){
                             Text(lastInfo.0)
                                 .font(.title3).bold()
-                            Text("Last Round Place: " + String(lastInfo.2))
+                            Text("Last Round Place: " + (lastInfo.2 == 0 ? "N/A" : String(lastInfo.2)))
                             Text("Last Round Total: " + String(lastInfo.3))
                             HStack{
                                 Text("Order: " + String(lastInfo.4))
@@ -443,7 +443,7 @@ struct NextDiverView: View
                         VStack(alignment: .leading){
                             Text(nextInfo.0)
                                 .font(.title3).bold()
-                            Text("Last Round Place: " + String(nextInfo.2))
+                            Text("Last Round Place: " + (nextInfo.2 == 0 ? "N/A" : String(nextInfo.2)))
                             Text("Last Round Total: " + String(nextInfo.3))
                             HStack{
                                 Text("Order: " + String(nextInfo.4))
@@ -482,37 +482,6 @@ struct NextDiverView: View
         }
     }
 }
-
-//struct SwipingView: View
-//{
-//    @Binding var lastInfo: LastDiverInfo
-//    @Binding var nextInfo: NextDiverInfo
-//    var body: some View {
-//        TabView {
-//            LastDiverView(lastInfo: $lastInfo)
-//                .frame(width: 400, height: 250)
-//                .background(Color(.systemGray4).opacity(0.95))
-//                .cornerRadius(40)
-//                .shadow(color: Color.black.opacity(0.7), radius: 5, x: 0, y: 2)
-//                .padding()
-//                .tabItem {
-//                    Text("Last Diver")
-//                }
-//            
-//            NextDiverView(nextInfo: $nextInfo)
-//                .frame(width: 400, height: 250)
-//                .background(Color(.systemGray4).opacity(0.95))
-//                .cornerRadius(40)
-//                .shadow(color: Color.black.opacity(0.7), radius: 5, x: 0, y: 2)
-//                .padding()
-//                .tabItem {
-//                    Text("Next Diver")
-//                }
-//        }
-//        .tabViewStyle(PageTabViewStyle())
-//        .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-//    }
-//}
 
 struct ResultsBubbleView: View {
     @Environment(\.colorScheme) var currentMode
@@ -569,7 +538,7 @@ struct ResultsBubbleView: View {
                             }
                         }
                         Text("Diving Order: " + elements[1])
-                        Text("Last Round Place: " + elements[2])
+                        Text("Last Round Place: " + (elements[2] == "0" ? "N/A" : elements[2]))
                     }
                 }
             }
