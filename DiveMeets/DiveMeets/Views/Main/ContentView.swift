@@ -12,7 +12,7 @@ struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
     @Environment(\.meetsDB) var db
     @EnvironmentObject private var p: MeetParser
-    @State private var selectedTab: Tab = .gearshape
+    @State private var selectedTab: Tab = .wrench
     @State var isIndexingMeets: Bool = false
     @FetchRequest(sortDescriptors: []) private var meets: FetchedResults<DivingMeet>
     
@@ -45,7 +45,10 @@ struct ContentView: View {
                             switch tab {
                                 case .house:
                                     Home()
-                                case .gearshape:
+                                case .wrench:
+//                                    NavigationView {
+//                                        LiveResultsView(request: "debug")
+//                                    }
                                     //ToolsMenu()
                                     ExpandingRowView()
                                 case .magnifyingglass:
