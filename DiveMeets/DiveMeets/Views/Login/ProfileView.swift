@@ -243,7 +243,6 @@ struct ProfileView: View {
                 await getTextModel.fetchText(url: url)
                 if let text = getTextModel.text {
                     upcomingDiveSheetsLinks = try await ep.parseProfileUpcomingMeets(html: text)
-                    print(diverData[0][0])
                     let nameText = diverData[0][0].slice(from: "Name: ", to: " State:")
                     let comps = nameText?.split(separator: " ")
                     let last = String(comps?.last ?? "")
