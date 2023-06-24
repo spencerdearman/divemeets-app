@@ -266,7 +266,8 @@ struct parseBody: View {
     }
 }
 
-struct mainView: View{
+struct mainView: View {
+    @Environment(\.colorScheme) var currentMode
     @Binding var lastDiverInformation:
     (String, String, Int, Double, Int, Int, Double, String, String, Double, Double, String)
     @Binding var nextDiverInformation:
@@ -284,6 +285,10 @@ struct mainView: View{
         min(maxHeightOffsetScaled, 90)
     }
     
+    private var bgColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    
     func startTimer() {
         
         Timer.scheduledTimer(withTimeInterval: 10.0, repeats: false) { timer in
@@ -291,8 +296,8 @@ struct mainView: View{
         }
     }
     
-    var body: some View{
-        Color.white.ignoresSafeArea()
+    var body: some View {
+        bgColor.ignoresSafeArea()
         GeometryReader { geometry in
             Color.clear
                 .onAppear{
