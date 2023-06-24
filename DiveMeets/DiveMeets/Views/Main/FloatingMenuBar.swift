@@ -169,15 +169,11 @@ struct FloatingMenuBar: View {
                     HStack(spacing: 0) {
                         ForEach(visibleTabs, id: \.rawValue) { tab in
                             Spacer()
-                            VStack{
-                                if tab == .wrench && relaxImage{
+                            Group {
+                                if tab == .wrench && relaxImage {
                                     Image(selectedTab == tab ? selectedTabImage : (tab == .wrench ? tab.rawValue + ".and.screwdriver.circle" : tab.rawValue))
                                 } else {
-                                    Image(systemName: selectedTab == tab
-                                          ? selectedTabImage
-                                          : (tab == .wrench
-                                             ? tab.rawValue + ".and.screwdriver"
-                                             : tab.rawValue))
+                                    Image(systemName: selectedTab == tab ? selectedTabImage : (tab == .wrench ? tab.rawValue + ".and.screwdriver" : tab.rawValue))
                                 }
                             }
                             .scaleEffect(tab == selectedTab
