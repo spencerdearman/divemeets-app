@@ -69,13 +69,3 @@ struct RecordList: View {
         }
     }
 }
-
-struct RecordList_Previews: PreviewProvider {
-    static var previews: some View {
-        ForEach(ColorScheme.allCases, id: \.self) {
-            RecordList(records: .constant(["Logan": "google.com"]),
-                       resultSelected: .constant(false))
-                .preferredColorScheme($0)
-        }
-    }
-}
