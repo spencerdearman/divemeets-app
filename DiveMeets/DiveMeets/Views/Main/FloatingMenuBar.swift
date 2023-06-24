@@ -56,7 +56,7 @@ struct FloatingMenuBar: View {
         "gearshape.circle": 1.6,
         "person.circle": 1.6,
         "magnifyingglass.circle": 1.5,
-        "wrench.and.screwdriver": 1.2,
+        "wrench.and.screwdriver": 1.75,
         "wrench.and.screwdriver.circle": 1.75,
     ]
     
@@ -237,11 +237,3 @@ struct FloatingMenuBar: View {
     }
 }
 
-struct FloatingMenuBar_Previews: PreviewProvider {
-    static var previews: some View {
-        ForEach(ColorScheme.allCases, id: \.self) {
-            FloatingMenuBar(selectedTab: .constant(.house))
-                .preferredColorScheme($0)
-        }
-    }
-}
