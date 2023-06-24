@@ -18,8 +18,13 @@ struct RecordList: View {
     private let cornerRadius: CGFloat = 30
     private let rowSpacing: CGFloat = 3
     private let textColor: Color = Color.primary
-    private let animation: Animation = .spring(response: 0.6, dampingFraction: 0.9)
+    private let animationSpeed: CGFloat = 0.5
     @ScaledMetric private var viewPadding: CGFloat = 58
+    
+    private var animation: Animation {
+        Animation.spring(response: animationSpeed,
+                         dampingFraction: 0.9)
+    }
     
     private var rowColor: Color {
         currentMode == .light ? Color.white : Color.black
@@ -31,6 +36,7 @@ struct RecordList: View {
     }
     
     var body: some View {
+        GeometryReader { g in
             ZStack {
                 // Background color for View
                 customGray.ignoresSafeArea()
@@ -45,170 +51,56 @@ struct RecordList: View {
                         ScrollView(.vertical, showsIndicators: false) {
                             VStack(spacing: rowSpacing) {
                                 ForEach(records.sorted(by: <), id: \.key) { key, value in
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 30)
-                                            .foregroundColor(rowColor)
-                                            .matchedGeometryEffect(id: "rect", in: namespace)
-                                            .frame(height: 0)
-                                        HStack {
-                                            Text(key)
-                                                .foregroundColor(textColor)
-                                                .font(.title3)
-                                                .padding()
-                                            
-                                            Spacer()
-                                            
-                                            Image(systemName: "chevron.right")
-                                                .foregroundColor(Color.gray)
-                                                .padding()
-                                        }
-                                        .background(rowColor)
-                                        .cornerRadius(cornerRadius)
-                                    }
-                                    .padding([.leading, .trailing])
-                                    .matchedGeometryEffect(id: "row", in: namespace)
-                                    .onTapGesture {
-                                        withAnimation(animation) {
-                                            result = value
-                                            resultSelected = true
-                                        }
-                                    }
+                                    RecordView(resultSelected: $resultSelected, result: $result,
+                                               key: key, value: value, namespace: namespace,
+                                               animationSpeed: animationSpeed)
                                 }
                             }
                             .padding()
                             .onAppear {
                                 resultSelected = false
+                                result = ""
                             }
                         }
                     }
-                } else if result != "" {
-                    NavigationView {
-                        GeometryReader { g in
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 30)
-                                    .foregroundColor(rowColor)
-                                    .matchedGeometryEffect(id: "rect", in: namespace)
-                                    .frame(height: g.size.height + 50)
-                                ZStack(alignment: .topLeading) {
-                                    ProfileView(profileLink: result)
-                                        .matchedGeometryEffect(id: "row", in: namespace)
-                                    Button(action: {
-                                        withAnimation(animation) {
-                                            resultSelected = false
-                                            result = ""
-                                        }
-                                    }) {
-                                        Image(systemName: "chevron.left")
-                                            .font(.system(size: 22))
-                                    }
-                                    .padding()
-                                }
-                            }
-                        }
-                    }
+                } else {
+                    ExpandedRecordView(resultSelected: $resultSelected, result: $result, proxy: g,
+                                       namespace: namespace, animationSpeed: animationSpeed)
                 }
             }
-            .padding(.bottom, viewPadding)
+        }
+        .padding(.bottom, viewPadding)
     }
 }
 
-struct NewRecordView: View {
+struct RecordView: View {
     @Environment(\.colorScheme) var currentMode
     @Binding var resultSelected: Bool
     @Binding var result: String
-    @Namespace var namespace
     
-    var key: String
-    var value: String
-    
-    private let cornerRadius: CGFloat = 30
-    private let textColor: Color = Color.primary
-    private let animation: Animation = .spring(response: 0.6, dampingFraction: 0.9)
-    
-    private var rowColor: Color {
-        currentMode == .light ? Color.white : Color.black
-    }
-//    @State private var show = false
-    
-    var body: some View {
-//        if !show {
-            ZStack {
-                RoundedRectangle(cornerRadius: 30)
-                    .foregroundColor(rowColor)
-                    .matchedGeometryEffect(id: "rect", in: namespace)
-                    .frame(height: 0)
-                    HStack {
-                        Text(key)
-                            .foregroundColor(textColor)
-                            .font(.title3)
-                            .padding()
-                        
-                        Spacer()
-                        
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(Color.gray)
-                            .padding()
-                    }
-                    .background(rowColor)
-                    .cornerRadius(cornerRadius)
-//                    .onDisappear {
-//                        resultSelected = true
-//                    }
-//                    .onAppear {
-//                        resultSelected = false
-//                    }
-                }
-                .padding([.leading, .trailing])
-                .matchedGeometryEffect(id: "row", in: namespace)
-                .onTapGesture {
-                    withAnimation(animation) {
-                        result = value
-                        resultSelected = true
-                    }
-                }
-                
-//        } else {
-//            GeometryReader { g in
-//                ZStack {
-//                    RoundedRectangle(cornerRadius: 30)
-//                        .foregroundColor(rowColor)
-//                        .matchedGeometryEffect(id: "rect", in: namespace)
-//                        .frame(height: g.size.height + 50)
-//                    ZStack(alignment: .topLeading) {
-//                        ProfileView(profileLink: value)
-//                        .matchedGeometryEffect(id: "row", in: namespace)
-//                        Button(action: {
-//                            withAnimation(animation) {
-//                                resultSelected = false
-//                            }
-//                        }) {
-//                            Image(systemName: "chevron.left")
-//                                .font(.system(size: 22))
-//                        }
-//                        .padding()
-//                    }
-//                }
-//            }
-//        }
-    }
-}
-
-struct OldRecordView: View {
-    @Environment(\.colorScheme) var currentMode
-    @Binding var resultSelected: Bool
-    
-    var key: String
-    var value: String
+    let key: String
+    let value: String
+    let namespace: Namespace.ID
+    let animationSpeed: CGFloat
     
     private let cornerRadius: CGFloat = 30
     private let textColor: Color = Color.primary
+    
+    private var animation: Animation {
+        Animation.spring(response: animationSpeed,
+                         dampingFraction: 0.9)
+    }
     
     private var rowColor: Color {
         currentMode == .light ? Color.white : Color.black
     }
     
     var body: some View {
-        NavigationLink(destination: ProfileView(profileLink: value)) {
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .foregroundColor(rowColor)
+                .matchedGeometryEffect(id: "rect_" + value, in: namespace)
+                .frame(height: 0)
             HStack {
                 Text(key)
                     .foregroundColor(textColor)
@@ -223,13 +115,82 @@ struct OldRecordView: View {
             }
             .background(rowColor)
             .cornerRadius(cornerRadius)
-            .onDisappear {
-                resultSelected = true
-            }
-            .onAppear {
-                resultSelected = false
-            }
+            .matchedGeometryEffect(id: value, in: namespace)
         }
         .padding([.leading, .trailing])
+        .onTapGesture {
+            Task {
+                await animate(duration: animationSpeed,
+                              animation: animation) {
+                    resultSelected = true
+                }
+                result = value
+            }
+        }
+    }
+}
+
+struct ExpandedRecordView: View {
+    @Environment(\.colorScheme) var currentMode
+    @Binding var resultSelected: Bool
+    @Binding var result: String
+    
+    let proxy: GeometryProxy
+    let namespace: Namespace.ID
+    let animationSpeed: CGFloat
+    
+    private let cornerRadius: CGFloat = 30
+    private let textColor: Color = Color.primary
+    
+    private var animation: Animation {
+        Animation.spring(response: animationSpeed,
+                         dampingFraction: 0.9)
+    }
+    
+    private var rowColor: Color {
+        currentMode == .light ? Color.white : Color.black
+    }
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .foregroundColor(rowColor)
+                .matchedGeometryEffect(id: "rect_" + result, in: namespace)
+                .frame(height: proxy.size.height + 50)
+            
+            if result != "" {
+                ZStack(alignment: .topLeading) {
+                    NavigationView {
+                        ProfileView(profileLink: result)
+                            .matchedGeometryEffect(id: result, in: namespace)
+                    }
+                    Button(action: {
+                        withAnimation(animation) {
+                            resultSelected = false
+                            result = ""
+                        }
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 22))
+                    }
+                    .padding()
+                }
+            }
+        }
+    }
+}
+
+// Supports actions after a given delay
+extension View {
+    func animate(duration: CGFloat, animation: Animation, _ execute: @escaping () -> Void) async {
+        await withCheckedContinuation { continuation in
+            withAnimation(animation) {
+                execute()
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+                continuation.resume()
+            }
+        }
     }
 }
