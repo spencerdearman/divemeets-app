@@ -393,7 +393,7 @@ struct MeetResultsPageView: View {
             result.append([key, value])
         }
         
-        return result
+        return result.sorted(by: { $0[0] < $1[0] })
     }
     
     private func diversToRecords(_ divers: MeetDiverData) -> [[String]] {
