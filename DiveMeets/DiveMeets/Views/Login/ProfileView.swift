@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ProfileView: View {
+    @Environment(\.colorScheme) var currentMode
+    
     var profileLink: String
     @State var diverData : [[String]] = []
     @State var profileType : String = ""
@@ -25,6 +27,10 @@ struct ProfileView: View {
     
     var diverID: String {
         String(profileLink.suffix(5))
+    }
+    
+    private var bgColor: Color {
+        currentMode == .light ? .white : .black
     }
     
     private func getUpcomingDiveSheetsEntries(name: String) async -> [String: [String: EventEntry]]? {
@@ -54,178 +60,198 @@ struct ProfileView: View {
         return result
     }
     
+    private func getNameComponents() -> [String]? {
+        // Case where only State label is provided
+        var comps = diverData[0][0].slice(from: "Name: ", to: " State:")
+        if comps == nil {
+            // Case where City/State label is provided
+            comps = diverData[0][0].slice(from: "Name: ", to: " City/State:")
+            
+            if comps == nil {
+                // Case where no labels are provided (shell profile)
+                comps = diverData[0][0].slice(from: "Name: ", to: " DiveMeets ID:")
+            }
+        }
+        
+        guard let comps = comps else { return nil }
+        
+        return comps.components(separatedBy: " ")
+    }
+    
     var body: some View {
         
-        ZStack{}
-            .onAppear {
-                Task {
-                    await parser.parse(urlString: profileLink)
-                    diverData = parser.myData
-                     let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
-                    
-                    if divers != "" {
-                        profileType = "Coach"
-                    } else {
-                        profileType = "Diver"
-                    }
-                    
-                    guard let url = URL(string: profileLink) else { return }
-                    await getTextModel.fetchText(url: url)
-                    if let text = getTextModel.text {
-                        upcomingDiveSheetsLinks = try await ep.parseProfileUpcomingMeets(html: text)
-                        let nameText = diverData[0][0].slice(from: "Name: ", to: " State:")
-                        let comps = nameText?.split(separator: " ")
-                        let last = String(comps?.last ?? "")
-                        let first = String(comps?.dropLast().joined(separator: " ") ?? "")
-                        
-                        if upcomingDiveSheetsLinks != nil {
-                            upcomingDiveSheetsEntries = await getUpcomingDiveSheetsEntries(name: last + ", " + first)
-                        }
-                        
-                    }
-                }
-            }
-        
-        if profileType == "Diver" {
-            VStack {
+        ZStack {
+            bgColor.ignoresSafeArea()
+            
+            if profileType == "Diver" {
                 VStack {
-                    ProfileImage(diverID: diverID)
-                        .frame(width: 200, height: 150)
-                        .padding()
                     VStack {
-                        VStack(alignment: .leading) {
-                            HStack (alignment: .firstTextBaseline) {
-                                let nameComps = diverData[0][0].slice(from: "Name: ", to: " State:")?
-                                    .components(separatedBy: " ")
-                                let firstName = nameComps?.dropLast().joined(separator: " ") ?? ""
-                                let lastName = nameComps?.last ?? ""
-                                
-                                diverData != []
-                                ? Text(firstName + " " + lastName) .font(.title)
-                                : Text("")
-                                
-                                Text(diverID)
-                                    .font(.subheadline).foregroundColor(.secondary)
+                        ProfileImage(diverID: diverID)
+                            .frame(width: 200, height: 150)
+                            .padding()
+                        VStack {
+                            VStack(alignment: .leading) {
+                                HStack (alignment: .firstTextBaseline) {
+                                    let nameComps = getNameComponents()
+                                        
+                                    let firstName = nameComps?.dropLast().joined(separator: " ") ?? ""
+                                    let lastName = nameComps?.last ?? ""
+                                    
+                                    diverData != []
+                                    ? Text(firstName + " " + lastName) .font(.title)
+                                    : Text("")
+                                    
+                                    Text(diverID)
+                                        .font(.subheadline).foregroundColor(.secondary)
+                                }
+                                Divider()
+                                HStack (alignment: .firstTextBaseline) {
+                                    Image(systemName: "house.fill")
+                                    diverData != []
+                                    ? Text(
+                                        (diverData[0][0].slice(from: "State: ", to: " Country")  ?? "")
+                                        + ", "
+                                        + (diverData[0][0].slice(from: " Country: ",
+                                                                 to: " Gender") ?? ""))
+                                    : Text("")
+                                }
+                                .font(.subheadline)
+                                HStack (alignment: .firstTextBaseline) {
+                                    Image(systemName: "person.circle")
+                                    diverData != []
+                                    ? Text("Gender: " +
+                                           (diverData[0][0].slice(from: " Gender: ", to: " Age") ?? ""))
+                                    : Text("")
+                                    diverData != []
+                                    ? Text("Age: " +
+                                           (diverData[0][0].slice(from: " Age: ", to: " FINA") ?? ""))
+                                    : Text("")
+                                    diverData != []
+                                    ? Text("FINA Age: " +
+                                           (diverData[0][0].slice(from: " FINA Age: ",
+                                                                  to: " High") ?? ""))
+                                    : Text("")
+                                }
+                                .font(.subheadline)
+                                .padding([.leading], 2)
+                                Divider()
                             }
-                            Divider()
-                            HStack (alignment: .firstTextBaseline) {
-                                Image(systemName: "house.fill")
-                                diverData != []
-                                ? Text(
-                                    (diverData[0][0].slice(from: "State: ", to: " Country")  ?? "")
-                                    + ", "
-                                    + (diverData[0][0].slice(from: " Country: ",
-                                                             to: " Gender") ?? ""))
-                                : Text("")
-                            }
-                            .font(.subheadline)
-                            HStack (alignment: .firstTextBaseline) {
-                                Image(systemName: "person.circle")
-                                diverData != []
-                                ? Text("Gender: " +
-                                       (diverData[0][0].slice(from: " Gender: ", to: " Age") ?? ""))
-                                : Text("")
-                                diverData != []
-                                ? Text("Age: " +
-                                       (diverData[0][0].slice(from: " Age: ", to: " FINA") ?? ""))
-                                : Text("")
-                                diverData != []
-                                ? Text("FINA Age: " +
-                                       (diverData[0][0].slice(from: " FINA Age: ",
-                                                              to: " High") ?? ""))
-                                : Text("")
-                            }
-                            .font(.subheadline)
-                            .padding([.leading], 2)
-                            Divider()
                         }
-                    }
-                    .padding([.leading, .trailing, .top])
-                    
-                    if let upcomingDiveSheetsEntries = upcomingDiveSheetsEntries {
-                        DisclosureGroup(isExpanded: $isExpanded) {
-                            ForEach(upcomingDiveSheetsEntries.sorted(by: { $0.key < $1.key }),
-                                    id: \.key) { meetName, events in
-                                VStack(alignment: .leading, spacing: 0) {
-                                    Text(meetName)
-                                        .font(.title3)
-                                        .bold()
-                                    VStack(spacing: 5) {
-                                        ForEach(events.sorted(by: { $0.key < $1.key }),
-                                                id: \.key) { eventName, entry in
-                                            EntryView(entry: entry) {
-                                                Text(eventName)
-                                                    .font(.headline)
-                                                    .bold()
-                                                    .foregroundColor(Color.primary)
+                        .padding([.leading, .trailing, .top])
+                        
+                        if let upcomingDiveSheetsEntries = upcomingDiveSheetsEntries {
+                            DisclosureGroup(isExpanded: $isExpanded) {
+                                ForEach(upcomingDiveSheetsEntries.sorted(by: { $0.key < $1.key }),
+                                        id: \.key) { meetName, events in
+                                    VStack(alignment: .leading, spacing: 0) {
+                                        Text(meetName)
+                                            .font(.title3)
+                                            .bold()
+                                        VStack(spacing: 5) {
+                                            ForEach(events.sorted(by: { $0.key < $1.key }),
+                                                    id: \.key) { eventName, entry in
+                                                EntryView(entry: entry) {
+                                                    Text(eventName)
+                                                        .font(.headline)
+                                                        .bold()
+                                                        .foregroundColor(Color.primary)
+                                                }
                                             }
                                         }
+                                        .padding(.leading)
+                                        .padding(.top, 5)
                                     }
-                                    .padding(.leading)
                                     .padding(.top, 5)
                                 }
-                                .padding(.top, 5)
+                            } label: {
+                                Text("Upcoming Meets")
+                                    .font(.title2)
+                                    .bold()
+                                    .foregroundColor(Color.primary)
                             }
-                        } label: {
-                            Text("Upcoming Meets")
-                                .font(.title2)
-                                .bold()
-                                .foregroundColor(Color.primary)
+                            .padding([.leading, .trailing])
+                            .padding(.bottom, 5)
                         }
-                        .padding([.leading, .trailing])
-                        .padding(.bottom, 5)
+                    }
+                    Text("Meets")
+                        .font(.title2)
+                        .padding(.bottom)
+                    MeetList(profileLink: profileLink)
+                    Spacer()
+                }
+                .padding(.bottom, maxHeightOffset)
+            } else {
+                VStack {
+                    VStack {
+                        Spacer()
+                        ProfileImage(diverID: diverID)
+                            .offset(y:-100)
+                        VStack{
+                            VStack(alignment: .leading) {
+                                HStack (alignment: .firstTextBaseline){
+                                    diverData != []
+                                    ? Text(diverData[0][0].slice(from: "Name: ",
+                                                                 to: " City/State") ?? "").font(.title)
+                                    : Text("")
+                                    
+                                    Text(diverID)
+                                        .font(.subheadline).foregroundColor(.secondary)
+                                }
+                                Divider()
+                                HStack (alignment: .firstTextBaseline){
+                                    Image(systemName: "house.fill")
+                                    diverData != []
+                                    ? Text(
+                                        (diverData[0][0].slice(from: " City/State: ",
+                                                               to: " Country")  ?? "")
+                                        + ", "
+                                        + (diverData[0][0].slice(from: " Country: ",
+                                                                 to: " Gender") ?? "")): Text("")
+                                }
+                                .font(.subheadline)
+                                HStack (alignment: .firstTextBaseline) {
+                                    Image(systemName: "person.circle")
+                                    diverData != []
+                                    ? Text("Gender: " + (diverData[0][0].slice(from: " Gender: ",
+                                                                               to: " DiveMeets") ?? ""))
+                                    : Text("")
+                                }
+                                .font(.subheadline)
+                                .padding([.leading], 2)
+                                Divider()
+                            }
+                            .offset(y:-150)
+                        }
+                        .padding()
                     }
                 }
-                Text("Meets")
-                    .font(.title2)
-                    .padding(.bottom)
-                MeetList(profileLink: profileLink)
-                Spacer()
             }
-            .padding(.bottom, maxHeightOffset)
-        } else {
-            VStack {
-                VStack {
-                    Spacer()
-                    ProfileImage(diverID: diverID)
-                        .offset(y:-100)
-                    VStack{
-                        VStack(alignment: .leading) {
-                            HStack (alignment: .firstTextBaseline){
-                                diverData != []
-                                ? Text(diverData[0][0].slice(from: "Name: ",
-                                                             to: " City/State") ?? "").font(.title)
-                                : Text("")
-                                
-                                Text(diverID)
-                                    .font(.subheadline).foregroundColor(.secondary)
-                            }
-                            Divider()
-                            HStack (alignment: .firstTextBaseline){
-                                Image(systemName: "house.fill")
-                                diverData != []
-                                ? Text(
-                                    (diverData[0][0].slice(from: " City/State: ",
-                                                           to: " Country")  ?? "")
-                                    + ", "
-                                    + (diverData[0][0].slice(from: " Country: ",
-                                                             to: " Gender") ?? "")): Text("")
-                            }
-                            .font(.subheadline)
-                            HStack (alignment: .firstTextBaseline) {
-                                Image(systemName: "person.circle")
-                                diverData != []
-                                ? Text("Gender: " + (diverData[0][0].slice(from: " Gender: ",
-                                                                           to: " DiveMeets") ?? ""))
-                                : Text("")
-                            }
-                            .font(.subheadline)
-                            .padding([.leading], 2)
-                            Divider()
-                        }
-                        .offset(y:-150)
+        }
+        .onAppear {
+            Task {
+                await parser.parse(urlString: profileLink)
+                diverData = parser.myData
+                let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
+                
+                if divers != "" {
+                    profileType = "Coach"
+                } else {
+                    profileType = "Diver"
+                }
+                
+                guard let url = URL(string: profileLink) else { return }
+                await getTextModel.fetchText(url: url)
+                if let text = getTextModel.text {
+                    upcomingDiveSheetsLinks = try await ep.parseProfileUpcomingMeets(html: text)
+                    let nameText = diverData[0][0].slice(from: "Name: ", to: " State:")
+                    let comps = nameText?.split(separator: " ")
+                    let last = String(comps?.last ?? "")
+                    let first = String(comps?.dropLast().joined(separator: " ") ?? "")
+                    
+                    if upcomingDiveSheetsLinks != nil {
+                        upcomingDiveSheetsEntries = await getUpcomingDiveSheetsEntries(name: last + ", " + first)
                     }
-                    .padding()
+                    
                 }
             }
         }
