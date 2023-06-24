@@ -299,12 +299,6 @@ struct mainView: View {
     var body: some View {
         bgColor.ignoresSafeArea()
         GeometryReader { geometry in
-            Color.clear
-                .onAppear{
-                    screenWidth = geometry.size.width
-                    screenHeight = geometry.size.height
-                }
-        }
             VStack(spacing: 0.5){
                 if !starSelected {
                     VStack{
@@ -337,15 +331,23 @@ struct mainView: View {
                 .padding(.top)
                 .animation(.easeOut(duration: 1), value: starSelected)
             }
-            .onAppear{
+            .onAppear {
+                screenWidth = geometry.size.width
+                screenHeight = geometry.size.height
                 startTimer()
             }
+        }
     }
 }
 
 struct errorView: View {
+    @Environment(\.colorScheme) var currentMode
+    private var bgColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    
     var body: some View {
-        Color.white.ignoresSafeArea()
+        bgColor.ignoresSafeArea()
         Text("Error with LiveResults, Event may have ended already")
     }
 }
