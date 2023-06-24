@@ -50,7 +50,7 @@ struct ExpandingRowView: View {
                             ZStack(alignment: .topLeading) {
                                 ProfileView(
                                     profileLink: "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961")
-                                    .matchedGeometryEffect(id: "row", in: namespace)
+                                .matchedGeometryEffect(id: "row", in: namespace)
                                 Button(action: {
                                     withAnimation(.spring(response: 0.6,
                                                           dampingFraction: 0.9)) {
@@ -66,14 +66,6 @@ struct ExpandingRowView: View {
                     }
                 }
             }
-            
         }
-        //        .ignoresSafeArea()
-    }
-}
-
-struct ExpandingRowView_Previews: PreviewProvider {
-    static var previews: some View {
-        ExpandingRowView()
     }
 }
