@@ -300,7 +300,6 @@ struct mainView: View{
                     screenHeight = geometry.size.height
                 }
         }
-        NavigationView{
             VStack(spacing: 0.5){
                 if !starSelected {
                     VStack{
@@ -336,7 +335,6 @@ struct mainView: View{
             .onAppear{
                 startTimer()
             }
-        }
     }
 }
 
