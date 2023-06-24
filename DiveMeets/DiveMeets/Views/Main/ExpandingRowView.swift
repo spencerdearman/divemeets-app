@@ -108,6 +108,5 @@ struct ExpandingRowView: View {
                 }
             }
         }
-        //        .ignoresSafeArea()
     }
 }
