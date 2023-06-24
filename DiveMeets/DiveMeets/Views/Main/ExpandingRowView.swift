@@ -67,5 +67,12 @@ struct ExpandingRowView: View {
                 }
             }
         }
+        //        .ignoresSafeArea()
+    }
+}
+
+struct ExpandingRowView_Previews: PreviewProvider {
+    static var previews: some View {
+        ExpandingRowView()
     }
 }
