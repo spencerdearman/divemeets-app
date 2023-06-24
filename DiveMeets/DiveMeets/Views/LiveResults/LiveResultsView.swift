@@ -149,6 +149,11 @@ struct parseBody: View {
             
             if lastDiver.isEmpty() { return false }
             lastDiverName = try lastDiver[0].text()
+            // Adds space after name and before team
+            if let idx = lastDiverName.firstIndex(of: "(") {
+                lastDiverName.insert(" ", at: idx)
+            }
+            
             var tempLink = try individualTables[0].getElementsByTag("a").attr("href")
             lastDiverProfileLink = linkHead + tempLink
             
@@ -189,6 +194,11 @@ struct parseBody: View {
             
             if nextDiver.isEmpty() { return false }
             nextDiverName = try nextDiver[0].text()
+            // Adds space after name and before team
+            if let idx = nextDiverName.firstIndex(of: "(") {
+                nextDiverName.insert(" ", at: idx)
+            }
+            
             tempLink = try individualTables[2].getElementsByTag("a").attr("href")
             nextDiverProfileLink = linkHead + tempLink
             
@@ -290,7 +300,6 @@ struct mainView: View{
                     screenHeight = geometry.size.height
                 }
         }
-        NavigationView{
             VStack(spacing: 0.5){
                 if !starSelected {
                     VStack{
@@ -326,7 +335,6 @@ struct mainView: View{
             .onAppear{
                 startTimer()
             }
-        }
     }
 }
 
@@ -379,7 +387,7 @@ struct LastDiverView: View
                         VStack(alignment: .leading){
                             Text(lastInfo.0)
                                 .font(.title3).bold()
-                            Text("Last Round Place: " + String(lastInfo.2))
+                            Text("Last Round Place: " + (lastInfo.2 == 0 ? "N/A" : String(lastInfo.2)))
                             Text("Last Round Total: " + String(lastInfo.3))
                             HStack{
                                 Text("Order: " + String(lastInfo.4))
@@ -396,7 +404,12 @@ struct LastDiverView: View
                             .padding(.horizontal)
                     }
                     Text(lastInfo.7)
-                        .font(.title3).bold()
+                        .font(.title3)
+                        .bold()
+                        .scaledToFill()
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                        .padding([.leading, .trailing])
                     HStack{
                         Text("Height: " + lastInfo.8)
                         Text("DD: " + String(lastInfo.9))
@@ -433,7 +446,7 @@ struct NextDiverView: View
                         VStack(alignment: .leading){
                             Text(nextInfo.0)
                                 .font(.title3).bold()
-                            Text("Last Round Place: " + String(nextInfo.2))
+                            Text("Last Round Place: " + (nextInfo.2 == 0 ? "N/A" : String(nextInfo.2)))
                             Text("Last Round Total: " + String(nextInfo.3))
                             HStack{
                                 Text("Order: " + String(nextInfo.4))
@@ -452,6 +465,10 @@ struct NextDiverView: View
                         Text(nextInfo.5)
                             .font(.title3)
                             .bold()
+                            .scaledToFill()
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                            .padding([.leading, .trailing])
                         HStack{
                             Text("Height: " + nextInfo.6)
                             Text("DD: " + String(nextInfo.7))
@@ -472,37 +489,6 @@ struct NextDiverView: View
         }
     }
 }
-
-//struct SwipingView: View
-//{
-//    @Binding var lastInfo: LastDiverInfo
-//    @Binding var nextInfo: NextDiverInfo
-//    var body: some View {
-//        TabView {
-//            LastDiverView(lastInfo: $lastInfo)
-//                .frame(width: 400, height: 250)
-//                .background(Color(.systemGray4).opacity(0.95))
-//                .cornerRadius(40)
-//                .shadow(color: Color.black.opacity(0.7), radius: 5, x: 0, y: 2)
-//                .padding()
-//                .tabItem {
-//                    Text("Last Diver")
-//                }
-//            
-//            NextDiverView(nextInfo: $nextInfo)
-//                .frame(width: 400, height: 250)
-//                .background(Color(.systemGray4).opacity(0.95))
-//                .cornerRadius(40)
-//                .shadow(color: Color.black.opacity(0.7), radius: 5, x: 0, y: 2)
-//                .padding()
-//                .tabItem {
-//                    Text("Next Diver")
-//                }
-//        }
-//        .tabViewStyle(PageTabViewStyle())
-//        .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-//    }
-//}
 
 struct ResultsBubbleView: View {
     @Environment(\.colorScheme) var currentMode
@@ -559,7 +545,7 @@ struct ResultsBubbleView: View {
                             }
                         }
                         Text("Diving Order: " + elements[1])
-                        Text("Last Round Place: " + elements[2])
+                        Text("Last Round Place: " + (elements[2] == "0" ? "N/A" : elements[2]))
                     }
                 }
             }
@@ -580,7 +566,7 @@ struct DebugDataset {
     //score total, [judges scores]
     static let lastDiverInfo: LastDiverInfo =
     ("Diver 1", "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961", 1,
-     225.00, 1, 1, 175.00, "107B", "3M", 3.1, 65.1, "7.0 | 7.0 | 7.0")
+     225.00, 1, 1, 175.00, "5337D - Reverse 1 1/2 Somersaults 3 1/2 Twist", "3M", 3.3, 69.3, "7.0 | 7.0 | 7.0")
     //nextDiverName, nextDiverProfileLink, lastRoundPlace, lastRoundTotalScore, order, nextDive,
     //height, dd, avgScore, maxScore, forFirstPlace
     static let nextDiverInfo: NextDiverInfo =

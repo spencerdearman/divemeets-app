@@ -383,7 +383,7 @@ struct MeetResultsPageView: View {
             result.append([row.0, row.1, String(row.2), row.3])
         }
         
-        return result
+        return result.sorted(by: { $0[0] < $1[0] })
     }
     
     private func liveResultsToRecords(_ results: MeetLiveResultsData) -> [[String]] {
@@ -393,7 +393,7 @@ struct MeetResultsPageView: View {
             result.append([key, value])
         }
         
-        return result
+        return result.sorted(by: { $0[0] < $1[0] })
     }
     
     private func diversToRecords(_ divers: MeetDiverData) -> [[String]] {
@@ -579,6 +579,8 @@ struct DiverListView: View {
                         Text(elements[0]) // name
                             .font(.title3)
                             .bold()
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
                         
                         Text(elements[1]) // org
                             .font(.headline)

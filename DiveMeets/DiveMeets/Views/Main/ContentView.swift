@@ -45,8 +45,10 @@ struct ContentView: View {
                             switch tab {
                                 case .house:
                                     Home()
-                                case .wrench:
-                                    LiveResultsView(request: "debug")
+                                case .gearshape:
+                                    NavigationView {
+                                        LiveResultsView(request: "debug")
+                                    }
                                     //ToolsMenu()
                                 case .magnifyingglass:
                                     SearchView(isIndexingMeets: $isIndexingMeets)
