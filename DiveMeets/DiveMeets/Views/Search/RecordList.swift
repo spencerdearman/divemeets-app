@@ -54,7 +54,7 @@ struct RecordList: View {
                                         .onDisappear {
                                             resultSelected = true
                                         }
-                                        .onAppear{
+                                        .onAppear {
                                             resultSelected = false
                                         }
                                     }
