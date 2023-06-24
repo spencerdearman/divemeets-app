@@ -57,6 +57,7 @@ struct FloatingMenuBar: View {
         "person.circle": 1.6,
         "magnifyingglass.circle": 1.5,
         "wrench.and.screwdriver": 1.2,
+        "wrench.and.screwdriver.circle": 1.75,
     ]
     
     // Computes the image path to use when an image is selected
@@ -71,7 +72,7 @@ struct FloatingMenuBar: View {
     // Computes the image path for the selected image when it is relaxed
     private var selectedImageInverse: String {
         selectedTab.rawValue == "wrench"
-        ? selectedTab.rawValue + ".and.screwdriver"
+        ? selectedTab.rawValue + ".and.screwdriver.circle"
         : selectedTab.rawValue + ".circle"
     }
     
@@ -168,11 +169,17 @@ struct FloatingMenuBar: View {
                     HStack(spacing: 0) {
                         ForEach(visibleTabs, id: \.rawValue) { tab in
                             Spacer()
-                            Image(systemName: selectedTab == tab
-                                  ? selectedTabImage
-                                  : (tab == .wrench
-                                     ? tab.rawValue + ".and.screwdriver"
-                                     : tab.rawValue))
+                            VStack{
+                                if tab == .wrench && relaxImage{
+                                    Image(selectedTab == tab ? selectedTabImage : (tab == .wrench ? tab.rawValue + ".and.screwdriver.circle" : tab.rawValue))
+                                } else {
+                                    Image(systemName: selectedTab == tab
+                                          ? selectedTabImage
+                                          : (tab == .wrench
+                                             ? tab.rawValue + ".and.screwdriver"
+                                             : tab.rawValue))
+                                }
+                            }
                             .scaleEffect(tab == selectedTab
                                          ? sizeMults[selectedTabImage] ?? 1.25
                                          : 1.0)
