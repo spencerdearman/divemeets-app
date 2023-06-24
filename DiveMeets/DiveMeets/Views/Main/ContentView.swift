@@ -45,7 +45,7 @@ struct ContentView: View {
                             switch tab {
                                 case .house:
                                     Home()
-                                case .gearshape:
+                                case .wrench:
                                     LiveResultsView(request: "debug")
                                     //ToolsMenu()
                                 case .magnifyingglass:
