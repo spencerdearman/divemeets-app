@@ -61,10 +61,18 @@ struct ProfileView: View {
     }
     
     private func getNameComponents() -> [String]? {
+        // Case where only State label is provided
         var comps = diverData[0][0].slice(from: "Name: ", to: " State:")
         if comps == nil {
+            // Case where City/State label is provided
             comps = diverData[0][0].slice(from: "Name: ", to: " City/State:")
+            
+            if comps == nil {
+                // Case where no labels are provided (shell profile)
+                comps = diverData[0][0].slice(from: "Name: ", to: " DiveMeets ID:")
+            }
         }
+        
         guard let comps = comps else { return nil }
         
         return comps.components(separatedBy: " ")
@@ -235,6 +243,7 @@ struct ProfileView: View {
                 await getTextModel.fetchText(url: url)
                 if let text = getTextModel.text {
                     upcomingDiveSheetsLinks = try await ep.parseProfileUpcomingMeets(html: text)
+                    print(diverData[0][0])
                     let nameText = diverData[0][0].slice(from: "Name: ", to: " State:")
                     let comps = nameText?.split(separator: " ")
                     let last = String(comps?.last ?? "")
