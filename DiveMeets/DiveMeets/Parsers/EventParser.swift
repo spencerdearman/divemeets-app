@@ -59,7 +59,7 @@ final class EventHTMLParser: ObservableObject {
             let testString = try t.text()
             if i == 0 {
                 continue
-            } else if testString.contains(".") {
+            } else if try testString.contains(".") && t.getElementsByTag("td").count > 1 {
                 meetEvent = try t.getElementsByTag("td")[0].text()
                     .replacingOccurrences(of: "  ", with: "")
                 eventPlace = try t.getElementsByTag("td")[1].text()
