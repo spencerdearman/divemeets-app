@@ -579,6 +579,8 @@ struct DiverListView: View {
                         Text(elements[0]) // name
                             .font(.title3)
                             .bold()
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
                         
                         Text(elements[1]) // org
                             .font(.headline)
