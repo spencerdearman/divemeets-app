@@ -149,6 +149,11 @@ struct parseBody: View {
             
             if lastDiver.isEmpty() { return false }
             lastDiverName = try lastDiver[0].text()
+            // Adds space after name and before team
+            if let idx = lastDiverName.firstIndex(of: "(") {
+                lastDiverName.insert(" ", at: idx)
+            }
+            
             var tempLink = try individualTables[0].getElementsByTag("a").attr("href")
             lastDiverProfileLink = linkHead + tempLink
             
@@ -189,6 +194,11 @@ struct parseBody: View {
             
             if nextDiver.isEmpty() { return false }
             nextDiverName = try nextDiver[0].text()
+            // Adds space after name and before team
+            if let idx = nextDiverName.firstIndex(of: "(") {
+                nextDiverName.insert(" ", at: idx)
+            }
+            
             tempLink = try individualTables[2].getElementsByTag("a").attr("href")
             nextDiverProfileLink = linkHead + tempLink
             
