@@ -295,32 +295,41 @@ struct mainView: View {
             shiftingBool.toggle()
         }
     }
+    @Namespace var namespace
     
     var body: some View {
         bgColor.ignoresSafeArea()
         GeometryReader { geometry in
             VStack(spacing: 0.5){
-                if !starSelected {
-                    VStack{
-                        Text(title)
-                            .font(.title2).bold()
-                            .fixedSize(horizontal: false, vertical: true)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.center)
-                        Text(roundString)
-                        TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation),
-                                     bottomView: NextDiverView(nextInfo: $nextDiverInformation),
-                                     width: screenWidth * 0.95,
-                                     height: screenHeight * 0.32)
-                        .dynamicTypeSize(.xSmall ... .xxxLarge)
-                        .padding(.bottom)
-                        Text("Live Rankings")
-                            .font(.title2).bold()
-                            .padding(.top)
+                Group{
+                    if !starSelected {
+                        VStack{
+                            Text(title)
+                                .font(.title2).bold()
+                                .fixedSize(horizontal: false, vertical: true)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.center)
+                            Text(roundString)
+                            TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation),
+                                         bottomView: NextDiverView(nextInfo: $nextDiverInformation),
+                                         width: screenWidth * 0.95,
+                                         height: screenHeight * 0.32)
+                            .dynamicTypeSize(.xSmall ... .xxxLarge)
+                            .padding(.bottom)
+                            Text("Live Rankings")
+                                .font(.title2).bold()
+                                .padding(.top)
+                        }
                     }
-                }
-                ScalingScrollView(records: diveTable) { (elem) in
-                    ResultsBubbleView(elements: elem, focusViewList: $focusViewList)
+                    if starSelected {
+                        ScalingScrollView(records: diveTable) { _ in
+                            focusView()
+                        }
+                    } else {
+                        ScalingScrollView(records: diveTable) { (elem) in
+                            ResultsBubbleView(elements: elem, focusViewList: $focusViewList)
+                        }
+                    }
                 }
                 .onChange(of: focusViewList, perform: {[focusViewList] newValue in
                     if focusViewList.count == newValue.count{
@@ -337,6 +346,12 @@ struct mainView: View {
                 startTimer()
             }
         }
+    }
+}
+
+struct focusView: View {
+    var body: some View{
+        Text("Hello, this is the focus view")
     }
 }
 
