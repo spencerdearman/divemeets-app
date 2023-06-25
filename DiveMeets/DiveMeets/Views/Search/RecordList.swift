@@ -47,7 +47,7 @@ struct RecordList: View {
                             .font(.largeTitle)
                             .bold()
                             .padding(.leading, 20)
-                            .padding(.top, 50)
+                            .padding(.top, 40)
                         ScrollView(.vertical, showsIndicators: false) {
                             VStack(spacing: rowSpacing) {
                                 ForEach(records.sorted(by: <), id: \.key) { key, value in
