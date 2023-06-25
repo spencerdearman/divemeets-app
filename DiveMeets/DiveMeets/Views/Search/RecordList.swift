@@ -156,7 +156,8 @@ struct ExpandedRecordView: View {
             RoundedRectangle(cornerRadius: cornerRadius)
                 .foregroundColor(rowColor)
                 .matchedGeometryEffect(id: "rect_" + result, in: namespace)
-                .frame(height: proxy.size.height + 50)
+                .frame(height: proxy.size.height * 1.5, alignment: .center)
+                .ignoresSafeArea()
             
             if result != "" {
                 ZStack(alignment: .topLeading) {
