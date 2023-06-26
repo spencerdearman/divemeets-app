@@ -321,17 +321,8 @@ struct mainView: View {
                                 .padding(.top)
                         }
                     }
-                    HomeBubbleView(diveTable: $diveTable)
-//                    ScalingScrollView(records: diveTable) { _ in
-//                        //HomeView()
-//                        //ResultsBubbleView(elements: elem, focusViewList: $focusViewList)
-//                    }
+                HomeBubbleView(diveTable: $diveTable, starSelected: $starSelected)
             }
-            .onChange(of: focusViewList, perform: {[focusViewList] newValue in
-                if focusViewList.count == newValue.count{
-                    starSelected.toggle()
-                }
-            })
             .padding(.bottom, maxHeightOffset)
             .padding(.top)
             .animation(.easeOut(duration: 1), value: starSelected)

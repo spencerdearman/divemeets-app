@@ -10,15 +10,19 @@ import SwiftUI
 struct HomeBubbleView: View{
     let gridItems = [GridItem(.adaptive(minimum: 300))]
     @Binding var diveTable: [[String]]
+    @Binding var starSelected: Bool
     
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: gridItems, spacing: 5) {
-                ForEach(diveTable, id: \.self) { elem in
-                    HomeView(bubbleData: elem)
+        ZStack{
+            //Custom.darkBlue
+            ScrollView {
+                LazyVGrid(columns: gridItems, spacing: 5) {
+                    ForEach(diveTable, id: \.self) { elem in
+                        HomeView(bubbleData: elem, starSelected: $starSelected)
+                    }
                 }
+                .padding(20)
             }
-            .padding(20)
         }
     }
 }
@@ -28,27 +32,28 @@ struct HomeView: View {
     @Namespace var namespace
     @State var show: Bool = false
     @State var bubbleData: [String]
+    @Binding var starSelected: Bool
     
     var body: some View{
-        ZStack{
-            // Custom.darkBlue
-            
             if show {
                 openTileView(namespace: namespace, show: $show)
                     .onTapGesture {
+                        starSelected = false
                         withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                             show.toggle()
                         }
                     }
+                    .shadow(radius: 5)
             } else {
                 closedTileView(namespace: namespace, show: $show)
                     .onTapGesture {
                         withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                            starSelected = true
                             show.toggle()
                         }
                     }
+                    .shadow(radius: 5)
             }
-        }
     }
 }
 
@@ -94,7 +99,7 @@ struct closedTileView: View {
                 .padding(20)
         )
         .frame(height: 200)
-        .padding(20)
+        //.padding(20)
     }
 }
 
@@ -136,11 +141,5 @@ struct openTileView: View {
                 .matchedGeometryEffect(id: "mask", in: namespace)
         )
         .frame(height: 500)
-        .padding(20)
-        .onTapGesture {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)){
-                show.toggle()
-            }
-        }
     }
 }
