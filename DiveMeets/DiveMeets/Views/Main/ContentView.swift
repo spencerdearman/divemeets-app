@@ -47,8 +47,7 @@ struct ContentView: View {
                                     Home()
                                 case .wrench:
                                     NavigationView {
-                                        shiftingTileView()
-                                        //LiveResultsView(request: "debug")
+                                        LiveResultsView(request: "debug")
                                     }
                                     //ToolsMenu()
                                 case .magnifyingglass:
