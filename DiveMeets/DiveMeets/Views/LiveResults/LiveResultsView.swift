@@ -285,6 +285,8 @@ struct mainView: View {
         min(maxHeightOffsetScaled, 90)
     }
     
+    var colors: [Color] = [.blue, .green, .red, .orange]
+    
     private var bgColor: Color {
         currentMode == .light ? .white : .black
     }
@@ -295,13 +297,11 @@ struct mainView: View {
             shiftingBool.toggle()
         }
     }
-    @Namespace var namespace
     
     var body: some View {
         bgColor.ignoresSafeArea()
         GeometryReader { geometry in
             VStack(spacing: 0.5){
-                Group{
                     if !starSelected {
                         VStack{
                             Text(title)
@@ -321,37 +321,24 @@ struct mainView: View {
                                 .padding(.top)
                         }
                     }
-                    if starSelected {
-                        ScalingScrollView(records: diveTable) { _ in
-                            focusView()
-                        }
-                    } else {
-                        ScalingScrollView(records: diveTable) { (elem) in
-                            ResultsBubbleView(elements: elem, focusViewList: $focusViewList)
-                        }
+                    ScalingScrollView(records: diveTable) { (elem) in
+                        ResultsBubbleView(elements: elem, focusViewList: $focusViewList)
                     }
-                }
-                .onChange(of: focusViewList, perform: {[focusViewList] newValue in
-                    if focusViewList.count == newValue.count{
-                        starSelected.toggle()
-                    }
-                })
-                .padding(.bottom, maxHeightOffset)
-                .padding(.top)
-                .animation(.easeOut(duration: 1), value: starSelected)
             }
+            .onChange(of: focusViewList, perform: {[focusViewList] newValue in
+                if focusViewList.count == newValue.count{
+                    starSelected.toggle()
+                }
+            })
+            .padding(.bottom, maxHeightOffset)
+            .padding(.top)
+            .animation(.easeOut(duration: 1), value: starSelected)
             .onAppear {
                 screenWidth = geometry.size.width
                 screenHeight = geometry.size.height
                 startTimer()
             }
         }
-    }
-}
-
-struct focusView: View {
-    var body: some View{
-        Text("Hello, this is the focus view")
     }
 }
 
@@ -516,6 +503,7 @@ struct ResultsBubbleView: View {
     @Environment(\.colorScheme) var currentMode
     @Binding private var focusViewList: [String: Bool]
     @State private var focusBool: Bool = false
+    @Namespace var namespace
     
     private var bubbleColor: Color {
         currentMode == .light ? .white : .black
@@ -530,54 +518,61 @@ struct ResultsBubbleView: View {
     //[Place: (Left to dive, order, last round place, last round score, current place,
     //current score, name, last dive average, event average score, avg round score
     var body: some View {
-        ZStack {
+        if focusViewList[elements[6]] ?? false {
             Rectangle()
-                .foregroundColor(bubbleColor)
-            VStack {
-                VStack(alignment: .leading) {
-                    HStack(alignment: .lastTextBaseline) {
-                        if Bool(elements[0]) ?? false {
-                            Image(systemName: "checkmark.circle")
-                        }
-                        let link = elements[7]
-                        NavigationLink {
-                            ProfileView(profileLink: link)
-                        } label: {
-                            Text(elements[6])
-                                .font(.title3)
-                                .bold()
-                                .scaledToFit()
-                                .minimumScaleFactor(0.5)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .lineLimit(1)
-                        }
-                        Text(elements[5])
-                            .font(.title3).foregroundColor(.red)
-                        Spacer()
-                    }
-                    HStack{
-                        Button {
-                            focusBool.toggle()
-                            focusViewList[elements[6]] = focusBool
-                        } label: {
-                            if focusBool {
-                                Image(systemName: "star.fill")
-                            } else {
-                                Image(systemName: "star")
+                .foregroundColor(.blue)
+                .matchedGeometryEffect(id: "diverView", in: namespace)
+        } else {
+            ZStack {
+                Rectangle()
+                    .foregroundColor(bubbleColor)
+                    .matchedGeometryEffect(id: "diverView", in: namespace)
+                VStack {
+                    VStack(alignment: .leading) {
+                        HStack(alignment: .lastTextBaseline) {
+                            if Bool(elements[0]) ?? false {
+                                Image(systemName: "checkmark.circle")
                             }
+                            let link = elements[7]
+                            NavigationLink {
+                                ProfileView(profileLink: link)
+                            } label: {
+                                Text(elements[6])
+                                    .font(.title3)
+                                    .bold()
+                                    .scaledToFit()
+                                    .minimumScaleFactor(0.5)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .lineLimit(1)
+                            }
+                            Text(elements[5])
+                                .font(.title3).foregroundColor(.red)
+                            Spacer()
                         }
-                        Text("Diving Order: " + elements[1])
-                        Text("Last Round Place: " + (elements[2] == "0" ? "N/A" : elements[2]))
+                        HStack{
+                            Button {
+                                focusBool.toggle()
+                                focusViewList[elements[6]] = focusBool
+                            } label: {
+                                if focusBool {
+                                    Image(systemName: "star.fill")
+                                } else {
+                                    Image(systemName: "star")
+                                }
+                            }
+                            Text("Diving Order: " + elements[1])
+                            Text("Last Round Place: " + (elements[2] == "0" ? "N/A" : elements[2]))
+                        }
                     }
                 }
+                .padding()
             }
-            .padding()
-        }
-        .onAppear {
-            focusBool = focusViewList[elements[6]] ?? false
-        }
-        .onTapGesture {
-            print(elements[3])
+            .onAppear {
+                focusBool = focusViewList[elements[6]] ?? false
+            }
+            .onTapGesture {
+                print(elements[3])
+            }
         }
     }
 }
