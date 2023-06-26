@@ -13,6 +13,9 @@ struct HomeBubbleView: View{
     @Binding var starSelected: Bool
     
     var body: some View {
+        Text("Live Rankings")
+            .font(.title2).bold()
+            .padding(.top)
         ZStack{
             //Custom.darkBlue
             ScrollView {
@@ -57,7 +60,6 @@ struct HomeView: View {
                         show.toggle()
                     }
                 }
-                .shadow(radius: 5)
         }
     }
 }
@@ -77,35 +79,37 @@ struct ClosedTileView: View {
         .frame(maxWidth: .infinity)
         .foregroundStyle(.white)
         .background(
-            Custom.medBlue.matchedGeometryEffect(id: "background", in: namespace)
+            Color.white.matchedGeometryEffect(id: "background", in: namespace)
         )
         .mask(
             RoundedRectangle(cornerRadius: 30, style: .continuous)
                 .matchedGeometryEffect(id: "mask", in: namespace)
         )
+        .shadow(radius: 5)
         .overlay(
-            VStack(alignment: .leading, spacing: 12){
-                HStack {
-                    Text(bubbleData[6])
-                        .font(.largeTitle)
-                        .matchedGeometryEffect(id: "name", in: namespace)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    Text("Current Place: " + bubbleData[4])
-                        .font(.title2).scaledToFit()
-                        .matchedGeometryEffect(id: "currentPlace", in: namespace)
-                }
-                Text("Current Score: " + bubbleData[5])
-                    .font(.footnote.weight(.semibold))
-                    .matchedGeometryEffect(id: "currentScore", in: namespace)
-            }
-                .padding(20)
-                .background(
-                    Rectangle()
+            ZStack {
+                Rectangle()
                         .fill(.ultraThinMaterial)
                         .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
                         .matchedGeometryEffect(id: "blur", in: namespace)
-                )
-                .padding(10)
+                        .blur(radius: 10)
+                        .padding(5)
+                VStack(alignment: .leading, spacing: 12){
+                    HStack {
+                        Text(bubbleData[6])
+                            .font(.largeTitle)
+                            .matchedGeometryEffect(id: "name", in: namespace)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text("Current Place: " + bubbleData[4])
+                            .font(.title2).scaledToFit()
+                            .matchedGeometryEffect(id: "currentPlace", in: namespace)
+                    }
+                    Text("Current Score: " + bubbleData[5])
+                        .font(.footnote.weight(.semibold))
+                        .matchedGeometryEffect(id: "currentScore", in: namespace)
+                    }
+                    .padding(20)
+            }
         )
         .frame(height: 130)
         .padding(1)
@@ -126,32 +130,25 @@ struct OpenTileView: View {
             Spacer()
             VStack(alignment: .leading, spacing: 12){
                 HStack {
-                    ZStack {
-                        Rectangle()
-                            .fill(.ultraThinMaterial)
-                            .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
-                            .frame(width: 175, height: 175)
-                            .shadow(radius: 10)
-                        VStack{
-                            Text(bubbleData[6])
-                                .font(.largeTitle)
+                    VStack(alignment: .leading){
+                        Text(bubbleData[6])
+                            .font(.largeTitle)
+                            .scaledToFit()
+                            .matchedGeometryEffect(id: "name", in: namespace)
+                            //.frame(maxWidth: .infinity, alignment: .leading)
+                            //.padding(10)
+                        HStack {
+                            Text("Current Place: " + bubbleData[4])
                                 .scaledToFit()
-                                .matchedGeometryEffect(id: "name", in: namespace)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(10)
-                            HStack {
-                                Text("Current Place: " + bubbleData[4])
-                                    .scaledToFit()
-                                    .fontWeight(.semibold)
-                                    .matchedGeometryEffect(id: "currentPlace", in: namespace)
-                                if Bool(bubbleData[0])! {
-                                    Image(systemName: "checkmark")
-                                }
+                                .fontWeight(.semibold)
+                                .matchedGeometryEffect(id: "currentPlace", in: namespace)
+                            if Bool(bubbleData[0])! {
+                                Image(systemName: "checkmark")
                             }
-                            Text("Current Score: " + bubbleData[5])
-                                .font(.footnote.weight(.semibold)).scaledToFit()
-                                .matchedGeometryEffect(id: "currentScore", in: namespace)
                         }
+                        Text("Current Score: " + bubbleData[5])
+                            .font(.footnote.weight(.semibold)).scaledToFit()
+                            .matchedGeometryEffect(id: "currentScore", in: namespace)
                     }
                     MiniProfileImage(diverID: String(bubbleData[7].utf16.dropFirst(67)) ?? "", width: 150, height: 200)
                         .scaledToFit()
@@ -173,13 +170,13 @@ struct OpenTileView: View {
                             Text("Last Round Place: " + bubbleData[2])
                         }
                         .fontWeight(.semibold)
-                            Text("Last Round Score: " + bubbleData[3])
+                        Text("Last Round Score: " + bubbleData[3])
                             .fontWeight(.semibold)
-                            Text("Last Dive Average: " + bubbleData[8])
+                        Text("Last Dive Average: " + bubbleData[8])
                             .fontWeight(.semibold)
-                            Text("Average Event Score: " + bubbleData[9])
+                        Text("Average Event Score: " + bubbleData[9])
                             .fontWeight(.semibold)
-                            Text("Average Round Score: " + bubbleData[10])
+                        Text("Average Round Score: " + bubbleData[10])
                             .fontWeight(.semibold)
                     }
                     
@@ -190,7 +187,7 @@ struct OpenTileView: View {
         }
         .foregroundStyle(.black)
         .background(
-            Custom.lightBlue.matchedGeometryEffect(id: "background", in: namespace)
+            Color.white.matchedGeometryEffect(id: "background", in: namespace)
         )
         .mask(
             RoundedRectangle(cornerRadius: 30, style: .continuous)

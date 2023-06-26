@@ -302,25 +302,22 @@ struct mainView: View {
         bgColor.ignoresSafeArea()
         GeometryReader { geometry in
             VStack(spacing: 0.5){
-                    if !starSelected {
-                        VStack{
-                            Text(title)
-                                .font(.title2).bold()
-                                .fixedSize(horizontal: false, vertical: true)
-                                .lineLimit(2)
-                                .multilineTextAlignment(.center)
-                            Text(roundString)
-                            TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation),
-                                         bottomView: NextDiverView(nextInfo: $nextDiverInformation),
-                                         width: screenWidth * 0.95,
-                                         height: screenHeight * 0.32)
-                            .dynamicTypeSize(.xSmall ... .xxxLarge)
-                            .padding(.bottom)
-                            Text("Live Rankings")
-                                .font(.title2).bold()
-                                .padding(.top)
-                        }
+                if !starSelected {
+                    VStack{
+                        Text(title)
+                            .font(.title2).bold()
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.center)
+                        Text(roundString)
+                        TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation),
+                                     bottomView: NextDiverView(nextInfo: $nextDiverInformation),
+                                     width: screenWidth * 0.95,
+                                     height: screenHeight * 0.32)
+                        .dynamicTypeSize(.xSmall ... .xxxLarge)
+                        .padding(.bottom)
                     }
+                }
                 HomeBubbleView(diveTable: $diveTable, starSelected: $starSelected)
             }
             .padding(.bottom, maxHeightOffset)
@@ -347,30 +344,6 @@ struct errorView: View {
     }
 }
 
-struct LiveBarAnimation: View {
-    @State private var moveRightLeft = false
-    var body: some View {
-        VStack{
-            ZStack{
-                Capsule() // inactive
-                    .frame(width: 128, height: 6, alignment: .center)
-                    .foregroundColor(Color(.systemGray4))
-                Capsule()
-                    .clipShape(Rectangle().offset(x: moveRightLeft ? 80: -80))
-                    .frame(width: 100, height: 6, alignment: .leading)
-                    .foregroundColor(Color(.systemMint))
-                    .offset(x: moveRightLeft ? 14 : -14)
-                    .animation(Animation.easeInOut(duration: 0.5).delay(0.2).repeatForever(autoreverses: true),
-                               value: moveRightLeft)
-                    .onAppear {
-                        moveRightLeft.toggle()
-                    }
-            }
-            Text("Live Results")
-        }
-    }
-}
-
 struct LastDiverView: View
 {
     @Binding var lastInfo:
@@ -380,7 +353,7 @@ struct LastDiverView: View
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(Custom.lightBlue)
+                .fill(Color.white)
                 .cornerRadius(50)
                 .shadow(radius: 20)
             VStack{
@@ -439,54 +412,61 @@ struct NextDiverView: View
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(Custom.coolBlue)
+                .fill(Color.white)
                 .cornerRadius(50)
                 .shadow(radius: 20)
+            
+            //Upper Part
             VStack{
-                Group{
-                    HStack{
-                        VStack(alignment: .leading){
-                            Text(nextInfo.0)
-                                .font(.title3).bold()
-                            Text("Last Round Place: " + (nextInfo.2 == 0 ? "N/A" : String(nextInfo.2)))
-                            Text("Last Round Total: " + String(nextInfo.3))
-                            HStack{
-                                Text("Order: " + String(nextInfo.4))
-                            }
+                HStack{
+                    VStack(alignment: .leading){
+                        Text("Next Diver - ")
+                            .font(.title2).fontWeight(.semibold)
+                        Text(nextInfo.0)
+                            .font(.title2).bold()
+                        Text("Last Round Place: " + (nextInfo.2 == 0 ? "N/A" : String(nextInfo.2)))
+                        Text("Last Round Total: " + String(nextInfo.3))
+                        HStack{
+                            Text("Order: " + String(nextInfo.4))
+                            Text("For 1st: " + String(nextInfo.10))
                         }
+                    }
+                    .scaledToFill()
+                    .minimumScaleFactor(0.5)
+                    MiniProfileImage(diverID: String(nextInfo.1.utf16.dropFirst(67)) ?? "")
+                        .scaledToFit()
+                        .padding(.horizontal)
+                }
+                
+            //Lower Part
+                HStack{
+                    Text(nextInfo.5)
+                        .font(.title2)
+                        .bold()
                         .scaledToFill()
                         .minimumScaleFactor(0.5)
-                        .padding()
-                        MiniProfileImage(diverID: String(nextInfo.1.utf16.dropFirst(67)) ?? "")
-                            .scaledToFit()
-                            .padding(.horizontal)
-                    }
-                }
-                Group{
+                        .lineLimit(1)
+                        .background(
+                            Rectangle()
+                                .fill(.thinMaterial)
+                                .mask(RoundedRectangle(cornerRadius: 20))
+                        )
                     VStack{
-                        Text(nextInfo.5)
-                            .font(.title3)
-                            .bold()
-                            .scaledToFill()
-                            .minimumScaleFactor(0.5)
-                            .lineLimit(1)
-                            .padding([.leading, .trailing])
                         HStack{
                             Text("Height: " + nextInfo.6)
                             Text("DD: " + String(nextInfo.7))
                         }
                         HStack{
-                            Text("Average Score: " + String(nextInfo.8))
+                            Text("Avg. Score: " + String(nextInfo.8))
                             Text("Max Score: " + String(nextInfo.9))
                         }
                         .scaledToFit()
                         .minimumScaleFactor(0.5)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(1)
-                        Text("For First Place: " + String(nextInfo.10))
                     }
-                    .fixedSize(horizontal: false, vertical: true)
                 }
+                .padding()
             }
         }
     }
