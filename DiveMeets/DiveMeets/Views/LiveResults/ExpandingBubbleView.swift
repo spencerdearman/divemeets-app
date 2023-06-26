@@ -40,31 +40,35 @@ struct HomeView: View {
     }
     
     var body: some View{
-            if show {
-                OpenTileView(namespace: namespace, show: $show)
-                    .onTapGesture {
-                        starSelected = false
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                            show.toggle()
-                        }
+        if show {
+            OpenTileView(namespace: namespace, show: $show, bubbleData: $bubbleData)
+                .onTapGesture {
+                    starSelected = false
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                        show.toggle()
                     }
-                    .shadow(radius: 5)
-            } else {
-                ClosedTileView(namespace: namespace, show: $show)
-                    .onTapGesture {
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                            starSelected = true
-                            show.toggle()
-                        }
+                }
+                .shadow(radius: 5)
+        } else {
+            ClosedTileView(namespace: namespace, show: $show, bubbleData: $bubbleData)
+                .onTapGesture {
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                        starSelected = true
+                        show.toggle()
                     }
-                    .shadow(radius: 5)
-            }
+                }
+                .shadow(radius: 5)
+        }
     }
 }
 
 struct ClosedTileView: View {
     var namespace: Namespace.ID
     @Binding var show: Bool
+    @Binding var bubbleData: [String]
+    
+    //[Place: (Left to dive, order, last round place, last round score, current place,
+    //current score, name, last dive average, event average score, avg round score
     
     var body: some View{
         VStack{
@@ -73,7 +77,7 @@ struct ClosedTileView: View {
         .frame(maxWidth: .infinity)
         .foregroundStyle(.white)
         .background(
-            Custom.coolBlue.matchedGeometryEffect(id: "background", in: namespace)
+            Custom.medBlue.matchedGeometryEffect(id: "background", in: namespace)
         )
         .mask(
             RoundedRectangle(cornerRadius: 30, style: .continuous)
@@ -81,17 +85,18 @@ struct ClosedTileView: View {
         )
         .overlay(
             VStack(alignment: .leading, spacing: 12){
-                Text("Swiftui")
-                    .font(.largeTitle)
-                    .matchedGeometryEffect(id: "title", in: namespace)
+                HStack {
+                    Text(bubbleData[6])
+                        .font(.largeTitle)
+                        .matchedGeometryEffect(id: "name", in: namespace)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Text("20 sections - 3 hours")
+                    Text("Current Place: " + bubbleData[4])
+                        .font(.title2)
+                        .matchedGeometryEffect(id: "currentPlace", in: namespace)
+                }
+                Text("Current Score: " + bubbleData[5])
                     .font(.footnote.weight(.semibold))
-                    .matchedGeometryEffect(id: "footnote", in: namespace)
-                Text("More subtext")
-                    .font(.footnote)
-                    .matchedGeometryEffect(id: "text", in: namespace)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .matchedGeometryEffect(id: "currentScore", in: namespace)
             }
                 .padding(20)
                 .background(
@@ -100,33 +105,58 @@ struct ClosedTileView: View {
                         .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
                         .matchedGeometryEffect(id: "blur", in: namespace)
                 )
-                .offset(y: 20)
+                .offset(y: 10)
                 .padding(20)
         )
-        .frame(height: 200)
-        //.padding(20)
+        .frame(height: 150)
+        .padding(1)
     }
 }
 
 struct OpenTileView: View {
     var namespace: Namespace.ID
     @Binding var show: Bool
+    @Binding var bubbleData: [String]
+    
+    //[Place: (Left to dive, order, last round place, last round score, current place,
+    //current score, name, last dive average, event average score, avg round score
     
     var body: some View{
         
         VStack{
             Spacer()
             VStack(alignment: .leading, spacing: 12){
-                Text("20 sections - 3 hours")
-                    .font(.footnote.weight(.semibold))
+                HStack {
+                    VStack{
+                        Text(bubbleData[6])
+                            .font(.largeTitle)
+                            .matchedGeometryEffect(id: "name", in: namespace)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text("Current Place: " + bubbleData[4])
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .matchedGeometryEffect(id: "currentPlace", in: namespace)
+                    }
+                    MiniProfileImage(diverID: String(bubbleData[7].utf16.dropFirst(67)) ?? "", width: 150, height: 200)
+                        .scaledToFit()
+                        .padding(.horizontal)
+                }
+                    VStack{
+                        Text("Current Score: " + bubbleData[5])
+                            .fontWeight(.semibold)
+                            .matchedGeometryEffect(id: "currentScore", in: namespace)
+                        Text("Left to dive: " + bubbleData[0])
+                        Text("Order: " + bubbleData[1])
+                    }
+                Text("Last Round Place: " + bubbleData[2])
+                Text("Last Round Score: " + bubbleData[3])
+                Text("Last Dive Average: " + bubbleData[7])
+//                Text("Average Event Score: " + bubbleData[8])
+//                Text("Average Round Score: " + bubbleData[9])
+                Text("more information about meet")
+                    .fontWeight(.semibold)
                     .matchedGeometryEffect(id: "footnote", in: namespace)
-                Text("Swiftui")
-                    .font(.largeTitle)
-                    .matchedGeometryEffect(id: "title", in: namespace)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Text("More subtext")
-                    .font(.footnote)
-                    .matchedGeometryEffect(id: "text", in: namespace)
+                Spacer()
             }
             .padding(20)
             .background(

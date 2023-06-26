@@ -48,6 +48,8 @@ struct ProfileImage: View {
 struct MiniProfileImage: View {
     @Environment(\.colorScheme) var currentMode
     let diverID: String
+    var width: CGFloat = 100
+    var height: CGFloat = 150
     
     var body: some View {
         let imageUrlString =
@@ -58,7 +60,7 @@ struct MiniProfileImage: View {
                 image
                     .resizable()
                     .scaledToFit()
-                    .frame(width:100, height:150)
+                    .frame(width: width, height: height)
                     .clipShape(Circle())
                     .overlay {
                         Circle().stroke(.white, lineWidth: 4)
@@ -68,7 +70,7 @@ struct MiniProfileImage: View {
                 Image("defaultImage")
                     .resizable()
                     .scaledToFit()
-                    .frame(width:100, height:150)
+                    .frame(width: width, height: height)
                     .clipShape(Circle())
                     .overlay {
                         Circle().stroke(.white, lineWidth: 4)
