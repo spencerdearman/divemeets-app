@@ -127,35 +127,42 @@ struct OpenTileView: View {
             Spacer()
             VStack(alignment: .leading, spacing: 12){
                 HStack {
-                    VStack{
+                    VStack(alignment: .leading){
                         Text(bubbleData[6])
                             .font(.largeTitle)
+                            .scaledToFit()
                             .matchedGeometryEffect(id: "name", in: namespace)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         Text("Current Place: " + bubbleData[4])
-                            .font(.title2)
+                            //.font(.title2)
+                            .scaledToFit()
                             .fontWeight(.semibold)
                             .matchedGeometryEffect(id: "currentPlace", in: namespace)
+                        Text("Current Score: " + bubbleData[5])
+                            .font(.footnote.weight(.semibold)).scaledToFit()
+                            .matchedGeometryEffect(id: "currentScore", in: namespace)
                     }
                     MiniProfileImage(diverID: String(bubbleData[7].utf16.dropFirst(67)) ?? "", width: 150, height: 200)
                         .scaledToFit()
                         .padding(.horizontal)
                 }
+                ZStack{
+                    Rectangle()
+                        .fill(.ultraThinMaterial)
+                        .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
                     VStack{
-                        Text("Current Score: " + bubbleData[5])
-                            .fontWeight(.semibold)
-                            .matchedGeometryEffect(id: "currentScore", in: namespace)
                         Text("Left to dive: " + bubbleData[0])
                         Text("Order: " + bubbleData[1])
+                        Text("Last Round Place: " + bubbleData[2])
+                        Text("Last Round Score: " + bubbleData[3])
+                        Text("Last Dive Average: " + bubbleData[8])
+                        Text("Average Event Score: " + bubbleData[9])
+                        Text("Average Round Score: " + bubbleData[10])
+                        Text("more information about meet")
+                            .fontWeight(.semibold)
+                            .matchedGeometryEffect(id: "footnote", in: namespace)
                     }
-                Text("Last Round Place: " + bubbleData[2])
-                Text("Last Round Score: " + bubbleData[3])
-                Text("Last Dive Average: " + bubbleData[7])
-//                Text("Average Event Score: " + bubbleData[8])
-//                Text("Average Round Score: " + bubbleData[9])
-                Text("more information about meet")
-                    .fontWeight(.semibold)
-                    .matchedGeometryEffect(id: "footnote", in: namespace)
+                }
                 Spacer()
             }
             .padding(20)
@@ -176,82 +183,5 @@ struct OpenTileView: View {
                 .matchedGeometryEffect(id: "mask", in: namespace)
         )
         .frame(height: 500)
-    }
-}
-
-
-
-struct ResultsBubbleView: View {
-    @Environment(\.colorScheme) var currentMode
-    @Binding private var focusViewList: [String: Bool]
-    @State private var focusBool: Bool = false
-    
-    private var bubbleColor: Color {
-        currentMode == .light ? .white : .black
-    }
-    private var elements: [String]
-    
-    init(elements: [String], focusViewList: Binding<[String: Bool]>) {
-        self.elements = elements
-        self._focusViewList = focusViewList
-    }
-    
-    //[Place: (Left to dive, order, last round place, last round score, current place,
-    //current score, name, last dive average, event average score, avg round score
-    var body: some View {
-        if focusViewList[elements[6]] ?? false {
-            Rectangle()
-                .foregroundColor(.blue)
-        } else {
-            ZStack {
-                Rectangle()
-                    .foregroundColor(bubbleColor)
-                VStack {
-                    VStack(alignment: .leading) {
-                        HStack(alignment: .lastTextBaseline) {
-                            if Bool(elements[0]) ?? false {
-                                Image(systemName: "checkmark.circle")
-                            }
-                            let link = elements[7]
-                            NavigationLink {
-                                ProfileView(profileLink: link)
-                            } label: {
-                                Text(elements[6])
-                                    .font(.title3)
-                                    .bold()
-                                    .scaledToFit()
-                                    .minimumScaleFactor(0.5)
-                                    .fixedSize(horizontal: false, vertical: true)
-                                    .lineLimit(1)
-                            }
-                            Text(elements[5])
-                                .font(.title3).foregroundColor(.red)
-                            Spacer()
-                        }
-                        HStack{
-                            Button {
-                                focusBool.toggle()
-                                focusViewList[elements[6]] = focusBool
-                            } label: {
-                                if focusBool {
-                                    Image(systemName: "star.fill")
-                                } else {
-                                    Image(systemName: "star")
-                                }
-                            }
-                            Text("Diving Order: " + elements[1])
-                            Text("Last Round Place: " + (elements[2] == "0" ? "N/A" : elements[2]))
-                        }
-                    }
-                }
-                .padding()
-            }
-            .onAppear {
-                focusBool = focusViewList[elements[6]] ?? false
-            }
-            .onTapGesture {
-                print(elements[3])
-            }
-        }
     }
 }
