@@ -499,11 +499,102 @@ struct NextDiverView: View
     }
 }
 
+struct shiftingTileView: View {
+    @Namespace var namespace
+    @State var show = false
+    
+    var body: some View{
+        ZStack{
+            if !show{
+                ScrollView {
+                    VStack{
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .foregroundStyle(.white)
+                    .background(
+                        Color.red.matchedGeometryEffect(id: "background", in: namespace)
+                    )
+                    .mask(
+                        RoundedRectangle(cornerRadius: 30, style: .continuous)
+                            .matchedGeometryEffect(id: "mask", in: namespace)
+                    )
+                    .overlay(
+                        VStack(alignment: .leading, spacing: 12){
+                            Text("Swiftui")
+                                .font(.largeTitle)
+                                .matchedGeometryEffect(id: "title", in: namespace)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Text("20 sections - 3 hours")
+                                .font(.footnote.weight(.semibold))
+                                .matchedGeometryEffect(id: "footnote", in: namespace)
+                            Text("More subtext")
+                                .font(.footnote)
+                                .matchedGeometryEffect(id: "text", in: namespace)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                            .padding(20)
+                            .background(
+                                Rectangle()
+                                    .fill(.ultraThinMaterial)
+                                    .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
+                                    .
+                                matchedGeometryEffect(id: "blur", in: namespace)
+                            )
+                            .offset(y: 20)
+                            .padding(20)
+                    )
+                    .frame(height: 200)
+                .padding(20)
+                }
+            } else {
+                    VStack{
+                        Spacer()
+                        VStack(alignment: .leading, spacing: 12){
+                            Text("20 sections - 3 hours")
+                                .font(.footnote.weight(.semibold))
+                                .matchedGeometryEffect(id: "footnote", in: namespace)
+                            Text("Swiftui")
+                                .font(.largeTitle)
+                                .matchedGeometryEffect(id: "title", in: namespace)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Text("More subtext")
+                                .font(.footnote)
+                                .matchedGeometryEffect(id: "text", in: namespace)
+                        }
+                        .padding(20)
+                        .background(
+                            Rectangle()
+                                .fill(.ultraThinMaterial)
+                                .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
+                                .blur(radius: 30)
+                                .matchedGeometryEffect(id: "blur", in: namespace)
+                        )
+                    }
+                    .foregroundStyle(.black)
+                    .background(
+                        Color.blue.matchedGeometryEffect(id: "background", in: namespace)
+                    )
+                    .mask(
+                        RoundedRectangle(cornerRadius: 30, style: .continuous)
+                            .matchedGeometryEffect(id: "mask", in: namespace)
+                    )
+                    .frame(height: 500)
+                .padding(20)
+            }
+        }
+        .onTapGesture {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)){
+                show.toggle()
+            }
+        }
+    }
+}
+
 struct ResultsBubbleView: View {
     @Environment(\.colorScheme) var currentMode
     @Binding private var focusViewList: [String: Bool]
     @State private var focusBool: Bool = false
-    @Namespace var namespace
     
     private var bubbleColor: Color {
         currentMode == .light ? .white : .black
@@ -521,12 +612,10 @@ struct ResultsBubbleView: View {
         if focusViewList[elements[6]] ?? false {
             Rectangle()
                 .foregroundColor(.blue)
-                .matchedGeometryEffect(id: "diverView", in: namespace)
         } else {
             ZStack {
                 Rectangle()
                     .foregroundColor(bubbleColor)
-                    .matchedGeometryEffect(id: "diverView", in: namespace)
                 VStack {
                     VStack(alignment: .leading) {
                         HStack(alignment: .lastTextBaseline) {
