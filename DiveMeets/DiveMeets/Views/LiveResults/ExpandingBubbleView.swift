@@ -89,9 +89,9 @@ struct ClosedTileView: View {
                     Text(bubbleData[6])
                         .font(.largeTitle)
                         .matchedGeometryEffect(id: "name", in: namespace)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     Text("Current Place: " + bubbleData[4])
-                        .font(.title2)
+                        .font(.title2).scaledToFit()
                         .matchedGeometryEffect(id: "currentPlace", in: namespace)
                 }
                 Text("Current Score: " + bubbleData[5])
@@ -105,10 +105,9 @@ struct ClosedTileView: View {
                         .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
                         .matchedGeometryEffect(id: "blur", in: namespace)
                 )
-                .offset(y: 10)
-                .padding(20)
+                .padding(10)
         )
-        .frame(height: 150)
+        .frame(height: 130)
         .padding(1)
     }
 }
@@ -127,52 +126,67 @@ struct OpenTileView: View {
             Spacer()
             VStack(alignment: .leading, spacing: 12){
                 HStack {
-                    VStack(alignment: .leading){
-                        Text(bubbleData[6])
-                            .font(.largeTitle)
-                            .scaledToFit()
-                            .matchedGeometryEffect(id: "name", in: namespace)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        Text("Current Place: " + bubbleData[4])
-                            //.font(.title2)
-                            .scaledToFit()
-                            .fontWeight(.semibold)
-                            .matchedGeometryEffect(id: "currentPlace", in: namespace)
-                        Text("Current Score: " + bubbleData[5])
-                            .font(.footnote.weight(.semibold)).scaledToFit()
-                            .matchedGeometryEffect(id: "currentScore", in: namespace)
+                    ZStack {
+                        Rectangle()
+                            .fill(.ultraThinMaterial)
+                            .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
+                            .frame(width: 175, height: 175)
+                            .shadow(radius: 10)
+                        VStack{
+                            Text(bubbleData[6])
+                                .font(.largeTitle)
+                                .scaledToFit()
+                                .matchedGeometryEffect(id: "name", in: namespace)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(10)
+                            HStack {
+                                Text("Current Place: " + bubbleData[4])
+                                    .scaledToFit()
+                                    .fontWeight(.semibold)
+                                    .matchedGeometryEffect(id: "currentPlace", in: namespace)
+                                if Bool(bubbleData[0])! {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                            Text("Current Score: " + bubbleData[5])
+                                .font(.footnote.weight(.semibold)).scaledToFit()
+                                .matchedGeometryEffect(id: "currentScore", in: namespace)
+                        }
                     }
                     MiniProfileImage(diverID: String(bubbleData[7].utf16.dropFirst(67)) ?? "", width: 150, height: 200)
                         .scaledToFit()
                         .padding(.horizontal)
+                        .shadow(radius: 10)
                 }
                 ZStack{
                     Rectangle()
                         .fill(.ultraThinMaterial)
                         .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
-                    VStack{
-                        Text("Left to dive: " + bubbleData[0])
-                        Text("Order: " + bubbleData[1])
-                        Text("Last Round Place: " + bubbleData[2])
-                        Text("Last Round Score: " + bubbleData[3])
-                        Text("Last Dive Average: " + bubbleData[8])
-                        Text("Average Event Score: " + bubbleData[9])
-                        Text("Average Round Score: " + bubbleData[10])
-                        Text("more information about meet")
+                        .matchedGeometryEffect(id: "blur", in: namespace)
+                        .shadow(radius: 10)
+                    VStack(spacing: 10){
+                        Text("Advanced Statistics")
+                            .font(.title2)
+                            .fontWeight(.bold).underline()
+                        HStack{
+                            Text("Order: " + bubbleData[1])
+                            Text("Last Round Place: " + bubbleData[2])
+                        }
+                        .fontWeight(.semibold)
+                            Text("Last Round Score: " + bubbleData[3])
                             .fontWeight(.semibold)
-                            .matchedGeometryEffect(id: "footnote", in: namespace)
+                            Text("Last Dive Average: " + bubbleData[8])
+                            .fontWeight(.semibold)
+                            Text("Average Event Score: " + bubbleData[9])
+                            .fontWeight(.semibold)
+                            Text("Average Round Score: " + bubbleData[10])
+                            .fontWeight(.semibold)
                     }
+                    
                 }
                 Spacer()
             }
             .padding(20)
-            .background(
-                Rectangle()
-                    .fill(.ultraThinMaterial)
-                    .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
-                    .blur(radius: 30)
-                    .matchedGeometryEffect(id: "blur", in: namespace)
-            )
         }
         .foregroundStyle(.black)
         .background(
