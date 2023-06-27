@@ -110,7 +110,7 @@ struct ClosedTileView: View {
             bgColor.matchedGeometryEffect(id: "background", in: namespace)
         )
         .mask(
-            RoundedRectangle(cornerRadius: 30, style: .continuous)
+            RoundedRectangle(cornerRadius: 40, style: .continuous)
                 .matchedGeometryEffect(id: "mask", in: namespace)
         )
         .shadow(radius: 5)
@@ -205,7 +205,7 @@ struct OpenTileView: View {
                 ZStack{
                     Rectangle()
                         .foregroundColor(Custom.thinMaterialColor)
-                        .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
+                        .mask(RoundedRectangle(cornerRadius: 40, style: .continuous))
                         .matchedGeometryEffect(id: "blur", in: namespace)
                         .shadow(radius: 10)
                     VStack(spacing: 10){
@@ -239,7 +239,7 @@ struct OpenTileView: View {
             bgColor.matchedGeometryEffect(id: "background", in: namespace)
         )
         .mask(
-            RoundedRectangle(cornerRadius: 30, style: .continuous)
+            RoundedRectangle(cornerRadius: 40, style: .continuous)
                 .matchedGeometryEffect(id: "mask", in: namespace)
         )
         .frame(height: 500)
