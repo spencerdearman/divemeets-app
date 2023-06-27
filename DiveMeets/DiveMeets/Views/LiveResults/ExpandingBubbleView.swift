@@ -97,7 +97,7 @@ struct ClosedTileView: View {
         currentMode == .light ? Custom.tileColor : Custom.tileColor
     }
     
-    //[Place: (Left to dive, order, last round place, last round score, current place,
+    //(Left to dive, order, last round place, last round score, current place,
     //current score, name, last dive average, event average score, avg round score
     
     var body: some View{
@@ -110,7 +110,7 @@ struct ClosedTileView: View {
             bgColor.matchedGeometryEffect(id: "background", in: namespace)
         )
         .mask(
-            RoundedRectangle(cornerRadius: 40, style: .continuous)
+            RoundedRectangle(cornerRadius: 30, style: .continuous)
                 .matchedGeometryEffect(id: "mask", in: namespace)
         )
         .shadow(radius: 5)
@@ -118,27 +118,41 @@ struct ClosedTileView: View {
             ZStack {
                 VStack(alignment: .leading, spacing: 12){
                     HStack {
-                        Text(bubbleData[6])
-                            .font(.largeTitle)
-                            .matchedGeometryEffect(id: "name", in: namespace)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        VStack(alignment: .leading){
+                            Text(bubbleData[6].components(separatedBy: " ").first ?? "")
+                                .matchedGeometryEffect(id: "firstname", in: namespace)
+                            Text(bubbleData[6].components(separatedBy: " ").last ?? "")
+                                .matchedGeometryEffect(id: "lastname", in: namespace)
+                        }
+                        .lineLimit(2)
+                        .font(.title2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         if Bool(bubbleData[0])! {
                             Image(systemName: "checkmark")
-                                .offset(x: -60)
+                                .offset(x: -10)
                                 .matchedGeometryEffect(id: "checkmark", in: namespace)
                         }
-                        Text("Current Place: " + bubbleData[4])
-                            .font(.title2).scaledToFit()
-                            .matchedGeometryEffect(id: "currentPlace", in: namespace)
+                        ZStack {
+                            Rectangle()
+                                .foregroundColor(Custom.thinMaterialColor)
+                                .mask(RoundedRectangle(cornerRadius: 60, style: .continuous))
+                                .shadow(radius: 2)
+                                .frame(width: 200, height: 40)
+                            Text("Current Score: " + bubbleData[5])
+                                .fontWeight(.semibold)
+                                .scaledToFit()
+                                .matchedGeometryEffect(id: "currentScore", in: namespace)
+                        }
+                        
                     }
                     
                     HStack {
-                        Text("Current Score: " + bubbleData[5])
-                            .font(.footnote.weight(.semibold))
-                        .matchedGeometryEffect(id: "currentScore", in: namespace)
+                        Text("Current Place: " + bubbleData[4])
+                            .fontWeight(.semibold)
+                            .matchedGeometryEffect(id: "currentPlace", in: namespace)
                         Spacer()
                         Text("Last Round Place: " + bubbleData[2])
-                            .font(.footnote.weight(.semibold)).scaledToFit()
+                            .font(.footnote.weight(.semibold))
                             .matchedGeometryEffect(id: "previous", in: namespace)
                     }
                 }
@@ -164,9 +178,6 @@ struct OpenTileView: View {
         currentMode == .light ? .black : .white
     }
     
-    //[Place: (Left to dive, order, last round place, last round score, current place,
-    //current score, name, last dive average, event average score, avg round score
-    
     var body: some View{
         
         VStack{
@@ -174,13 +185,15 @@ struct OpenTileView: View {
             VStack(alignment: .leading, spacing: 12){
                 HStack {
                     VStack(alignment: .leading){
-                        Text(bubbleData[6])
-                            .font(.largeTitle)
-                            .foregroundColor(txtColor)
-                            .scaledToFit()
-                            .matchedGeometryEffect(id: "name", in: namespace)
-                        //.frame(maxWidth: .infinity, alignment: .leading)
-                        //.padding(10)
+                        VStack(alignment: .leading){
+                            Text(bubbleData[6].components(separatedBy: " ").first ?? "")
+                                .matchedGeometryEffect(id: "firstname", in: namespace)
+                            Text(bubbleData[6].components(separatedBy: " ").last ?? "")
+                                .matchedGeometryEffect(id: "lastname", in: namespace)
+                        }
+                        .font(.largeTitle)
+                        .foregroundColor(txtColor)
+                        .lineLimit(2)
                         HStack {
                             Text("Current Place: " + bubbleData[4])
                                 .scaledToFit()
@@ -192,10 +205,10 @@ struct OpenTileView: View {
                             }
                         }
                         .foregroundColor(txtColor)
-                            Text("Current Score: " + bubbleData[5])
-                                .font(.footnote.weight(.semibold)).scaledToFit()
-                                .foregroundColor(txtColor)
-                                .matchedGeometryEffect(id: "currentScore", in: namespace)
+                        Text("Current Score: " + bubbleData[5])
+                            .font(.footnote.weight(.semibold)).scaledToFit()
+                            .foregroundColor(txtColor)
+                            .matchedGeometryEffect(id: "currentScore", in: namespace)
                     }
                     MiniProfileImage(diverID: String(bubbleData[7].utf16.dropFirst(67)) ?? "", width: 150, height: 200)
                         .scaledToFit()
@@ -205,7 +218,7 @@ struct OpenTileView: View {
                 ZStack{
                     Rectangle()
                         .foregroundColor(Custom.thinMaterialColor)
-                        .mask(RoundedRectangle(cornerRadius: 40, style: .continuous))
+                        .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
                         .matchedGeometryEffect(id: "blur", in: namespace)
                         .shadow(radius: 10)
                     VStack(spacing: 10){

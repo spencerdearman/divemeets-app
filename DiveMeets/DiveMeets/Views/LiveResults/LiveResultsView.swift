@@ -55,8 +55,6 @@ struct parseBody: View {
     @State var lastDiverInformation: LastDiverInfo = ("", "", 0, 0.0, 0, 0, 0.0, "", "", 0.0, 0.0, "")
     @State var nextDiverInformation: NextDiverInfo = ("", "", 0, 0.0, 0, "", "", 0.0, 0.0, 0.0, 0.0)
     @State var diveTable: DiveTable = []
-    // Variable is unused \/
-    @State var loadingStatus: Bool = false
     @State var loaded: Bool = true
     
     // Shows debug dataset, sets to true if "debug" is request string
@@ -149,7 +147,9 @@ struct parseBody: View {
             
             if lastDiver.isEmpty() { return false }
             lastDiverName = try lastDiver[0].text()
+            
             // Adds space after name and before team
+            
             if let idx = lastDiverName.firstIndex(of: "(") {
                 lastDiverName.insert(" ", at: idx)
             }
@@ -194,7 +194,9 @@ struct parseBody: View {
             
             if nextDiver.isEmpty() { return false }
             nextDiverName = try nextDiver[0].text()
+            
             // Adds space after name and before team
+            
             if let idx = nextDiverName.firstIndex(of: "(") {
                 nextDiverName.insert(" ", at: idx)
             }
@@ -227,6 +229,7 @@ struct parseBody: View {
                                     avgScore, maxScore, forFirstPlace)
             
             //Current Round
+            
             let currentRound = try rows[8].getElementsByTag("td")
             
             if currentRound.isEmpty() { return false }
@@ -395,8 +398,6 @@ struct LastDiverView: View
                     MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
                         .scaledToFit()
                 }
-                //lastRoundPlace = Int(upcomingDiverStr.slice(from: "Last Round Place: ",
-            //to: " Last Round") ?? "") ?? 0
                 ZStack{
                     Rectangle()
                         .foregroundColor(Custom.thinMaterialColor)
@@ -520,10 +521,10 @@ struct DebugDataset {
     
     //                    [[Left to dive, order, last round place, last round score, current place,
     //                      current score, name, link, last dive average, event average score, avg round score]]
-    static let diver1: [String] = ["true", "1", "1", "175.00", "1", "225.00", "Diver 1",
+    static let diver1: [String] = ["true", "1", "1", "175.00", "1", "225.00", "Logan Sherwin",
                                    "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961",
                                    "7.0", "6.5", "55.5"]
-    static let diver2: [String] = ["false", "2", "3", "155.75", "3", "155.75", "Diver 2",
+    static let diver2: [String] = ["false", "2", "3", "155.75", "3", "155.75", "Spencer Dearman",
                                    "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961",
                                    "6.0", "5.7", "41.7"]
     static let diver3: [String] = ["false", "3", "2", "158.20", "2", "158.20", "Diver 3",
