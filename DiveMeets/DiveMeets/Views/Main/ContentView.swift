@@ -40,83 +40,84 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
+            // Only shows splash screen while bool is true, auto dismisses after splashDuration
             if showSplash {
-                SplashView()
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + splashDuration) {
-                            withAnimation {
-                                showSplash = false
-                            }
-                        }
-                    }
-            } else {
-                ZStack {
-                    VStack {
-                        TabView(selection: $selectedTab) {
-                            ForEach(Tab.allCases, id: \.rawValue) { tab in
-                                HStack {
-                                    // Add different page views here for different tabs
-                                    switch tab {
-                                        case .house:
-                                            Home()
-                                        case .wrench:
-                                            NavigationView {
-                                                LiveResultsView(request: "debug")
-                                            }
-                                            //ToolsMenu()
-                                        case .magnifyingglass:
-                                            SearchView(isIndexingMeets: $isIndexingMeets)
-                                        case .person:
-                                            LoginSearchView()
-                                    }
+                ExtraSplashView()
+//                    .onAppear {
+//                        DispatchQueue.main.asyncAfter(deadline: .now() + splashDuration) {
+//                            withAnimation {
+//                                showSplash = false
+//                            }
+//                        }
+//                    }
+            }
+            
+            ZStack {
+                VStack {
+                    TabView(selection: $selectedTab) {
+                        ForEach(Tab.allCases, id: \.rawValue) { tab in
+                            HStack {
+                                // Add different page views here for different tabs
+                                switch tab {
+                                    case .house:
+                                        Home()
+                                    case .wrench:
+                                        NavigationView {
+                                            LiveResultsView(request: "debug")
+                                        }
+                                        //ToolsMenu()
+                                    case .magnifyingglass:
+                                        SearchView(isIndexingMeets: $isIndexingMeets)
+                                    case .person:
+                                        LoginSearchView()
                                 }
-                                .tag(tab)
-                                
                             }
+                            .tag(tab)
+                            
                         }
                     }
+                }
+                
+                FloatingMenuBar(selectedTab: $selectedTab)
+                    .offset(y: menuBarOffset)
+                    .frame(maxHeight: .infinity, alignment: .bottom)
+                    .dynamicTypeSize(.medium ... .xxxLarge)
+            }
+            .ignoresSafeArea(.keyboard)
+            // Executes on app launch
+            .onAppear {
+                // isIndexingMeets is set to false by default so it is only executed from start
+                //     to finish one time (allows indexing to occur in the background without
+                //     starting over)
+                if !isIndexingMeets {
+                    isIndexingMeets = true
                     
-                    FloatingMenuBar(selectedTab: $selectedTab)
-                        .offset(y: menuBarOffset)
-                        .frame(maxHeight: .infinity, alignment: .bottom)
-                        .dynamicTypeSize(.medium ... .xxxLarge)
-                }
-                .ignoresSafeArea(.keyboard)
-                // Executes on app launch
-                .onAppear {
-                    // isIndexingMeets is set to false by default so it is only executed from start
-                    //     to finish one time (allows indexing to occur in the background without
-                    //     starting over)
-                    if !isIndexingMeets {
-                        isIndexingMeets = true
+                    // Runs this task asynchronously so rest of app can function while this finishes
+                    Task {
+                        // This sets p's upcoming, current, and past meets fields
+                        try await p.parseMeets(storedMeets: meets)
                         
-                        // Runs this task asynchronously so rest of app can function while this finishes
-                        Task {
-                            // This sets p's upcoming, current, and past meets fields
-                            try await p.parseMeets(storedMeets: meets)
-                            
-                            // Check that each set of meets is not nil and add each to the database
-                            if let upcoming = p.upcomingMeets {
-                                db.addRecords(records: db.dictToTuple(dict: upcoming), type: .upcoming)
-                            }
-                            if let current = p.currentMeets {
-                                db.addRecords(records: db.dictToTuple(dict: current), type: .current)
-                            }
-                            if let past = p.pastMeets {
-                                db.addRecords(records: db.dictToTuple(dict: past), type: .past)
-                            }
-                            
-                            isIndexingMeets = false
+                        // Check that each set of meets is not nil and add each to the database
+                        if let upcoming = p.upcomingMeets {
+                            db.addRecords(records: db.dictToTuple(dict: upcoming), type: .upcoming)
                         }
+                        if let current = p.currentMeets {
+                            db.addRecords(records: db.dictToTuple(dict: current), type: .current)
+                        }
+                        if let past = p.pastMeets {
+                            db.addRecords(records: db.dictToTuple(dict: past), type: .past)
+                        }
+                        
+                        isIndexingMeets = false
                     }
                 }
-                // Executes when other views are opened (notification center, control center, swiped up)
-                .onChange(of: scenePhase) { newPhase in
-                    if newPhase == .active {
-                        GlobalCaches.loadAllCaches()
-                    } else if scenePhase == .active && newPhase == .inactive {
-                        GlobalCaches.saveAllCaches()
-                    }
+            }
+            // Executes when other views are opened (notification center, control center, swiped up)
+            .onChange(of: scenePhase) { newPhase in
+                if newPhase == .active {
+                    GlobalCaches.loadAllCaches()
+                } else if scenePhase == .active && newPhase == .inactive {
+                    GlobalCaches.saveAllCaches()
                 }
             }
         }
