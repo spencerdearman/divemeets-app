@@ -8,16 +8,30 @@
 import SwiftUI
 
 struct HomeBubbleView: View{
+    @Namespace var mainspace
     let gridItems = [GridItem(.adaptive(minimum: 300))]
     @Binding var diveTable: [[String]]
     @Binding var starSelected: Bool
     
     var body: some View {
-        Text("Live Rankings")
-            .font(.title2).bold()
-            .padding(.top)
+        if starSelected{
+            ZStack{
+                Rectangle()
+                    .fill(.thinMaterial)
+                    .mask(RoundedRectangle(cornerRadius: 40))
+                    .frame(width: 200, height: 50)
+                    .shadow(radius: 6)
+                Text("Live Rankings")
+                    .font(.title2).bold()
+                    .matchedGeometryEffect(id: "ranking", in: mainspace)
+            }
+        } else {
+            Text("Live Rankings")
+                .font(.title2).bold()
+                .padding(.top)
+                .matchedGeometryEffect(id: "ranking", in: mainspace)
+        }
         ZStack{
-            //Custom.darkBlue
             ScrollView {
                 LazyVGrid(columns: gridItems, spacing: 5) {
                     ForEach(diveTable, id: \.self) { elem in
@@ -101,8 +115,8 @@ struct ClosedTileView: View {
                     Text("Current Score: " + bubbleData[5])
                         .font(.footnote.weight(.semibold))
                         .matchedGeometryEffect(id: "currentScore", in: namespace)
-                    }
-                    .padding(20)
+                }
+                .padding(20)
             }
         )
         .frame(height: 130)
@@ -129,8 +143,8 @@ struct OpenTileView: View {
                             .font(.largeTitle)
                             .scaledToFit()
                             .matchedGeometryEffect(id: "name", in: namespace)
-                            //.frame(maxWidth: .infinity, alignment: .leading)
-                            //.padding(10)
+                        //.frame(maxWidth: .infinity, alignment: .leading)
+                        //.padding(10)
                         HStack {
                             Text("Current Place: " + bubbleData[4])
                                 .scaledToFit()

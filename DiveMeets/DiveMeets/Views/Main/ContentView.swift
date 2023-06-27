@@ -47,6 +47,7 @@ struct ContentView: View {
                                     Home()
                                 case .wrench:
                                     NavigationView {
+                                        //ColorfulView()
                                         LiveResultsView(request: "debug")
                                     }
                                     //ToolsMenu()

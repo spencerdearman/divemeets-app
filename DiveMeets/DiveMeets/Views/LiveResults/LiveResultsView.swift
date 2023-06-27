@@ -300,33 +300,45 @@ struct mainView: View {
     
     var body: some View {
         bgColor.ignoresSafeArea()
-        GeometryReader { geometry in
-            VStack(spacing: 0.5){
-                if !starSelected {
-                    VStack{
-                        Text(title)
-                            .font(.title2).bold()
-                            .fixedSize(horizontal: false, vertical: true)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.center)
-                        Text(roundString)
-                        TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation),
-                                     bottomView: NextDiverView(nextInfo: $nextDiverInformation),
-                                     width: screenWidth * 0.95,
-                                     height: screenHeight * 0.32)
-                        .dynamicTypeSize(.xSmall ... .xxxLarge)
-                        .padding(.bottom)
+        ZStack {
+            ColorfulView()
+            GeometryReader { geometry in
+                VStack(spacing: 0.5){
+                    if !starSelected {
+                            VStack{
+                                ZStack{
+                                    Rectangle()
+                                        .fill(.thinMaterial)
+                                        .mask(RoundedRectangle(cornerRadius: 40))
+                                        .frame(width: 300, height: 70)
+                                        .shadow(radius: 6)
+                                    VStack{
+                                        Text(title)
+                                            .font(.title2).bold()
+                                            .fixedSize(horizontal: false, vertical: true)
+                                            .lineLimit(2)
+                                            .multilineTextAlignment(.center)
+                                        Text(roundString)
+                                    }
+                                }
+                                TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation),
+                                             bottomView: NextDiverView(nextInfo: $nextDiverInformation),
+                                             width: screenWidth * 0.95,
+                                             height: screenHeight * 0.32)
+                                .dynamicTypeSize(.xSmall ... .xxxLarge)
+                            }
                     }
+                    HomeBubbleView(diveTable: $diveTable, starSelected: $starSelected)
+                        .offset(y: 30)
                 }
-                HomeBubbleView(diveTable: $diveTable, starSelected: $starSelected)
-            }
-            .padding(.bottom, maxHeightOffset)
-            .padding(.top)
-            .animation(.easeOut(duration: 1), value: starSelected)
-            .onAppear {
-                screenWidth = geometry.size.width
-                screenHeight = geometry.size.height
-                startTimer()
+                .padding(.bottom, maxHeightOffset)
+                .padding(.top)
+                .animation(.easeOut(duration: 1), value: starSelected)
+                .onAppear {
+                    screenWidth = geometry.size.width
+                    screenHeight = geometry.size.height
+                    startTimer()
+                }
             }
         }
     }
@@ -371,9 +383,10 @@ struct LastDiverView: View
                         Text("Current Total: " + String(lastInfo.6))
                             .font(.headline)
                     }
+                    .padding(.horizontal, 5)
                     .scaledToFill()
                     .minimumScaleFactor(0.5)
-                    .padding()
+                    Spacer().frame(width: 75)
                     MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
                         .scaledToFit()
                 }
@@ -384,11 +397,18 @@ struct LastDiverView: View
                         .fill(.thinMaterial)
                         .mask(RoundedRectangle(cornerRadius: 50))
                     HStack {
-                        
+                        VStack {
+                            Text(lastInfo.7.components(separatedBy: " - ").first ?? "")
+                                .font(.title2)
+                                .bold()
+                                .scaledToFill()
+                                .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                        }
                         VStack{
-                            Text(lastInfo.7)
+                            Text(lastInfo.7.components(separatedBy: " - ").last ?? "")
                                 .font(.title3).bold()
-                                .scaledToFill().minimumScaleFactor(0.5)
+                                .scaledToFill().minimumScaleFactor(0.4)
                                 .lineLimit(1)
                             HStack{
                                 Text("Height: " + lastInfo.8)
@@ -399,12 +419,11 @@ struct LastDiverView: View
                             .minimumScaleFactor(0.5)
                             .fixedSize(horizontal: false, vertical: true)
                             .lineLimit(1)
-                            Text("Judges Scores")
-                                .underline()
                             Text(lastInfo.11)
                                 .font(.headline)
                         }
                     }
+                    .padding()
                 }
             }
         }
@@ -509,4 +528,67 @@ struct DebugDataset {
                                                 diver3[6]: false, diver4[6]: false]
     static let title: String = "Debug Live Results View"
     static let roundString: String = "Round: 3 / 6"
+}
+
+
+struct ColorfulView: View{
+    var body: some View{
+        GeometryReader { geometry in
+            ZStack{
+                Circle()
+                    .foregroundColor(Custom.darkBlue)
+                    .frame(width: 475, height: 475)
+                Circle()
+                    .foregroundColor(Color.white)
+                    .frame(width: 455, height: 455)
+                Circle()
+                    .foregroundColor(Custom.coolBlue)
+                    .frame(width: 435, height: 435)
+                Circle()
+                    .foregroundColor(Color.white)
+                    .frame(width: 415, height: 415)
+                Circle()
+                    .foregroundColor(Custom.medBlue)
+                    .frame(width: 395, height: 395)
+                Circle()
+                    .foregroundColor(Color.white)
+                    .frame(width: 375, height: 375)
+                Circle()
+                    .foregroundColor(Custom.lightBlue)
+                    .frame(width: 355, height: 355)
+                Circle()
+                    .foregroundColor(Color.white)
+                    .frame(width: 335, height: 335)
+            }
+            .offset(x: geometry.size.width/2, y: -geometry.size.height / 10)
+            
+            ZStack{
+                Circle()
+                    .foregroundColor(Custom.darkBlue)
+                    .frame(width: 475, height: 475)
+                Circle()
+                    .foregroundColor(Color.white)
+                    .frame(width: 455, height: 455)
+                Circle()
+                    .foregroundColor(Custom.coolBlue)
+                    .frame(width: 435, height: 435)
+                Circle()
+                    .foregroundColor(Color.white)
+                    .frame(width: 415, height: 415)
+                Circle()
+                    .foregroundColor(Custom.medBlue)
+                    .frame(width: 395, height: 395)
+                Circle()
+                    .foregroundColor(Color.white)
+                    .frame(width: 375, height: 375)
+                Circle()
+                    .foregroundColor(Custom.lightBlue)
+                    .frame(width: 355, height: 355)
+                Circle()
+                    .foregroundColor(Color.white)
+                    .frame(width: 335, height: 335)
+            }
+            .offset(x: -geometry.size.width/2, y: -geometry.size.height / 2.5)
+        }
+    }
 }
