@@ -356,50 +356,55 @@ struct LastDiverView: View
                 .fill(Color.white)
                 .cornerRadius(50)
                 .shadow(radius: 20)
-            VStack{
-                Group{
-                    HStack{
-                        VStack(alignment: .leading){
-                            Text(lastInfo.0)
+            VStack(spacing: 5){
+                HStack{
+                    VStack(alignment: .leading){
+                        Text("Last Diver")
+                            .font(.title3).fontWeight(.semibold)
+                        Text(lastInfo.0)
+                            .font(.title2).bold()
+                        Text("Last Round Place: " + (lastInfo.2 == 0 ? "N/A" : String(lastInfo.2)))
+                        HStack{
+                            Text("Order: " + String(lastInfo.4))
+                            Text("Place: " + String(lastInfo.5))
+                        }
+                        Text("Current Total: " + String(lastInfo.6))
+                            .font(.headline)
+                    }
+                    .scaledToFill()
+                    .minimumScaleFactor(0.5)
+                    .padding()
+                    MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
+                        .scaledToFit()
+                }
+                //lastRoundPlace = Int(upcomingDiverStr.slice(from: "Last Round Place: ",
+            //to: " Last Round") ?? "") ?? 0
+                ZStack{
+                    Rectangle()
+                        .fill(.thinMaterial)
+                        .mask(RoundedRectangle(cornerRadius: 50))
+                    HStack {
+                        
+                        VStack{
+                            Text(lastInfo.7)
                                 .font(.title3).bold()
-                            Text("Last Round Place: " + (lastInfo.2 == 0 ? "N/A" : String(lastInfo.2)))
-                            Text("Last Round Total: " + String(lastInfo.3))
+                                .scaledToFill().minimumScaleFactor(0.5)
+                                .lineLimit(1)
                             HStack{
-                                Text("Order: " + String(lastInfo.4))
-                                Text("Place: " + String(lastInfo.5))
+                                Text("Height: " + lastInfo.8)
+                                Text("DD: " + String(lastInfo.9))
+                                Text("Score Total: " + String(lastInfo.10))
                             }
-                            Text("Current Total: " + String(lastInfo.6))
+                            .scaledToFit()
+                            .minimumScaleFactor(0.5)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(1)
+                            Text("Judges Scores")
+                                .underline()
+                            Text(lastInfo.11)
                                 .font(.headline)
                         }
-                        .scaledToFill()
-                        .minimumScaleFactor(0.5)
-                        .padding()
-                        MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
-                            .scaledToFit()
-                            .padding(.horizontal)
                     }
-                    Text(lastInfo.7)
-                        .font(.title3)
-                        .bold()
-                        .scaledToFill()
-                        .minimumScaleFactor(0.5)
-                        .lineLimit(1)
-                        .padding([.leading, .trailing])
-                    HStack{
-                        Text("Height: " + lastInfo.8)
-                        Text("DD: " + String(lastInfo.9))
-                        Text("Score Total: " + String(lastInfo.10))
-                    }
-                    .scaledToFit()
-                    .minimumScaleFactor(0.5)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .lineLimit(1)
-                }
-                Group{
-                    Text("Judges Scores")
-                        .underline()
-                    Text(lastInfo.11)
-                        .font(.headline)
                 }
             }
         }
@@ -417,56 +422,55 @@ struct NextDiverView: View
                 .shadow(radius: 20)
             
             //Upper Part
-            VStack{
+            VStack(spacing: 5){
                 HStack{
                     VStack(alignment: .leading){
-                        Text("Next Diver - ")
-                            .font(.title2).fontWeight(.semibold)
+                        Text("Next Diver")
+                            .font(.title3).fontWeight(.semibold)
                         Text(nextInfo.0)
                             .font(.title2).bold()
                         Text("Last Round Place: " + (nextInfo.2 == 0 ? "N/A" : String(nextInfo.2)))
-                        Text("Last Round Total: " + String(nextInfo.3))
                         HStack{
                             Text("Order: " + String(nextInfo.4))
                             Text("For 1st: " + String(nextInfo.10))
                         }
+                        Text("Last Round Total: " + String(nextInfo.3))
+                            .fontWeight(.semibold)
                     }
-                    .scaledToFill()
-                    .minimumScaleFactor(0.5)
                     MiniProfileImage(diverID: String(nextInfo.1.utf16.dropFirst(67)) ?? "")
                         .scaledToFit()
                         .padding(.horizontal)
                 }
                 
-            //Lower Part
-                HStack{
-                    Text(nextInfo.5)
-                        .font(.title2)
-                        .bold()
-                        .scaledToFill()
-                        .minimumScaleFactor(0.5)
-                        .lineLimit(1)
-                        .background(
-                            Rectangle()
-                                .fill(.thinMaterial)
-                                .mask(RoundedRectangle(cornerRadius: 20))
-                        )
-                    VStack{
-                        HStack{
-                            Text("Height: " + nextInfo.6)
-                            Text("DD: " + String(nextInfo.7))
+                //Lower Part
+                ZStack {
+                    Rectangle()
+                        .fill(.thinMaterial)
+                        .mask(RoundedRectangle(cornerRadius: 50))
+                    HStack{
+                        Text(nextInfo.5)
+                            .font(.title2)
+                            .bold()
+                            .scaledToFill()
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                        VStack{
+                            HStack{
+                                Text("Height: " + nextInfo.6)
+                                Text("DD: " + String(nextInfo.7))
+                            }
+                            HStack{
+                                Text("Avg. Score: " + String(nextInfo.8))
+                                Text("Max Score: " + String(nextInfo.9))
+                            }
+                            .scaledToFit()
+                            .minimumScaleFactor(0.5)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(1)
                         }
-                        HStack{
-                            Text("Avg. Score: " + String(nextInfo.8))
-                            Text("Max Score: " + String(nextInfo.9))
-                        }
-                        .scaledToFit()
-                        .minimumScaleFactor(0.5)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .lineLimit(1)
                     }
+                    .padding()
                 }
-                .padding()
             }
         }
     }

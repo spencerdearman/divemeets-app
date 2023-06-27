@@ -55,7 +55,7 @@ struct HomeView: View {
         } else {
             ClosedTileView(namespace: namespace, show: $show, bubbleData: $bubbleData)
                 .onTapGesture {
-                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                         starSelected = true
                         show.toggle()
                     }
