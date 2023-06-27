@@ -16,14 +16,15 @@ enum MoveStage: Int, CaseIterable {
 
 struct ExtraSplashView: View {
     @Environment(\.colorScheme) var currentMode
-    @State var showSplash: Bool = true
+//    @Binding var showSplash: Bool
+    let startDelay: CGFloat
     @State var moveStage: MoveStage = .idle
     @State var sphereMoving: [Bool] = [false, false, false, false]
     @Namespace var namespace
     
     private let shadowRadius: CGFloat = 15
-    private let moveSeparation: CGFloat = 0.02
-    private let delayToTop: CGFloat = 0.4
+    let moveSeparation: CGFloat
+    let delayToTop: CGFloat
     
     private var bgColor: Color {
         currentMode == .light ? .white : .black
@@ -158,9 +159,32 @@ struct ExtraSplashView: View {
             }
         }
         .zIndex(100)
+//        .onChange(of: showSplash) { newValue in
+//            if newValue {
+//                moveStage = .idle
+//            } else {
+//                moveStage = .bottom
+//            }
+//            print("splash")
+//        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + startDelay) {
+                withAnimation {
+                    moveStage = .bottom
+                }
+            }
+        }
         .onChange(of: moveStage) { newValue in
+            print("move")
             if newValue != .top {
                 sphereMoving = [false, false, false, false]
+            }
+            if moveStage == .bottom {
+                DispatchQueue.main.asyncAfter(deadline: .now() + delayToTop) {
+                    withAnimation {
+                        moveStage = .top
+                    }
+                }
             }
         }
         .onTapGesture {
@@ -169,11 +193,7 @@ struct ExtraSplashView: View {
                     moveStage = MoveStage.allCases[moveStage == MoveStage.allCases.last
                                                    ? 0
                                                    : moveStage.rawValue + 1]
-                    if moveStage == .bottom {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + delayToTop) {
-                            moveStage = .top
-                        }
-                    }
+                    
                 }
             }
             print(moveStage)
