@@ -12,6 +12,7 @@ struct HomeBubbleView: View{
     let gridItems = [GridItem(.adaptive(minimum: 300))]
     @Binding var diveTable: [[String]]
     @Binding var starSelected: Bool
+    @State var expandedIndex: Int = -1
     
     var body: some View {
         if starSelected{
@@ -35,7 +36,7 @@ struct HomeBubbleView: View{
             ScrollView {
                 LazyVGrid(columns: gridItems, spacing: 5) {
                     ForEach(diveTable, id: \.self) { elem in
-                        HomeView(bubbleData: elem, starSelected: $starSelected)
+                        HomeView(bubbleData: elem, starSelected: $starSelected, expandedIndex: $expandedIndex)
                     }
                 }
                 .padding(20)
@@ -50,28 +51,36 @@ struct HomeView: View {
     @State var show: Bool = false
     @State var bubbleData: [String]
     @Binding var starSelected: Bool
+    @Binding var expandedIndex: Int
     
-    init(bubbleData: [String], starSelected: Binding<Bool>) {
+    init(bubbleData: [String], starSelected: Binding<Bool>, expandedIndex: Binding<Int>) {
         self.bubbleData = bubbleData
         self._starSelected = starSelected
+        self._expandedIndex = expandedIndex
     }
     
     var body: some View{
         if show {
             OpenTileView(namespace: namespace, show: $show, bubbleData: $bubbleData)
                 .onTapGesture {
-                    starSelected = false
-                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                        show.toggle()
+                    if expandedIndex == Int(bubbleData[1]){
+                        expandedIndex = -1
+                        starSelected = false
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                            show.toggle()
+                        }
                     }
                 }
                 .shadow(radius: 5)
         } else {
             ClosedTileView(namespace: namespace, show: $show, bubbleData: $bubbleData)
                 .onTapGesture {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                        starSelected = true
-                        show.toggle()
+                    if expandedIndex == -1{
+                        expandedIndex = Int(bubbleData[1]) ?? 0
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            starSelected = true
+                            show.toggle()
+                        }
                     }
                 }
         }
