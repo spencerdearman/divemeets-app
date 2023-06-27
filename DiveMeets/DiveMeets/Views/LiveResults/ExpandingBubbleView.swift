@@ -88,12 +88,6 @@ struct ClosedTileView: View {
         .shadow(radius: 5)
         .overlay(
             ZStack {
-                Rectangle()
-                        .fill(.ultraThinMaterial)
-                        .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
-                        .matchedGeometryEffect(id: "blur", in: namespace)
-                        .blur(radius: 10)
-                        .padding(5)
                 VStack(alignment: .leading, spacing: 12){
                     HStack {
                         Text(bubbleData[6])
