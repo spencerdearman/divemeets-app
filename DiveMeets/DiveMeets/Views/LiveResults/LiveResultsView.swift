@@ -288,7 +288,7 @@ struct mainView: View {
     var colors: [Color] = [.blue, .green, .red, .orange]
     
     private var bgColor: Color {
-        currentMode == .light ? .white : .black
+        currentMode == .light ? Custom.background : Custom.background
     }
     
     func startTimer() {
@@ -308,7 +308,7 @@ struct mainView: View {
                             VStack{
                                 ZStack{
                                     Rectangle()
-                                        .fill(.thinMaterial)
+                                        .foregroundColor(Custom.thinMaterialColor)
                                         .mask(RoundedRectangle(cornerRadius: 40))
                                         .frame(width: 300, height: 70)
                                         .shadow(radius: 6)
@@ -358,14 +358,19 @@ struct errorView: View {
 
 struct LastDiverView: View
 {
+    @Environment(\.colorScheme) var currentMode
     @Binding var lastInfo:
     //  name, link, last round place, last round total, order, place, total, dive, height, dd,
     //score total, [judges scores]
     (String, String, Int, Double, Int, Int, Double, String, String, Double, Double, String)
+    private var bgColor: Color {
+        currentMode == .light ? Custom.carouselColor : Custom.carouselColor
+    }
+    
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(Color.white)
+                .fill(bgColor)
                 .cornerRadius(50)
                 .shadow(radius: 20)
             VStack(spacing: 5){
@@ -394,7 +399,7 @@ struct LastDiverView: View
             //to: " Last Round") ?? "") ?? 0
                 ZStack{
                     Rectangle()
-                        .fill(.thinMaterial)
+                        .foregroundColor(Custom.thinMaterialColor)
                         .mask(RoundedRectangle(cornerRadius: 50))
                     HStack {
                         VStack {
@@ -432,11 +437,16 @@ struct LastDiverView: View
 
 struct NextDiverView: View
 {
+    @Environment(\.colorScheme) var currentMode
     @Binding var nextInfo: NextDiverInfo
+    private var bgColor: Color {
+        currentMode == .light ? Custom.carouselColor : Custom.carouselColor
+    }
+    
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(Color.white)
+                .fill(bgColor)
                 .cornerRadius(50)
                 .shadow(radius: 20)
             
@@ -464,7 +474,7 @@ struct NextDiverView: View
                 //Lower Part
                 ZStack {
                     Rectangle()
-                        .fill(.thinMaterial)
+                        .foregroundColor(Custom.thinMaterialColor)
                         .mask(RoundedRectangle(cornerRadius: 50))
                     HStack{
                         Text(nextInfo.5)
@@ -532,6 +542,11 @@ struct DebugDataset {
 
 
 struct ColorfulView: View{
+    @Environment(\.colorScheme) var currentMode
+    private var bgColor: Color {
+        currentMode == .light ? Custom.background : Custom.background
+    }
+    
     var body: some View{
         GeometryReader { geometry in
             ZStack{
@@ -539,25 +554,25 @@ struct ColorfulView: View{
                     .foregroundColor(Custom.darkBlue)
                     .frame(width: 475, height: 475)
                 Circle()
-                    .foregroundColor(Color.white)
+                    .foregroundColor(bgColor)
                     .frame(width: 455, height: 455)
                 Circle()
                     .foregroundColor(Custom.coolBlue)
                     .frame(width: 435, height: 435)
                 Circle()
-                    .foregroundColor(Color.white)
+                    .foregroundColor(bgColor)
                     .frame(width: 415, height: 415)
                 Circle()
                     .foregroundColor(Custom.medBlue)
                     .frame(width: 395, height: 395)
                 Circle()
-                    .foregroundColor(Color.white)
+                    .foregroundColor(bgColor)
                     .frame(width: 375, height: 375)
                 Circle()
                     .foregroundColor(Custom.lightBlue)
                     .frame(width: 355, height: 355)
                 Circle()
-                    .foregroundColor(Color.white)
+                    .foregroundColor(bgColor)
                     .frame(width: 335, height: 335)
             }
             .offset(x: geometry.size.width/2, y: -geometry.size.height / 10)
@@ -567,25 +582,25 @@ struct ColorfulView: View{
                     .foregroundColor(Custom.darkBlue)
                     .frame(width: 475, height: 475)
                 Circle()
-                    .foregroundColor(Color.white)
+                    .foregroundColor(bgColor)
                     .frame(width: 455, height: 455)
                 Circle()
                     .foregroundColor(Custom.coolBlue)
                     .frame(width: 435, height: 435)
                 Circle()
-                    .foregroundColor(Color.white)
+                    .foregroundColor(bgColor)
                     .frame(width: 415, height: 415)
                 Circle()
                     .foregroundColor(Custom.medBlue)
                     .frame(width: 395, height: 395)
                 Circle()
-                    .foregroundColor(Color.white)
+                    .foregroundColor(bgColor)
                     .frame(width: 375, height: 375)
                 Circle()
                     .foregroundColor(Custom.lightBlue)
                     .frame(width: 355, height: 355)
                 Circle()
-                    .foregroundColor(Color.white)
+                    .foregroundColor(bgColor)
                     .frame(width: 335, height: 335)
             }
             .offset(x: -geometry.size.width/2, y: -geometry.size.height / 2.5)
