@@ -23,7 +23,7 @@ struct ProfileView: View {
     //                                          [meetName: [eventName: entriesLink]
     @State private var upcomingDiveSheetsLinks: [String: [String: String]]?
     @State private var upcomingDiveSheetsEntries: [String: [String: EventEntry]]?
-    @State private var diversAndLinks: [String: String] = [:]
+    @State private var diversAndLinks: [[String]] = []
     private let getTextModel = GetTextAsyncModel()
     private let ep = EntriesParser()
     
@@ -190,9 +190,8 @@ struct ProfileView: View {
             } else {
                 VStack {
                     VStack {
-                        Spacer()
                         ProfileImage(diverID: diverID)
-                            .offset(y:-100)
+                            .frame(width: 200, height: 200)
                         VStack{
                             VStack(alignment: .leading) {
                                 HStack (alignment: .firstTextBaseline){
@@ -227,7 +226,6 @@ struct ProfileView: View {
                                 .padding([.leading], 2)
                                 Divider()
                             }
-                            .offset(y:-150)
                         }
                         .padding()
                         
@@ -267,7 +265,7 @@ struct ProfileView: View {
                             break
                         } else {
                             let link = try "https://secure.meetcontrol.com/divemeets/system/" + diver.attr("href")
-                            diversAndLinks[try diver.text()] = link
+                            diversAndLinks.append([try diver.text(), link])
                         }
                     }
                 }
@@ -277,19 +275,53 @@ struct ProfileView: View {
 }
 
 struct DiversList: View{
-    @Binding var diversAndLinks: [String: String]
+    @Binding var diversAndLinks: [[String]]
     
     var body: some View {
-        ScrollView{
-            Text("Divers")
-                .font(.title).fontWeight(.semibold)
-            ForEach(Array(diversAndLinks.sorted(by: <)), id: \.key) { key, value in
-                NavigationLink {
-                    ProfileView(profileLink: value)
-                } label: {
-                    Text(key)
-                }
+        DisclosureGroup(content: {
+            ScalingScrollView(records: diversAndLinks, viewHeight: 50, rowSpacing: 10) { (elem) in
+                DiverBubbleView(elements: elem)
             }
+            .frame(height: 300)
+            .padding(.top)
+            
+        }, label: {
+            Text("Divers")
+                .font(.title2)
+                .bold()
+                .foregroundColor(.primary)
+        })
+        .padding()
+    }
+}
+
+struct DiverBubbleView: View {
+    @Environment(\.colorScheme) var currentMode
+    @State private var focusBool: Bool = false
+    
+    private var bubbleColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    private var elements: [String]
+    
+    init(elements: [String]) {
+        self.elements = elements
+    }
+    
+    //[Place: (Left to dive, order, last round place, last round score, current place,
+    //current score, name, last dive average, event average score, avg round score
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .foregroundColor(bubbleColor)
+                .cornerRadius(30)
+            NavigationLink {
+                ProfileView(profileLink: elements[1])
+            } label: {
+                Text(elements[0])
+                    .fontWeight(.semibold)
+            }
+
         }
     }
 }
