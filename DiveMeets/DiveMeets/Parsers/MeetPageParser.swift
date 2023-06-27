@@ -159,7 +159,7 @@ class MeetPageParser: ObservableObject {
                         continue
                     }
                     if number == 0 || text.starts(with: "Event") {
-                        number = Int(text.components(separatedBy: " ").last!)!
+                        number = Int(text.components(separatedBy: " ").last ?? "0") ?? 0
                         continue
                     }
                     

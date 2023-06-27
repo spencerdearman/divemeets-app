@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftSoup
 
 struct ProfileView: View {
     @Environment(\.colorScheme) var currentMode
@@ -22,6 +23,7 @@ struct ProfileView: View {
     //                                          [meetName: [eventName: entriesLink]
     @State private var upcomingDiveSheetsLinks: [String: [String: String]]?
     @State private var upcomingDiveSheetsEntries: [String: [String: EventEntry]]?
+    @State private var diversAndLinks: [String: String] = [:]
     private let getTextModel = GetTextAsyncModel()
     private let ep = EntriesParser()
     
@@ -77,6 +79,11 @@ struct ProfileView: View {
         
         return comps.components(separatedBy: " ")
     }
+    
+    private func isDictionary(_ object: Any) -> Bool {
+            let mirror = Mirror(reflecting: object)
+            return mirror.displayStyle == .dictionary
+        }
     
     var body: some View {
         
@@ -223,6 +230,8 @@ struct ProfileView: View {
                             .offset(y:-150)
                         }
                         .padding()
+                        
+                        DiversList(diversAndLinks: $diversAndLinks)
                     }
                 }
             }
@@ -247,11 +256,38 @@ struct ProfileView: View {
                     let comps = nameText?.split(separator: " ")
                     let last = String(comps?.last ?? "")
                     let first = String(comps?.dropLast().joined(separator: " ") ?? "")
-                    
-                    if upcomingDiveSheetsLinks != nil {
-                        upcomingDiveSheetsEntries = await getUpcomingDiveSheetsEntries(name: last + ", " + first)
+                    let document: Document = try SwiftSoup.parse(text)
+                    guard let body = document.body() else { return }
+                    let td = try body.getElementsByTag("td")
+                    let divers = try body.getElementsByTag("a")
+                    for (i, diver) in divers.enumerated(){
+                        if try diver.text() == "Coach Profile"{
+                            continue
+                        } else if try diver.text() == "Results" {
+                            break
+                        } else {
+                            let link = try "https://secure.meetcontrol.com/divemeets/system/" + diver.attr("href")
+                            diversAndLinks[try diver.text()] = link
+                        }
                     }
-                    
+                }
+            }
+        }
+    }
+}
+
+struct DiversList: View{
+    @Binding var diversAndLinks: [String: String]
+    
+    var body: some View {
+        ScrollView{
+            Text("Divers")
+                .font(.title).fontWeight(.semibold)
+            ForEach(Array(diversAndLinks.sorted(by: <)), id: \.key) { key, value in
+                NavigationLink {
+                    ProfileView(profileLink: value)
+                } label: {
+                    Text(key)
                 }
             }
         }
