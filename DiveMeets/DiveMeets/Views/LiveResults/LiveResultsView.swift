@@ -55,8 +55,6 @@ struct parseBody: View {
     @State var lastDiverInformation: LastDiverInfo = ("", "", 0, 0.0, 0, 0, 0.0, "", "", 0.0, 0.0, "")
     @State var nextDiverInformation: NextDiverInfo = ("", "", 0, 0.0, 0, "", "", 0.0, 0.0, 0.0, 0.0)
     @State var diveTable: DiveTable = []
-    // Variable is unused \/
-    @State var loadingStatus: Bool = false
     @State var loaded: Bool = true
     
     // Shows debug dataset, sets to true if "debug" is request string
@@ -149,7 +147,9 @@ struct parseBody: View {
             
             if lastDiver.isEmpty() { return false }
             lastDiverName = try lastDiver[0].text()
+            
             // Adds space after name and before team
+            
             if let idx = lastDiverName.firstIndex(of: "(") {
                 lastDiverName.insert(" ", at: idx)
             }
@@ -194,7 +194,9 @@ struct parseBody: View {
             
             if nextDiver.isEmpty() { return false }
             nextDiverName = try nextDiver[0].text()
+            
             // Adds space after name and before team
+            
             if let idx = nextDiverName.firstIndex(of: "(") {
                 nextDiverName.insert(" ", at: idx)
             }
@@ -227,6 +229,7 @@ struct parseBody: View {
                                     avgScore, maxScore, forFirstPlace)
             
             //Current Round
+            
             let currentRound = try rows[8].getElementsByTag("td")
             
             if currentRound.isEmpty() { return false }
@@ -285,8 +288,10 @@ struct mainView: View {
         min(maxHeightOffsetScaled, 90)
     }
     
+    var colors: [Color] = [.blue, .green, .red, .orange]
+    
     private var bgColor: Color {
-        currentMode == .light ? .white : .black
+        currentMode == .light ? Custom.background : Custom.background
     }
     
     func startTimer() {
@@ -298,43 +303,45 @@ struct mainView: View {
     
     var body: some View {
         bgColor.ignoresSafeArea()
-        GeometryReader { geometry in
-            VStack(spacing: 0.5){
-                if !starSelected {
-                    VStack{
-                        Text(title)
-                            .font(.title2).bold()
-                            .fixedSize(horizontal: false, vertical: true)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.center)
-                        Text(roundString)
-                        TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation),
-                                     bottomView: NextDiverView(nextInfo: $nextDiverInformation),
-                                     width: screenWidth * 0.95,
-                                     height: screenHeight * 0.32)
-                        .dynamicTypeSize(.xSmall ... .xxxLarge)
-                        .padding(.bottom)
-                        Text("Live Rankings")
-                            .font(.title2).bold()
-                            .padding(.top)
+        ZStack {
+            ColorfulView()
+            GeometryReader { geometry in
+                VStack(spacing: 0.5){
+                    if !starSelected {
+                            VStack{
+                                ZStack{
+                                    Rectangle()
+                                        .foregroundColor(Custom.thinMaterialColor)
+                                        .mask(RoundedRectangle(cornerRadius: 40))
+                                        .frame(width: 300, height: 70)
+                                        .shadow(radius: 6)
+                                    VStack{
+                                        Text(title)
+                                            .font(.title2).bold()
+                                            .fixedSize(horizontal: false, vertical: true)
+                                            .lineLimit(2)
+                                            .multilineTextAlignment(.center)
+                                        Text(roundString)
+                                    }
+                                }
+                                TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation),
+                                             bottomView: NextDiverView(nextInfo: $nextDiverInformation),
+                                             width: screenWidth * 0.95,
+                                             height: screenHeight * 0.32)
+                                .dynamicTypeSize(.xSmall ... .xxxLarge)
+                            }
                     }
+                    HomeBubbleView(diveTable: $diveTable, starSelected: $starSelected)
+                        .offset(y: 30)
                 }
-                ScalingScrollView(records: diveTable) { (elem) in
-                    ResultsBubbleView(elements: elem, focusViewList: $focusViewList)
-                }
-                .onChange(of: focusViewList, perform: {[focusViewList] newValue in
-                    if focusViewList.count == newValue.count{
-                        starSelected.toggle()
-                    }
-                })
                 .padding(.bottom, maxHeightOffset)
                 .padding(.top)
                 .animation(.easeOut(duration: 1), value: starSelected)
-            }
-            .onAppear {
-                screenWidth = geometry.size.width
-                screenHeight = geometry.size.height
-                startTimer()
+                .onAppear {
+                    screenWidth = geometry.size.width
+                    screenHeight = geometry.size.height
+                    startTimer()
+                }
             }
         }
     }
@@ -352,86 +359,77 @@ struct errorView: View {
     }
 }
 
-struct LiveBarAnimation: View {
-    @State private var moveRightLeft = false
-    var body: some View {
-        VStack{
-            ZStack{
-                Capsule() // inactive
-                    .frame(width: 128, height: 6, alignment: .center)
-                    .foregroundColor(Color(.systemGray4))
-                Capsule()
-                    .clipShape(Rectangle().offset(x: moveRightLeft ? 80: -80))
-                    .frame(width: 100, height: 6, alignment: .leading)
-                    .foregroundColor(Color(.systemMint))
-                    .offset(x: moveRightLeft ? 14 : -14)
-                    .animation(Animation.easeInOut(duration: 0.5).delay(0.2).repeatForever(autoreverses: true),
-                               value: moveRightLeft)
-                    .onAppear {
-                        moveRightLeft.toggle()
-                    }
-            }
-            Text("Live Results")
-        }
-    }
-}
-
 struct LastDiverView: View
 {
+    @Environment(\.colorScheme) var currentMode
     @Binding var lastInfo:
     //  name, link, last round place, last round total, order, place, total, dive, height, dd,
     //score total, [judges scores]
     (String, String, Int, Double, Int, Int, Double, String, String, Double, Double, String)
+    private var bgColor: Color {
+        currentMode == .light ? Custom.carouselColor : Custom.carouselColor
+    }
+    
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(Custom.lightBlue)
+                .fill(bgColor)
                 .cornerRadius(50)
                 .shadow(radius: 20)
-            VStack{
-                Group{
-                    HStack{
-                        VStack(alignment: .leading){
-                            Text(lastInfo.0)
+            VStack(spacing: 5){
+                HStack{
+                    VStack(alignment: .leading){
+                        Text("Last Diver")
+                            .font(.title3).fontWeight(.semibold)
+                        Text(lastInfo.0)
+                            .font(.title2).bold()
+                        Text("Last Round Place: " + (lastInfo.2 == 0 ? "N/A" : String(lastInfo.2)))
+                        HStack{
+                            Text("Order: " + String(lastInfo.4))
+                            Text("Place: " + String(lastInfo.5))
+                        }
+                        Text("Current Total: " + String(lastInfo.6))
+                            .font(.headline)
+                    }
+                    .padding(.horizontal, 5)
+                    .scaledToFill()
+                    .minimumScaleFactor(0.5)
+                    Spacer().frame(width: 75)
+                    MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
+                        .scaledToFit()
+                }
+                ZStack{
+                    Rectangle()
+                        .foregroundColor(Custom.thinMaterialColor)
+                        .mask(RoundedRectangle(cornerRadius: 50))
+                    HStack {
+                        VStack {
+                            Text(lastInfo.7.components(separatedBy: " - ").first ?? "")
+                                .font(.title2)
+                                .bold()
+                                .scaledToFill()
+                                .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                        }
+                        VStack{
+                            Text(lastInfo.7.components(separatedBy: " - ").last ?? "")
                                 .font(.title3).bold()
-                            Text("Last Round Place: " + (lastInfo.2 == 0 ? "N/A" : String(lastInfo.2)))
-                            Text("Last Round Total: " + String(lastInfo.3))
+                                .scaledToFill().minimumScaleFactor(0.4)
+                                .lineLimit(1)
                             HStack{
-                                Text("Order: " + String(lastInfo.4))
-                                Text("Place: " + String(lastInfo.5))
+                                Text("Height: " + lastInfo.8)
+                                Text("DD: " + String(lastInfo.9))
+                                Text("Score Total: " + String(lastInfo.10))
                             }
-                            Text("Current Total: " + String(lastInfo.6))
+                            .scaledToFit()
+                            .minimumScaleFactor(0.5)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(1)
+                            Text(lastInfo.11)
                                 .font(.headline)
                         }
-                        .scaledToFill()
-                        .minimumScaleFactor(0.5)
-                        .padding()
-                        MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
-                            .scaledToFit()
-                            .padding(.horizontal)
                     }
-                    Text(lastInfo.7)
-                        .font(.title3)
-                        .bold()
-                        .scaledToFill()
-                        .minimumScaleFactor(0.5)
-                        .lineLimit(1)
-                        .padding([.leading, .trailing])
-                    HStack{
-                        Text("Height: " + lastInfo.8)
-                        Text("DD: " + String(lastInfo.9))
-                        Text("Score Total: " + String(lastInfo.10))
-                    }
-                    .scaledToFit()
-                    .minimumScaleFactor(0.5)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .lineLimit(1)
-                }
-                Group{
-                    Text("Judges Scores")
-                        .underline()
-                    Text(lastInfo.11)
-                        .font(.headline)
+                    .padding()
                 }
             }
         }
@@ -440,129 +438,70 @@ struct LastDiverView: View
 
 struct NextDiverView: View
 {
+    @Environment(\.colorScheme) var currentMode
     @Binding var nextInfo: NextDiverInfo
+    private var bgColor: Color {
+        currentMode == .light ? Custom.carouselColor : Custom.carouselColor
+    }
+    
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(Custom.coolBlue)
+                .fill(bgColor)
                 .cornerRadius(50)
                 .shadow(radius: 20)
-            VStack{
-                Group{
-                    HStack{
-                        VStack(alignment: .leading){
-                            Text(nextInfo.0)
-                                .font(.title3).bold()
-                            Text("Last Round Place: " + (nextInfo.2 == 0 ? "N/A" : String(nextInfo.2)))
-                            Text("Last Round Total: " + String(nextInfo.3))
-                            HStack{
-                                Text("Order: " + String(nextInfo.4))
-                            }
+            
+            //Upper Part
+            VStack(spacing: 5){
+                HStack{
+                    VStack(alignment: .leading){
+                        Text("Next Diver")
+                            .font(.title3).fontWeight(.semibold)
+                        Text(nextInfo.0)
+                            .font(.title2).bold()
+                        Text("Last Round Place: " + (nextInfo.2 == 0 ? "N/A" : String(nextInfo.2)))
+                        HStack{
+                            Text("Order: " + String(nextInfo.4))
+                            Text("For 1st: " + String(nextInfo.10))
                         }
-                        .scaledToFill()
-                        .minimumScaleFactor(0.5)
-                        .padding()
-                        MiniProfileImage(diverID: String(nextInfo.1.utf16.dropFirst(67)) ?? "")
-                            .scaledToFit()
-                            .padding(.horizontal)
+                        Text("Last Round Total: " + String(nextInfo.3))
+                            .fontWeight(.semibold)
                     }
+                    MiniProfileImage(diverID: String(nextInfo.1.utf16.dropFirst(67)) ?? "")
+                        .scaledToFit()
+                        .padding(.horizontal)
                 }
-                Group{
-                    VStack{
+                
+                //Lower Part
+                ZStack {
+                    Rectangle()
+                        .foregroundColor(Custom.thinMaterialColor)
+                        .mask(RoundedRectangle(cornerRadius: 50))
+                    HStack{
                         Text(nextInfo.5)
-                            .font(.title3)
+                            .font(.title2)
                             .bold()
                             .scaledToFill()
                             .minimumScaleFactor(0.5)
                             .lineLimit(1)
-                            .padding([.leading, .trailing])
-                        HStack{
-                            Text("Height: " + nextInfo.6)
-                            Text("DD: " + String(nextInfo.7))
-                        }
-                        HStack{
-                            Text("Average Score: " + String(nextInfo.8))
-                            Text("Max Score: " + String(nextInfo.9))
-                        }
-                        .scaledToFit()
-                        .minimumScaleFactor(0.5)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .lineLimit(1)
-                        Text("For First Place: " + String(nextInfo.10))
-                    }
-                    .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-        }
-    }
-}
-
-struct ResultsBubbleView: View {
-    @Environment(\.colorScheme) var currentMode
-    @Binding private var focusViewList: [String: Bool]
-    @State private var focusBool: Bool = false
-    
-    private var bubbleColor: Color {
-        currentMode == .light ? .white : .black
-    }
-    private var elements: [String]
-    
-    init(elements: [String], focusViewList: Binding<[String: Bool]>) {
-        self.elements = elements
-        self._focusViewList = focusViewList
-    }
-    
-    //[Place: (Left to dive, order, last round place, last round score, current place,
-    //current score, name, last dive average, event average score, avg round score
-    var body: some View {
-        ZStack {
-            Rectangle()
-                .foregroundColor(bubbleColor)
-            VStack {
-                VStack(alignment: .leading) {
-                    HStack(alignment: .lastTextBaseline) {
-                        if Bool(elements[0]) ?? false {
-                            Image(systemName: "checkmark.circle")
-                        }
-                        let link = elements[7]
-                        NavigationLink {
-                            ProfileView(profileLink: link)
-                        } label: {
-                            Text(elements[6])
-                                .font(.title3)
-                                .bold()
-                                .scaledToFit()
-                                .minimumScaleFactor(0.5)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .lineLimit(1)
-                        }
-                        Text(elements[5])
-                            .font(.title3).foregroundColor(.red)
-                        Spacer()
-                    }
-                    HStack{
-                        Button {
-                            focusBool.toggle()
-                            focusViewList[elements[6]] = focusBool
-                        } label: {
-                            if focusBool {
-                                Image(systemName: "star.fill")
-                            } else {
-                                Image(systemName: "star")
+                        VStack{
+                            HStack{
+                                Text("Height: " + nextInfo.6)
+                                Text("DD: " + String(nextInfo.7))
                             }
+                            HStack{
+                                Text("Avg. Score: " + String(nextInfo.8))
+                                Text("Max Score: " + String(nextInfo.9))
+                            }
+                            .scaledToFit()
+                            .minimumScaleFactor(0.5)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(1)
                         }
-                        Text("Diving Order: " + elements[1])
-                        Text("Last Round Place: " + (elements[2] == "0" ? "N/A" : elements[2]))
                     }
+                    .padding()
                 }
             }
-            .padding()
-        }
-        .onAppear {
-            focusBool = focusViewList[elements[6]] ?? false
-        }
-        .onTapGesture {
-            print(elements[3])
         }
     }
 }
@@ -582,10 +521,10 @@ struct DebugDataset {
     
     //                    [[Left to dive, order, last round place, last round score, current place,
     //                      current score, name, link, last dive average, event average score, avg round score]]
-    static let diver1: [String] = ["true", "1", "1", "175.00", "1", "225.00", "Diver 1",
+    static let diver1: [String] = ["true", "1", "1", "175.00", "1", "225.00", "Logan Sherwin",
                                    "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961",
                                    "7.0", "6.5", "55.5"]
-    static let diver2: [String] = ["false", "2", "3", "155.75", "3", "155.75", "Diver 2",
+    static let diver2: [String] = ["false", "2", "3", "155.75", "3", "155.75", "Spencer Dearman",
                                    "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961",
                                    "6.0", "5.7", "41.7"]
     static let diver3: [String] = ["false", "3", "2", "158.20", "2", "158.20", "Diver 3",
@@ -600,4 +539,72 @@ struct DebugDataset {
                                                 diver3[6]: false, diver4[6]: false]
     static let title: String = "Debug Live Results View"
     static let roundString: String = "Round: 3 / 6"
+}
+
+
+struct ColorfulView: View{
+    @Environment(\.colorScheme) var currentMode
+    private var bgColor: Color {
+        currentMode == .light ? Custom.background : Custom.background
+    }
+    
+    var body: some View{
+        GeometryReader { geometry in
+            ZStack{
+                Circle()
+                    .foregroundColor(Custom.darkBlue)
+                    .frame(width: 475, height: 475)
+                Circle()
+                    .foregroundColor(bgColor)
+                    .frame(width: 455, height: 455)
+                Circle()
+                    .foregroundColor(Custom.coolBlue)
+                    .frame(width: 435, height: 435)
+                Circle()
+                    .foregroundColor(bgColor)
+                    .frame(width: 415, height: 415)
+                Circle()
+                    .foregroundColor(Custom.medBlue)
+                    .frame(width: 395, height: 395)
+                Circle()
+                    .foregroundColor(bgColor)
+                    .frame(width: 375, height: 375)
+                Circle()
+                    .foregroundColor(Custom.lightBlue)
+                    .frame(width: 355, height: 355)
+                Circle()
+                    .foregroundColor(bgColor)
+                    .frame(width: 335, height: 335)
+            }
+            .offset(x: geometry.size.width/2, y: -geometry.size.height / 10)
+            
+            ZStack{
+                Circle()
+                    .foregroundColor(Custom.darkBlue)
+                    .frame(width: 475, height: 475)
+                Circle()
+                    .foregroundColor(bgColor)
+                    .frame(width: 455, height: 455)
+                Circle()
+                    .foregroundColor(Custom.coolBlue)
+                    .frame(width: 435, height: 435)
+                Circle()
+                    .foregroundColor(bgColor)
+                    .frame(width: 415, height: 415)
+                Circle()
+                    .foregroundColor(Custom.medBlue)
+                    .frame(width: 395, height: 395)
+                Circle()
+                    .foregroundColor(bgColor)
+                    .frame(width: 375, height: 375)
+                Circle()
+                    .foregroundColor(Custom.lightBlue)
+                    .frame(width: 355, height: 355)
+                Circle()
+                    .foregroundColor(bgColor)
+                    .frame(width: 335, height: 335)
+            }
+            .offset(x: -geometry.size.width/2, y: -geometry.size.height / 2.5)
+        }
+    }
 }
