@@ -24,6 +24,7 @@ struct ProfileView: View {
     @State private var upcomingDiveSheetsLinks: [String: [String: String]]?
     @State private var upcomingDiveSheetsEntries: [String: [String: EventEntry]]?
     @State private var diversAndLinks: [[String]] = []
+    @State private var judgingHistory: [String: (String, String)]
     private let getTextModel = GetTextAsyncModel()
     private let ep = EntriesParser()
     
@@ -230,6 +231,7 @@ struct ProfileView: View {
                         .padding()
                         
                         DiversList(diversAndLinks: $diversAndLinks)
+                        Spacer()
                     }
                 }
             }
@@ -268,6 +270,8 @@ struct ProfileView: View {
                             diversAndLinks.append([try diver.text(), link])
                         }
                     }
+                    let judgingHistory = try td[0].getElementsByTag("table")
+                    print(try judgingHistory.text())
                 }
             }
         }
