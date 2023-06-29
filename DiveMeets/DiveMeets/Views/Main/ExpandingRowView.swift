@@ -41,36 +41,12 @@ struct ExpandingRowView: View {
                             }
                             .onTapGesture {
                                 Task {
-                                    await animate(duration: 2, animation: .spring(response: 2,
-                                                                                  dampingFraction: 0.9)) {
+                                    await animate(duration: 2,
+                                                  animation: .spring(response: 2,
+                                                                     dampingFraction: 0.9)) {
                                         show.toggle()
                                     }
                                     pressed = true
-                                }
-                            }
-                        } else {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 30)
-                                    .foregroundColor(.white)
-                                    .matchedGeometryEffect(id: "rect", in: namespace)
-                                    .frame(height: g.size.height + 50)
-                                if pressed {
-                                    let link = "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961"
-                                    ZStack(alignment: .topLeading) {
-                                        ProfileView(profileLink: link)
-                                        .matchedGeometryEffect(id: "row", in: namespace)
-                                        Button(action: {
-                                            withAnimation(.spring(response: 0.6,
-                                                                  dampingFraction: 0.9)) {
-                                                show.toggle()
-                                                pressed = false
-                                            }
-                                        }) {
-                                            Image(systemName: "chevron.left")
-                                                .font(.system(size: 22))
-                                        }
-                                        .padding()
-                                    }
                                 }
                             }
                         }
