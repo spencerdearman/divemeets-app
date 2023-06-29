@@ -14,7 +14,7 @@ struct SwiftUIWebView: View {
     @State var request: String =
     "https://secure.meetcontrol.com/divemeets/system/memberlist.php"
     @State var parsedHTML: String = ""
-    @Binding var parsedLinks: [String: String]
+    @Binding var parsedLinks: DiverProfileRecords
     @Binding var dmSearchSubmitted: Bool
     @Binding var linksParsed: Bool
     
@@ -31,7 +31,7 @@ struct WebView: UIViewRepresentable {
     let htmlParser: HTMLParser = HTMLParser()
     @Binding var request: String
     @Binding var parsedHTML: String
-    @Binding var parsedLinks: [String: String]
+    @Binding var parsedLinks: DiverProfileRecords
     @Binding var firstName: String
     @Binding var lastName: String
     @Binding var dmSearchSubmitted: Bool
@@ -69,13 +69,13 @@ struct WebView: UIViewRepresentable {
     class Coordinator: NSObject, WKNavigationDelegate {
         let htmlParser: HTMLParser = HTMLParser()
         @Binding var parsedHTML: String
-        @Binding var parsedLinks: [String: String]
+        @Binding var parsedLinks: DiverProfileRecords
         @Binding var firstName: String
         @Binding var lastName: String
         @Binding var dmSearchSubmitted: Bool
         @Binding var linksParsed: Bool
         
-        init(html: Binding<String>, links: Binding<[String: String]>, firstName: Binding<String>,
+        init(html: Binding<String>, links: Binding<DiverProfileRecords>, firstName: Binding<String>,
              lastName: Binding<String>, dmSearchSubmitted: Binding<Bool>,
              linksParsed: Binding<Bool>) {
             self._parsedHTML = html
