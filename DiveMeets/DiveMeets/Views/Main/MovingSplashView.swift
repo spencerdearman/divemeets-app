@@ -14,20 +14,25 @@ enum MoveStage: Int, CaseIterable {
     case top = 2
 }
 
-struct ExtraSplashView: View {
+struct MovingSplashView: View {
     @Environment(\.colorScheme) var currentMode
-//    @Binding var showSplash: Bool
-    let startDelay: CGFloat
     @State var moveStage: MoveStage = .idle
     @State var sphereMoving: [Bool] = [false, false, false, false]
     @Namespace var namespace
     
     private let shadowRadius: CGFloat = 15
+    
+    let startDelay: CGFloat
     let moveSeparation: CGFloat
     let delayToTop: CGFloat
     
     private var bgColor: Color {
         currentMode == .light ? .white : .black
+    }
+    private var imgBgColor: Color {
+        currentMode == .light
+        ? Color(red: 80 / 255, green: 171 / 255, blue: 234 / 255)
+        : Color(red: 65 / 255, green: 142 / 255, blue: 195 / 255)
     }
     
     var body: some View {
@@ -40,14 +45,14 @@ struct ExtraSplashView: View {
                     let height = geometry.size.height
                     let midX = width / 2
                     let midY = height / 2
-                    let imgSize = width * 0.4
-                    let imgBig = width * 0.6
-                    let xxxsmall = width * 0.7
-                    let xxsmall = width * 0.8
+                    let imgSize = width * 0.3
+                    let imgBig = width * 0.5
+                    let xxxsmall = width * 0.5
+                    let xxsmall = width * 0.7
                     let xsmall = width * 0.9
-                    let small = width * 1.5
-                    let med = width * 2.0
-                    let large = width * 2.5
+                    let small = width * 0.8
+                    let med = width * 1.1
+                    let large = width * 1.4
                     let bottomPos = height * 0.8
                     let largeCircle = Circle()
                         .fill(Custom.darkBlue) // Circle color
@@ -64,12 +69,17 @@ struct ExtraSplashView: View {
                         .shadow(radius: shadowRadius)
                         .zIndex(7)
                         .matchedGeometryEffect(id: "sphere3", in: namespace)
-                    let image = Image("defaultImage")
+                    let image = Image("diverImage")
                         .resizable()
+                        .renderingMode(.template)
                         .scaledToFit()
+                        .foregroundColor(currentMode == .light ? .black : .white)
+                        .background(imgBgColor)
+                        .clipShape(Circle())
+                        .shadow(radius: shadowRadius)
                         .zIndex(8)
                         .matchedGeometryEffect(id: "icon", in: namespace)
-                    
+                    let now = DispatchTime.now()
                     
                     if moveStage == .top {
                         bgColor.ignoresSafeArea()
@@ -78,10 +88,10 @@ struct ExtraSplashView: View {
                         
                         SphereView(sphereMoving: $sphereMoving, sphereIdx: 3, namespace: namespace,
                                    startX: midX, startY: bottomPos, endY: -height * 1,
-                                   startSize: xsmall, endSize: large, shadowRadius: shadowRadius)
+                                   startSize: large, shadowRadius: shadowRadius)
                         { largeCircle }
                             .onAppear {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + moveSeparation * 3) {
+                                DispatchQueue.main.asyncAfter(deadline: now + moveSeparation * 3) {
                                     withAnimation {
                                         sphereMoving[3] = true
                                     }
@@ -89,10 +99,10 @@ struct ExtraSplashView: View {
                             }
                         SphereView(sphereMoving: $sphereMoving, sphereIdx: 2, namespace: namespace,
                                    startX: midX, startY: bottomPos, endY: -height * 1,
-                                   startSize: xxsmall, endSize: med, shadowRadius: shadowRadius)
+                                   startSize: med, shadowRadius: shadowRadius)
                         { medCircle }
                             .onAppear {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + moveSeparation * 2) {
+                                DispatchQueue.main.asyncAfter(deadline: now + moveSeparation * 2) {
                                     withAnimation {
                                         sphereMoving[2] = true
                                     }
@@ -100,10 +110,10 @@ struct ExtraSplashView: View {
                             }
                         SphereView(sphereMoving: $sphereMoving, sphereIdx: 1, namespace: namespace,
                                    startX: midX, startY: bottomPos, endY: -height * 1,
-                                   startSize: xxxsmall, endSize: small, shadowRadius: shadowRadius)
+                                   startSize: small, shadowRadius: shadowRadius)
                         { smallCircle }
                             .onAppear {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + moveSeparation) {
+                                DispatchQueue.main.asyncAfter(deadline: now + moveSeparation * 1) {
                                     withAnimation {
                                         sphereMoving[1] = true
                                     }
@@ -111,10 +121,9 @@ struct ExtraSplashView: View {
                             }
                         image
                             .position(x: midX, y: sphereMoving[0] ? -height * 1 : bottomPos)
-                            .frame(width: sphereMoving[0] ? imgBig : imgSize,
-                                   height: sphereMoving[0] ? imgBig : imgSize)
+                            .frame(width: imgBig, height: imgBig)
                             .onAppear {
-                                DispatchQueue.main.async {
+                                DispatchQueue.main.asyncAfter(deadline: now) {
                                     withAnimation {
                                         sphereMoving[0] = true
                                     }
@@ -126,17 +135,17 @@ struct ExtraSplashView: View {
                         
                         largeCircle
                             .position(x: midX, y: bottomPos) // Center the circle
-                            .frame(width: xsmall, height: xsmall)
+                            .frame(width: large, height: large)
                         medCircle
                             .position(x: midX, y: bottomPos) // Center the circle
-                            .frame(width: xxsmall, height: xxsmall)
+                            .frame(width: med, height: med)
                         smallCircle
                             .position(x: midX, y: bottomPos) // Center the circle
-                            .frame(width: xxxsmall, height: xxxsmall)
+                            .frame(width: small, height: small)
                         
                         image
                             .position(x: midX, y: bottomPos)
-                            .frame(width: imgSize, height: imgSize)
+                            .frame(width: imgBig, height: imgBig)
                     } else if moveStage == .idle {
                         bgColor.ignoresSafeArea()
                             .matchedGeometryEffect(id: "bg", in: namespace)
@@ -159,14 +168,6 @@ struct ExtraSplashView: View {
             }
         }
         .zIndex(100)
-//        .onChange(of: showSplash) { newValue in
-//            if newValue {
-//                moveStage = .idle
-//            } else {
-//                moveStage = .bottom
-//            }
-//            print("splash")
-//        }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + startDelay) {
                 withAnimation {
@@ -175,7 +176,6 @@ struct ExtraSplashView: View {
             }
         }
         .onChange(of: moveStage) { newValue in
-            print("move")
             if newValue != .top {
                 sphereMoving = [false, false, false, false]
             }
@@ -186,17 +186,6 @@ struct ExtraSplashView: View {
                     }
                 }
             }
-        }
-        .onTapGesture {
-            if moveStage != .bottom {
-                withAnimation {
-                    moveStage = MoveStage.allCases[moveStage == MoveStage.allCases.last
-                                                   ? 0
-                                                   : moveStage.rawValue + 1]
-                    
-                }
-            }
-            print(moveStage)
         }
     }
 }
@@ -210,7 +199,7 @@ struct SphereView<T: View>: View {
     let startY: CGFloat
     var endY: CGFloat? = nil
     let startSize: CGFloat
-    let endSize: CGFloat
+    var endSize: CGFloat? = nil
     let shadowRadius: CGFloat
     var sphere: () -> T
     
@@ -218,7 +207,7 @@ struct SphereView<T: View>: View {
         if sphereMoving[sphereIdx] {
             sphere()
                 .position(x: endX ?? startX, y: endY ?? startY)
-                .frame(width: endSize, height: endSize)
+                .frame(width: endSize ?? startSize, height: endSize ?? startSize)
         } else {
             sphere()
                 .position(x: startX, y: startY)

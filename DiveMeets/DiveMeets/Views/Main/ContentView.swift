@@ -17,8 +17,8 @@ struct ContentView: View {
     @State var showSplash: Bool = true
     @FetchRequest(sortDescriptors: []) private var meets: FetchedResults<DivingMeet>
     
-    private let splashDuration: CGFloat = 1.5
-    private let moveSeparation: CGFloat = 0.02
+    private let splashDuration: CGFloat = 0.5
+    private let moveSeparation: CGFloat = 0.15
     private let delayToTop: CGFloat = 0.5
     
     var hasHomeButton: Bool {
@@ -44,25 +44,16 @@ struct ContentView: View {
         ZStack {
             // Only shows splash screen while bool is true, auto dismisses after splashDuration
             if showSplash {
-                ExtraSplashView(startDelay: splashDuration, moveSeparation: moveSeparation,
-                                delayToTop: delayToTop)
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(
-                            deadline: .now() + splashDuration + moveSeparation + delayToTop + 0.2) {
+                MovingSplashView(startDelay: splashDuration, moveSeparation: moveSeparation,
+                                 delayToTop: delayToTop)
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(
+                        deadline: .now() + splashDuration + moveSeparation * 3 + delayToTop + 0.2) {
                             withAnimation {
                                 showSplash = false
                             }
                         }
-                    }
-//                SplashView(showSplash: $showSplash)
-//                    .onAppear {
-//                        DispatchQueue.main.asyncAfter(
-//                                                        deadline: .now() + splashDuration) {
-//                                                        withAnimation {
-//                                                            showSplash = false
-//                                                        }
-//                                                    }
-//                    }
+                }
             }
             
             ZStack {
