@@ -193,7 +193,7 @@ struct ProfileView: View {
                     VStack {
                         ProfileImage(diverID: diverID)
                             .frame(width: 200, height: 120)
-                            .padding(.bottom)
+                            .padding()
                             .padding(.bottom)
                         VStack{
                             VStack(alignment: .leading) {
