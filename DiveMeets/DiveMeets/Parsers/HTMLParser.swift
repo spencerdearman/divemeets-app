@@ -8,6 +8,8 @@
 import SwiftUI
 import SwiftSoup
 
+typealias DiverProfileRecords = [String: [String]]
+
 final class HTMLParser: ObservableObject {
     @Published var myData = [[String]]()
     let getTextModel = GetTextAsyncModel()
@@ -82,9 +84,9 @@ final class HTMLParser: ObservableObject {
     }
     
     
-    func getRecords(_ html: String) -> [String: String] {
+    func getRecords(_ html: String) -> DiverProfileRecords {
         let leadingLink: String = "https://secure.meetcontrol.com/divemeets/system/"
-        var result: [String: String] = [:]
+        var result: DiverProfileRecords = [:]
         do {
             let document: Document = try SwiftSoup.parse(html)
             guard let body = document.body() else {
@@ -93,7 +95,11 @@ final class HTMLParser: ObservableObject {
             let content = try body.getElementById("dm_content")
             let links = try content?.getElementsByClass("showresults").select("a")
             try links?.forEach({ l in
-                result[try l.text()] = try leadingLink + l.attr("href")
+                // Adds an empty list value to a new key
+                if !result.keys.contains(try l.text()) {
+                    result[try l.text()] = []
+                }
+                result[try l.text()]!.append(try leadingLink + l.attr("href"))
             })
         }
         catch {
