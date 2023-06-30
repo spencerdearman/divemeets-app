@@ -11,6 +11,7 @@ struct RecordList: View {
     @Environment(\.colorScheme) var currentMode
     @Binding var records: [String: String]
     @Binding var resultSelected: Bool
+    @Binding var fullScreenResults: Bool
     
     // Style adjustments for elements of list
     private let cornerRadius: CGFloat = 30
@@ -28,13 +29,15 @@ struct RecordList: View {
     }
     
     var body: some View {
-        NavigationView {
             ZStack {
                 // Background color for View
                 customGray.ignoresSafeArea()
-                
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: rowSpacing) {
+                        Text("Results")
+                            .font(.title).fontWeight(.semibold)
+                        Spacer()
+                        Spacer()
                         ForEach(records.sorted(by: <), id: \.key) { key, value in
                             NavigationLink(destination: ProfileView(profileLink: value)) {
                                             HStack {
@@ -63,19 +66,7 @@ struct RecordList: View {
                     }
                     .padding()
                 }
-                .navigationTitle("Results")
                 .padding(.bottom, viewPadding)
             }
-        }
-    }
-}
-
-struct RecordList_Previews: PreviewProvider {
-    static var previews: some View {
-        ForEach(ColorScheme.allCases, id: \.self) {
-            RecordList(records: .constant(["Logan": "google.com"]),
-                       resultSelected: .constant(false))
-                .preferredColorScheme($0)
-        }
     }
 }
