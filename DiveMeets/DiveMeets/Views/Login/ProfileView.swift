@@ -24,7 +24,7 @@ struct ProfileView: View {
     @State private var upcomingDiveSheetsLinks: [String: [String: String]]?
     @State private var upcomingDiveSheetsEntries: [String: [String: EventEntry]]?
     @State private var diversAndLinks: [[String]] = []
-    @State private var judgingHistory: [String: (String, String)]
+    @State private var judgingHistory: [String: [(String, String)]] = [:]
     private let getTextModel = GetTextAsyncModel()
     private let ep = EntriesParser()
     
@@ -82,9 +82,9 @@ struct ProfileView: View {
     }
     
     private func isDictionary(_ object: Any) -> Bool {
-            let mirror = Mirror(reflecting: object)
-            return mirror.displayStyle == .dictionary
-        }
+        let mirror = Mirror(reflecting: object)
+        return mirror.displayStyle == .dictionary
+    }
     
     var body: some View {
         
@@ -101,7 +101,7 @@ struct ProfileView: View {
                             VStack(alignment: .leading) {
                                 HStack (alignment: .firstTextBaseline) {
                                     let nameComps = getNameComponents()
-                                        
+                                    
                                     let firstName = nameComps?.dropLast().joined(separator: " ") ?? ""
                                     let lastName = nameComps?.last ?? ""
                                     
@@ -192,7 +192,9 @@ struct ProfileView: View {
                 VStack {
                     VStack {
                         ProfileImage(diverID: diverID)
-                            .frame(width: 200, height: 200)
+                            .frame(width: 200, height: 120)
+                            .padding(.bottom)
+                            .padding(.bottom)
                         VStack{
                             VStack(alignment: .leading) {
                                 HStack (alignment: .firstTextBaseline){
@@ -232,6 +234,7 @@ struct ProfileView: View {
                         
                         DiversList(diversAndLinks: $diversAndLinks)
                         Spacer()
+                        judgedList(data: $judgingHistory)
                     }
                 }
             }
@@ -270,8 +273,35 @@ struct ProfileView: View {
                             diversAndLinks.append([try diver.text(), link])
                         }
                     }
-                    let judgingHistory = try td[0].getElementsByTag("table")
-                    print(try judgingHistory.text())
+                    
+                    //Format  [String: [(String, String)]] = [:]
+                    //       Meet Name List of (Event, Results Link)
+                    var current = ""
+                    var eventsList: [(String, String)] = []
+                    let judgingHistoryTable = try td[0].getElementsByTag("table")
+                    if !judgingHistoryTable.isEmpty {
+                        let tr = try judgingHistoryTable[0].getElementsByTag("tr")
+                        for (i, t) in tr.enumerated() {
+                            if i == 0 {
+                                continue
+                            } else if try t.text().contains("Results") {
+                                let event = try t.getElementsByTag("td")[0].text().replacingOccurrences(of: "  ", with: "")
+                                let resultsLink = try "https://secure.meetcontrol.com/divemeets/system/" + t.getElementsByTag("a").attr("href")
+                                eventsList.append((event, resultsLink))
+                            } else {
+                                if i > 1 {
+                                    judgingHistory[current] = eventsList
+                                    eventsList = []
+                                    current = try t.text()
+                                } else {
+                                    current = try t.text()
+                                }
+                            }
+                        }
+                        if !current.isEmpty {
+                            judgingHistory[current] = eventsList
+                        }
+                    }
                 }
             }
         }
@@ -325,7 +355,34 @@ struct DiverBubbleView: View {
                 Text(elements[0])
                     .fontWeight(.semibold)
             }
+            
+        }
+    }
+}
 
+struct judgedList: View {
+    @Binding var data: [String: [(String, String)]]
+    
+    var body: some View {
+        Text("Judging History")
+            .font(.title2).fontWeight(.semibold)
+        List {
+            ForEach(data.keys.sorted(by: >), id: \.self) { dropdownKey in
+                DisclosureGroup(
+                    content: {
+                        ForEach(data[dropdownKey] ?? [], id: \.0) { tuple in
+                            NavigationLink {
+                                EventResultPage(meetLink: tuple.1)
+                            } label: {
+                                Text(tuple.0)
+                            }
+                        }
+                    },
+                    label: {
+                        Text(dropdownKey)
+                    }
+                )
+            }
         }
     }
 }
