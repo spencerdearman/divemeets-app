@@ -33,7 +33,7 @@ func tupleToList(tuples: [MeetRecord]) -> [[String]] {
                 }
                 
                 if let a = lhs.5, let b = rhs.5,
-                    let date1 = df.date(from: a), let date2 = df.date(from: b) {
+                   let date1 = df.date(from: a), let date2 = df.date(from: b) {
                     return date1 < date2
                 }
             }
@@ -119,6 +119,21 @@ struct Home: View {
         currentMode == .light ? Color.white : Color.black
     }
     
+    // Gets present meets from meet parser if false, else clears the fields and runs again
+    private func getPresentMeets() {
+        if !meetsParsed {
+            Task {
+                try await meetParser.parsePresentMeets()
+                meetsParsed = true
+            }
+        } else {
+            meetParser.upcomingMeets = nil
+            meetParser.currentMeets = nil
+            meetsParsed = false
+            getPresentMeets()
+        }
+    }
+    
     @ViewBuilder
     var body: some View {
         NavigationView {
@@ -132,46 +147,60 @@ struct Home: View {
                             .font(.title)
                             .bold()
                         ZStack {
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .frame(width: typeBubbleWidth * 2 + 5,
-                                       height: typeBGWidth)
-                                .foregroundColor(typeBGColor)
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .frame(width: typeBubbleWidth,
-                                       height: typeBubbleHeight)
-                                .foregroundColor(typeBubbleColor)
-                                .offset(x: selection == .upcoming
-                                        ? -typeBubbleWidth / 2
-                                        : typeBubbleWidth / 2)
-                                .animation(.spring(response: 0.2), value: selection)
-                            HStack(spacing: 0) {
-                                Button(action: {
-                                    if selection == .current {
-                                        selection = .upcoming
-                                    }
-                                }, label: {
-                                    Text(ViewType.upcoming.rawValue)
-                                        .animation(nil, value: selection)
-                                })
-                                .frame(width: typeBubbleWidth,
-                                       height: typeBubbleHeight)
-                                .foregroundColor(textColor)
-                                .cornerRadius(cornerRadius)
-                                Button(action: {
-                                    if selection == .upcoming {
-                                        selection = .current
-                                    }
-                                }, label: {
-                                    Text(ViewType.current.rawValue)
-                                        .animation(nil, value: selection)
-                                })
-                                .frame(width: typeBubbleWidth + 2,
-                                       height: typeBubbleHeight)
-                                .foregroundColor(textColor)
-                                .cornerRadius(cornerRadius)
+                            ZStack {
+                                RoundedRectangle(cornerRadius: cornerRadius)
+                                    .frame(width: typeBubbleWidth * 2 + 5,
+                                           height: typeBGWidth)
+                                    .foregroundColor(typeBGColor)
+                                RoundedRectangle(cornerRadius: cornerRadius)
+                                    .frame(width: typeBubbleWidth,
+                                           height: typeBubbleHeight)
+                                    .foregroundColor(typeBubbleColor)
+                                    .offset(x: selection == .upcoming
+                                            ? -typeBubbleWidth / 2
+                                            : typeBubbleWidth / 2)
+                                    .animation(.spring(response: 0.2), value: selection)
+                                HStack(spacing: 0) {
+                                    Button(action: {
+                                        if selection == .current {
+                                            selection = .upcoming
+                                        }
+                                    }, label: {
+                                        Text(ViewType.upcoming.rawValue)
+                                            .animation(nil, value: selection)
+                                    })
+                                    .frame(width: typeBubbleWidth,
+                                           height: typeBubbleHeight)
+                                    .foregroundColor(textColor)
+                                    .cornerRadius(cornerRadius)
+                                    Button(action: {
+                                        if selection == .upcoming {
+                                            selection = .current
+                                        }
+                                    }, label: {
+                                        Text(ViewType.current.rawValue)
+                                            .animation(nil, value: selection)
+                                    })
+                                    .frame(width: typeBubbleWidth + 2,
+                                           height: typeBubbleHeight)
+                                    .foregroundColor(textColor)
+                                    .cornerRadius(cornerRadius)
+                                }
                             }
+                            
+                            HStack {
+                                Spacer()
+                                Button(action: {
+                                    getPresentMeets()
+                                }, label: {
+                                    Image(systemName: "arrow.clockwise")
+                                        .font(.title2)
+                                })
+                            }
+                            .padding(.trailing)
                         }
                         .dynamicTypeSize(.xSmall ... .xLarge)
+                        
                     }
                     Spacer()
                     if selection == .upcoming {
@@ -193,12 +222,7 @@ struct Home: View {
             
         }
         .onAppear {
-            if !meetsParsed {
-                Task {
-                    try await meetParser.parsePresentMeets()
-                    meetsParsed = true
-                }
-            }
+            getPresentMeets()
         }
     }
 }
