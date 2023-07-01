@@ -41,46 +41,45 @@ struct RecordList: View {
     }
     
     var body: some View {
-            ZStack {
-                // Background color for View
-                customGray.ignoresSafeArea()
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: rowSpacing) {
-                        Text("Results")
-                            .font(.title).fontWeight(.semibold)
-                        Spacer()
-                        Spacer()
-                        ForEach(getSortedRecords(records), id: \.1) { record in
-                            let (key, value) = record
-                            NavigationLink(destination: ProfileView(profileLink: value)) {
-                                HStack {
-                                    Text(key)
-                                        .foregroundColor(textColor)
-                                        .font(.title3)
-                                        .padding()
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(Color.gray)
-                                        .padding()
-                                }
-                                .background(rowColor)
-                                .cornerRadius(cornerRadius)
-                                .onDisappear {
-                                    resultSelected = true
-                                }
-                                .onAppear{
-                                    resultSelected = false
-                                }
+        ZStack {
+            // Background color for View
+            customGray.ignoresSafeArea()
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: rowSpacing) {
+                    Text("Results")
+                        .font(.title).fontWeight(.semibold)
+                    Spacer()
+                    Spacer()
+                    ForEach(getSortedRecords(records), id: \.1) { record in
+                        let (key, value) = record
+                        NavigationLink(destination: ProfileView(profileLink: value)) {
+                            HStack {
+                                Text(key)
+                                    .foregroundColor(textColor)
+                                    .font(.title3)
+                                    .padding()
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(Color.gray)
+                                    .padding()
                             }
-                            .padding([.leading, .trailing])
+                            .background(rowColor)
+                            .cornerRadius(cornerRadius)
+                            .onDisappear {
+                                resultSelected = true
+                            }
+                            .onAppear{
+                                resultSelected = false
+                            }
                         }
+                        .padding([.leading, .trailing])
                     }
-                    .padding()
                 }
-                .padding(.bottom, viewPadding)
+                .padding()
             }
+            .padding(.bottom, viewPadding)
         }
     }
 }
