@@ -11,6 +11,7 @@ struct RecordList: View {
     @Environment(\.colorScheme) var currentMode
     @Binding var records: DiverProfileRecords
     @Binding var resultSelected: Bool
+    @Binding var fullScreenResults: Bool
     
     // Style adjustments for elements of list
     private let cornerRadius: CGFloat = 30
@@ -40,13 +41,15 @@ struct RecordList: View {
     }
     
     var body: some View {
-        NavigationView {
             ZStack {
                 // Background color for View
                 customGray.ignoresSafeArea()
-                
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: rowSpacing) {
+                        Text("Results")
+                            .font(.title).fontWeight(.semibold)
+                        Spacer()
+                        Spacer()
                         ForEach(getSortedRecords(records), id: \.1) { record in
                             let (key, value) = record
                             NavigationLink(destination: ProfileView(profileLink: value)) {
@@ -76,7 +79,6 @@ struct RecordList: View {
                     }
                     .padding()
                 }
-                .navigationTitle("Results")
                 .padding(.bottom, viewPadding)
             }
         }

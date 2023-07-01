@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftSoup
 
 struct ProfileView: View {
     @Environment(\.colorScheme) var currentMode
@@ -22,6 +23,8 @@ struct ProfileView: View {
     //                                          [meetName: [eventName: entriesLink]
     @State private var upcomingDiveSheetsLinks: [String: [String: String]]?
     @State private var upcomingDiveSheetsEntries: [String: [String: EventEntry]]?
+    @State private var diversAndLinks: [[String]] = []
+    @State private var judgingHistory: [String: [(String, String)]] = [:]
     private let getTextModel = GetTextAsyncModel()
     private let ep = EntriesParser()
     
@@ -78,6 +81,11 @@ struct ProfileView: View {
         return comps.components(separatedBy: " ")
     }
     
+    private func isDictionary(_ object: Any) -> Bool {
+        let mirror = Mirror(reflecting: object)
+        return mirror.displayStyle == .dictionary
+    }
+    
     var body: some View {
         
         ZStack {
@@ -93,7 +101,7 @@ struct ProfileView: View {
                             VStack(alignment: .leading) {
                                 HStack (alignment: .firstTextBaseline) {
                                     let nameComps = getNameComponents()
-                                        
+                                    
                                     let firstName = nameComps?.dropLast().joined(separator: " ") ?? ""
                                     let lastName = nameComps?.last ?? ""
                                     
@@ -183,9 +191,10 @@ struct ProfileView: View {
             } else {
                 VStack {
                     VStack {
-                        Spacer()
                         ProfileImage(diverID: diverID)
-                            .offset(y:-100)
+                            .frame(width: 200, height: 120)
+                            .padding()
+                            .padding(.bottom)
                         VStack{
                             VStack(alignment: .leading) {
                                 HStack (alignment: .firstTextBaseline){
@@ -220,39 +229,165 @@ struct ProfileView: View {
                                 .padding([.leading], 2)
                                 Divider()
                             }
-                            .offset(y:-150)
                         }
                         .padding()
+                        
+                        DiversList(diversAndLinks: $diversAndLinks)
+                        Spacer()
+                        JudgedList(data: $judgingHistory)
                     }
                 }
             }
         }
         .onAppear {
             Task {
-                await parser.parse(urlString: profileLink)
-                diverData = parser.myData
-                let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
-                
-                if divers != "" {
-                    profileType = "Coach"
-                } else {
-                    profileType = "Diver"
-                }
-                
-                guard let url = URL(string: profileLink) else { return }
-                await getTextModel.fetchText(url: url)
-                if let text = getTextModel.text {
-                    upcomingDiveSheetsLinks = try await ep.parseProfileUpcomingMeets(html: text)
-                    let nameText = diverData[0][0].slice(from: "Name: ", to: " State:")
-                    let comps = nameText?.split(separator: " ")
-                    let last = String(comps?.last ?? "")
-                    let first = String(comps?.dropLast().joined(separator: " ") ?? "")
-                    
-                    if upcomingDiveSheetsLinks != nil {
-                        upcomingDiveSheetsEntries = await getUpcomingDiveSheetsEntries(name: last + ", " + first)
+                await fetchJudgingData()
+            }
+        }
+    }
+    
+    func fetchJudgingData() async {
+        do {
+            await parser.parse(urlString: profileLink)
+            diverData = parser.myData
+            let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
+            
+            if divers != "" {
+                profileType = "Coach"
+            } else {
+                profileType = "Diver"
+            }
+            
+            guard let url = URL(string: profileLink) else { return }
+            await getTextModel.fetchText(url: url)
+            if let text = getTextModel.text {
+                upcomingDiveSheetsLinks = try await ep.parseProfileUpcomingMeets(html: text)
+                let nameText = diverData[0][0].slice(from: "Name: ", to: " State:")
+                let comps = nameText?.split(separator: " ")
+                let last = String(comps?.last ?? "")
+                let first = String(comps?.dropLast().joined(separator: " ") ?? "")
+                let document: Document = try SwiftSoup.parse(text)
+                guard let body = document.body() else { return }
+                let td = try body.getElementsByTag("td")
+                let divers = try body.getElementsByTag("a")
+                for (i, diver) in divers.enumerated(){
+                    if try diver.text() == "Coach Profile"{
+                        continue
+                    } else if try diver.text() == "Results" {
+                        break
+                    } else {
+                        let link = try "https://secure.meetcontrol.com/divemeets/system/" + diver.attr("href")
+                        diversAndLinks.append([try diver.text(), link])
                     }
-                    
                 }
+                
+                var current = ""
+                var eventsList: [(String, String)] = []
+                let judgingHistoryTable = try td[0].getElementsByTag("table")
+                if !judgingHistoryTable.isEmpty {
+                    let tr = try judgingHistoryTable[0].getElementsByTag("tr")
+                    for (i, t) in tr.enumerated() {
+                        if i == 0 {
+                            continue
+                        } else if try t.text().contains("Results") {
+                            let event = try t.getElementsByTag("td")[0].text().replacingOccurrences(of: "  ", with: "")
+                            let resultsLink = try "https://secure.meetcontrol.com/divemeets/system/" + t.getElementsByTag("a").attr("href")
+                            eventsList.append((event, resultsLink))
+                        } else {
+                            if i > 1 {
+                                judgingHistory[current] = eventsList
+                                eventsList = []
+                                current = try t.text()
+                            } else {
+                                current = try t.text()
+                            }
+                        }
+                    }
+                    if !current.isEmpty {
+                        judgingHistory[current] = eventsList
+                    }
+                }
+            }
+        } catch {
+            print("Error: \(error)")
+        }
+    }
+}
+
+struct DiversList: View{
+    @Binding var diversAndLinks: [[String]]
+    
+    var body: some View {
+        DisclosureGroup(content: {
+            ScalingScrollView(records: diversAndLinks, viewHeight: 50, rowSpacing: 10) { (elem) in
+                DiverBubbleView(elements: elem)
+            }
+            .frame(height: 300)
+            .padding(.top)
+            
+        }, label: {
+            Text("Divers")
+                .font(.title2)
+                .bold()
+                .foregroundColor(.primary)
+        })
+        .padding()
+    }
+}
+
+struct DiverBubbleView: View {
+    @Environment(\.colorScheme) var currentMode
+    @State private var focusBool: Bool = false
+    
+    private var bubbleColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    private var elements: [String]
+    
+    init(elements: [String]) {
+        self.elements = elements
+    }
+    
+    //[Place: (Left to dive, order, last round place, last round score, current place,
+    //current score, name, last dive average, event average score, avg round score
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .foregroundColor(bubbleColor)
+                .cornerRadius(30)
+            NavigationLink {
+                ProfileView(profileLink: elements[1])
+            } label: {
+                Text(elements[0])
+                    .fontWeight(.semibold)
+            }
+            
+        }
+    }
+}
+
+struct JudgedList: View {
+    @Binding var data: [String: [(String, String)]]
+    
+    var body: some View {
+        Text("Judging History")
+            .font(.title2).fontWeight(.semibold)
+        List {
+            ForEach(data.keys.sorted(by: >), id: \.self) { dropdownKey in
+                DisclosureGroup(
+                    content: {
+                        ForEach(data[dropdownKey] ?? [], id: \.0) { tuple in
+                            NavigationLink {
+                                EventResultPage(meetLink: tuple.1)
+                            } label: {
+                                Text(tuple.0)
+                            }
+                        }
+                    },
+                    label: {
+                        Text(dropdownKey)
+                    }
+                )
             }
         }
     }
