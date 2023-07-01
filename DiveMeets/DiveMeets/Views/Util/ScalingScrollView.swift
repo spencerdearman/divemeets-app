@@ -23,6 +23,7 @@ struct ScalingScrollView<T: RandomAccessCollection, U: View>: View where T.Eleme
     var bgColor: Color? = nil
     var viewHeight: CGFloat = 100
     var rowSpacing: CGFloat = 20
+    var shadowRadius: CGFloat? = nil
     var viewGenerator: (T.Element) -> U
     
     @ScaledMetric private var scaledFrameHeight: CGFloat = 100
@@ -40,6 +41,7 @@ struct ScalingScrollView<T: RandomAccessCollection, U: View>: View where T.Eleme
                         GeometryReader { item in
                             viewGenerator(record)
                                 .cornerRadius(15)
+                                .shadow(radius: shadowRadius ?? 0)
                                 .scaleEffect(scaleValue(mainFrame: mainView.frame(in: .global).minY,
                                                         minY: item.frame(in: .global).minY),
                                              anchor: .bottom)
