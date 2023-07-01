@@ -212,6 +212,7 @@ struct Home: View {
                 }
             }
         }
+        .navigationViewStyle(StackNavigationViewStyle())
         .dynamicTypeSize(.xSmall ... .xxxLarge)
         .onSwipeGesture(trigger: .onEnded) { direction in
             if direction == .left && selection == .upcoming {

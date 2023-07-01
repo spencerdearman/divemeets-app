@@ -69,6 +69,7 @@ struct ContentView: View {
                                         NavigationView {
                                             LiveResultsView(request: "debug")
                                         }
+                                        .navigationViewStyle(StackNavigationViewStyle())
                                         //ToolsMenu()
                                     case .magnifyingglass:
                                         SearchView(isIndexingMeets: $isIndexingMeets)

@@ -523,6 +523,7 @@ struct SearchInputView: View {
                 showError = false
             }
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
     
     private func debounceTabSelection(_ newSelection: SearchType) {
