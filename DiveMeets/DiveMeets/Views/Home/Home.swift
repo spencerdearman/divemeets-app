@@ -328,11 +328,11 @@ struct CurrentMeetsPageView: View {
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .frame(width: typeBubbleWidth * 2 + 5,
                                height: typeBGWidth)
-                        .foregroundColor(typeBGColor)
+                        .foregroundColor(Custom.selectionColorsDark)
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .frame(width: typeBubbleWidth,
                                height: typeBubbleHeight)
-                        .foregroundColor(typeBubbleColor)
+                        .foregroundColor(Custom.selection)
                         .offset(x: selection == .info
                                 ? -typeBubbleWidth / 2
                                 : typeBubbleWidth / 2)
