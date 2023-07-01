@@ -100,6 +100,7 @@ struct Home: View {
     @ScaledMetric private var typeBubbleWidthScaled: CGFloat = 110
     @ScaledMetric private var typeBubbleHeightScaled: CGFloat = 35
     @ScaledMetric private var typeBGWidthScaled: CGFloat = 40
+    @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     
     private var typeBubbleWidth: CGFloat {
         min(typeBubbleWidthScaled, 150)
@@ -134,28 +135,39 @@ struct Home: View {
         }
     }
     
+    private var maxHeightOffset: CGFloat {
+        min(maxHeightOffsetScaled, 90)
+    }
+    
     @ViewBuilder
     var body: some View {
         NavigationView {
             ZStack {
                 (currentMode == .light ? Color.white : Color.black)
                     .ignoresSafeArea()
-                
+                HomeColorfulView()
                 VStack {
                     VStack {
-                        Text("Home")
-                            .font(.title)
-                            .bold()
+                        ZStack{
+                            Rectangle()
+                                .foregroundColor(Custom.thinMaterialColor)
+                                .mask(RoundedRectangle(cornerRadius: 40))
+                                .frame(width: 120, height: 40)
+                                .shadow(radius: 6)
+                            Text("Home")
+                                .font(.title2).bold()
+                        }
                         ZStack {
                             ZStack {
                                 RoundedRectangle(cornerRadius: cornerRadius)
                                     .frame(width: typeBubbleWidth * 2 + 5,
                                            height: typeBGWidth)
-                                    .foregroundColor(typeBGColor)
+                                    .foregroundColor(Custom.selectionColorsDark)
+                                    .shadow(radius: 5)
                                 RoundedRectangle(cornerRadius: cornerRadius)
                                     .frame(width: typeBubbleWidth,
                                            height: typeBubbleHeight)
-                                    .foregroundColor(typeBubbleColor)
+                                    .foregroundColor(Custom.selection)
                                     .offset(x: selection == .upcoming
                                             ? -typeBubbleWidth / 2
                                             : typeBubbleWidth / 2)
@@ -187,7 +199,7 @@ struct Home: View {
                                     .cornerRadius(cornerRadius)
                                 }
                             }
-                            
+
                             HStack {
                                 Spacer()
                                 Button(action: {
@@ -200,7 +212,7 @@ struct Home: View {
                             .padding(.trailing)
                         }
                         .dynamicTypeSize(.xSmall ... .xLarge)
-                        
+
                     }
                     Spacer()
                     if selection == .upcoming {
@@ -220,7 +232,6 @@ struct Home: View {
             } else if direction == .right && selection == .current {
                 selection = .upcoming
             }
-            
         }
         .onAppear {
             getPresentMeets()
@@ -242,10 +253,9 @@ struct UpcomingMeetsView: View {
         if let meets = meetParser.upcomingMeets {
             if !meets.isEmpty {
                 let upcoming = tupleToList(tuples: db.dictToTuple(dict: meets))
-                ScalingScrollView(records: upcoming) { (elem) in
-                    MeetBubbleView(elements: elem)
-                }
-                .padding(.bottom, maxHeightOffset)
+                    ScalingScrollView(records: upcoming, bgColor: .clear, shadowRadius: 10) { (elem) in
+                        MeetBubbleView(elements: elem)
+                    }
             } else {
                 Text("No upcoming meets found")
             }
@@ -270,7 +280,7 @@ struct CurrentMeetsView: View {
     var body: some View {
         if meetParser.currentMeets != nil && !meetParser.currentMeets!.isEmpty {
             let current = tupleToList(tuples: dictToCurrentTuple(dict: meetParser.currentMeets ?? []))
-            ScalingScrollView(records: current) { (elem) in
+            ScalingScrollView(records: current, bgColor: .clear, shadowRadius: 10) { (elem) in
                 MeetBubbleView(elements: elem)
             }
             .padding(.bottom, maxHeightOffset)
@@ -298,19 +308,21 @@ struct CurrentMeetsPageView: View {
     @ScaledMetric private var typeBGWidth: CGFloat = 40
     
     private var typeBGColor: Color {
-        currentMode == .light ? Color(red: grayValue, green: grayValue, blue: grayValue)
-        : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
+        currentMode == .light ? Custom.background : Custom.background
     }
     private var typeBubbleColor: Color {
         currentMode == .light ? Color.white : Color.black
+    }
+    private var bgColor: Color {
+        currentMode == .light ? Custom.background : Custom.background
     }
     
     @ViewBuilder
     var body: some View {
         ZStack {
-            (currentMode == .light ? Color.white : Color.black)
-                .ignoresSafeArea()
-            
+//            (currentMode == .light ? Color.white : Color.black)
+//                .ignoresSafeArea()
+            bgColor.ignoresSafeArea()
             VStack {
                 ZStack {
                     RoundedRectangle(cornerRadius: cornerRadius)
@@ -395,7 +407,7 @@ struct MeetBubbleView: View {
                         AnyView(MeetPageView(meetLink: elements[3], showBackButton: false))) {
             ZStack {
                 Rectangle()
-                    .foregroundColor(bubbleColor)
+                    .foregroundColor(Custom.homeTileColor)
                 VStack {
                     VStack {
                         Text(elements[1]) // name
@@ -432,3 +444,65 @@ struct MeetBubbleView: View {
         }
     }
 }
+
+struct HomeColorfulView: View{
+    @Environment(\.colorScheme) var currentMode
+    private var bgColor: Color {
+        currentMode == .light ? Custom.background : Custom.background
+    }
+    
+    var body: some View{
+        ZStack{
+            bgColor.ignoresSafeArea()
+            GeometryReader { geometry in
+                ZStack{
+                    Circle()
+                        .stroke(Custom.darkBlue, lineWidth: 10)
+                        .frame(width: 475, height: 475)
+                    Circle()
+                        .stroke(Custom.coolBlue, lineWidth: 10)
+                        .frame(width: 435, height: 435)
+                    Circle()
+                        .stroke(Custom.medBlue, lineWidth: 10)
+                        .frame(width: 395, height: 395)
+                    Circle()
+                        .stroke(Custom.lightBlue, lineWidth: 10)
+                        .frame(width: 355, height: 355)
+                }
+                .offset(x: geometry.size.width / 1.4, y: geometry.size.height / 15)
+                
+                ZStack{
+                    Circle()
+                        .stroke(Custom.darkBlue, lineWidth: 10)
+                        .frame(width: 475, height: 475)
+                    Circle()
+                        .stroke(Custom.coolBlue, lineWidth: 10)
+                        .frame(width: 435, height: 435)
+                    Circle()
+                        .stroke(Custom.medBlue, lineWidth: 10)
+                        .frame(width: 395, height: 395)
+                    Circle()
+                        .stroke(Custom.lightBlue, lineWidth: 10)
+                        .frame(width: 355, height: 355)
+                }
+                .offset(x: -geometry.size.width/2, y: geometry.size.height / 5)
+                ZStack{
+                    Circle()
+                        .stroke(Custom.darkBlue, lineWidth: 10)
+                        .frame(width: 475, height: 475)
+                    Circle()
+                        .stroke(Custom.coolBlue, lineWidth: 10)
+                        .frame(width: 435, height: 435)
+                    Circle()
+                        .stroke(Custom.medBlue, lineWidth: 10)
+                        .frame(width: 395, height: 395)
+                    Circle()
+                        .stroke(Custom.lightBlue, lineWidth: 10)
+                        .frame(width: 355, height: 355)
+                }
+                .offset(x: geometry.size.width/3, y: geometry.size.height / 1.5)
+            }
+        }
+    }
+}
+
