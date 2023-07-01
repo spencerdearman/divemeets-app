@@ -286,7 +286,6 @@
 			children = (
 				00F9667A29AFDA1500F3720B /* ContentView.swift */,
 				00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */,
-				0065C5A92A426D9E0040600E /* TileSwapView.swift */,
 				007EAFEC2A4B639600061113 /* MovingSplashView.swift */,
 			);
 			path = Main;
@@ -309,6 +308,7 @@
 				0069DC5A2A0DC5610096C04B /* ScalingScrollView.swift */,
 				4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */,
 				0065C5AB2A4377920040600E /* SwipeModifier.swift */,
+				0065C5A92A426D9E0040600E /* TileSwapView.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
