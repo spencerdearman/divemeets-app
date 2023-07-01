@@ -190,7 +190,7 @@ struct SearchView: View {
     @State private var orgName: String = ""
     @State private var meetYear: String = ""
     @State private var searchSubmitted: Bool = false
-    @State var parsedLinks: [String: String] = [:]
+    @State var parsedLinks: DiverProfileRecords = [:]
     @State var dmSearchSubmitted: Bool = false
     @State var linksParsed: Bool = false
     @Binding var isIndexingMeets: Bool
@@ -241,7 +241,7 @@ struct SearchInputView: View {
     @Binding var meetYear: String
     @Binding var searchSubmitted: Bool
     
-    @Binding var parsedLinks: [String: String]
+    @Binding var parsedLinks: DiverProfileRecords
     @Binding var dmSearchSubmitted: Bool
     @Binding var linksParsed: Bool
     @Binding var isIndexingMeets: Bool
@@ -600,7 +600,7 @@ struct DiverSearchView: View {
                     .textFieldStyle(.roundedBorder)
                     .padding(.trailing)
                     .focused(focusedField, equals: .lastName)
-                    
+                
             }
         }
         .padding()
@@ -724,7 +724,7 @@ struct MeetResultsView : View {
                                 .foregroundColor(currentMode == .light ? .white : .black)
                             VStack {
                                 if let name = e.name, let city = e.city, let state = e.state,
-                                    let startDate = e.startDate, let endDate = e.endDate {
+                                   let startDate = e.startDate, let endDate = e.endDate {
                                     HStack(alignment: .top) {
                                         Text(name)
                                             .font(.title3)

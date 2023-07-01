@@ -210,7 +210,6 @@ struct FloatingMenuBar: View {
                                                        }
                                     }
                             }
-                            // Animation for icon to move after menu bar changes
                             .animation(.spring(), value: visibleTabs)
                             Spacer()
                         }

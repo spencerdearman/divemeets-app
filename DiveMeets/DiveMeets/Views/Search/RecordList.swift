@@ -9,7 +9,7 @@ import SwiftUI
 
 struct RecordList: View {
     @Environment(\.colorScheme) var currentMode
-    @Binding var records: [String: String]
+    @Binding var records: DiverProfileRecords
     @Binding var resultSelected: Bool
     @Binding var fullScreenResults: Bool
     
@@ -28,6 +28,18 @@ struct RecordList: View {
         return Color(red: gray, green: gray, blue: gray)
     }
     
+    // Converts keys and lists of values into tuples of key and value
+    private func getSortedRecords(_ records: DiverProfileRecords) -> [(String, String)] {
+        var result: [(String, String)] = []
+        for (key, value) in records {
+            for link in value {
+                result.append((key, link))
+            }
+        }
+        
+        return result.sorted(by: { $0.0 < $1.0 })
+    }
+    
     var body: some View {
             ZStack {
                 // Background color for View
@@ -38,35 +50,37 @@ struct RecordList: View {
                             .font(.title).fontWeight(.semibold)
                         Spacer()
                         Spacer()
-                        ForEach(records.sorted(by: <), id: \.key) { key, value in
+                        ForEach(getSortedRecords(records), id: \.1) { record in
+                            let (key, value) = record
                             NavigationLink(destination: ProfileView(profileLink: value)) {
-                                            HStack {
-                                                Text(key)
-                                                    .foregroundColor(textColor)
-                                                    .font(.title3)
-                                                    .padding()
-                                                
-                                                Spacer()
-                                                
-                                                Image(systemName: "chevron.right")
-                                                    .foregroundColor(Color.gray)
-                                                    .padding()
-                                            }
-                                            .background(rowColor)
-                                            .cornerRadius(cornerRadius)
-                                        .onDisappear {
-                                            resultSelected = true
-                                        }
-                                        .onAppear{
-                                            resultSelected = false
-                                        }
-                                    }
-                                    .padding([.leading, .trailing])
+                                HStack {
+                                    Text(key)
+                                        .foregroundColor(textColor)
+                                        .font(.title3)
+                                        .padding()
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(Color.gray)
+                                        .padding()
+                                }
+                                .background(rowColor)
+                                .cornerRadius(cornerRadius)
+                                .onDisappear {
+                                    resultSelected = true
+                                }
+                                .onAppear{
+                                    resultSelected = false
+                                }
+                            }
+                            .padding([.leading, .trailing])
                         }
                     }
                     .padding()
                 }
                 .padding(.bottom, viewPadding)
             }
+        }
     }
 }
