@@ -37,6 +37,7 @@
 		4D1A5C3729CB953300F3DA2B /* SwiftUIWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */; };
 		4D1A5C3929CCA1B400F3DA2B /* RecordList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1A5C3829CCA1B400F3DA2B /* RecordList.swift */; };
 		4D254F1629C0411C0033838D /* HTMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D254F1529C0411C0033838D /* HTMLParser.swift */; };
+		4D26F43C2A4FEC3200DA0E98 /* SwiftUIWheelPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D26F43B2A4FEC3200DA0E98 /* SwiftUIWheelPicker.swift */; };
 		4D50E7902A29106E009BFBFA /* diveTable.json in Resources */ = {isa = PBXBuildFile; fileRef = 4D50E78F2A29106E009BFBFA /* diveTable.json */; };
 		4D50E7922A2939B9009BFBFA /* ToolsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D50E7912A2939B9009BFBFA /* ToolsMenu.swift */; };
 		4D50E7942A293A22009BFBFA /* MeetPredictor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D50E7932A293A22009BFBFA /* MeetPredictor.swift */; };
@@ -94,6 +95,7 @@
 		4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIWebView.swift; sourceTree = "<group>"; };
 		4D1A5C3829CCA1B400F3DA2B /* RecordList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordList.swift; sourceTree = "<group>"; };
 		4D254F1529C0411C0033838D /* HTMLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLParser.swift; sourceTree = "<group>"; };
+		4D26F43B2A4FEC3200DA0E98 /* SwiftUIWheelPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIWheelPicker.swift; sourceTree = "<group>"; };
 		4D50E78F2A29106E009BFBFA /* diveTable.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = diveTable.json; sourceTree = "<group>"; };
 		4D50E7912A2939B9009BFBFA /* ToolsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsMenu.swift; sourceTree = "<group>"; };
 		4D50E7932A293A22009BFBFA /* MeetPredictor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetPredictor.swift; sourceTree = "<group>"; };
@@ -309,6 +311,7 @@
 				0069DC5A2A0DC5610096C04B /* ScalingScrollView.swift */,
 				4D1A5C3629CB953300F3DA2B /* SwiftUIWebView.swift */,
 				0065C5AB2A4377920040600E /* SwipeModifier.swift */,
+				4D26F43B2A4FEC3200DA0E98 /* SwiftUIWheelPicker.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -419,6 +422,7 @@
 				002A1B7C29DB937C00A26FED /* Meets.xcdatamodeld in Sources */,
 				4D09308529D3A1B7003AAA90 /* LoginScreen.swift in Sources */,
 				002A1B3429DB7C4700A26FED /* ProfileHTMLCache.swift in Sources */,
+				4D26F43C2A4FEC3200DA0E98 /* SwiftUIWheelPicker.swift in Sources */,
 				006CF0842A02340500E7C2A5 /* TextFieldClearButton.swift in Sources */,
 				4D74FEA529AE7C2B00401178 /* ProfileImage.swift in Sources */,
 				0097478F2A24549A004E7C73 /* MeetPageParser.swift in Sources */,
