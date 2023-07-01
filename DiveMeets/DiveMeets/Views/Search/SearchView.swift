@@ -228,6 +228,7 @@ struct SearchView: View {
 struct SearchInputView: View {
     @Environment(\.colorScheme) var currentMode
     
+    @State private var debounceWorkItem: DispatchWorkItem?
     @State private var showError: Bool = false
     @State var fullScreenResults: Bool = false
     @State var resultSelected: Bool = false
@@ -357,7 +358,7 @@ struct SearchInputView: View {
                                 Button(action: {
                                     if selection == .meet {
                                         clearStateFlags()
-                                        selection = .person
+                                        debounceTabSelection(.person)
                                     }
                                 }, label: {
                                     Text(SearchType.person.rawValue)
@@ -370,7 +371,7 @@ struct SearchInputView: View {
                                 Button(action: {
                                     if selection == .person {
                                         clearStateFlags()
-                                        selection = .meet
+                                        debounceTabSelection(.meet)
                                     }
                                 }, label: {
                                     Text(SearchType.meet.rawValue)
@@ -523,6 +524,17 @@ struct SearchInputView: View {
             }
         }
     }
+    
+    private func debounceTabSelection(_ newSelection: SearchType) {
+            debounceWorkItem?.cancel() // Cancel previous debounce work item if exists
+
+            let workItem = DispatchWorkItem { [self] in
+                self.selection = newSelection
+            }
+
+            debounceWorkItem = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: workItem)
+        }
 }
 
 struct IndexingCounterView: View {
