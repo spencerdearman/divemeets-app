@@ -1,5 +1,5 @@
 //
-//  MeetPredictor.swift
+//  DiveTableData.swift
 //  DiveMeets
 //
 //  Created by Spencer Dearman on 6/1/23.

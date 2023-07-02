@@ -42,7 +42,7 @@
 		4D26F43C2A4FEC3200DA0E98 /* SwiftUIWheelPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D26F43B2A4FEC3200DA0E98 /* SwiftUIWheelPicker.swift */; };
 		4D50E7902A29106E009BFBFA /* diveTable.json in Resources */ = {isa = PBXBuildFile; fileRef = 4D50E78F2A29106E009BFBFA /* diveTable.json */; };
 		4D50E7922A2939B9009BFBFA /* ToolsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D50E7912A2939B9009BFBFA /* ToolsMenu.swift */; };
-		4D50E7942A293A22009BFBFA /* MeetPredictor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D50E7932A293A22009BFBFA /* MeetPredictor.swift */; };
+		4D50E7942A293A22009BFBFA /* DiveTableData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D50E7932A293A22009BFBFA /* DiveTableData.swift */; };
 		4D50E7962A293DEC009BFBFA /* DiveStatisticsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D50E7952A293DEC009BFBFA /* DiveStatisticsParser.swift */; };
 		4D5220862A49D6EB00D59408 /* ExpandingBubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D5220852A49D6EB00D59408 /* ExpandingBubbleView.swift */; };
 		4D60E8F92A1737A90011A295 /* ScoringParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D60E8F82A1737A90011A295 /* ScoringParser.swift */; };
@@ -102,7 +102,7 @@
 		4D26F43B2A4FEC3200DA0E98 /* SwiftUIWheelPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIWheelPicker.swift; sourceTree = "<group>"; };
 		4D50E78F2A29106E009BFBFA /* diveTable.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = diveTable.json; sourceTree = "<group>"; };
 		4D50E7912A2939B9009BFBFA /* ToolsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsMenu.swift; sourceTree = "<group>"; };
-		4D50E7932A293A22009BFBFA /* MeetPredictor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetPredictor.swift; sourceTree = "<group>"; };
+		4D50E7932A293A22009BFBFA /* DiveTableData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiveTableData.swift; sourceTree = "<group>"; };
 		4D50E7952A293DEC009BFBFA /* DiveStatisticsParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiveStatisticsParser.swift; sourceTree = "<group>"; };
 		4D5220852A49D6EB00D59408 /* ExpandingBubbleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandingBubbleView.swift; sourceTree = "<group>"; };
 		4D60E8F82A1737A90011A295 /* ScoringParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoringParser.swift; sourceTree = "<group>"; };
@@ -238,7 +238,7 @@
 				002A1BB529DCF2F900A26FED /* GetTextAsync.swift */,
 				000D28DC29E0EF9100B184E9 /* LiveResults.swift */,
 				4D74FEAE29AEB02100401178 /* Meet.swift */,
-				4D50E7932A293A22009BFBFA /* MeetPredictor.swift */,
+				4D50E7932A293A22009BFBFA /* DiveTableData.swift */,
 				002A1B3329DB7C4700A26FED /* ProfileHTMLCache.swift */,
 				0037877829D4F40900D3CD59 /* ProfileMeetCache.swift */,
 			);
@@ -446,7 +446,7 @@
 				4DD868ED29F0E69C00FF988D /* keychain-swift.swift in Sources */,
 				0037878029D501F600D3CD59 /* ProfileParser.swift in Sources */,
 				000D28DD29E0EF9100B184E9 /* LiveResults.swift in Sources */,
-				4D50E7942A293A22009BFBFA /* MeetPredictor.swift in Sources */,
+				4D50E7942A293A22009BFBFA /* DiveTableData.swift in Sources */,
 				00F9665F29AEEF0900F3720B /* FloatingMenuBar.swift in Sources */,
 				4D74FE9729AE7B9800401178 /* DiveMeetsApp.swift in Sources */,
 				4DE6CFC329E25A0D00831D1D /* LoginWebView.swift in Sources */,
