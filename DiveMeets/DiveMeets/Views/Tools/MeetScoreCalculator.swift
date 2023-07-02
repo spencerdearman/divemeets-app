@@ -33,7 +33,7 @@ struct MeetScoreCalculator: View {
         min(maxHeightOffsetScaled, 90)
     }
     
-    private func updateDivesList() {
+    private func clearDivesList() {
         dives = []
         diveNetScores = []
         diveTotalScores = []
@@ -44,6 +44,15 @@ struct MeetScoreCalculator: View {
         }
     }
     
+    private func refreshNetAndTotalScores() {
+        for idx in 0..<numDives {
+            if idx < diveNetScores.count && idx < diveTotalScores.count {
+                diveNetScores[idx] += 0.0
+                diveTotalScores[idx] = diveNetScores[idx] * 1.0
+            }
+        }
+    }
+    
     var body: some View {
         VStack {
             Text("Meet Score Calculator")
@@ -51,11 +60,15 @@ struct MeetScoreCalculator: View {
                 .bold()
             CalculatorTopView(tableData: $tableData, numDives: $numDives, meetType: $meetType,
                               dives: $dives)
-            .onChange(of: numDives) { newValue in
-                updateDivesList()
+            .onChange(of: numDives) { _ in
+                clearDivesList()
+                refreshNetAndTotalScores()
+            }
+            .onChange(of: meetType) { _ in
+                refreshNetAndTotalScores()
             }
             .onAppear {
-                updateDivesList()
+                clearDivesList()
             }
             
             let total = diveTotalScores.reduce(into: 0.0, { $0 += $1 })
@@ -63,10 +76,12 @@ struct MeetScoreCalculator: View {
                 HStack(spacing: 0) {
                     Text("Meet Total: ")
                         .bold()
-                    Text(String(total))
+                    Text(String(format: "%.2f", total))
                     
                 }
                 .font(.title2)
+                
+                Divider()
             }
             
             ScrollView(showsIndicators: false) {
@@ -125,7 +140,7 @@ struct CalculatorTopView: View {
 struct CalculatorRowView: View {
     @State var diveHeight: DiveHeight = .five
     @State var judgeScores: [Int] = [10, 10, 10]
-    @State var scoreValues: [Double] = Array(stride(from: 0.0, to: 10.0, by: 0.5))
+    @State var scoreValues: [Double] = Array(stride(from: 0.0, to: 10.5, by: 0.5))
     @Binding var tableData: [String: DiveData]?
     @Binding var dives: [String]
     @Binding var meetType: MeetType
@@ -187,8 +202,8 @@ struct CalculatorRowView: View {
                         Text("Name:")
                             .fontWeight(.semibold)
                         
-                        // Only shows name if there is an associated DD
-                        dd == 0.0 ? Text("") : Text(diveName)
+                        // Only shows name if there is an associated DD, otherwise show N/A
+                        dd == 0.0 ? Text("N/A") : Text(diveName)
                     }
                     
                     if meetType == .platform {
@@ -207,9 +222,10 @@ struct CalculatorRowView: View {
                     
                     
                     HStack(spacing: 0) {
-                        Text("DD:")
+                        Text("DD: ")
                             .fontWeight(.semibold)
-                        Text(dd == 0.0 ? "" : String(dd))
+                        // Shows N/A if there is not an associated dd with that height
+                        Text(dd == 0.0 ? "N/A" : String(dd))
                     }
                 }
                 
@@ -267,7 +283,7 @@ struct CalculatorRowView: View {
                     Spacer()
                     Text("Total Score: ")
                         .fontWeight(.semibold)
-                    Text(String(diveTotalScores[idx]))
+                    Text(String(format: "%.2f", diveTotalScores[idx]))
                 }
             }
         }
