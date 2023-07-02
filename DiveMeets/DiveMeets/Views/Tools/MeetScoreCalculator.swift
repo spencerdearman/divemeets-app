@@ -143,7 +143,7 @@ struct MeetScoreCalculator: View {
 //                    .padding(.top)
                 }
             }
-            .background(Color(red: 0.9, green: 0.9, blue: 0.9, opacity: 0.4))
+            .background(.clear)
         }
         .padding(.bottom, maxHeightOffset)
         .onAppear {
@@ -270,6 +270,7 @@ struct CalculatorRowView: View {
         ZStack {
             RoundedRectangle(cornerRadius: 30)
                 .fill(bubbleColor)
+                .shadow(radius: 5)
             
             VStack {
                 HStack {
