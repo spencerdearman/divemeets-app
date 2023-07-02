@@ -25,6 +25,7 @@ struct MeetScoreCalculator: View {
     @State var meetType: MeetType = .one
     @State var dives: [String] = []
     @State var diveNetScores: [Double] = []
+    @State var diveTotalScores: [Double] = []
     
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     
@@ -35,14 +36,19 @@ struct MeetScoreCalculator: View {
     private func updateDivesList() {
         dives = []
         diveNetScores = []
+        diveTotalScores = []
         for _ in 0..<numDives {
             dives.append("")
             diveNetScores.append(0.0)
+            diveTotalScores.append(0.0)
         }
     }
     
     var body: some View {
         VStack {
+            Text("Meet Score Calculator")
+                .font(.title)
+                .bold()
             CalculatorTopView(tableData: $tableData, numDives: $numDives, meetType: $meetType,
                               dives: $dives)
             .onChange(of: numDives) { newValue in
@@ -52,10 +58,22 @@ struct MeetScoreCalculator: View {
                 updateDivesList()
             }
             
+            let total = diveTotalScores.reduce(into: 0.0, { $0 += $1 })
+            if total > 0.0 {
+                HStack(spacing: 0) {
+                    Text("Meet Total: ")
+                        .bold()
+                    Text(String(total))
+                    
+                }
+                .font(.title2)
+            }
+            
             ScrollView(showsIndicators: false) {
                 ForEach(0..<numDives, id: \.self) { i in
                     CalculatorRowView(tableData: $tableData, dives: $dives, meetType: $meetType,
-                                      diveNetScores: $diveNetScores, idx: i)
+                                      diveNetScores: $diveNetScores,
+                                      diveTotalScores: $diveTotalScores, idx: i)
                     if i < numDives - 1 {
                         Divider()
                     }
@@ -112,6 +130,7 @@ struct CalculatorRowView: View {
     @Binding var dives: [String]
     @Binding var meetType: MeetType
     @Binding var diveNetScores: [Double]
+    @Binding var diveTotalScores: [Double]
     let idx: Int
     
     @ScaledMetric var wheelPickerSelectedSpacing: CGFloat = 40
@@ -126,84 +145,129 @@ struct CalculatorRowView: View {
         return nil
     }
     
+    private var diveName: String {
+        if idx < dives.count {
+            return getDiveName(data: tableData ?? [:],
+                               forKey: $dives[idx].wrappedValue) ?? ""
+        }
+        
+        return ""
+    }
+    
+    private var dd: Double {
+        if idx < dives.count {
+            return getDiveDD(data: tableData ?? [:], forKey: $dives[idx].wrappedValue,
+                             height: meetTypeDouble == nil
+                             ? Double(String(diveHeight.rawValue.dropLast())) ?? 0.0
+                             : meetTypeDouble!) ?? 0.0
+        }
+        
+        return 0.0
+    }
+    
+    private func updateNetAndTotalScores() {
+        if idx < diveNetScores.count && idx < diveTotalScores.count {
+            diveNetScores[idx] = judgeScores.reduce(into: 0.0, { $0 += scoreValues[$1] })
+            diveTotalScores[idx] = diveNetScores[idx] * dd
+        }
+    }
+    
     var body: some View {
         VStack {
             HStack {
-                if idx < $dives.count {
-                    let diveName = getDiveName(data: tableData ?? [:],
-                                               forKey: $dives[idx].wrappedValue)
-                    let dd = String(getDiveDD(data: tableData ?? [:],
-                                              forKey: $dives[idx].wrappedValue,
-                                              height: meetTypeDouble == nil
-                                              ? Double(String(diveHeight.rawValue.dropLast())) ?? 0.0
-                                              : meetTypeDouble!) ?? 0.0)
-                                               
+                if idx < dives.count {
                     TextField("Number", text: $dives[idx])
                         .textFieldStyle(.roundedBorder)
                         .textInputAutocapitalization(.characters)
                         .frame(width: 100)
-                    Divider()
-                    VStack(alignment: .leading, spacing: 0) {
-                        HStack(alignment: .top, spacing: 5) {
-                            Text("Name:")
-                                .fontWeight(.semibold)
-                            
-                            dd == "0.0" ? Text("") : Text(diveName ?? "")
-                        }
+                }
+                Divider()
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack(alignment: .top, spacing: 5) {
+                        Text("Name:")
+                            .fontWeight(.semibold)
                         
-                        if meetType == .platform {
-                            HStack(spacing: 0) {
-                                Text("Height: ")
-                                    .fontWeight(.semibold)
-                                Picker("", selection: $diveHeight) {
-                                    ForEach(DiveHeight.allCases, id: \.self) { h in
-                                        Text(h.rawValue)
-                                            .tag(h)
-                                    }
-                                }
-                                Spacer()
-                            }
-                        }
-                        
-                        
+                        // Only shows name if there is an associated DD
+                        dd == 0.0 ? Text("") : Text(diveName)
+                    }
+                    
+                    if meetType == .platform {
                         HStack(spacing: 0) {
-                            Text("DD:")
+                            Text("Height: ")
                                 .fontWeight(.semibold)
-                            Text(dd == "0.0" ? "" : dd)
+                            Picker("", selection: $diveHeight) {
+                                ForEach(DiveHeight.allCases, id: \.self) { h in
+                                    Text(h.rawValue)
+                                        .tag(h)
+                                }
+                            }
+                            Spacer()
                         }
                     }
-                } else {
-                    Text("Failed at index \(idx)")
+                    
+                    
+                    HStack(spacing: 0) {
+                        Text("DD:")
+                            .fontWeight(.semibold)
+                        Text(dd == 0.0 ? "" : String(dd))
+                    }
                 }
+                
                 Spacer()
             }
-            VStack {
-                ForEach(0..<3) { i in
-                    HStack {
-                        Text("Judge \(i+1):")
-                            .fontWeight(.semibold)
-                        SwiftUIWheelPicker($judgeScores[i], items: scoreValues) { value in
-                            GeometryReader { g in
-                                Text(String(format: "%.1f", value))
-                                    .frame(width: g.size.width, height: g.size.height,
-                                           alignment: .center)
-                            }
+            ForEach(0..<3) { i in
+                HStack {
+                    Text("Judge \(i+1):")
+                        .fontWeight(.semibold)
+                    SwiftUIWheelPicker($judgeScores[i], items: scoreValues) { value in
+                        GeometryReader { g in
+                            Text(String(format: "%.1f", value))
+                                .frame(width: g.size.width, height: g.size.height,
+                                       alignment: .center)
                         }
-                        .scrollAlpha(0.1)
-                        .centerView(AnyView(
-                            HStack(alignment: .center, spacing: 0) {
-                                Divider()
-                                    .frame(width: 1)
-                                    .background(Color.gray)
-                                    .opacity(0.4)
-                                Spacer()
-                                Divider()
-                                    .frame(width: 1)
-                                    .background(Color.gray)
-                                    .opacity(0.4)
-                            }
-                        ), width: .Fixed(wheelPickerSelectedSpacing))
                     }
+                    .scrollAlpha(0.1)
+                    .centerView(AnyView(
+                        HStack(alignment: .center, spacing: 0) {
+                            Divider()
+                                .frame(width: 1)
+                                .background(Color.gray)
+                                .opacity(0.4)
+                            Spacer()
+                            Divider()
+                                .frame(width: 1)
+                                .background(Color.gray)
+                                .opacity(0.4)
+                        }
+                    ), width: .Fixed(wheelPickerSelectedSpacing))
+                    .onChange(of: judgeScores[i]) { _ in
+                        updateNetAndTotalScores()
+                    }
+                    .onChange(of: dives) { _ in
+                        updateNetAndTotalScores()
+                    }
+                    .onChange(of: meetType) { _ in
+                        updateNetAndTotalScores()
+                    }
+                    .onAppear {
+                        updateNetAndTotalScores()
+                    }
+                }
+            }
+            
+            if idx < diveNetScores.count && diveNetScores[idx] != 0.0 {
+                HStack(spacing: 0) {
+                    Spacer()
+                    Text("Net Score: ")
+                        .fontWeight(.semibold)
+                    Text(String(diveNetScores[idx]))
+                }
+                .padding(.top)
+                HStack(spacing: 0) {
+                    Spacer()
+                    Text("Total Score: ")
+                        .fontWeight(.semibold)
+                    Text(String(diveTotalScores[idx]))
                 }
             }
         }
