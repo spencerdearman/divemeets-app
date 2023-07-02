@@ -56,15 +56,11 @@ struct MeetScoreCalculator: View {
                 ForEach(0..<numDives, id: \.self) { i in
                     CalculatorRowView(tableData: $tableData, dives: $dives, meetType: $meetType,
                                       diveNetScores: $diveNetScores, idx: i)
-                    //                        .frame(maxHeight: 100)
                     if i < numDives - 1 {
                         Divider()
                     }
                 }
             }
-            //            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
-            //            Spacer()
         }
         .padding(.bottom, maxHeightOffset)
         .onAppear {
@@ -134,6 +130,14 @@ struct CalculatorRowView: View {
         VStack {
             HStack {
                 if idx < $dives.count {
+                    let diveName = getDiveName(data: tableData ?? [:],
+                                               forKey: $dives[idx].wrappedValue)
+                    let dd = String(getDiveDD(data: tableData ?? [:],
+                                              forKey: $dives[idx].wrappedValue,
+                                              height: meetTypeDouble == nil
+                                              ? Double(String(diveHeight.rawValue.dropLast())) ?? 0.0
+                                              : meetTypeDouble!) ?? 0.0)
+                                               
                     TextField("Number", text: $dives[idx])
                         .textFieldStyle(.roundedBorder)
                         .textInputAutocapitalization(.characters)
@@ -143,9 +147,8 @@ struct CalculatorRowView: View {
                         HStack(alignment: .top, spacing: 5) {
                             Text("Name:")
                                 .fontWeight(.semibold)
-                            Text(getDiveName(data: tableData ?? [:],
-                                                         forKey: $dives[idx].wrappedValue)
-                                             ?? "")
+                            
+                            dd == "0.0" ? Text("") : Text(diveName ?? "")
                         }
                         
                         if meetType == .platform {
@@ -162,11 +165,7 @@ struct CalculatorRowView: View {
                             }
                         }
                         
-                        let dd = String(getDiveDD(data: tableData ?? [:],
-                                                  forKey: $dives[idx].wrappedValue,
-                                                  height: meetTypeDouble == nil
-                                                  ? Double(String(diveHeight.rawValue.dropLast())) ?? 0.0
-                                                  : meetTypeDouble!) ?? 0.0)
+                        
                         HStack(spacing: 0) {
                             Text("DD:")
                                 .fontWeight(.semibold)
@@ -174,7 +173,7 @@ struct CalculatorRowView: View {
                         }
                     }
                 } else {
-                    Text("Failed at idx \(idx)")
+                    Text("Failed at index \(idx)")
                 }
                 Spacer()
             }
@@ -186,7 +185,8 @@ struct CalculatorRowView: View {
                         SwiftUIWheelPicker($judgeScores[i], items: scoreValues) { value in
                             GeometryReader { g in
                                 Text(String(format: "%.1f", value))
-                                    .frame(width: g.size.width, height: g.size.height, alignment: .center)
+                                    .frame(width: g.size.width, height: g.size.height,
+                                           alignment: .center)
                             }
                         }
                         .scrollAlpha(0.1)
@@ -195,13 +195,11 @@ struct CalculatorRowView: View {
                                 Divider()
                                     .frame(width: 1)
                                     .background(Color.gray)
-//                                    .padding(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
                                     .opacity(0.4)
                                 Spacer()
                                 Divider()
                                     .frame(width: 1)
                                     .background(Color.gray)
-//                                    .padding(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
                                     .opacity(0.4)
                             }
                         ), width: .Fixed(wheelPickerSelectedSpacing))
@@ -210,8 +208,5 @@ struct CalculatorRowView: View {
             }
         }
         .padding()
-        .onChange(of: judgeScores) { newValue in
-            print(newValue)
-        }
     }
 }
