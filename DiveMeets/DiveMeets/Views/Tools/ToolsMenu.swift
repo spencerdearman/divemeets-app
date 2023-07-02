@@ -13,9 +13,10 @@ struct ToolsMenu: View {
             VStack {
                 Spacer()
                 NavigationLink {
-                    ListOptimizer()
+//                    ListOptimizer()
+                    JudgeScoreCalculator()
                 } label: {
-                    Text("List Optimizer")
+                    Text("Judge Score Calculator")
                         .font(.headline)
                         .bold()
                 }
@@ -23,7 +24,7 @@ struct ToolsMenu: View {
                 NavigationLink {
                     MeetScoreCalculator()
                 } label: {
-                    Text("Meet Score Predictor")
+                    Text("Meet Score Calculator")
                         .font(.headline)
                         .bold()
                 }

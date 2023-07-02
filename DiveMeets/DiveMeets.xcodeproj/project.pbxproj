@@ -29,6 +29,7 @@
 		00D1D58C2A3EA477003E7C13 /* ListOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00D1D58B2A3EA477003E7C13 /* ListOptimizer.swift */; };
 		00E0D49A2A042A8D00B01D98 /* LoginTextFieldClearButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00E0D4992A042A8D00B01D98 /* LoginTextFieldClearButton.swift */; };
 		00F1129B2A50EAA900557265 /* MeetScoreCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F1129A2A50EAA900557265 /* MeetScoreCalculator.swift */; };
+		00F1129D2A51C7A100557265 /* JudgeScoreCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F1129C2A51C7A100557265 /* JudgeScoreCalculator.swift */; };
 		00F2C3142A25B1B800B1CD01 /* EventParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F2C3132A25B1B800B1CD01 /* EventParser.swift */; };
 		00F9665F29AEEF0900F3720B /* FloatingMenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */; };
 		00F9667B29AFDA1500F3720B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9667A29AFDA1500F3720B /* ContentView.swift */; };
@@ -87,6 +88,7 @@
 		00D1D58B2A3EA477003E7C13 /* ListOptimizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListOptimizer.swift; sourceTree = "<group>"; };
 		00E0D4992A042A8D00B01D98 /* LoginTextFieldClearButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginTextFieldClearButton.swift; sourceTree = "<group>"; };
 		00F1129A2A50EAA900557265 /* MeetScoreCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetScoreCalculator.swift; sourceTree = "<group>"; };
+		00F1129C2A51C7A100557265 /* JudgeScoreCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JudgeScoreCalculator.swift; sourceTree = "<group>"; };
 		00F2C3132A25B1B800B1CD01 /* EventParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventParser.swift; sourceTree = "<group>"; };
 		00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingMenuBar.swift; sourceTree = "<group>"; };
 		00F9667A29AFDA1500F3720B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -167,6 +169,7 @@
 				00D1D58B2A3EA477003E7C13 /* ListOptimizer.swift */,
 				4D50E7912A2939B9009BFBFA /* ToolsMenu.swift */,
 				00F1129A2A50EAA900557265 /* MeetScoreCalculator.swift */,
+				00F1129C2A51C7A100557265 /* JudgeScoreCalculator.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -406,6 +409,7 @@
 				4D50E7962A293DEC009BFBFA /* DiveStatisticsParser.swift in Sources */,
 				4D8B9C1929F8D395002B53AD /* Home.swift in Sources */,
 				4D5220862A49D6EB00D59408 /* ExpandingBubbleView.swift in Sources */,
+				00F1129D2A51C7A100557265 /* JudgeScoreCalculator.swift in Sources */,
 				4D74FEAF29AEB02100401178 /* Meet.swift in Sources */,
 				4D1A5C3729CB953300F3DA2B /* SwiftUIWebView.swift in Sources */,
 				002A1B7E29DB93FC00A26FED /* MeetsDataController.swift in Sources */,
