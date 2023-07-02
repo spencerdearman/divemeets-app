@@ -108,19 +108,42 @@ struct CalculatorTopView: View {
     @Binding var meetType: MeetType
     @Binding var dives: [String]
     
+    private let cornerRadius: CGFloat = 15
+    private let lightGray = Color(red: 0.9, green: 0.9, blue: 0.9)
+    private let selectedGray = Color(red: 0.85, green: 0.85, blue: 0.85)
+    
     var body: some View {
-        HStack {
-            Text("Meet Type:")
-            Picker("", selection: $meetType) {
+        ZStack {
+            RoundedRectangle(cornerRadius: 15)
+                .fill(Color(red: 0.9, green: 0.9, blue: 0.9))
+            HStack(spacing: 0) {
+//                Spacer()
                 ForEach(MeetType.allCases, id: \.self) { m in
-                    Text(m.rawValue)
-                        .tag(m)
+                    ZStack {
+                        // Weird padding stuff to have end options rounded on the outside edge only
+                        // when selected
+                        // https://stackoverflow.com/a/72435691/22068672
+                        Rectangle()
+                            .fill(meetType == m ? selectedGray : lightGray)
+                            .padding(.trailing, m == MeetType.allCases.first ? cornerRadius : 0)
+                            .padding(.leading, m == MeetType.allCases.last ? cornerRadius : 0)
+                            .cornerRadius(m == MeetType.allCases.first || m == MeetType.allCases.last
+                                          ? cornerRadius : 0)
+                            .padding(.trailing, m == MeetType.allCases.first ? -cornerRadius : 0)
+                            .padding(.leading, m == MeetType.allCases.last ? -cornerRadius : 0)
+                        Text(m.rawValue)
+                    }
+                    .onTapGesture {
+                        meetType = m
+                    }
+                    if m != MeetType.allCases.last {
+                        Divider()
+                    }
                 }
             }
-            .pickerStyle(.wheel)
-            .frame(width: 150, height: 80)
         }
-        .padding([.leading, .trailing, .top])
+        .frame(height: 50)
+        .padding([.leading, .trailing])
         
         HStack {
             Text("Number of Dives:")
@@ -194,7 +217,7 @@ struct CalculatorRowView: View {
                     TextField("Number", text: $dives[idx])
                         .textFieldStyle(.roundedBorder)
                         .textInputAutocapitalization(.characters)
-                        .frame(width: 100)
+                        .frame(width: 80)
                 }
                 Divider()
                 VStack(alignment: .leading, spacing: 0) {
