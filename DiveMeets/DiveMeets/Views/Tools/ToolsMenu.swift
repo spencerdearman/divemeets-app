@@ -9,8 +9,8 @@ import SwiftUI
 
 struct ToolsMenu: View {
     var body: some View {
-        NavigationView{
-            VStack{
+        NavigationView {
+            VStack {
                 Spacer()
                 NavigationLink {
                     ListOptimizer()
@@ -21,7 +21,7 @@ struct ToolsMenu: View {
                 }
                 Spacer()
                 NavigationLink {
-                    MeetPredictor()
+                    MeetScoreCalculator()
                 } label: {
                     Text("Meet Score Predictor")
                         .font(.headline)

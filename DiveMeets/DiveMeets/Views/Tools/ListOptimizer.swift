@@ -118,21 +118,33 @@ struct ListOptimizer: View {
 
 
 struct sixDiveView: View {
+    @State var tableData: [String: DiveData]?
     @Binding var data: [String: (String, Double)]
     
     var body: some View {
-        Text(lookupInformation(forKey: "109C") ?? "No information found")
-            .padding()
-        let v = findTopSixDives(data: data)
+        VStack {
+            Text(getDiveName(data: tableData ?? [:], forKey: "109C") ?? "No information found")
+                .padding()
+            let v = findTopSixDives(data: data)
+        }
+        .onAppear {
+            tableData = getDiveTableData()
+        }
     }
 }
 
 struct elevenDiveView: View {
+    @State var tableData: [String: DiveData]?
     @Binding var data: [String: (String, Double)]
     
     var body: some View {
-        Text(lookupInformation(forKey: "109C") ?? "No information found")
-            .padding()
+        VStack {
+            Text(getDiveName(data: tableData ?? [:], forKey: "109C") ?? "No information found")
+                .padding()
+        }
+        .onAppear {
+            tableData = getDiveTableData()
+        }
     }
 }
 

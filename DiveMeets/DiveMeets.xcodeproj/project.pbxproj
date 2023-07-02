@@ -28,6 +28,7 @@
 		0097478F2A24549A004E7C73 /* MeetPageParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0097478E2A24549A004E7C73 /* MeetPageParser.swift */; };
 		00D1D58C2A3EA477003E7C13 /* ListOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00D1D58B2A3EA477003E7C13 /* ListOptimizer.swift */; };
 		00E0D49A2A042A8D00B01D98 /* LoginTextFieldClearButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00E0D4992A042A8D00B01D98 /* LoginTextFieldClearButton.swift */; };
+		00F1129B2A50EAA900557265 /* MeetScoreCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F1129A2A50EAA900557265 /* MeetScoreCalculator.swift */; };
 		00F2C3142A25B1B800B1CD01 /* EventParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F2C3132A25B1B800B1CD01 /* EventParser.swift */; };
 		00F9665F29AEEF0900F3720B /* FloatingMenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */; };
 		00F9667B29AFDA1500F3720B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9667A29AFDA1500F3720B /* ContentView.swift */; };
@@ -85,6 +86,7 @@
 		0097478E2A24549A004E7C73 /* MeetPageParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetPageParser.swift; sourceTree = "<group>"; };
 		00D1D58B2A3EA477003E7C13 /* ListOptimizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListOptimizer.swift; sourceTree = "<group>"; };
 		00E0D4992A042A8D00B01D98 /* LoginTextFieldClearButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginTextFieldClearButton.swift; sourceTree = "<group>"; };
+		00F1129A2A50EAA900557265 /* MeetScoreCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetScoreCalculator.swift; sourceTree = "<group>"; };
 		00F2C3132A25B1B800B1CD01 /* EventParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventParser.swift; sourceTree = "<group>"; };
 		00F9665E29AEEF0800F3720B /* FloatingMenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingMenuBar.swift; sourceTree = "<group>"; };
 		00F9667A29AFDA1500F3720B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -159,14 +161,14 @@
 			path = Parsers;
 			sourceTree = "<group>";
 		};
-		4D50E78B2A27148B009BFBFA /* ListOptimizer */ = {
+		4D50E78B2A27148B009BFBFA /* Tools */ = {
 			isa = PBXGroup;
 			children = (
 				00D1D58B2A3EA477003E7C13 /* ListOptimizer.swift */,
-				4D50E7932A293A22009BFBFA /* MeetPredictor.swift */,
 				4D50E7912A2939B9009BFBFA /* ToolsMenu.swift */,
+				00F1129A2A50EAA900557265 /* MeetScoreCalculator.swift */,
 			);
-			path = ListOptimizer;
+			path = Tools;
 			sourceTree = "<group>";
 		};
 		4D74FE8A29AE7B9800401178 = {
@@ -215,7 +217,7 @@
 			isa = PBXGroup;
 			children = (
 				4D8B9C1229F898DD002B53AD /* Home */,
-				4D50E78B2A27148B009BFBFA /* ListOptimizer */,
+				4D50E78B2A27148B009BFBFA /* Tools */,
 				4D8B9C1429F89A72002B53AD /* LiveResults */,
 				4D8B9C1129F898D5002B53AD /* Login */,
 				4D8B9C1329F89A54002B53AD /* Main */,
@@ -233,6 +235,7 @@
 				002A1BB529DCF2F900A26FED /* GetTextAsync.swift */,
 				000D28DC29E0EF9100B184E9 /* LiveResults.swift */,
 				4D74FEAE29AEB02100401178 /* Meet.swift */,
+				4D50E7932A293A22009BFBFA /* MeetPredictor.swift */,
 				002A1B3329DB7C4700A26FED /* ProfileHTMLCache.swift */,
 				0037877829D4F40900D3CD59 /* ProfileMeetCache.swift */,
 			);
@@ -434,6 +437,7 @@
 				4D753DE02A214F640029138B /* EventResultPage.swift in Sources */,
 				0037877C29D4F41800D3CD59 /* MeetParser.swift in Sources */,
 				0065C5AC2A4377920040600E /* SwipeModifier.swift in Sources */,
+				00F1129B2A50EAA900557265 /* MeetScoreCalculator.swift in Sources */,
 				0037877A29D4F40900D3CD59 /* ProfileMeetCache.swift in Sources */,
 				4DD868ED29F0E69C00FF988D /* keychain-swift.swift in Sources */,
 				0037878029D501F600D3CD59 /* ProfileParser.swift in Sources */,
