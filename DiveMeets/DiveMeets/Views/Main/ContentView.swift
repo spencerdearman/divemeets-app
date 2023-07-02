@@ -70,8 +70,8 @@ struct ContentView: View {
 //                                            LiveResultsView(request: "debug")
 //                                        }
 //                                        .navigationViewStyle(StackNavigationViewStyle())
-//                                        ToolsMenu()
-                                        MeetScoreCalculator()
+                                        ToolsMenu()
+//                                        MeetScoreCalculator()
                                     case .magnifyingglass:
                                         SearchView(isIndexingMeets: $isIndexingMeets)
                                     case .person:

@@ -28,7 +28,9 @@ struct MeetScoreCalculator: View {
     @State var diveNetScores: [Double] = []
     @State var diveTotalScores: [Double] = []
     
-    @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
+    @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 57
+    
+    private let cornerRadius: CGFloat = 30
     
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
@@ -77,9 +79,20 @@ struct MeetScoreCalculator: View {
     
     var body: some View {
         VStack {
+            HStack {
+                Spacer()
+                Button("Clear") {
+                    clearDivesList()
+                }
+                .buttonStyle(.bordered)
+                .cornerRadius(cornerRadius)
+                .padding([.trailing])
+            }
+            
             Text("Meet Score Calculator")
                 .font(.title)
                 .bold()
+            
             CalculatorTopView(tableData: $tableData, numDives: $numDives, meetType: $meetType,
                               dives: $dives)
             .onChange(of: numDives) { _ in
@@ -104,23 +117,33 @@ struct MeetScoreCalculator: View {
                     Text("Meet Total: ")
                         .bold()
                     Text(String(format: "%.2f", total))
+                        .fontWeight(.semibold)
                     
                 }
                 .font(.title2)
-                
-                Divider()
+                .padding()
+                .background(RoundedRectangle(cornerRadius: cornerRadius).fill(.thinMaterial))
             }
             
+            Divider()
+            
             ScrollView(showsIndicators: false) {
-                ForEach(0..<numDives, id: \.self) { i in
-                    CalculatorRowView(tableData: $tableData, dives: $dives, meetType: $meetType,
-                                      diveNetScores: $diveNetScores,
-                                      diveTotalScores: $diveTotalScores, idx: i)
-                    if i < numDives - 1 {
-                        Divider()
+                VStack(spacing: 10) {
+                    ForEach(0..<numDives, id: \.self) { i in
+                        CalculatorRowView(tableData: $tableData, dives: $dives, meetType: $meetType,
+                                          diveNetScores: $diveNetScores,
+                                          diveTotalScores: $diveTotalScores, idx: i)
+                        .padding(.top, i == 0 ? 10 : 0)
+                        .padding(.bottom, i == numDives - 1 ? 10 : 0)
+                        
+//                        if i < numDives - 1 {
+//                            Divider()
+//                        }
                     }
+//                    .padding(.top)
                 }
             }
+            .background(Color(red: 0.9, green: 0.9, blue: 0.9, opacity: 0.4))
         }
         .padding(.bottom, maxHeightOffset)
         .onAppear {
@@ -135,14 +158,14 @@ struct CalculatorTopView: View {
     @Binding var meetType: MeetType
     @Binding var dives: [String]
     
-    private let cornerRadius: CGFloat = 15
-    private let lightGray = Color(red: 0.9, green: 0.9, blue: 0.9)
-    private let selectedGray = Color(red: 0.85, green: 0.85, blue: 0.85)
+    private let cornerRadius: CGFloat = 30
+    private let lightGray = Color(red: 0.9, green: 0.9, blue: 0.9, opacity: 0.4)
+    private let selectedGray = Color(red: 0.85, green: 0.85, blue: 0.85, opacity: 0.4)
     
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 15)
-                .fill(Color(red: 0.9, green: 0.9, blue: 0.9))
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(.thinMaterial)
             HStack(spacing: 0) {
                 ForEach(MeetType.allCases, id: \.self) { m in
                     ZStack {
@@ -182,11 +205,12 @@ struct CalculatorTopView: View {
             .pickerStyle(.wheel)
             .frame(width: 100, height: 80)
         }
-        .padding([.leading, .trailing, .bottom])
+        .padding([.leading, .trailing])
     }
 }
 
 struct CalculatorRowView: View {
+    @Environment(\.colorScheme) var currentMode
     @State var diveHeight: DiveHeight = .five
     @State var judgeScores: [Int] = [10, 10, 10]
     @State var scoreValues: [Double] = Array(stride(from: 0.0, to: 10.5, by: 0.5))
@@ -198,6 +222,10 @@ struct CalculatorRowView: View {
     let idx: Int
     
     @ScaledMetric var wheelPickerSelectedSpacing: CGFloat = 40
+    
+    private var bubbleColor: Color {
+        currentMode == .light ? .white : .black
+    }
     
     private var meetTypeDouble: Double? {
         if meetType == .one {
@@ -239,109 +267,149 @@ struct CalculatorRowView: View {
     }
     
     var body: some View {
-        VStack {
-            HStack {
-                if idx < dives.count {
-                    TextField("Number", text: $dives[idx])
-                        .textFieldStyle(.roundedBorder)
-                        .textInputAutocapitalization(.characters)
-                        .frame(width: 80)
-                }
-                Divider()
-                VStack(alignment: .leading, spacing: 0) {
-                    HStack(alignment: .top, spacing: 5) {
-                        Text("Name:")
-                            .fontWeight(.semibold)
-                        
-                        // Only shows name if there is an associated DD, otherwise show N/A
-                        dd == 0.0 ? Text("N/A") : Text(diveName)
+        ZStack {
+            RoundedRectangle(cornerRadius: 30)
+                .fill(bubbleColor)
+            
+            VStack {
+                HStack {
+                    if idx < dives.count {
+                        TextField("Number", text: $dives[idx])
+                            .textFieldStyle(.roundedBorder)
+                            .textInputAutocapitalization(.characters)
+                            .frame(width: 80)
                     }
-                    
-                    if meetType == .platform {
-                        HStack(spacing: 0) {
-                            Text("Height: ")
+                    Divider()
+                    VStack(alignment: .leading, spacing: 0) {
+                        HStack(alignment: .top, spacing: 5) {
+                            Text("Name:")
                                 .fontWeight(.semibold)
-                            Picker("", selection: $diveHeight) {
-                                ForEach(DiveHeight.allCases, id: \.self) { h in
-                                    Text(h.rawValue)
-                                        .tag(h)
-                                }
+                            
+                            // Only shows name if there is an associated DD, otherwise show N/A
+                            dd == 0.0 ? Text("N/A") : Text(diveName)
+                        }
+                        
+                        if meetType == .platform {
+                            HStack(spacing: 0) {
+                                Text("Height: ")
+                                    .fontWeight(.semibold)
+                                DiveHeightSelectView(diveHeight: $diveHeight)
                             }
-                            Spacer()
+                        }
+                        
+                        
+                        HStack(spacing: 0) {
+                            Text("DD: ")
+                                .fontWeight(.semibold)
+                            // Shows N/A if there is not an associated dd with that height
+                            Text(dd == 0.0 ? "N/A" : String(dd))
                         }
                     }
                     
-                    
-                    HStack(spacing: 0) {
-                        Text("DD: ")
+                    Spacer()
+                }
+                ForEach(0..<3) { i in
+                    HStack {
+                        Text("Judge \(i+1):")
                             .fontWeight(.semibold)
-                        // Shows N/A if there is not an associated dd with that height
-                        Text(dd == 0.0 ? "N/A" : String(dd))
+                        SwiftUIWheelPicker($judgeScores[i], items: scoreValues) { value in
+                            GeometryReader { g in
+                                Text(String(format: "%.1f", value))
+                                    .frame(width: g.size.width, height: g.size.height,
+                                           alignment: .center)
+                            }
+                        }
+                        .scrollAlpha(0.1)
+                        .centerView(AnyView(
+                            HStack(alignment: .center, spacing: 0) {
+                                Divider()
+                                    .frame(width: 1)
+                                    .background(Color.gray)
+                                    .opacity(0.4)
+                                Spacer()
+                                Divider()
+                                    .frame(width: 1)
+                                    .background(Color.gray)
+                                    .opacity(0.4)
+                            }
+                        ), width: .Fixed(wheelPickerSelectedSpacing))
+                        .onChange(of: judgeScores[i]) { _ in
+                            updateNetAndTotalScores()
+                        }
+                        .onChange(of: dives) { _ in
+                            updateNetAndTotalScores()
+                        }
+                        .onChange(of: meetType) { _ in
+                            updateNetAndTotalScores()
+                        }
+                        .onChange(of: diveNetScores) { _ in
+                            updateNetAndTotalScores()
+                        }
+                        .onAppear {
+                            updateNetAndTotalScores()
+                        }
                     }
                 }
                 
-                Spacer()
-            }
-            ForEach(0..<3) { i in
-                HStack {
-                    Text("Judge \(i+1):")
-                        .fontWeight(.semibold)
-                    SwiftUIWheelPicker($judgeScores[i], items: scoreValues) { value in
-                        GeometryReader { g in
-                            Text(String(format: "%.1f", value))
-                                .frame(width: g.size.width, height: g.size.height,
-                                       alignment: .center)
-                        }
+                if idx < diveNetScores.count && diveNetScores[idx] != 0.0 {
+                    HStack(spacing: 0) {
+                        Spacer()
+                        Text("Net Score: ")
+                            .fontWeight(.semibold)
+                        Text(String(diveNetScores[idx]))
                     }
-                    .scrollAlpha(0.1)
-                    .centerView(AnyView(
-                        HStack(alignment: .center, spacing: 0) {
-                            Divider()
-                                .frame(width: 1)
-                                .background(Color.gray)
-                                .opacity(0.4)
-                            Spacer()
-                            Divider()
-                                .frame(width: 1)
-                                .background(Color.gray)
-                                .opacity(0.4)
-                        }
-                    ), width: .Fixed(wheelPickerSelectedSpacing))
-                    .onChange(of: judgeScores[i]) { _ in
-                        updateNetAndTotalScores()
-                    }
-                    .onChange(of: dives) { _ in
-                        updateNetAndTotalScores()
-                    }
-                    .onChange(of: meetType) { _ in
-                        updateNetAndTotalScores()
-                    }
-                    .onChange(of: diveNetScores) { _ in
-                        updateNetAndTotalScores()
-                    }
-                    .onAppear {
-                        print(diveNetScores)
-                        updateNetAndTotalScores()
+                    .padding(.top)
+                    HStack(spacing: 0) {
+                        Spacer()
+                        Text("Total Score: ")
+                            .fontWeight(.semibold)
+                        Text(String(format: "%.2f", diveTotalScores[idx]))
                     }
                 }
             }
-            
-            if idx < diveNetScores.count && diveNetScores[idx] != 0.0 {
-                HStack(spacing: 0) {
-                    Spacer()
-                    Text("Net Score: ")
-                        .fontWeight(.semibold)
-                    Text(String(diveNetScores[idx]))
-                }
-                .padding(.top)
-                HStack(spacing: 0) {
-                    Spacer()
-                    Text("Total Score: ")
-                        .fontWeight(.semibold)
-                    Text(String(format: "%.2f", diveTotalScores[idx]))
+            .padding()
+        }
+        .padding([.leading, .trailing])
+    }
+}
+
+struct DiveHeightSelectView: View {
+    @Binding var diveHeight: DiveHeight
+    
+    private let cornerRadius: CGFloat = 30
+    private let lightGray = Color(red: 0.9, green: 0.9, blue: 0.9, opacity: 0.4)
+    private let selectedGray = Color(red: 0.85, green: 0.85, blue: 0.85, opacity: 0.4)
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(lightGray)
+            HStack(spacing: 0) {
+                ForEach(DiveHeight.allCases, id: \.self) { h in
+                    ZStack {
+                        // Weird padding stuff to have end options rounded on the outside edge only
+                        // when selected
+                        // https://stackoverflow.com/a/72435691/22068672
+                        Rectangle()
+                            .fill(diveHeight == h ? selectedGray : lightGray)
+                            .padding(.trailing, h == DiveHeight.allCases.first ? cornerRadius : 0)
+                            .padding(.leading, h == DiveHeight.allCases.last ? cornerRadius : 0)
+                            .cornerRadius(h == DiveHeight.allCases.first || h == DiveHeight.allCases.last
+                                          ? cornerRadius : 0)
+                            .padding(.trailing, h == DiveHeight.allCases.first ? -cornerRadius : 0)
+                            .padding(.leading, h == DiveHeight.allCases.last ? -cornerRadius : 0)
+                        Text(h.rawValue)
+                    }
+                    .onTapGesture {
+                        diveHeight = h
+                    }
+                    if h != DiveHeight.allCases.last {
+                        Divider()
+                    }
                 }
             }
         }
-        .padding()
+        .frame(height: 30)
+        .padding([.leading, .top, .bottom], 5)
     }
 }
