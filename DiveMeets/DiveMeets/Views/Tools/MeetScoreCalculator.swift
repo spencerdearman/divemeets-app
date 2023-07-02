@@ -19,6 +19,7 @@ enum DiveHeight: String, CaseIterable {
     case ten = "10M"
 }
 
+// If providing dives list, also need to provide numDives so it doesn't clear dives list on appear
 struct MeetScoreCalculator: View {
     @State var tableData: [String: DiveData]?
     @State var numDives: Int = 2
@@ -44,11 +45,32 @@ struct MeetScoreCalculator: View {
         }
     }
     
-    private func refreshNetAndTotalScores() {
+    private func setDivesList() {
+        diveNetScores = []
+        diveTotalScores = []
+        for _ in 0..<numDives {
+            if dives.count < numDives {
+                dives.append("")
+            }
+            diveNetScores.append(0.0)
+            diveTotalScores.append(0.0)
+        }
+    }
+    
+    private func refreshDives() {
         for idx in 0..<numDives {
-            if idx < diveNetScores.count && idx < diveTotalScores.count {
+            if idx >= dives.count {
+                dives.append("")
+            }
+            if idx < diveNetScores.count {
                 diveNetScores[idx] += 0.0
+            } else {
+                diveNetScores.append(0.0)
+            }
+            if idx < diveTotalScores.count {
                 diveTotalScores[idx] = diveNetScores[idx] * 1.0
+            } else {
+                diveTotalScores.append(0.0)
             }
         }
     }
@@ -61,14 +83,19 @@ struct MeetScoreCalculator: View {
             CalculatorTopView(tableData: $tableData, numDives: $numDives, meetType: $meetType,
                               dives: $dives)
             .onChange(of: numDives) { _ in
-                clearDivesList()
-                refreshNetAndTotalScores()
+                refreshDives()
             }
             .onChange(of: meetType) { _ in
-                refreshNetAndTotalScores()
+                refreshDives()
             }
             .onAppear {
-                clearDivesList()
+                if dives.count > 0 {
+                    numDives = dives.count
+                }
+                setDivesList()
+                if dives.count > 0 {
+                    refreshDives()
+                }
             }
             
             let total = diveTotalScores.reduce(into: 0.0, { $0 += $1 })
@@ -117,7 +144,6 @@ struct CalculatorTopView: View {
             RoundedRectangle(cornerRadius: 15)
                 .fill(Color(red: 0.9, green: 0.9, blue: 0.9))
             HStack(spacing: 0) {
-//                Spacer()
                 ForEach(MeetType.allCases, id: \.self) { m in
                     ZStack {
                         // Weird padding stuff to have end options rounded on the outside edge only
@@ -204,8 +230,10 @@ struct CalculatorRowView: View {
     }
     
     private func updateNetAndTotalScores() {
-        if idx < diveNetScores.count && idx < diveTotalScores.count {
+        if idx < diveNetScores.count {
             diveNetScores[idx] = judgeScores.reduce(into: 0.0, { $0 += scoreValues[$1] })
+        }
+        if idx < diveTotalScores.count {
             diveTotalScores[idx] = diveNetScores[idx] * dd
         }
     }
@@ -288,7 +316,11 @@ struct CalculatorRowView: View {
                     .onChange(of: meetType) { _ in
                         updateNetAndTotalScores()
                     }
+                    .onChange(of: diveNetScores) { _ in
+                        updateNetAndTotalScores()
+                    }
                     .onAppear {
+                        print(diveNetScores)
                         updateNetAndTotalScores()
                     }
                 }
