@@ -322,6 +322,13 @@ struct SearchInputView: View {
         predicate = nil
     }
     
+    private func trimFields() {
+        firstName = firstName.trimmingCharacters(in: .whitespacesAndNewlines)
+        lastName = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
+        meetName = meetName.trimmingCharacters(in: .whitespacesAndNewlines)
+        orgName = orgName.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
     var body: some View {
         let typeBGColor: Color = currentMode == .light
         ? Color(red: grayValue, green: grayValue, blue: grayValue)
@@ -407,6 +414,8 @@ struct SearchInputView: View {
                                            lastName: lastName, meetName: meetName,
                                            orgName: orgName, meetYear: meetYear) {
                                 clearStateFlags()
+                                trimFields()
+                                
                                 searchSubmitted = true
                                 
                                 if selection == .meet {
@@ -469,7 +478,8 @@ struct SearchInputView: View {
                     ZStack (alignment: .topLeading) {
                         (selection == .person
                          ? AnyView(RecordList(records: $parsedLinks,
-                                              resultSelected: $resultSelected, fullScreenResults: $fullScreenResults))
+                                              resultSelected: $resultSelected,
+                                              fullScreenResults: $fullScreenResults))
                          : AnyView(MeetResultsView(records: filteredItems)))
                         .onAppear {
                             fullScreenResults = true
