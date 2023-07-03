@@ -8,29 +8,57 @@
 import SwiftUI
 
 struct ToolsMenu: View {
+    @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 57
+    
+    private var maxHeightOffset: CGFloat {
+        min(maxHeightOffsetScaled, 90)
+    }
+    
     var body: some View {
         NavigationView {
             VStack {
+                Text("Tools")
+                    .font(.title)
+                    .bold()
                 Spacer()
-                NavigationLink {
-//                    ListOptimizer()
-                    JudgeScoreCalculator()
-                } label: {
-                    Text("Judge Score Calculator")
-                        .font(.headline)
-                        .bold()
+                
+                NavigationLink(destination: MeetScoreCalculator()) {
+                    ZStack {
+                        Circle()
+                            .fill(Custom.coolBlue)
+                            .shadow(radius: 15)
+                            .padding()
+                        
+                        Text("Meet Score Calculator")
+                            .foregroundColor(.primary)
+                            .font(.title2)
+                            .bold()
+                            .padding()
+                    }
                 }
+                .contentShape(Circle())
+                
                 Spacer()
-                NavigationLink {
-                    MeetScoreCalculator()
-                } label: {
-                    Text("Meet Score Calculator")
-                        .font(.headline)
-                        .bold()
+                
+                NavigationLink(destination: JudgeScoreCalculator()) {
+                    ZStack {
+                        Circle()
+                            .fill(Custom.coolBlue)
+                            .shadow(radius: 15)
+                            .padding()
+                        
+                        Text("Judge Score Calculator")
+                            .foregroundColor(.primary)
+                            .font(.title2)
+                            .bold()
+                            .padding()
+                    }
                 }
+                .contentShape(Circle())
+                
                 Spacer()
             }
-            .padding()
+            .padding(.bottom, maxHeightOffset)
         }
     }
 }
