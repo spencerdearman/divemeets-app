@@ -33,7 +33,7 @@ struct MeetPageView: View {
     }
     
     var meetLink: String
-    var showBackButton: Bool = true
+    var showBackButton: Bool = false
     
     private func tupleToList(data: MeetEventData) -> [[String]] {
         var result: [[String]] = []

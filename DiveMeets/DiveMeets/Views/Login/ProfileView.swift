@@ -93,99 +93,98 @@ struct ProfileView: View {
             
             if profileType == "Diver" {
                 VStack {
+                    ProfileImage(diverID: diverID)
+                        .frame(width: 200, height: 150)
+                        .padding()
                     VStack {
-                        ProfileImage(diverID: diverID)
-                            .frame(width: 200, height: 150)
-                            .padding()
-                        VStack {
-                            VStack(alignment: .leading) {
-                                HStack (alignment: .firstTextBaseline) {
-                                    let nameComps = getNameComponents()
-                                    
-                                    let firstName = nameComps?.dropLast().joined(separator: " ") ?? ""
-                                    let lastName = nameComps?.last ?? ""
-                                    
-                                    diverData != []
-                                    ? Text(firstName + " " + lastName) .font(.title)
-                                    : Text("")
-                                    
-                                    Text(diverID)
-                                        .font(.subheadline).foregroundColor(.secondary)
-                                }
-                                Divider()
-                                HStack (alignment: .firstTextBaseline) {
-                                    Image(systemName: "house.fill")
-                                    diverData != []
-                                    ? Text(
-                                        (diverData[0][0].slice(from: "State: ", to: " Country")  ?? "")
-                                        + ", "
-                                        + (diverData[0][0].slice(from: " Country: ",
-                                                                 to: " Gender") ?? ""))
-                                    : Text("")
-                                }
-                                .font(.subheadline)
-                                HStack (alignment: .firstTextBaseline) {
-                                    Image(systemName: "person.circle")
-                                    diverData != []
-                                    ? Text("Gender: " +
-                                           (diverData[0][0].slice(from: " Gender: ", to: " Age") ?? ""))
-                                    : Text("")
-                                    diverData != []
-                                    ? Text("Age: " +
-                                           (diverData[0][0].slice(from: " Age: ", to: " FINA") ?? ""))
-                                    : Text("")
-                                    diverData != []
-                                    ? Text("FINA Age: " +
-                                           (diverData[0][0].slice(from: " FINA Age: ",
-                                                                  to: " High") ?? ""))
-                                    : Text("")
-                                }
-                                .font(.subheadline)
-                                .padding([.leading], 2)
-                                Divider()
+                        VStack(alignment: .leading) {
+                            HStack (alignment: .firstTextBaseline) {
+                                let nameComps = getNameComponents()
+                                
+                                let firstName = nameComps?.dropLast().joined(separator: " ") ?? ""
+                                let lastName = nameComps?.last ?? ""
+                                
+                                diverData != []
+                                ? Text(firstName + " " + lastName) .font(.title)
+                                : Text("")
+                                
+                                Text(diverID)
+                                    .font(.subheadline).foregroundColor(.secondary)
                             }
-                        }
-                        .padding([.leading, .trailing, .top])
-                        
-                        if let upcomingDiveSheetsEntries = upcomingDiveSheetsEntries {
-                            DisclosureGroup(isExpanded: $isExpanded) {
-                                ForEach(upcomingDiveSheetsEntries.sorted(by: { $0.key < $1.key }),
-                                        id: \.key) { meetName, events in
-                                    VStack(alignment: .leading, spacing: 0) {
-                                        Text(meetName)
-                                            .font(.title3)
-                                            .bold()
-                                        VStack(spacing: 5) {
-                                            ForEach(events.sorted(by: { $0.key < $1.key }),
-                                                    id: \.key) { eventName, entry in
-                                                EntryView(entry: entry) {
-                                                    Text(eventName)
-                                                        .font(.headline)
-                                                        .bold()
-                                                        .foregroundColor(Color.primary)
-                                                }
-                                            }
-                                        }
-                                        .padding(.leading)
-                                        .padding(.top, 5)
-                                    }
-                                    .padding(.top, 5)
-                                }
-                            } label: {
-                                Text("Upcoming Meets")
-                                    .font(.title2)
-                                    .bold()
-                                    .foregroundColor(Color.primary)
+                            Divider()
+                            HStack (alignment: .firstTextBaseline) {
+                                Image(systemName: "house.fill")
+                                diverData != []
+                                ? Text(
+                                    (diverData[0][0].slice(from: "State: ", to: " Country")  ?? "")
+                                    + ", "
+                                    + (diverData[0][0].slice(from: " Country: ",
+                                                             to: " Gender") ?? ""))
+                                : Text("")
                             }
-                            .padding([.leading, .trailing])
-                            .padding(.bottom, 5)
+                            .font(.subheadline)
+                            HStack (alignment: .firstTextBaseline) {
+                                Image(systemName: "person.circle")
+                                diverData != []
+                                ? Text("Gender: " +
+                                       (diverData[0][0].slice(from: " Gender: ", to: " Age") ?? ""))
+                                : Text("")
+                                diverData != []
+                                ? Text("Age: " +
+                                       (diverData[0][0].slice(from: " Age: ", to: " FINA") ?? ""))
+                                : Text("")
+                                diverData != []
+                                ? Text("FINA Age: " +
+                                       (diverData[0][0].slice(from: " FINA Age: ",
+                                                              to: " High") ?? ""))
+                                : Text("")
+                            }
+                            .font(.subheadline)
+                            .padding([.leading], 2)
+                            Divider()
                         }
                     }
-                    Text("Meets")
-                        .font(.title2)
-                        .padding(.bottom)
-                    MeetList(profileLink: profileLink)
+                    .padding([.leading, .trailing, .top])
+                    
+                    if let upcomingDiveSheetsEntries = upcomingDiveSheetsEntries {
+                        DisclosureGroup(isExpanded: $isExpanded) {
+                            ForEach(upcomingDiveSheetsEntries.sorted(by: { $0.key < $1.key }),
+                                    id: \.key) { meetName, events in
+                                VStack(alignment: .leading, spacing: 0) {
+                                    Text(meetName)
+                                        .font(.title3)
+                                        .bold()
+                                    VStack(spacing: 5) {
+                                        ForEach(events.sorted(by: { $0.key < $1.key }),
+                                                id: \.key) { eventName, entry in
+                                            EntryView(entry: entry) {
+                                                Text(eventName)
+                                                    .font(.headline)
+                                                    .bold()
+                                                    .foregroundColor(Color.primary)
+                                            }
+                                        }
+                                    }
+                                    .padding(.leading)
+                                    .padding(.top, 5)
+                                }
+                                .padding(.top, 5)
+                            }
+                        } label: {
+                            Text("Upcoming Meets")
+                                .font(.title2)
+                                .bold()
+                                .foregroundColor(Color.primary)
+                        }
+                        .padding([.leading, .trailing])
+                        .padding(.bottom, 5)
+                    }
+                    
                     Spacer()
+                    
+                    
+                    MeetList(profileLink: profileLink)
+                    
                 }
                 .padding(.bottom, maxHeightOffset)
             } else {
@@ -276,7 +275,8 @@ struct ProfileView: View {
                     } else if try diver.text() == "Results" {
                         break
                     } else {
-                        let link = try "https://secure.meetcontrol.com/divemeets/system/" + diver.attr("href")
+                        let link = try "https://secure.meetcontrol.com/divemeets/system/"
+                        + diver.attr("href")
                         diversAndLinks.append([try diver.text(), link])
                     }
                 }
@@ -290,8 +290,10 @@ struct ProfileView: View {
                         if i == 0 {
                             continue
                         } else if try t.text().contains("Results") {
-                            let event = try t.getElementsByTag("td")[0].text().replacingOccurrences(of: "  ", with: "")
-                            let resultsLink = try "https://secure.meetcontrol.com/divemeets/system/" + t.getElementsByTag("a").attr("href")
+                            let event = try t.getElementsByTag("td")[0].text()
+                                .replacingOccurrences(of: "  ", with: "")
+                            let resultsLink = try "https://secure.meetcontrol.com/divemeets/system/"
+                            + t.getElementsByTag("a").attr("href")
                             eventsList.append((event, resultsLink))
                         } else {
                             if i > 1 {
