@@ -23,12 +23,14 @@ enum DiveHeight: String, CaseIterable {
 
 // If providing dives list, also need to provide numDives so it doesn't clear dives list on appear
 struct MeetScoreCalculator: View {
+    @Environment(\.colorScheme) var currentMode
     @State var tableData: [String: DiveData]?
     @State var numDives: Int = 2
     @State var meetType: MeetType = .one
     @State var dives: [String] = []
     @State var diveNetScores: [Double] = []
     @State var diveTotalScores: [Double] = []
+    @FocusState var focusedField: Bool?
     
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 57
     
@@ -36,6 +38,10 @@ struct MeetScoreCalculator: View {
     
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
+    }
+    
+    private var bgColor: Color {
+        currentMode == .light ? .white : .black
     }
     
     private func clearDivesList() {
@@ -80,6 +86,12 @@ struct MeetScoreCalculator: View {
     }
     
     var body: some View {
+        ZStack {
+            bgColor.ignoresSafeArea()
+                .onTapGesture {
+                    focusedField = nil
+                }
+            
         VStack {
             HStack {
                 Spacer()
@@ -134,20 +146,17 @@ struct MeetScoreCalculator: View {
                     ForEach(0..<numDives, id: \.self) { i in
                         CalculatorRowView(tableData: $tableData, dives: $dives, meetType: $meetType,
                                           diveNetScores: $diveNetScores,
-                                          diveTotalScores: $diveTotalScores, idx: i)
+                                          diveTotalScores: $diveTotalScores,
+                                          focusedField: $focusedField, idx: i)
                         .padding(.top, i == 0 ? 10 : 0)
                         .padding(.bottom, i == numDives - 1 ? 10 : 0)
-                        
-//                        if i < numDives - 1 {
-//                            Divider()
-//                        }
                     }
-//                    .padding(.top)
                 }
             }
             .background(.clear)
         }
         .padding(.bottom, maxHeightOffset)
+    }
         .onAppear {
             tableData = getDiveTableData()
         }
@@ -221,6 +230,8 @@ struct CalculatorRowView: View {
     @Binding var meetType: MeetType
     @Binding var diveNetScores: [Double]
     @Binding var diveTotalScores: [Double]
+    fileprivate var focusedField: FocusState<Bool?>.Binding
+    
     let idx: Int
     
     @ScaledMetric var wheelPickerSelectedSpacing: CGFloat = 40
@@ -280,6 +291,7 @@ struct CalculatorRowView: View {
                         TextField("Number", text: $dives[idx])
                             .textFieldStyle(.roundedBorder)
                             .textInputAutocapitalization(.characters)
+                            .focused(focusedField, equals: true)
                             .frame(width: 80)
                     }
                     Divider()
