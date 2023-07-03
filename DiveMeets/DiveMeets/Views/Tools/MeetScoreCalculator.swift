@@ -14,6 +14,8 @@ enum MeetType: String, CaseIterable {
 }
 
 enum DiveHeight: String, CaseIterable {
+    case one = "1M"
+    case three = "3M"
     case five = "5M"
     case seven = "7.5M"
     case ten = "10M"
@@ -159,7 +161,6 @@ struct CalculatorTopView: View {
     @Binding var dives: [String]
     
     private let cornerRadius: CGFloat = 30
-    private let lightGray = Color(red: 0.9, green: 0.9, blue: 0.9, opacity: 0.4)
     private let selectedGray = Color(red: 0.85, green: 0.85, blue: 0.85, opacity: 0.4)
     
     var body: some View {
@@ -173,7 +174,7 @@ struct CalculatorTopView: View {
                         // when selected
                         // https://stackoverflow.com/a/72435691/22068672
                         Rectangle()
-                            .fill(meetType == m ? selectedGray : lightGray)
+                            .fill(meetType == m ? selectedGray : .clear)
                             .padding(.trailing, m == MeetType.allCases.first ? cornerRadius : 0)
                             .padding(.leading, m == MeetType.allCases.last ? cornerRadius : 0)
                             .cornerRadius(m == MeetType.allCases.first || m == MeetType.allCases.last
@@ -182,6 +183,7 @@ struct CalculatorTopView: View {
                             .padding(.leading, m == MeetType.allCases.last ? -cornerRadius : 0)
                         Text(m.rawValue)
                     }
+                    .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
                     .onTapGesture {
                         meetType = m
                     }
@@ -294,7 +296,7 @@ struct CalculatorRowView: View {
                             HStack(spacing: 0) {
                                 Text("Height: ")
                                     .fontWeight(.semibold)
-                                DiveHeightSelectView(diveHeight: $diveHeight)
+                                PlatformHeightSelectView(diveHeight: $diveHeight)
                             }
                         }
                         
@@ -374,37 +376,38 @@ struct CalculatorRowView: View {
     }
 }
 
-struct DiveHeightSelectView: View {
+struct PlatformHeightSelectView: View {
     @Binding var diveHeight: DiveHeight
     
     private let cornerRadius: CGFloat = 30
-    private let lightGray = Color(red: 0.9, green: 0.9, blue: 0.9, opacity: 0.4)
     private let selectedGray = Color(red: 0.85, green: 0.85, blue: 0.85, opacity: 0.4)
+    private let diveHeights: [DiveHeight] = [.five, .seven, .ten]
     
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(lightGray)
+                .fill(.thinMaterial)
             HStack(spacing: 0) {
-                ForEach(DiveHeight.allCases, id: \.self) { h in
+                ForEach(diveHeights, id: \.self) { h in
                     ZStack {
                         // Weird padding stuff to have end options rounded on the outside edge only
                         // when selected
                         // https://stackoverflow.com/a/72435691/22068672
                         Rectangle()
-                            .fill(diveHeight == h ? selectedGray : lightGray)
-                            .padding(.trailing, h == DiveHeight.allCases.first ? cornerRadius : 0)
-                            .padding(.leading, h == DiveHeight.allCases.last ? cornerRadius : 0)
-                            .cornerRadius(h == DiveHeight.allCases.first || h == DiveHeight.allCases.last
+                            .fill(diveHeight == h ? selectedGray : .clear)
+                            .padding(.trailing, h == diveHeights.first ? cornerRadius : 0)
+                            .padding(.leading, h == diveHeights.last ? cornerRadius : 0)
+                            .cornerRadius(h == diveHeights.first || h == diveHeights.last
                                           ? cornerRadius : 0)
-                            .padding(.trailing, h == DiveHeight.allCases.first ? -cornerRadius : 0)
-                            .padding(.leading, h == DiveHeight.allCases.last ? -cornerRadius : 0)
+                            .padding(.trailing, h == diveHeights.first ? -cornerRadius : 0)
+                            .padding(.leading, h == diveHeights.last ? -cornerRadius : 0)
                         Text(h.rawValue)
                     }
+                    .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
                     .onTapGesture {
                         diveHeight = h
                     }
-                    if h != DiveHeight.allCases.last {
+                    if h != diveHeights.last {
                         Divider()
                     }
                 }
