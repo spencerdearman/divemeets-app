@@ -7,7 +7,13 @@
 
 import SwiftUI
 
+enum JudgeScoreField: Int, Hashable, CaseIterable {
+    case dive
+    case score
+}
+
 struct JudgeScoreCalculator: View {
+    @Environment(\.colorScheme) var currentMode
     @State var tableData: [String: DiveData]?
     @State var dive: String = ""
     @State var name: String?
@@ -15,6 +21,7 @@ struct JudgeScoreCalculator: View {
     @State var height: DiveHeight = .one
     @State var score: String = ""
     @State var judgesScores: [String] = []
+    @FocusState var focusedField: JudgeScoreField?
     
     private let cornerRadius: CGFloat = 30
     private let shadowRadius: CGFloat = 5
@@ -32,6 +39,10 @@ struct JudgeScoreCalculator: View {
         return nil
     }
     
+    private var bgColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    
     private func computeJudgesScores() -> [String] {
         guard let total = scoreDouble else { return [] }
         guard let dd = dd else { return [] }
@@ -44,10 +55,10 @@ struct JudgeScoreCalculator: View {
         // total is evently divided by dd to nearest 0.5
         if netInt == netRaw || netRemainder == 0.5 {
             net = netRaw
-        // total is between a whole and 0.5 on low end
+            // total is between a whole and 0.5 on low end
         } else if netRemainder < 0.5 {
             net = netInt + 0.5
-        // total is between a whole and 0.5 on high end
+            // total is between a whole and 0.5 on high end
         } else {
             net = netInt + 1.0
         }
@@ -76,76 +87,85 @@ struct JudgeScoreCalculator: View {
     }
     
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Judge Score Calculator")
-                .font(.title)
-            .bold()
+        ZStack {
+            bgColor.ignoresSafeArea()
+                .onTapGesture {
+                    focusedField = nil
+                }
             
-            TextField("Number", text: $dive)
-                .textInputAutocapitalization(.characters)
-                .frame(width: 170, height: 70)
-                .font(.title)
-                .multilineTextAlignment(.center)
-                .background(RoundedRectangle(cornerRadius: cornerRadius).fill(.thinMaterial))
-                .shadow(radius: shadowRadius)
-            
-            DiveHeightSelectView(height: $height)
-
-            VStack(spacing: 5) {
-                if name != nil {
-                    HStack(spacing: 0) {
-                        Text("Name: ")
-                            .bold()
-                        Text(getDiveName(data: tableData ?? [:], forKey: $dive.wrappedValue) ?? "")
+            VStack(spacing: 20) {
+                Text("Judge Score Calculator")
+                    .font(.title)
+                    .bold()
+                
+                TextField("Number", text: $dive)
+                    .textInputAutocapitalization(.characters)
+                    .focused($focusedField, equals: .dive)
+                    .frame(width: 170, height: 70)
+                    .font(.title)
+                    .multilineTextAlignment(.center)
+                    .background(RoundedRectangle(cornerRadius: cornerRadius).fill(.thinMaterial))
+                    .shadow(radius: shadowRadius)
+                
+                DiveHeightSelectView(height: $height)
+                
+                VStack(spacing: 5) {
+                    if name != nil {
+                        HStack(spacing: 0) {
+                            Text("Name: ")
+                                .bold()
+                            Text(getDiveName(data: tableData ?? [:], forKey: $dive.wrappedValue) ?? "")
+                        }
                     }
+                    
+                    if dd != nil {
+                        HStack(spacing: 0) {
+                            Text("DD: ")
+                                .bold()
+                            Text(String((getDiveDD(data: tableData ?? [:], forKey: $dive.wrappedValue,
+                                                   height: heightDouble) ?? 0.0)))
+                        }
+                    }
+                }
+                .font(.title3)
+                
+                TextField("Desired Score", text: $score)
+                    .keyboardType(.decimalPad)
+                    .focused($focusedField, equals: .score)
+                    .frame(width: 200, height: 70)
+                    .font(.title)
+                    .multilineTextAlignment(.center)
+                    .background(RoundedRectangle(cornerRadius: cornerRadius).fill(.thinMaterial))
+                    .shadow(radius: shadowRadius)
+                
+                if scoreDouble != nil {
+                    VStack(spacing: 5) {
+                        Text("Judges Scores")
+                            .bold()
+                            .underline()
+                        Text(judgesScores.joined(separator: " | "))
+                            .fontWeight(.semibold)
+                    }
+                    .font(.title2)
                 }
                 
-                if dd != nil {
-                    HStack(spacing: 0) {
-                        Text("DD: ")
-                            .bold()
-                        Text(String((getDiveDD(data: tableData ?? [:], forKey: $dive.wrappedValue,
-                                               height: heightDouble) ?? 0.0)))
-                    }
-                }
+                Spacer()
             }
-            .font(.title3)
-            
-            TextField("Desired Score", text: $score)
-                .keyboardType(.decimalPad)
-                .frame(width: 200, height: 70)
-                .font(.title)
-                .multilineTextAlignment(.center)
-                .background(RoundedRectangle(cornerRadius: cornerRadius).fill(.thinMaterial))
-                .shadow(radius: shadowRadius)
-            
-            if scoreDouble != nil {
-                VStack(spacing: 5) {
-                    Text("Judges Scores")
-                        .bold()
-                        .underline()
-                    Text(judgesScores.joined(separator: " | "))
-                        .fontWeight(.semibold)
-                }
-                .font(.title2)
+            .onChange(of: dive) { newValue in
+                name = getDiveName(data: tableData ?? [:], forKey: newValue)
+                dd = getDiveDD(data: tableData ?? [:], forKey: newValue, height: heightDouble)
+                judgesScores = computeJudgesScores()
             }
-            
-            Spacer()
-        }
-        .onChange(of: dive) { newValue in
-            name = getDiveName(data: tableData ?? [:], forKey: newValue)
-            dd = getDiveDD(data: tableData ?? [:], forKey: newValue, height: heightDouble)
-            judgesScores = computeJudgesScores()
-        }
-        .onChange(of: height) { _ in
-            dd = getDiveDD(data: tableData ?? [:], forKey: dive, height: heightDouble)
-            judgesScores = computeJudgesScores()
-        }
-        .onChange(of: score) { _ in
-            judgesScores = computeJudgesScores()
-        }
-        .onAppear {
-            tableData = getDiveTableData()
+            .onChange(of: height) { _ in
+                dd = getDiveDD(data: tableData ?? [:], forKey: dive, height: heightDouble)
+                judgesScores = computeJudgesScores()
+            }
+            .onChange(of: score) { _ in
+                judgesScores = computeJudgesScores()
+            }
+            .onAppear {
+                tableData = getDiveTableData()
+            }
         }
     }
 }
