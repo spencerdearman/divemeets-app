@@ -71,7 +71,6 @@ struct ContentView: View {
 //                                        }
 //                                        .navigationViewStyle(StackNavigationViewStyle())
                                         ToolsMenu()
-//                                        MeetScoreCalculator()
                                     case .magnifyingglass:
                                         SearchView(isIndexingMeets: $isIndexingMeets)
                                     case .person:
