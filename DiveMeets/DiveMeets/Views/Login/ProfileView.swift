@@ -230,10 +230,14 @@ struct ProfileView: View {
                             }
                         }
                         .padding()
-                        
-                        DiversList(diversAndLinks: $diversAndLinks)
-                        Spacer()
-                        JudgedList(data: $judgingHistory)
+                        ScrollView{
+                            Text("Divers")
+                                .font(.title2).fontWeight(.semibold)
+//                            DiversList(diversAndLinks: $diversAndLinks)
+//                                .offset(y: -45)
+                            JudgedList(data: $judgingHistory)
+                                .offset(y: -50)
+                        }
                     }
                 }
             }
@@ -316,24 +320,20 @@ struct ProfileView: View {
     }
 }
 
-struct DiversList: View{
+struct DiversList: View {
     @Binding var diversAndLinks: [[String]]
     
     var body: some View {
-        DisclosureGroup(content: {
-            ScalingScrollView(records: diversAndLinks, viewHeight: 50, rowSpacing: 10) { (elem) in
-                DiverBubbleView(elements: elem)
+        VStack (spacing: 1){
+            TabView {
+                ForEach(diversAndLinks, id: \.self) { elem in
+                    DiverBubbleView(elements: elem)
+                }
             }
-            .frame(height: 300)
-            .padding(.top)
-            
-        }, label: {
-            Text("Divers")
-                .font(.title2)
-                .bold()
-                .foregroundColor(.primary)
-        })
-        .padding()
+            .tabViewStyle(PageTabViewStyle())
+            .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+            .frame(height: 285)
+        }
     }
 }
 
@@ -349,14 +349,13 @@ struct DiverBubbleView: View {
     init(elements: [String]) {
         self.elements = elements
     }
-    
-    //[Place: (Left to dive, order, last round place, last round score, current place,
-    //current score, name, last dive average, event average score, avg round score
     var body: some View {
         ZStack {
             Rectangle()
                 .foregroundColor(bubbleColor)
                 .cornerRadius(30)
+                .frame(width: 400, height: 200)
+                .shadow(radius: 5)
             NavigationLink {
                 ProfileView(profileLink: elements[1])
             } label: {
