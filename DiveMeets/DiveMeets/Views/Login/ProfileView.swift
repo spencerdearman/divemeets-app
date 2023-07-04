@@ -188,58 +188,56 @@ struct ProfileView: View {
                 }
                 .padding(.bottom, maxHeightOffset)
             } else {
-                VStack {
                     VStack {
-                        ProfileImage(diverID: diverID)
-                            .frame(width: 200, height: 120)
-                            .padding()
-                            .padding(.bottom)
-                        VStack{
-                            VStack(alignment: .leading) {
-                                HStack (alignment: .firstTextBaseline){
-                                    diverData != []
-                                    ? Text(diverData[0][0].slice(from: "Name: ",
-                                                                 to: " City/State") ?? "").font(.title)
-                                    : Text("")
-                                    
-                                    Text(diverID)
-                                        .font(.subheadline).foregroundColor(.secondary)
+                        VStack {
+                            ProfileImage(diverID: diverID)
+                                .frame(width: 200, height: 120)
+                                .padding()
+                                .padding(.bottom)
+                            VStack{
+                                VStack(alignment: .leading) {
+                                    HStack (alignment: .firstTextBaseline){
+                                        diverData != []
+                                        ? Text(diverData[0][0].slice(from: "Name: ",
+                                                                     to: " City/State") ?? "").font(.title)
+                                        : Text("")
+                                        
+                                        Text(diverID)
+                                            .font(.subheadline).foregroundColor(.secondary)
+                                    }
+                                    Divider()
+                                    HStack (alignment: .firstTextBaseline){
+                                        Image(systemName: "house.fill")
+                                        diverData != []
+                                        ? Text(
+                                            (diverData[0][0].slice(from: " City/State: ",
+                                                                   to: " Country")  ?? "")
+                                            + ", "
+                                            + (diverData[0][0].slice(from: " Country: ",
+                                                                     to: " Gender") ?? "")): Text("")
+                                    }
+                                    .font(.subheadline)
+                                    HStack (alignment: .firstTextBaseline) {
+                                        Image(systemName: "person.circle")
+                                        diverData != []
+                                        ? Text("Gender: " + (diverData[0][0].slice(from: " Gender: ",
+                                                                                   to: " DiveMeets") ?? ""))
+                                        : Text("")
+                                    }
+                                    .font(.subheadline)
+                                    .padding([.leading], 2)
+                                    Divider()
                                 }
-                                Divider()
-                                HStack (alignment: .firstTextBaseline){
-                                    Image(systemName: "house.fill")
-                                    diverData != []
-                                    ? Text(
-                                        (diverData[0][0].slice(from: " City/State: ",
-                                                               to: " Country")  ?? "")
-                                        + ", "
-                                        + (diverData[0][0].slice(from: " Country: ",
-                                                                 to: " Gender") ?? "")): Text("")
-                                }
-                                .font(.subheadline)
-                                HStack (alignment: .firstTextBaseline) {
-                                    Image(systemName: "person.circle")
-                                    diverData != []
-                                    ? Text("Gender: " + (diverData[0][0].slice(from: " Gender: ",
-                                                                               to: " DiveMeets") ?? ""))
-                                    : Text("")
-                                }
-                                .font(.subheadline)
-                                .padding([.leading], 2)
-                                Divider()
                             }
-                        }
-                        .padding()
-                        ScrollView{
+                            .padding()
                             Text("Divers")
                                 .font(.title2).fontWeight(.semibold)
-//                            DiversList(diversAndLinks: $diversAndLinks)
-//                                .offset(y: -45)
+                            DiversList(diversAndLinks: $diversAndLinks)
+                                .offset(y: -45)
                             JudgedList(data: $judgingHistory)
                                 .offset(y: -50)
                         }
                     }
-                }
             }
         }
         .onAppear {
