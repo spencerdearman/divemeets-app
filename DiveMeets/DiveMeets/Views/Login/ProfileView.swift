@@ -12,8 +12,10 @@ struct ProfileView: View {
     @Environment(\.colorScheme) var currentMode
     
     var profileLink: String
+    @Namespace var profilespace
     @State var diverData : [[String]] = []
     @State var profileType : String = ""
+    @State var diverTab: Bool = false
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
@@ -230,12 +232,59 @@ struct ProfileView: View {
                                 }
                             }
                             .padding()
-                            Text("Divers")
-                                .font(.title2).fontWeight(.semibold)
-                            DiversList(diversAndLinks: $diversAndLinks)
-                                .offset(y: -45)
+                            if !diverTab{
+                                VStack{
+                                    Spacer()
+                                }
+                                .frame(width: 100, height: 50)
+                                .foregroundStyle(.white)
+                                .background(
+                                    bgColor.matchedGeometryEffect(id: "background", in: profilespace)
+                                )
+                                .mask(
+                                    RoundedRectangle(cornerRadius: 40, style: .continuous)
+                                        .matchedGeometryEffect(id: "mask", in: profilespace)
+                                )
+                                .shadow(radius: 5)
+                                .overlay(
+                                ZStack{
+                                    Text("Divers")
+                                        .font(.title2).fontWeight(.semibold)
+                                        .matchedGeometryEffect(id: "title", in: profilespace)
+                                })
+                                .onTapGesture{
+                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                        diverTab.toggle()
+                                    }
+                                }
+                            } else {
+                                ZStack{
+                                    VStack{
+                                        Text("Divers")
+                                            .padding(.top)
+                                            .font(.title2).fontWeight(.semibold)
+                                            .matchedGeometryEffect(id: "title", in: profilespace)
+                                        DiversList(diversAndLinks: $diversAndLinks)
+                                            .offset(y: -20)
+                                    }
+                                }
+                                .background(
+                                    bgColor.matchedGeometryEffect(id: "background", in: profilespace)
+                                )
+                                .mask(
+                                    RoundedRectangle(cornerRadius: 40, style: .continuous)
+                                        .matchedGeometryEffect(id: "mask", in: profilespace)
+                                )
+                                .shadow(radius: 10)
+                                .frame(width: 375, height: 300)
+                                .onTapGesture{
+                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                        diverTab.toggle()
+                                    }
+                                }
+                            }
                             JudgedList(data: $judgingHistory)
-                                .offset(y: -50)
+                                .padding()
                         }
                     }
             }
@@ -352,7 +401,7 @@ struct DiverBubbleView: View {
             Rectangle()
                 .foregroundColor(bubbleColor)
                 .cornerRadius(30)
-                .frame(width: 400, height: 200)
+                .frame(width: 300, height: 200)
                 .shadow(radius: 5)
             NavigationLink {
                 ProfileView(profileLink: elements[1])
