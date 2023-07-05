@@ -92,6 +92,7 @@ struct Home: View {
     @StateObject var meetParser: MeetParser = MeetParser()
     @State private var meetsParsed: Bool = false
     @State private var selection: ViewType = .upcoming
+    @Namespace var homespace
     
     private let cornerRadius: CGFloat = 30
     private let textColor: Color = Color.primary
@@ -143,9 +144,9 @@ struct Home: View {
     var body: some View {
         NavigationView {
             ZStack {
-                (currentMode == .light ? Color.white : Color.black)
-                    .ignoresSafeArea()
-                HomeColorfulView()
+//                (currentMode == .light ? Color.white : Color.black)
+//                    .ignoresSafeArea()
+                HomeColorfulView(homespace: homespace)
                 VStack {
                     VStack {
                         ZStack{
@@ -216,9 +217,11 @@ struct Home: View {
                     }
                     Spacer()
                     if selection == .upcoming {
-                        UpcomingMeetsView(meetParser: meetParser)
+                        UpcomingMeetsView(meetParser: meetParser, homespace: homespace)
+                            .ignoresSafeArea()
                     } else {
-                        CurrentMeetsView(meetParser: meetParser)
+                        CurrentMeetsView(meetParser: meetParser, homespace: homespace)
+                            .ignoresSafeArea()
                     }
                     Spacer()
                 }
@@ -242,6 +245,7 @@ struct Home: View {
 struct UpcomingMeetsView: View {
     @Environment(\.meetsDB) var db
     @ObservedObject var meetParser: MeetParser
+    let homespace: Namespace.ID
     
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     
@@ -253,8 +257,8 @@ struct UpcomingMeetsView: View {
         if let meets = meetParser.upcomingMeets {
             if !meets.isEmpty {
                 let upcoming = tupleToList(tuples: db.dictToTuple(dict: meets))
-                    ScalingScrollView(records: upcoming, bgColor: .clear, shadowRadius: 10) { (elem) in
-                        MeetBubbleView(elements: elem)
+                    ScalingScrollView(records: upcoming, bgColor: .clear, rowSpacing: 15, shadowRadius: 10) { (elem) in
+                        MeetBubbleView(elements: elem, homespace: homespace)
                     }
             } else {
                 Text("No upcoming meets found")
@@ -270,7 +274,8 @@ struct UpcomingMeetsView: View {
 struct CurrentMeetsView: View {
     @Environment(\.meetsDB) var db
     @ObservedObject var meetParser: MeetParser
-    
+    let homespace: Namespace.ID
+
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     
     private var maxHeightOffset: CGFloat {
@@ -280,8 +285,8 @@ struct CurrentMeetsView: View {
     var body: some View {
         if meetParser.currentMeets != nil && !meetParser.currentMeets!.isEmpty {
             let current = tupleToList(tuples: dictToCurrentTuple(dict: meetParser.currentMeets ?? []))
-            ScalingScrollView(records: current, bgColor: .clear, shadowRadius: 10) { (elem) in
-                MeetBubbleView(elements: elem)
+            ScalingScrollView(records: current, bgColor: .clear, rowSpacing: 15, shadowRadius: 10) { (elem) in
+                MeetBubbleView(elements: elem, homespace: homespace)
             }
             .padding(.bottom, maxHeightOffset)
         } else if meetParser.currentMeets != nil {
@@ -297,6 +302,7 @@ struct CurrentMeetsPageView: View {
     @Environment(\.colorScheme) var currentMode
     var infoLink: String
     var resultsLink: String
+    let homespace: Namespace.ID
     
     @State private var selection: CurrentMeetPageType = .info
     private let cornerRadius: CGFloat = 40
@@ -320,9 +326,7 @@ struct CurrentMeetsPageView: View {
     @ViewBuilder
     var body: some View {
         ZStack {
-//            (currentMode == .light ? Color.white : Color.black)
-//                .ignoresSafeArea()
-            bgColor.ignoresSafeArea()
+            HomeColorfulView(homespace: homespace)
             VStack {
                 ZStack {
                     RoundedRectangle(cornerRadius: cornerRadius)
@@ -386,6 +390,7 @@ struct CurrentMeetsPageView: View {
 
 struct MeetBubbleView: View {
     @Environment(\.colorScheme) var currentMode
+    let homespace: Namespace.ID
     
     private var bubbleColor: Color {
         currentMode == .light ? .white : .black
@@ -395,14 +400,15 @@ struct MeetBubbleView: View {
     //  resultsLink is only for current meets and is "" if no link is available
     private var elements: [String]
     
-    init(elements: [String]) {
+    init(elements: [String], homespace: Namespace.ID) {
         self.elements = elements
+        self.homespace = homespace
     }
     
     var body: some View {
         NavigationLink(destination:
                         elements.count == 10
-                       ? AnyView(CurrentMeetsPageView(infoLink: elements[3], resultsLink: elements[9]))
+                       ? AnyView(CurrentMeetsPageView(infoLink: elements[3], resultsLink: elements[9], homespace: homespace))
                        :
                         AnyView(MeetPageView(meetLink: elements[3], showBackButton: false))) {
             ZStack {
@@ -412,7 +418,7 @@ struct MeetBubbleView: View {
                 VStack {
                     VStack {
                         Text(elements[1]) // name
-                            .font(.title3)
+                            //.font(.title3)
                             .bold()
                             .scaledToFit()
                             .minimumScaleFactor(0.5)
@@ -422,20 +428,29 @@ struct MeetBubbleView: View {
                         Spacer()
                         
                         Text(elements[2]) // org
-                            .font(.headline)
+                            .font(.subheadline)
                     }
                     .foregroundColor(.primary)
                     
                     Spacer()
                     
                     HStack {
-                        Text(elements[6] + ", " + elements[7]) // city, state
-                            .padding(.leading)
+                        ZStack{
+                            Text(elements[6] + ", " + elements[7]) // city, state
+                                .padding(.leading)
+                        }
                         
                         Spacer()
                         
-                        Text(elements[4] + " - " + elements[5]) // startDate - endDate
-                            .padding(.trailing)
+                        ZStack{
+                            Rectangle()
+                                .fill(Custom.thinMaterialColor)
+                                .frame(width: 190)
+                                .mask(RoundedRectangle(cornerRadius: 30))
+                                .shadow(radius: 3)
+                            Text(elements[4] + " - " + elements[5]) // startDate - endDate
+                        }
+                        .padding(.trailing)
                     }
                     .font(.subheadline)
                     .scaledToFit()
@@ -450,6 +465,7 @@ struct MeetBubbleView: View {
 
 struct HomeColorfulView: View{
     @Environment(\.colorScheme) var currentMode
+    let homespace: Namespace.ID
     private var bgColor: Color {
         currentMode == .light ? Custom.background : Custom.background
     }
@@ -462,15 +478,19 @@ struct HomeColorfulView: View{
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: 10)
                         .frame(width: 475, height: 475)
+                        .matchedGeometryEffect(id: "circle1", in: homespace)
                     Circle()
                         .stroke(Custom.coolBlue, lineWidth: 10)
                         .frame(width: 435, height: 435)
+                        .matchedGeometryEffect(id: "circle2", in: homespace)
                     Circle()
                         .stroke(Custom.medBlue, lineWidth: 10)
                         .frame(width: 395, height: 395)
+                        .matchedGeometryEffect(id: "circle3", in: homespace)
                     Circle()
                         .stroke(Custom.lightBlue, lineWidth: 10)
                         .frame(width: 355, height: 355)
+                        .matchedGeometryEffect(id: "circle4", in: homespace)
                 }
                 .offset(x: geometry.size.width / 1.4, y: geometry.size.height / 15)
                 
@@ -478,30 +498,38 @@ struct HomeColorfulView: View{
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: 10)
                         .frame(width: 475, height: 475)
+                        .matchedGeometryEffect(id: "circle5", in: homespace)
                     Circle()
                         .stroke(Custom.coolBlue, lineWidth: 10)
                         .frame(width: 435, height: 435)
+                        .matchedGeometryEffect(id: "circle6", in: homespace)
                     Circle()
                         .stroke(Custom.medBlue, lineWidth: 10)
                         .frame(width: 395, height: 395)
+                        .matchedGeometryEffect(id: "circle7", in: homespace)
                     Circle()
                         .stroke(Custom.lightBlue, lineWidth: 10)
                         .frame(width: 355, height: 355)
+                        .matchedGeometryEffect(id: "circle8", in: homespace)
                 }
                 .offset(x: -geometry.size.width/2, y: geometry.size.height / 5)
                 ZStack{
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: 10)
                         .frame(width: 475, height: 475)
+                        .matchedGeometryEffect(id: "circle9", in: homespace)
                     Circle()
                         .stroke(Custom.coolBlue, lineWidth: 10)
                         .frame(width: 435, height: 435)
+                        .matchedGeometryEffect(id: "circle10", in: homespace)
                     Circle()
                         .stroke(Custom.medBlue, lineWidth: 10)
                         .frame(width: 395, height: 395)
+                        .matchedGeometryEffect(id: "circle11", in: homespace)
                     Circle()
                         .stroke(Custom.lightBlue, lineWidth: 10)
                         .frame(width: 355, height: 355)
+                        .matchedGeometryEffect(id: "circle12", in: homespace)
                 }
                 .offset(x: geometry.size.width/3, y: geometry.size.height / 1.5)
             }
@@ -509,3 +537,76 @@ struct HomeColorfulView: View{
     }
 }
 
+struct CurrentAndUpcomingColorful: View{
+    @Environment(\.colorScheme) var currentMode
+    let homespace: Namespace.ID
+    private var bgColor: Color {
+        currentMode == .light ? Custom.background : Custom.background
+    }
+    
+    var body: some View{
+        ZStack{
+            bgColor.ignoresSafeArea()
+            GeometryReader { geometry in
+                ZStack{
+                    Circle()
+                        .stroke(Custom.darkBlue, lineWidth: 10)
+                        .frame(width: 475, height: 475)
+                        .matchedGeometryEffect(id: "circle1", in: homespace)
+                    Circle()
+                        .stroke(Custom.coolBlue, lineWidth: 10)
+                        .frame(width: 435, height: 435)
+                        .matchedGeometryEffect(id: "circle2", in: homespace)
+                    Circle()
+                        .stroke(Custom.medBlue, lineWidth: 10)
+                        .frame(width: 395, height: 395)
+                        .matchedGeometryEffect(id: "circle3", in: homespace)
+                    Circle()
+                        .stroke(Custom.lightBlue, lineWidth: 10)
+                        .frame(width: 355, height: 355)
+                        .matchedGeometryEffect(id: "circle4", in: homespace)
+                }
+                .offset(x: geometry.size.width / 1.4, y: geometry.size.height / 15)
+                
+                ZStack{
+                    Circle()
+                        .stroke(Custom.darkBlue, lineWidth: 10)
+                        .frame(width: 475, height: 475)
+                        .matchedGeometryEffect(id: "circle5", in: homespace)
+                    Circle()
+                        .stroke(Custom.coolBlue, lineWidth: 10)
+                        .frame(width: 435, height: 435)
+                        .matchedGeometryEffect(id: "circle6", in: homespace)
+                    Circle()
+                        .stroke(Custom.medBlue, lineWidth: 10)
+                        .frame(width: 395, height: 395)
+                        .matchedGeometryEffect(id: "circle7", in: homespace)
+                    Circle()
+                        .stroke(Custom.lightBlue, lineWidth: 10)
+                        .frame(width: 355, height: 355)
+                        .matchedGeometryEffect(id: "circle8", in: homespace)
+                }
+                .offset(x: -geometry.size.width/2, y: geometry.size.height / 5)
+                ZStack{
+                    Circle()
+                        .stroke(Custom.darkBlue, lineWidth: 10)
+                        .frame(width: 475, height: 475)
+                        .matchedGeometryEffect(id: "circle9", in: homespace)
+                    Circle()
+                        .stroke(Custom.coolBlue, lineWidth: 10)
+                        .frame(width: 435, height: 435)
+                        .matchedGeometryEffect(id: "circle10", in: homespace)
+                    Circle()
+                        .stroke(Custom.medBlue, lineWidth: 10)
+                        .frame(width: 395, height: 395)
+                        .matchedGeometryEffect(id: "circle11", in: homespace)
+                    Circle()
+                        .stroke(Custom.lightBlue, lineWidth: 10)
+                        .frame(width: 355, height: 355)
+                        .matchedGeometryEffect(id: "circle12", in: homespace)
+                }
+                .offset(x: geometry.size.width/3, y: geometry.size.height / 1.5)
+            }
+        }
+    }
+}
