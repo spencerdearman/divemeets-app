@@ -274,11 +274,18 @@ struct MeetInfoPageView: View {
         let info = meetInfoData.0
         let time = meetInfoData.1
         VStack(alignment: .leading, spacing: 10) {
-            Text(info["Name"]!)
-                .font(.title)
-                .fontWeight(.bold)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, alignment: .center)
+            ZStack{
+                Rectangle()
+                    .foregroundColor(Custom.thinMaterialColor)
+                    .mask(RoundedRectangle(cornerRadius: 40))
+                    .shadow(radius: 6)
+                    .frame(height: 75)
+                Text(info["Name"]!)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
             Text(info["Sponsor"]!)
                 .font(.title3)
                 .fontWeight(.bold)

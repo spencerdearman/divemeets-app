@@ -217,10 +217,8 @@ struct Home: View {
                     Spacer()
                     if selection == .upcoming {
                         UpcomingMeetsView(meetParser: meetParser)
-                            .ignoresSafeArea()
                     } else {
                         CurrentMeetsView(meetParser: meetParser)
-                            .ignoresSafeArea()
                     }
                     Spacer()
                 }
@@ -578,7 +576,7 @@ struct CurrentAndUpcomingColorful: View{
                         .frame(width: 355, height: 355)
     
                 }
-                .offset(x: -geometry.size.width/2, y: -geometry.size.height / 1.75)
+                .offset(x: -geometry.size.width/2, y: -geometry.size.height / 2)
                 ZStack{
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: 10)
