@@ -197,40 +197,37 @@ struct MeetPageView: View {
     }
     
     var body: some View {
-        ZStack{
-            CurrentAndUpcomingColorful()
-            VStack {
-                if let meetInfoData = meetInfoData {
-                    getPageHeader()
-                        .padding([.leading, .trailing])
-                    
-                    MeetInfoPageView(meetInfoData: meetInfoData)
-                    
-                    Spacer()
-                } else if let meetResultsData = meetResultsData {
-                    getPageHeader()
-                        .padding([.leading, .trailing])
-                    
-                    MeetResultsPageView(meetResultsData: meetResultsData)
-                    
-                    Spacer()
-                } else if meetLink != "" {
-                    VStack {
-                        Text("Getting meet information...")
-                        ProgressView()
-                    }
-                } else {
-                    VStack {
-                        Text("There is not a results page available yet")
-                        Text("(Events may not have started yet)")
-                    }
+        VStack {
+            if let meetInfoData = meetInfoData {
+                getPageHeader()
+                    .padding([.leading, .trailing])
+                
+                MeetInfoPageView(meetInfoData: meetInfoData)
+                
+                Spacer()
+            } else if let meetResultsData = meetResultsData {
+                getPageHeader()
+                    .padding([.leading, .trailing])
+                
+                MeetResultsPageView(meetResultsData: meetResultsData)
+                
+                Spacer()
+            } else if meetLink != "" {
+                VStack {
+                    Text("Getting meet information...")
+                    ProgressView()
+                }
+            } else {
+                VStack {
+                    Text("There is not a results page available yet")
+                    Text("(Events may not have started yet)")
                 }
             }
-            .padding(.bottom, maxHeightOffset)
-            .onAppear {
-                Task {
-                    try await getMeetData(info: meetInfoData, results: meetResultsData)
-                }
+        }
+        .padding(.bottom, maxHeightOffset)
+        .onAppear {
+            Task {
+                try await getMeetData(info: meetInfoData, results: meetResultsData)
             }
         }
     }
@@ -274,18 +271,11 @@ struct MeetInfoPageView: View {
         let info = meetInfoData.0
         let time = meetInfoData.1
         VStack(alignment: .leading, spacing: 10) {
-            ZStack{
-                Rectangle()
-                    .foregroundColor(Custom.thinMaterialColor)
-                    .mask(RoundedRectangle(cornerRadius: 40))
-                    .shadow(radius: 6)
-                    .frame(height: 75)
-                Text(info["Name"]!)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity, alignment: .center)
-            }
+            Text(info["Name"]!)
+                .font(.title)
+                .fontWeight(.bold)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
             Text(info["Sponsor"]!)
                 .font(.title3)
                 .fontWeight(.bold)
