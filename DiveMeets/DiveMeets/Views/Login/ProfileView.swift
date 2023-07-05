@@ -417,6 +417,7 @@ struct JudgedList: View {
     @Binding var data: [String: [(String, String)]]
     
     let cornerRadius: CGFloat = 30
+    private let rowSpacing: CGFloat = 10
     
     var body: some View {
         
@@ -426,7 +427,7 @@ struct JudgedList: View {
                 .padding(.top)
             
             ScrollView(showsIndicators: false) {
-                VStack{
+                VStack(spacing: rowSpacing) {
                     ForEach(data.keys.sorted(by: >), id: \.self) { dropdownKey in
                         ZStack {
                             RoundedRectangle(cornerRadius: 30)
@@ -434,40 +435,44 @@ struct JudgedList: View {
                                 .shadow(radius: 5)
                             DisclosureGroup(
                                 content: {
-                                    VStack{
+                                    VStack(spacing: 5) {
                                         ForEach(data[dropdownKey] ?? [], id: \.0) { tuple in
                                             let shape = RoundedRectangle(cornerRadius: 30)
-                                            ZStack {
-                                                shape.fill(.thinMaterial)
-                                                NavigationLink {
-                                                    EventResultPage(meetLink: tuple.1)
-                                                } label: {
+                                            NavigationLink(destination:
+                                                            EventResultPage(meetLink: tuple.1))
+                                            {
+                                                ZStack {
+                                                    shape.fill(.thinMaterial)
+                                                    
                                                     HStack {
                                                         Text(tuple.0)
                                                         Spacer()
                                                         Image(systemName: "chevron.right")
                                                             .foregroundColor(.blue)
                                                     }
+                                                    .frame(height: 80)
+                                                    .contentShape(shape)
+                                                    .padding()
+                                                    
                                                 }
                                                 .foregroundColor(.primary)
-                                                .padding()
-                                                
+                                                .padding([.leading, .trailing])
                                             }
-                                            .contentShape(shape)
                                         }
-                                        .padding(2)
                                     }
+                                    .padding(.bottom)
                                 },
                                 label: {
                                     Text(dropdownKey)
+                                        .padding()
                                 }
                             )
                             .padding([.leading, .trailing])
                         }
                         .padding([.leading, .trailing])
-                        .padding()
                     }
                 }
+                .padding([.top, .bottom], rowSpacing)
             }
         }
     }
