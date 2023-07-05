@@ -320,6 +320,8 @@ struct CurrentMeetsPageView: View {
     
     @ViewBuilder
     var body: some View {
+        ZStack{
+            Custom.background.ignoresSafeArea()
             VStack {
                 ZStack {
                     RoundedRectangle(cornerRadius: cornerRadius)
@@ -365,12 +367,16 @@ struct CurrentMeetsPageView: View {
                 Spacer()
                 if selection == .info {
                     MeetPageView(meetLink: infoLink, showBackButton: false)
+                        .offset(y: -40)
                 } else {
                     MeetPageView(meetLink: resultsLink, showBackButton: false)
+                        .offset(y: -40)
                 }
                 Spacer()
             }
+        }
             .zIndex(1)
+            
         .onSwipeGesture(trigger: .onEnded) { direction in
             if direction == .left && selection == .info {
                 selection = .results
