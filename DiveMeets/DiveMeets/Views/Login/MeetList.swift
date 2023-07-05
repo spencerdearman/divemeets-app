@@ -11,6 +11,9 @@ import SwiftUI
 //                        [diverId:[meetName: meetLink]]
 var profileMainMeetLinks: [String: [String: String]] = [:]
 
+// Global that tracks the expansion states of each MeetEvent when navigating through NavigationLinks
+var lastExpanded: [String: Bool] = [:]
+
 struct MeetList: View {
     @Environment(\.colorScheme) var currentMode
     var profileLink: String
@@ -65,36 +68,77 @@ struct MeetList: View {
     
     
     var body: some View {
-        
-        ZStack{}
-            .onAppear {
-                Task {
-                    if let links = profileMainMeetLinks[String(profileLink.suffix(5))] {
-                        parser.cachedMainMeetLinks = links
-                    }
-                    await parser.parse(urlString: profileLink)
-                    profileMainMeetLinks[String(profileLink.suffix(5))] = parser.cachedMainMeetLinks
-                    
-                    diverData = parser.myData
-                    meets = createMeets(data: diverData) ?? []
-                    createdMeets = true
-                }
-            }
-        
         ZStack {
-            // Background color for View
-            customGray.ignoresSafeArea()
             
             if meets != [] {
-                List($meets, children: \.children) { $meet in
-                    (!meet.isChild ?
-                     AnyView(
-                        parentView(meet: $meet)
-                     ) : AnyView(
-                        childView(meet: $meet, navStatus: $navStatus)
-                     ))
-                    .frame(width: frameWidth,
-                           height: meet.isOpen ? 400: 45)
+                VStack {
+                    Text("Meets")
+                        .font(.title2).fontWeight(.semibold)
+                        .padding(.top)
+                    
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: rowSpacing) {
+                            ForEach($meets, id: \.id) { $meet in
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: cornerRadius)
+                                        .fill(Custom.tileColor)
+                                        .shadow(radius: 5)
+                                    DisclosureGroup(
+                                        isExpanded: $meet.isExpanded,
+                                        content: {
+                                            VStack(spacing: 5) {
+                                                Divider()
+                                                
+                                                ChildrenView(children: meet.children)
+                                                
+                                                HStack {
+                                                    let shape = RoundedRectangle(cornerRadius: 30)
+                                                    
+                                                    NavigationLink(
+                                                        destination: MeetPageView(
+                                                            meetLink: meet.link ?? "")) {
+                                                                ZStack {
+                                                                    shape.fill(.thinMaterial)
+                                                                    Text("Full Meet")
+                                                                }
+                                                                .frame(width: 130, height: 50)
+                                                                .contentShape(shape)
+                                                            }
+                                                    
+                                                    Spacer()
+                                                }
+                                                .padding(.bottom)
+                                                .padding(.top, 5)
+                                            }
+                                        },
+                                        label: {
+                                            ParentView(meet: $meet)
+                                        }
+                                    )
+                                    .padding([.leading, .trailing])
+                                    // This mechanism using lastExpanded stores the
+                                    // expansion state of all values in the list when you
+                                    // tap a NavigationLink, and when you return, it pulls
+                                    // the isExpanded state from lastExpanded into each meet
+                                    // and then removes that value from isExpanded. This
+                                    // keeps lastExpanded empty when in a ProfileView and
+                                    // populated when you press a NavigationLink
+                                    .onAppear {
+                                        if let val = lastExpanded[meet.name] {
+                                            meet.isExpanded = val
+                                            lastExpanded.removeValue(forKey: meet.name)
+                                        }
+                                    }
+                                    .onDisappear {
+                                        lastExpanded[meet.name] = meet.isExpanded
+                                    }
+                                }
+                                .padding([.leading, .trailing])
+                                .padding(.top, meet == meets.first ? rowSpacing : 0)
+                                .padding(.bottom, meet == meets.last ? rowSpacing : 0)
+                            }
+                        }
+                    }
                 }
                 // Waiting for parse results to finish
             } else if !createdMeets {
@@ -109,49 +153,78 @@ struct MeetList: View {
                 }
             }
         }
-    }
-}
-
-struct childView: View{
-    @Binding var meet: MeetEvent
-    @Binding var navStatus: Bool
-    
-    var body: some View{
-        NavigationLink {
-            Event(isFirstNav: $navStatus, meet: $meet)
-        } label: {
-            Text(meet.name)
+        .onAppear {
+            // Have to check if meets is empty to clear lastExpanded (meaning you have initially
+            // opened a new ProfileView)
+            if meets == [] {
+                lastExpanded = [:]
+            }
+            
+            // Keeps reparsing from being run when stepping back from NavigationLink
+            if !createdMeets {
+                Task {
+                    if let links = profileMainMeetLinks[String(profileLink.suffix(5))] {
+                        parser.cachedMainMeetLinks = links
+                    }
+                    await parser.parse(urlString: profileLink)
+                    profileMainMeetLinks[String(profileLink.suffix(5))] = parser.cachedMainMeetLinks
+                    
+                    diverData = parser.myData
+                    meets = createMeets(data: diverData) ?? []
+                    createdMeets = true
+                }
+            }
         }
     }
 }
 
-struct parentView: View{
+struct ChildrenView: View {
+    var children: [MeetEvent]?
+    
+    var body: some View {
+        VStack(spacing: 10) {
+            ForEach(children ?? [], id: \.id) { event in
+                let shape = RoundedRectangle(cornerRadius: 30)
+                ZStack {
+                    shape.fill(.thinMaterial)
+                    ChildView(meet: event, navStatus: event.firstNavigation)
+                }
+                .contentShape(shape)
+            }
+        }
+    }
+}
+
+struct ChildView: View{
+    var meet: MeetEvent
+    var navStatus: Bool
+    
+    var body: some View {
+        NavigationLink {
+            Event(isFirstNav: navStatus, meet: meet)
+        } label: {
+            HStack {
+                Text(meet.name)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.blue)
+            }
+        }
+        .foregroundColor(.primary)
+        .padding()
+    }
+}
+
+struct ParentView: View{
     @Binding var meet: MeetEvent
-    @State var meetShowing: Bool = false
     
     var body: some View {
         HStack {
-            Button(action: {}, label: {
-                Image(systemName: "link")
-                    .foregroundColor(.secondary)
-                    .padding()
-            })
-            .simultaneousGesture(TapGesture().onEnded {
-                meetShowing = true
-            })
-            .fullScreenCover(isPresented: $meetShowing) {
-                NavigationView {
-                    MeetPageView(meetLink: meet.link ?? "")
-                }
-            }
-            
             Spacer()
             
-            HStack {
-                Text(meet.name)
-            }
-            .foregroundColor(.primary)
-            .padding()
+            Text(meet.name)
+                .foregroundColor(.primary)
+                .padding()
             
             Spacer()
         }

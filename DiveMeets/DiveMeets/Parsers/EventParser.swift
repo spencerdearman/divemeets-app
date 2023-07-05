@@ -71,17 +71,11 @@ final class EventHTMLParser: ObservableObject {
                 string.append(try t.text())
                 
                 if !cachedMainMeetLinks.keys.contains(meetName) {
-                    await getTextModel.fetchText(url: URL(string: eventLink)!)
-                    if let meetHtml = getTextModel.text {
-                        let eventDocument: Document = try SwiftSoup.parse(meetHtml)
-                        guard let meetBody = eventDocument.body() else { return [:] }
-                        let main = try meetBody.getElementsByTag("table")
-                        let tr = try main[0].getElementsByTag("tr")[0]
-                        meetLink = try "https://secure.meetcontrol.com/divemeets/system/" + tr.getElementsByTag("a").attr("href")
-                        
-                        await MainActor.run { [meetName, meetLink] in
-                            cachedMainMeetLinks[meetName] = meetLink
-                        }
+                    meetLink = (eventLink.components(separatedBy: "&").first ?? "")
+                        .replacingOccurrences(of: "divesheet", with: "meet")
+
+                    await MainActor.run { [meetName, meetLink] in
+                        cachedMainMeetLinks[meetName] = meetLink
                     }
                 } else {
                     meetLink = cachedMainMeetLinks[meetName] ?? ""
@@ -138,7 +132,6 @@ final class EventHTMLParser: ObservableObject {
         eventPageLink = "https://secure.meetcontrol.com/divemeets/system/" +
         (try overall[2].getElementsByTag("a").attr("href"))
         
-        print("Here is the link:" + String(try overall[1].getElementsByTag("a").attr("href")))
         meetDates = try overall[1].getElementsByTag("Strong").text()
         totalNetScore = Double(try finalRow[2].text()) ?? 0.0
         totalDD = Double(try finalRow[3].text()) ?? 0.0

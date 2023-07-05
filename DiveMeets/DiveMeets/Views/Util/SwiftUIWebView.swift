@@ -107,7 +107,6 @@ struct WebView: UIViewRepresentable {
                     self?.parsedHTML = html
                     self?.parsedLinks = (self?.htmlParser.getRecords(html)) ?? [:]
                     self?.linksParsed = true
-                    print((self?.parsedLinks) ?? [:])
                 }
             }
         }

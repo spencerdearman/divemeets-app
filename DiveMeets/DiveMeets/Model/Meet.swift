@@ -26,6 +26,7 @@ struct MeetEvent: Hashable, Identifiable {
     var score: Double?
     var children: [MeetEvent]?
     var isOpen: Bool = false
+    var isExpanded: Bool = false
     var isChild: Bool = false
     var link: String?
     var firstNavigation: Bool = true

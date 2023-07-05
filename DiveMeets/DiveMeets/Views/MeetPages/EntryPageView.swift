@@ -134,9 +134,15 @@ struct EntryView: View {
                             }
                         }
                     }
+                    
+                    let diveNums = (entry.dives ?? []).map { $0.number }
+                    NavigationLink(destination: MeetScoreCalculator(dives: diveNums)) {
+                        Text("See in Meet Score Calculator")
+                            .padding([.leading, .trailing])
+                            .padding([.top, .bottom], 5)
+                            .background(RoundedRectangle(cornerRadius: 30).fill(.thinMaterial))
+                    }
                 }
-                .scaledToFit()
-                .minimumScaleFactor(0.1)
             },
             label: {
                 AnyView(labelView())

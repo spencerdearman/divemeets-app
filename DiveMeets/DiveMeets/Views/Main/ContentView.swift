@@ -14,7 +14,7 @@ struct ContentView: View {
     @EnvironmentObject private var p: MeetParser
     @State private var selectedTab: Tab = .house
     @State var isIndexingMeets: Bool = false
-    @State var showSplash: Bool = true
+    @State var showSplash: Bool = false
     @FetchRequest(sortDescriptors: []) private var meets: FetchedResults<DivingMeet>
     
     private let splashDuration: CGFloat = 0.5
@@ -70,7 +70,7 @@ struct ContentView: View {
                                             LiveResultsView(request: "debug")
                                         }
                                         .navigationViewStyle(StackNavigationViewStyle())
-                                        //ToolsMenu()
+//                                        ToolsMenu()
                                     case .magnifyingglass:
                                         SearchView(isIndexingMeets: $isIndexingMeets)
                                     case .person:

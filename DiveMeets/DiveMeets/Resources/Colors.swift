@@ -19,4 +19,6 @@ struct Custom {
     static let homeTileColor = Color("HomeTileColor")
     static let selectionColorsDark = Color("SelectionColorsDark")
     static let selection = Color("Selection")
+    static let textColor = Color("TextColors")
+    static let secondaryColor = Color("SecondaryColor")
 }

@@ -12,8 +12,10 @@ struct ProfileView: View {
     @Environment(\.colorScheme) var currentMode
     
     var profileLink: String
+    @Namespace var profilespace
     @State var diverData : [[String]] = []
     @State var profileType : String = ""
+    @State var diverTab: Bool = false
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
@@ -85,6 +87,7 @@ struct ProfileView: View {
         let mirror = Mirror(reflecting: object)
         return mirror.displayStyle == .dictionary
     }
+
     
     var body: some View {
         
@@ -92,7 +95,14 @@ struct ProfileView: View {
             bgColor.ignoresSafeArea()
             
             if profileType == "Diver" {
-                VStack {
+                ZStack{
+                    GeometryReader{ geometry in
+                        BackgroundSpheres()
+                        Rectangle()
+                            .fill(Custom.background)
+                            .mask(RoundedRectangle(cornerRadius: 40))
+                            .offset(y: geometry.size.height * 0.4)
+                    }
                     VStack {
                         ProfileImage(diverID: diverID)
                             .frame(width: 200, height: 150)
@@ -106,13 +116,13 @@ struct ProfileView: View {
                                     let lastName = nameComps?.last ?? ""
                                     
                                     diverData != []
-                                    ? Text(firstName + " " + lastName) .font(.title)
+                                    ? Text(firstName + " " + lastName) .font(.title).foregroundColor(.white)
                                     : Text("")
                                     
                                     Text(diverID)
-                                        .font(.subheadline).foregroundColor(.secondary)
+                                        .font(.subheadline).foregroundColor(Custom.secondaryColor)
                                 }
-                                Divider()
+                                WhiteDivider()
                                 HStack (alignment: .firstTextBaseline) {
                                     Image(systemName: "house.fill")
                                     diverData != []
@@ -123,7 +133,7 @@ struct ProfileView: View {
                                                                  to: " Gender") ?? ""))
                                     : Text("")
                                 }
-                                .font(.subheadline)
+                                .font(.subheadline).foregroundColor(.white)
                                 HStack (alignment: .firstTextBaseline) {
                                     Image(systemName: "person.circle")
                                     diverData != []
@@ -140,9 +150,8 @@ struct ProfileView: View {
                                                                   to: " High") ?? ""))
                                     : Text("")
                                 }
-                                .font(.subheadline)
+                                .font(.subheadline).foregroundColor(.white)
                                 .padding([.leading], 2)
-                                Divider()
                             }
                         }
                         .padding([.leading, .trailing, .top])
@@ -180,61 +189,119 @@ struct ProfileView: View {
                             .padding([.leading, .trailing])
                             .padding(.bottom, 5)
                         }
-                    }
-                    Text("Meets")
-                        .font(.title2)
-                        .padding(.bottom)
-                    MeetList(profileLink: profileLink)
-                    Spacer()
-                }
-                .padding(.bottom, maxHeightOffset)
-            } else {
-                VStack {
-                    VStack {
-                        ProfileImage(diverID: diverID)
-                            .frame(width: 200, height: 120)
-                            .padding()
-                            .padding(.bottom)
-                        VStack{
-                            VStack(alignment: .leading) {
-                                HStack (alignment: .firstTextBaseline){
-                                    diverData != []
-                                    ? Text(diverData[0][0].slice(from: "Name: ",
-                                                                 to: " City/State") ?? "").font(.title)
-                                    : Text("")
-                                    
-                                    Text(diverID)
-                                        .font(.subheadline).foregroundColor(.secondary)
-                                }
-                                Divider()
-                                HStack (alignment: .firstTextBaseline){
-                                    Image(systemName: "house.fill")
-                                    diverData != []
-                                    ? Text(
-                                        (diverData[0][0].slice(from: " City/State: ",
-                                                               to: " Country")  ?? "")
-                                        + ", "
-                                        + (diverData[0][0].slice(from: " Country: ",
-                                                                 to: " Gender") ?? "")): Text("")
-                                }
-                                .font(.subheadline)
-                                HStack (alignment: .firstTextBaseline) {
-                                    Image(systemName: "person.circle")
-                                    diverData != []
-                                    ? Text("Gender: " + (diverData[0][0].slice(from: " Gender: ",
-                                                                               to: " DiveMeets") ?? ""))
-                                    : Text("")
-                                }
-                                .font(.subheadline)
-                                .padding([.leading], 2)
-                                Divider()
-                            }
-                        }
-                        .padding()
                         
-                        DiversList(diversAndLinks: $diversAndLinks)
                         Spacer()
-                        JudgedList(data: $judgingHistory)
+                        
+                        
+                        MeetList(profileLink: profileLink)
+                        
+                    }
+                    .padding(.bottom, maxHeightOffset)
+                }
+            } else {
+                ZStack{
+                    GeometryReader{ geometry in
+                        BackgroundSpheres()
+                        Rectangle()
+                            .fill(Custom.background)
+                            .mask(RoundedRectangle(cornerRadius: 40))
+                            .offset(y: geometry.size.height * 0.4)
+                    }
+                    VStack {
+                        VStack {
+                            ProfileImage(diverID: diverID)
+                                .frame(width: 200, height: 150)
+                                .padding()
+                            VStack{
+                                VStack(alignment: .leading) {
+                                    HStack (alignment: .firstTextBaseline){
+                                        diverData != []
+                                        ? Text(diverData[0][0].slice(from: "Name: ",
+                                                                     to: " City/State") ?? "").font(.title).foregroundColor(.white)
+                                        : Text("")
+                                        
+                                        Text(diverID)
+                                            .font(.subheadline).foregroundColor(Custom.secondaryColor)
+                                    }
+                                    WhiteDivider()
+                                    HStack (alignment: .firstTextBaseline){
+                                        Image(systemName: "house.fill")
+                                        diverData != []
+                                        ? Text(
+                                            (diverData[0][0].slice(from: " City/State: ",
+                                                                   to: " Country")  ?? "")
+                                            + ", "
+                                            + (diverData[0][0].slice(from: " Country: ",
+                                                                     to: " Gender") ?? "")): Text("")
+                                    }
+                                    .font(.subheadline).foregroundColor(.white)
+                                    HStack (alignment: .firstTextBaseline) {
+                                        Image(systemName: "person.circle")
+                                        diverData != []
+                                        ? Text("Gender: " + (diverData[0][0].slice(from: " Gender: ",
+                                                                                   to: " DiveMeets") ?? ""))
+                                        : Text("")
+                                    }
+                                    .font(.subheadline).foregroundColor(.white)
+                                    .padding([.leading], 2)
+                                }
+                            }
+                            .padding()
+                            if !diverTab{
+                                VStack{
+                                    Spacer()
+                                }
+                                .frame(width: 100, height: 50)
+                                .foregroundStyle(.white)
+                                .background(
+                                    Custom.carouselColor.matchedGeometryEffect(id: "background", in: profilespace)
+                                )
+                                .mask(
+                                    RoundedRectangle(cornerRadius: 40, style: .continuous)
+                                        .matchedGeometryEffect(id: "mask", in: profilespace)
+                                )
+                                .shadow(radius: 5)
+                                .overlay(
+                                    ZStack{
+                                        Text("Divers")
+                                            .font(.title3).fontWeight(.semibold)
+                                            .matchedGeometryEffect(id: "title", in: profilespace)
+                                    })
+                                .padding(.top, 8)
+                                .onTapGesture{
+                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                        diverTab.toggle()
+                                    }
+                                }
+                            } else {
+                                ZStack{
+                                    VStack{
+                                        Text("Divers")
+                                            .padding(.top)
+                                            .font(.title3).fontWeight(.semibold)
+                                            .matchedGeometryEffect(id: "title", in: profilespace)
+                                            .onTapGesture{
+                                                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                                    diverTab.toggle()
+                                                }
+                                            }
+                                        DiversList(diversAndLinks: $diversAndLinks)
+                                            .offset(y: -20)
+                                    }
+                                    .padding(.top, 8)
+                                }
+                                .background(
+                                    Custom.carouselColor.matchedGeometryEffect(id: "background", in: profilespace)
+                                )
+                                .mask(
+                                    RoundedRectangle(cornerRadius: 40, style: .continuous)
+                                        .matchedGeometryEffect(id: "mask", in: profilespace)
+                                )
+                                .shadow(radius: 10)
+                                .frame(width: 375, height: 300)
+                            }
+                            JudgedList(data: $judgingHistory)
+                        }
                     }
                 }
             }
@@ -276,10 +343,13 @@ struct ProfileView: View {
                     } else if try diver.text() == "Results" {
                         break
                     } else {
-                        let link = try "https://secure.meetcontrol.com/divemeets/system/" + diver.attr("href")
+                        let link = try "https://secure.meetcontrol.com/divemeets/system/"
+                        + diver.attr("href")
                         diversAndLinks.append([try diver.text(), link])
                     }
                 }
+                print(diversAndLinks)
+                
                 
                 var current = ""
                 var eventsList: [(String, String)] = []
@@ -290,8 +360,10 @@ struct ProfileView: View {
                         if i == 0 {
                             continue
                         } else if try t.text().contains("Results") {
-                            let event = try t.getElementsByTag("td")[0].text().replacingOccurrences(of: "  ", with: "")
-                            let resultsLink = try "https://secure.meetcontrol.com/divemeets/system/" + t.getElementsByTag("a").attr("href")
+                            let event = try t.getElementsByTag("td")[0].text()
+                                .replacingOccurrences(of: "  ", with: "")
+                            let resultsLink = try "https://secure.meetcontrol.com/divemeets/system/"
+                            + t.getElementsByTag("a").attr("href")
                             eventsList.append((event, resultsLink))
                         } else {
                             if i > 1 {
@@ -314,52 +386,52 @@ struct ProfileView: View {
     }
 }
 
-struct DiversList: View{
+struct DiversList: View {
     @Binding var diversAndLinks: [[String]]
     
     var body: some View {
-        DisclosureGroup(content: {
-            ScalingScrollView(records: diversAndLinks, viewHeight: 50, rowSpacing: 10) { (elem) in
-                DiverBubbleView(elements: elem)
+        VStack (spacing: 1){
+            TabView {
+                ForEach(diversAndLinks, id: \.self) { elem in
+                    DiverBubbleView(elements: elem)
+                }
             }
-            .frame(height: 300)
-            .padding(.top)
-            
-        }, label: {
-            Text("Divers")
-                .font(.title2)
-                .bold()
-                .foregroundColor(.primary)
-        })
-        .padding()
+            .tabViewStyle(PageTabViewStyle())
+            .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+            .frame(height: 190)
+        }
     }
 }
 
 struct DiverBubbleView: View {
     @Environment(\.colorScheme) var currentMode
     @State private var focusBool: Bool = false
+    private let getTextModel = GetTextAsyncModel()
     
-    private var bubbleColor: Color {
-        currentMode == .light ? .white : .black
-    }
     private var elements: [String]
     
     init(elements: [String]) {
         self.elements = elements
     }
     
-    //[Place: (Left to dive, order, last round place, last round score, current place,
-    //current score, name, last dive average, event average score, avg round score
     var body: some View {
+        var link = ""
         ZStack {
             Rectangle()
-                .foregroundColor(bubbleColor)
+                .foregroundColor(Custom.thinMaterialColor)
                 .cornerRadius(30)
-            NavigationLink {
-                ProfileView(profileLink: elements[1])
-            } label: {
-                Text(elements[0])
-                    .fontWeight(.semibold)
+                .frame(width: 300, height: 100)
+                .shadow(radius: 5)
+            HStack{
+                NavigationLink {
+                    ProfileView(profileLink: elements[1])
+                } label: {
+                    Text(elements[0])
+                        .fontWeight(.semibold)
+                }
+                MiniProfileImage(diverID: String(elements[1].utf16.dropFirst(67)) ?? "", width: 80, height: 100)
+                    .padding(.leading)
+                    .scaledToFit()
             }
             
         }
@@ -369,25 +441,100 @@ struct DiverBubbleView: View {
 struct JudgedList: View {
     @Binding var data: [String: [(String, String)]]
     
+    let cornerRadius: CGFloat = 30
+    private let rowSpacing: CGFloat = 10
+    
     var body: some View {
-        Text("Judging History")
-            .font(.title2).fontWeight(.semibold)
-        List {
-            ForEach(data.keys.sorted(by: >), id: \.self) { dropdownKey in
-                DisclosureGroup(
-                    content: {
-                        ForEach(data[dropdownKey] ?? [], id: \.0) { tuple in
-                            NavigationLink {
-                                EventResultPage(meetLink: tuple.1)
-                            } label: {
-                                Text(tuple.0)
-                            }
+        
+        VStack {
+            Text("Judging History")
+                .font(.title2).fontWeight(.semibold)
+                .padding(.top)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: rowSpacing) {
+                    ForEach(data.keys.sorted(by: >), id: \.self) { dropdownKey in
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 30)
+                                .fill(Custom.tileColor)
+                                .shadow(radius: 5)
+                            DisclosureGroup(
+                                content: {
+                                    VStack(spacing: 5) {
+                                        ForEach(data[dropdownKey] ?? [], id: \.0) { tuple in
+                                            let shape = RoundedRectangle(cornerRadius: 30)
+                                            NavigationLink(destination:
+                                                            EventResultPage(meetLink: tuple.1))
+                                            {
+                                                ZStack {
+                                                    shape.fill(Custom.thinMaterialColor)
+                                                    
+                                                    HStack {
+                                                        Text(tuple.0)
+                                                        Spacer()
+                                                        Image(systemName: "chevron.right")
+                                                            .foregroundColor(.blue)
+                                                    }
+                                                    .frame(height: 80)
+                                                    .padding()
+                                                    
+                                                }
+                                                .foregroundColor(.primary)
+                                                .padding([.leading, .trailing])
+                                            }
+                                        }
+                                    }
+                                    .padding(.bottom)
+                                },
+                                label: {
+                                    Text(dropdownKey)
+                                        .multilineTextAlignment(.center)
+                                        .foregroundColor(Custom.textColor)
+                                        .padding()
+                                }
+                            )
+                            .padding([.leading, .trailing])
                         }
-                    },
-                    label: {
-                        Text(dropdownKey)
+                        .padding([.leading, .trailing])
                     }
-                )
+                }
+                .padding([.top, .bottom], rowSpacing)
+            }
+        }
+    }
+}
+
+struct BackgroundSpheres: View {
+    @State var width: CGFloat = 0
+    @State var height: CGFloat = 0
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack{}
+                .onAppear{
+                    width = geometry.size.width
+                    height = geometry.size.height
+                }
+            VStack {
+                ZStack{
+                    Circle()
+                        .fill(Custom.darkBlue) // Circle color
+                        .frame(width: geometry.size.width
+                               * 2.5, height: geometry.size.width * 2.5) // Adjust the size of the circle as desired
+                        .position(x: geometry.size.width, y: -geometry.size.width * 0.55) // Center the circle
+                        .shadow(radius: 15)
+                    Circle()
+                        .fill(Custom.coolBlue) // Circle color
+                        .frame(width:geometry.size.width
+                               * 1.3, height:geometry.size.width * 1.3)
+                        .position(x: geometry.size.width * 0.8, y: geometry.size.width * 0.6)
+                        .shadow(radius: 15)
+                    Circle()
+                        .fill(Custom.medBlue) // Circle color
+                        .frame(width: geometry.size.width
+                               * 1.1, height: geometry.size.width * 1.1)
+                        .position(x: 0, y: geometry.size.width * 0.65)
+                        .shadow(radius: 15)
+                }
             }
         }
     }

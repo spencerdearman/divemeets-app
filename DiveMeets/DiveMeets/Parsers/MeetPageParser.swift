@@ -546,13 +546,11 @@ class MeetPageParser: ObservableObject {
         let tables = try content.getElementsByTag("table")
         
         if (link.contains("meetinfo")) {
-            print("Parsing info link...")
             return parseInfoPage(tables: tables)
         } else if (link.contains("meetresults")) {
-            print("Parsing results link...")
             return parseResultsPage(tables: tables)
         }
-        print("Failed")
+        
         return nil
     }
 }

@@ -322,6 +322,13 @@ struct SearchInputView: View {
         predicate = nil
     }
     
+    private func trimFields() {
+        firstName = firstName.trimmingCharacters(in: .whitespacesAndNewlines)
+        lastName = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
+        meetName = meetName.trimmingCharacters(in: .whitespacesAndNewlines)
+        orgName = orgName.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
     var body: some View {
         let typeBGColor: Color = currentMode == .light
         ? Color(red: grayValue, green: grayValue, blue: grayValue)
@@ -407,6 +414,8 @@ struct SearchInputView: View {
                                            lastName: lastName, meetName: meetName,
                                            orgName: orgName, meetYear: meetYear) {
                                 clearStateFlags()
+                                trimFields()
+                                
                                 searchSubmitted = true
                                 
                                 if selection == .meet {
@@ -469,7 +478,8 @@ struct SearchInputView: View {
                     ZStack (alignment: .topLeading) {
                         (selection == .person
                          ? AnyView(RecordList(records: $parsedLinks,
-                                              resultSelected: $resultSelected, fullScreenResults: $fullScreenResults))
+                                              resultSelected: $resultSelected,
+                                              fullScreenResults: $fullScreenResults))
                          : AnyView(MeetResultsView(records: filteredItems)))
                         .onAppear {
                             fullScreenResults = true
@@ -527,15 +537,15 @@ struct SearchInputView: View {
     }
     
     private func debounceTabSelection(_ newSelection: SearchType) {
-            debounceWorkItem?.cancel() // Cancel previous debounce work item if exists
-
-            let workItem = DispatchWorkItem { [self] in
-                self.selection = newSelection
-            }
-
-            debounceWorkItem = workItem
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: workItem)
+        debounceWorkItem?.cancel() // Cancel previous debounce work item if exists
+        
+        let workItem = DispatchWorkItem { [self] in
+            self.selection = newSelection
         }
+        
+        debounceWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: workItem)
+    }
 }
 
 struct IndexingCounterView: View {
@@ -628,8 +638,15 @@ struct MeetSearchView: View {
     @Binding var meetName: String
     @Binding var orgName: String
     @Binding var meetYear: String
+    @State var meetYearIndex: Int = 0
     private var focusedField: FocusState<SearchField?>.Binding
     private let currentYear: Int = Calendar.current.component(.year, from: Date())
+    
+    @ScaledMetric var pickerFontSize: CGFloat = 18
+    
+    private func meetIndexToString(_ index: Int) -> String {
+        return index == 0 ? "" : String(currentYear - index + 1)
+    }
     
     fileprivate init(meetName: Binding<String>, orgName: Binding<String>,
                      meetYear: Binding<String>, focusedField: FocusState<SearchField?>.Binding) {
@@ -640,7 +657,7 @@ struct MeetSearchView: View {
     }
     
     var body: some View {
-        VStack{
+        VStack {
             HStack {
                 Text("Meet Name:")
                     .padding(.leading)
@@ -668,17 +685,21 @@ struct MeetSearchView: View {
             HStack {
                 Text("Meet Year:")
                     .padding(.leading)
-                Picker("", selection: $meetYear) {
-                    Text("").tag("")
-                    ForEach((2004...currentYear).reversed(),
-                            id: \.self) {
-                        Text(String($0))
-                            .tag(String($0))
-                    }
+                NoStickPicker(selection: $meetYearIndex,
+                              rowCount: (2004...currentYear).count + 1) { r in
+                    let label = UILabel()
+                    label.attributedText = NSMutableAttributedString(string: meetIndexToString(r))
+                    label.font = UIFont.systemFont(ofSize: pickerFontSize)
+                    label.sizeToFit()
+                    label.layer.masksToBounds = true
+                    return label
                 }
-                .pickerStyle(.wheel)
-                .frame(width: 150, height: 85)
-                .padding(.trailing)
+                              .pickerStyle(.wheel)
+                              .frame(width: 125, height: 85)
+                              .padding(.trailing)
+                              .onChange(of: meetYearIndex) { newValue in
+                                  meetYear = meetIndexToString(newValue)
+                              }
             }
             .offset(y: -10)
         }
@@ -732,36 +753,37 @@ struct MeetResultsView : View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 if !records.isEmpty {
                     ScalingScrollView(records: records, rowSpacing: rowSpacing) { (e) in
-                        ZStack {
-                            Rectangle()
-                                .foregroundColor(currentMode == .light ? .white : .black)
-                            VStack {
-                                if let name = e.name, let city = e.city, let state = e.state,
-                                   let startDate = e.startDate, let endDate = e.endDate {
-                                    HStack(alignment: .top) {
-                                        Text(name)
-                                            .font(.title3)
-                                            .bold()
+                        NavigationLink(destination: MeetPageView(meetLink: e.link ?? "")) {
+                            ZStack {
+                                Rectangle()
+                                    .foregroundColor(currentMode == .light ? .white : .black)
+                                VStack {
+                                    if let name = e.name, let city = e.city, let state = e.state,
+                                       let startDate = e.startDate, let endDate = e.endDate {
+                                        HStack(alignment: .top) {
+                                            Text(name)
+                                                .font(.title3)
+                                                .bold()
+                                            Spacer()
+                                            Text(city + ", " + state)
+                                        }
+                                        .foregroundColor(.primary)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                        .lineLimit(2)
                                         Spacer()
-                                        Text(city + ", " + state)
+                                        HStack {
+                                            Text(e.organization ?? "")
+                                            Spacer()
+                                            Text(dateToString(startDate)
+                                                 + " - " + dateToString(endDate))
+                                        }
+                                        .foregroundColor(.primary)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                        .lineLimit(1)
                                     }
-                                    .fixedSize(horizontal: false, vertical: true)
-                                    .lineLimit(2)
-                                    Spacer()
-                                    HStack {
-                                        Text(e.organization ?? "")
-                                        Spacer()
-                                        Text(dateToString(startDate)
-                                             + " - " + dateToString(endDate))
-                                    }
-                                    .fixedSize(horizontal: false, vertical: true)
-                                    .lineLimit(1)
                                 }
+                                .padding()
                             }
-                            .padding()
-                        }
-                        .onTapGesture {
-                            print(e.link ?? "")
                         }
                     }
                     .padding(.bottom, maxHeightOffset)

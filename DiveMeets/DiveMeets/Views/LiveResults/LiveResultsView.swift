@@ -306,30 +306,30 @@ struct mainView: View {
         ZStack {
             ColorfulView()
             GeometryReader { geometry in
-                VStack(spacing: 0.5){
+                VStack(spacing: 0.5) {
                     if !starSelected {
-                            VStack{
-                                ZStack{
-                                    Rectangle()
-                                        .foregroundColor(Custom.thinMaterialColor)
-                                        .mask(RoundedRectangle(cornerRadius: 40))
-                                        .frame(width: 300, height: 70)
-                                        .shadow(radius: 6)
-                                    VStack{
-                                        Text(title)
-                                            .font(.title2).bold()
-                                            .fixedSize(horizontal: false, vertical: true)
-                                            .lineLimit(2)
-                                            .multilineTextAlignment(.center)
-                                        Text(roundString)
-                                    }
+                        VStack {
+                            ZStack {
+                                Rectangle()
+                                    .foregroundColor(Custom.thinMaterialColor)
+                                    .mask(RoundedRectangle(cornerRadius: 40))
+                                    .frame(width: 300, height: 70)
+                                    .shadow(radius: 6)
+                                VStack {
+                                    Text(title)
+                                        .font(.title2).bold()
+                                        .fixedSize(horizontal: false, vertical: true)
+                                        .lineLimit(2)
+                                        .multilineTextAlignment(.center)
+                                    Text(roundString)
                                 }
-                                TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation),
-                                             bottomView: NextDiverView(nextInfo: $nextDiverInformation),
-                                             width: screenWidth * 0.95,
-                                             height: screenHeight * 0.32)
-                                .dynamicTypeSize(.xSmall ... .xxxLarge)
                             }
+                            TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation),
+                                         bottomView: NextDiverView(nextInfo: $nextDiverInformation),
+                                         width: screenWidth * 0.95,
+                                         height: screenHeight * 0.32)
+                            .dynamicTypeSize(.xSmall ... .xxxLarge)
+                        }
                     }
                     HomeBubbleView(diveTable: $diveTable, starSelected: $starSelected)
                         .offset(y: 30)
@@ -376,15 +376,15 @@ struct LastDiverView: View
                 .fill(bgColor)
                 .cornerRadius(50)
                 .shadow(radius: 20)
-            VStack(spacing: 5){
-                HStack{
-                    VStack(alignment: .leading){
+            VStack(spacing: 5) {
+                HStack {
+                    VStack(alignment: .leading) {
                         Text("Last Diver")
                             .font(.title3).fontWeight(.semibold)
                         Text(lastInfo.0)
                             .font(.title2).bold()
                         Text("Last Round Place: " + (lastInfo.2 == 0 ? "N/A" : String(lastInfo.2)))
-                        HStack{
+                        HStack {
                             Text("Order: " + String(lastInfo.4))
                             Text("Place: " + String(lastInfo.5))
                         }
@@ -398,7 +398,10 @@ struct LastDiverView: View
                     MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
                         .scaledToFit()
                 }
-                ZStack{
+                
+                Spacer()
+                
+                ZStack {
                     Rectangle()
                         .foregroundColor(Custom.thinMaterialColor)
                         .mask(RoundedRectangle(cornerRadius: 50))
@@ -409,14 +412,16 @@ struct LastDiverView: View
                                 .bold()
                                 .scaledToFill()
                                 .minimumScaleFactor(0.5)
-                            .lineLimit(1)
-                        }
-                        VStack{
-                            Text(lastInfo.7.components(separatedBy: " - ").last ?? "")
-                                .font(.title3).bold()
-                                .scaledToFill().minimumScaleFactor(0.4)
                                 .lineLimit(1)
-                            HStack{
+                        }
+                        VStack {
+                            Text(lastInfo.7.components(separatedBy: " - ").last ?? "")
+                                .font(.title3)
+                                .bold()
+                                .scaledToFill()
+                                .minimumScaleFactor(0.4)
+                                .lineLimit(1)
+                            HStack {
                                 Text("Height: " + lastInfo.8)
                                 Text("DD: " + String(lastInfo.9))
                                 Text("Score Total: " + String(lastInfo.10))
@@ -431,6 +436,7 @@ struct LastDiverView: View
                     }
                     .padding()
                 }
+                .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
@@ -452,15 +458,15 @@ struct NextDiverView: View
                 .shadow(radius: 20)
             
             //Upper Part
-            VStack(spacing: 5){
+            VStack(spacing: 5) {
                 HStack{
-                    VStack(alignment: .leading){
+                    VStack(alignment: .leading) {
                         Text("Next Diver")
                             .font(.title3).fontWeight(.semibold)
                         Text(nextInfo.0)
                             .font(.title2).bold()
                         Text("Last Round Place: " + (nextInfo.2 == 0 ? "N/A" : String(nextInfo.2)))
-                        HStack{
+                        HStack {
                             Text("Order: " + String(nextInfo.4))
                             Text("For 1st: " + String(nextInfo.10))
                         }
@@ -472,24 +478,26 @@ struct NextDiverView: View
                         .padding(.horizontal)
                 }
                 
+                Spacer()
+                
                 //Lower Part
                 ZStack {
                     Rectangle()
                         .foregroundColor(Custom.thinMaterialColor)
                         .mask(RoundedRectangle(cornerRadius: 50))
-                    HStack{
+                    HStack {
                         Text(nextInfo.5)
                             .font(.title2)
                             .bold()
                             .scaledToFill()
                             .minimumScaleFactor(0.5)
                             .lineLimit(1)
-                        VStack{
-                            HStack{
+                        VStack {
+                            HStack {
                                 Text("Height: " + nextInfo.6)
                                 Text("DD: " + String(nextInfo.7))
                             }
-                            HStack{
+                            HStack {
                                 Text("Avg. Score: " + String(nextInfo.8))
                                 Text("Max Score: " + String(nextInfo.9))
                             }
@@ -501,6 +509,7 @@ struct NextDiverView: View
                     }
                     .padding()
                 }
+                .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
@@ -512,7 +521,8 @@ struct DebugDataset {
     //score total, [judges scores]
     static let lastDiverInfo: LastDiverInfo =
     ("Diver 1", "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961", 1,
-     225.00, 1, 1, 175.00, "5337D - Reverse 1 1/2 Somersaults 3 1/2 Twist", "3M", 3.3, 69.3, "7.0 | 7.0 | 7.0")
+     225.00, 1, 1, 175.00, "5337D - Reverse 1 1/2 Somersaults 3 1/2 Twist Free", "3M", 3.3, 69.3,
+     "7.0 | 7.0 | 7.0")
     //nextDiverName, nextDiverProfileLink, lastRoundPlace, lastRoundTotalScore, order, nextDive,
     //height, dd, avgScore, maxScore, forFirstPlace
     static let nextDiverInfo: NextDiverInfo =
