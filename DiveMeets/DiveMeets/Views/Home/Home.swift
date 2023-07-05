@@ -326,7 +326,7 @@ struct CurrentMeetsPageView: View {
     @ViewBuilder
     var body: some View {
         ZStack {
-            HomeColorfulView(homespace: homespace)
+            CurrentAndUpcomingColorful(homespace: homespace)
             VStack {
                 ZStack {
                     RoundedRectangle(cornerRadius: cornerRadius)
@@ -406,58 +406,60 @@ struct MeetBubbleView: View {
     }
     
     var body: some View {
-        NavigationLink(destination:
-                        elements.count == 10
-                       ? AnyView(CurrentMeetsPageView(infoLink: elements[3], resultsLink: elements[9], homespace: homespace))
-                       :
-                        AnyView(MeetPageView(meetLink: elements[3], showBackButton: false))) {
-            ZStack {
-                Rectangle()
-                    .foregroundColor(Custom.homeTileColor)
-                    .cornerRadius(40)
-                VStack {
+        withAnimation (.easeInOut(duration: 0.5)) {
+            NavigationLink(destination:
+                            elements.count == 10
+                           ? AnyView(CurrentMeetsPageView(infoLink: elements[3], resultsLink: elements[9], homespace: homespace))
+                           :
+                            AnyView(MeetPageView(meetLink: elements[3], showBackButton: false))) {
+                ZStack {
+                    Rectangle()
+                        .foregroundColor(Custom.homeTileColor)
+                        .cornerRadius(40)
                     VStack {
-                        Text(elements[1]) // name
+                        VStack {
+                            Text(elements[1]) // name
                             //.font(.title3)
-                            .bold()
-                            .scaledToFit()
-                            .minimumScaleFactor(0.5)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .lineLimit(1)
+                                .bold()
+                                .scaledToFit()
+                                .minimumScaleFactor(0.5)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .lineLimit(1)
+                            
+                            Spacer()
+                            
+                            Text(elements[2]) // org
+                                .font(.subheadline)
+                        }
+                        .foregroundColor(.primary)
                         
                         Spacer()
                         
-                        Text(elements[2]) // org
-                            .font(.subheadline)
-                    }
-                    .foregroundColor(.primary)
-                    
-                    Spacer()
-                    
-                    HStack {
-                        ZStack{
-                            Text(elements[6] + ", " + elements[7]) // city, state
-                                .padding(.leading)
+                        HStack {
+                            ZStack{
+                                Text(elements[6] + ", " + elements[7]) // city, state
+                                    .padding(.leading)
+                            }
+                            
+                            Spacer()
+                            
+                            ZStack{
+                                Rectangle()
+                                    .fill(Custom.thinMaterialColor)
+                                    .frame(width: 190)
+                                    .mask(RoundedRectangle(cornerRadius: 30))
+                                    .shadow(radius: 3)
+                                Text(elements[4] + " - " + elements[5]) // startDate - endDate
+                            }
+                            .padding(.trailing)
                         }
-                        
-                        Spacer()
-                        
-                        ZStack{
-                            Rectangle()
-                                .fill(Custom.thinMaterialColor)
-                                .frame(width: 190)
-                                .mask(RoundedRectangle(cornerRadius: 30))
-                                .shadow(radius: 3)
-                            Text(elements[4] + " - " + elements[5]) // startDate - endDate
-                        }
-                        .padding(.trailing)
+                        .font(.subheadline)
+                        .scaledToFit()
+                        .minimumScaleFactor(0.5)
+                        .foregroundColor(.primary)
                     }
-                    .font(.subheadline)
-                    .scaledToFit()
-                    .minimumScaleFactor(0.5)
-                    .foregroundColor(.primary)
+                    .padding()
                 }
-                .padding()
             }
         }
     }
@@ -548,7 +550,7 @@ struct CurrentAndUpcomingColorful: View{
         ZStack{
             bgColor.ignoresSafeArea()
             GeometryReader { geometry in
-                ZStack{
+                ZStack{ //right circles
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: 10)
                         .frame(width: 475, height: 475)
@@ -566,7 +568,7 @@ struct CurrentAndUpcomingColorful: View{
                         .frame(width: 355, height: 355)
                         .matchedGeometryEffect(id: "circle4", in: homespace)
                 }
-                .offset(x: geometry.size.width / 1.4, y: geometry.size.height / 15)
+                .offset(x: geometry.size.width / 1.4, y: -geometry.size.height / 2 )
                 
                 ZStack{
                     Circle()
@@ -586,26 +588,26 @@ struct CurrentAndUpcomingColorful: View{
                         .frame(width: 355, height: 355)
                         .matchedGeometryEffect(id: "circle8", in: homespace)
                 }
-                .offset(x: -geometry.size.width/2, y: geometry.size.height / 5)
+                .offset(x: -geometry.size.width/2, y: -geometry.size.height / 2)
                 ZStack{
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: 10)
-                        .frame(width: 475, height: 475)
+                        .frame(width: 635, height: 635)
                         .matchedGeometryEffect(id: "circle9", in: homespace)
                     Circle()
                         .stroke(Custom.coolBlue, lineWidth: 10)
-                        .frame(width: 435, height: 435)
+                        .frame(width: 595, height: 595)
                         .matchedGeometryEffect(id: "circle10", in: homespace)
                     Circle()
                         .stroke(Custom.medBlue, lineWidth: 10)
-                        .frame(width: 395, height: 395)
+                        .frame(width: 555, height: 555)
                         .matchedGeometryEffect(id: "circle11", in: homespace)
                     Circle()
                         .stroke(Custom.lightBlue, lineWidth: 10)
-                        .frame(width: 355, height: 355)
+                        .frame(width: 515, height: 515)
                         .matchedGeometryEffect(id: "circle12", in: homespace)
                 }
-                .offset(x: geometry.size.width/3, y: geometry.size.height / 1.5)
+                .offset(x: geometry.size.width/5, y: geometry.size.height / 1.5)
             }
         }
     }
