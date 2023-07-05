@@ -143,8 +143,6 @@ struct EntryView: View {
                             .background(RoundedRectangle(cornerRadius: 30).fill(.thinMaterial))
                     }
                 }
-                .scaledToFit()
-                .minimumScaleFactor(0.1)
             },
             label: {
                 AnyView(labelView())
