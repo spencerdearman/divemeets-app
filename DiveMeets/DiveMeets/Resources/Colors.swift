@@ -16,4 +16,6 @@ struct Custom {
     static let tileColor = Color("TileColor")
     static let carouselColor = Color("CarouselTileColor")
     static let thinMaterialColor = Color("ThinMaterialColor")
+    static let textColor = Color("TextColors")
+    static let secondaryColor = Color("SecondaryColor")
 }

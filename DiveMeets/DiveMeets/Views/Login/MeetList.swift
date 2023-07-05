@@ -69,13 +69,11 @@ struct MeetList: View {
     
     var body: some View {
         ZStack {
-            // Background color for View
-            customGray.ignoresSafeArea()
             
             if meets != [] {
                 VStack {
                     Text("Meets")
-                        .font(.title2)
+                        .font(.title2).fontWeight(.semibold)
                         .padding(.top)
                     
                     ScrollView(showsIndicators: false) {
@@ -83,7 +81,8 @@ struct MeetList: View {
                             ForEach($meets, id: \.id) { $meet in
                                 ZStack {
                                     RoundedRectangle(cornerRadius: cornerRadius)
-                                        .fill(.white)
+                                        .fill(Custom.tileColor)
+                                        .shadow(radius: 5)
                                     DisclosureGroup(
                                         isExpanded: $meet.isExpanded,
                                         content: {
