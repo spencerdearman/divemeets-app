@@ -299,7 +299,7 @@ struct CurrentMeetsPageView: View {
     var resultsLink: String
     
     @State private var selection: CurrentMeetPageType = .info
-    private let cornerRadius: CGFloat = 30
+    private let cornerRadius: CGFloat = 40
     private let textColor: Color = Color.primary
     private let grayValue: CGFloat = 0.90
     private let grayValueDark: CGFloat = 0.10
@@ -408,6 +408,7 @@ struct MeetBubbleView: View {
             ZStack {
                 Rectangle()
                     .foregroundColor(Custom.homeTileColor)
+                    .cornerRadius(40)
                 VStack {
                     VStack {
                         Text(elements[1]) // name
@@ -429,10 +430,12 @@ struct MeetBubbleView: View {
                     
                     HStack {
                         Text(elements[6] + ", " + elements[7]) // city, state
+                            .padding(.leading)
                         
                         Spacer()
                         
                         Text(elements[4] + " - " + elements[5]) // startDate - endDate
+                            .padding(.trailing)
                     }
                     .font(.subheadline)
                     .scaledToFit()
