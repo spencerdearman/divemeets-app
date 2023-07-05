@@ -11,7 +11,6 @@ struct RecordList: View {
     @Environment(\.colorScheme) var currentMode
     @Binding var records: DiverProfileRecords
     @Binding var resultSelected: Bool
-    @Binding var fullScreenResults: Bool
     @State var result: String = ""
     @Namespace var namespace
     
