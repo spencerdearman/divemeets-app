@@ -264,6 +264,11 @@ struct ProfileView: View {
                                             .padding(.top)
                                             .font(.title2).fontWeight(.semibold)
                                             .matchedGeometryEffect(id: "title", in: profilespace)
+                                            .onTapGesture{
+                                                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                                    diverTab.toggle()
+                                                }
+                                            }
                                         DiversList(diversAndLinks: $diversAndLinks)
                                             .offset(y: -20)
                                     }
@@ -277,11 +282,6 @@ struct ProfileView: View {
                                 )
                                 .shadow(radius: 10)
                                 .frame(width: 375, height: 300)
-                                .onTapGesture{
-                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                                        diverTab.toggle()
-                                    }
-                                }
                             }
                             JudgedList(data: $judgingHistory)
                                 .padding()
