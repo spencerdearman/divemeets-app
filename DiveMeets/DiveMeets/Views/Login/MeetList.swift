@@ -11,6 +11,9 @@ import SwiftUI
 //                        [diverId:[meetName: meetLink]]
 var profileMainMeetLinks: [String: [String: String]] = [:]
 
+// Global that tracks the expansion states of each MeetEvent when navigating through NavigationLinks
+var lastExpanded: [String: Bool] = [:]
+
 struct MeetList: View {
     @Environment(\.colorScheme) var currentMode
     var profileLink: String
@@ -114,6 +117,22 @@ struct MeetList: View {
                                         }
                                     )
                                     .padding([.leading, .trailing])
+                                    // This mechanism using lastExpanded stores the
+                                    // expansion state of all values in the list when you
+                                    // tap a NavigationLink, and when you return, it pulls
+                                    // the isExpanded state from lastExpanded into each meet
+                                    // and then removes that value from isExpanded. This
+                                    // keeps lastExpanded empty when in a ProfileView and
+                                    // populated when you press a NavigationLink
+                                    .onAppear {
+                                        if let val = lastExpanded[meet.name] {
+                                            meet.isExpanded = val
+                                            lastExpanded.removeValue(forKey: meet.name)
+                                        }
+                                    }
+                                    .onDisappear {
+                                        lastExpanded[meet.name] = meet.isExpanded
+                                    }
                                 }
                                 .padding([.leading, .trailing])
                                 .padding(.top, meet == meets.first ? rowSpacing : 0)
@@ -136,16 +155,25 @@ struct MeetList: View {
             }
         }
         .onAppear {
-            Task {
-                if let links = profileMainMeetLinks[String(profileLink.suffix(5))] {
-                    parser.cachedMainMeetLinks = links
+            // Have to check if meets is empty to clear lastExpanded (meaning you have initially
+            // opened a new ProfileView)
+            if meets == [] {
+                lastExpanded = [:]
+            }
+            
+            // Keeps reparsing from being run when stepping back from NavigationLink
+            if !createdMeets {
+                Task {
+                    if let links = profileMainMeetLinks[String(profileLink.suffix(5))] {
+                        parser.cachedMainMeetLinks = links
+                    }
+                    await parser.parse(urlString: profileLink)
+                    profileMainMeetLinks[String(profileLink.suffix(5))] = parser.cachedMainMeetLinks
+                    
+                    diverData = parser.myData
+                    meets = createMeets(data: diverData) ?? []
+                    createdMeets = true
                 }
-                await parser.parse(urlString: profileLink)
-                profileMainMeetLinks[String(profileLink.suffix(5))] = parser.cachedMainMeetLinks
-                
-                diverData = parser.myData
-                meets = createMeets(data: diverData) ?? []
-                createdMeets = true
             }
         }
     }

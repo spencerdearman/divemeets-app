@@ -138,7 +138,6 @@ final class EventHTMLParser: ObservableObject {
         eventPageLink = "https://secure.meetcontrol.com/divemeets/system/" +
         (try overall[2].getElementsByTag("a").attr("href"))
         
-        print("Here is the link:" + String(try overall[1].getElementsByTag("a").attr("href")))
         meetDates = try overall[1].getElementsByTag("Strong").text()
         totalNetScore = Double(try finalRow[2].text()) ?? 0.0
         totalDD = Double(try finalRow[3].text()) ?? 0.0

@@ -44,9 +44,6 @@ struct Event: View {
                         .font(.title)
                         .fontWeight(.bold)
                         .padding()
-                        .onAppear{
-                            print(scoreDictionary)
-                        }
                     
                     Divider()
                     Text("Dates: " + diverData.1)
