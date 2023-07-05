@@ -11,6 +11,7 @@ struct RecordList: View {
     @Environment(\.colorScheme) var currentMode
     @Binding var records: DiverProfileRecords
     @Binding var resultSelected: Bool
+    @Binding var fullScreenResults: Bool
     @State var result: String = ""
     @Namespace var namespace
     
@@ -62,7 +63,7 @@ struct RecordList: View {
                             .padding(.top, 40)
                         ScrollView(.vertical, showsIndicators: false) {
                             VStack(spacing: rowSpacing) {
-                                ForEach(records.sorted(by: <), id: \.key) { key, value in
+                                ForEach(getSortedRecords(records), id: \.1) { key, value in
                                     RecordView(resultSelected: $resultSelected, result: $result,
                                                key: key, value: value, namespace: namespace,
                                                animationSpeed: animationSpeed)
