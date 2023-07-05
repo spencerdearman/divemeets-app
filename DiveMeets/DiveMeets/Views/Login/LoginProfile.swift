@@ -67,81 +67,90 @@ struct LoginProfile: View {
             }
         
         if profileType == "Diver" {
-            VStack {
-                VStack {
-                    ZStack{
-                        Button("Logout", action: {
-                            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)){
-                                loggedIn = false // add this
-                                divemeetsID = ""
-                                password = ""
-                                searchSubmitted = false
-                                loginSuccessful = false
-                                loginSearchSubmitted = false
-                                diverData = []
-                                profileType = ""
-                                searchSubmitted = false
-                            }
-                        })
-                        .buttonStyle(.bordered)
-                        .cornerRadius(30)
-                        .offset(x:-150, y:-215)
-                        ProfileImage(diverID: diverID)
-                            .offset(y:-100)
-                    }
-                    VStack {
-                        VStack(alignment: .leading) {
-                            HStack (alignment: .firstTextBaseline) {
-                                let firstName = diverData[0][0].slice(from: "Name: ", to: " ") ?? ""
-                                let lastName =
-                                diverData[0][0].slice(from: firstName + " ", to: " ") ?? ""
-                                
-                                diverData != []
-                                ? Text(firstName + " " + lastName) .font(.title).foregroundColor(.white)
-                                : Text("")
-                                
-                                Text(diverID)
-                                    .font(.subheadline).foregroundColor(.secondary)
-                            }
-                            Divider()
-                            HStack (alignment: .firstTextBaseline) {
-                                Image(systemName: "house.fill")
-                                diverData != []
-                                ? Text(
-                                    (diverData[0][0].slice(from: "State: ", to: " Country")  ?? "")
-                                    + ", "
-                                    + (diverData[0][0].slice(from: " Country: ",
-                                                             to: " Gender") ?? ""))
-                                : Text("")
-                            }
-                            .font(.subheadline).foregroundColor(.white)
-                            HStack (alignment: .firstTextBaseline) {
-                                Image(systemName: "person.circle")
-                                diverData != []
-                                ? Text("Gender: " +
-                                       (diverData[0][0].slice(from: " Gender: ", to: " Age") ?? ""))
-                                : Text("")
-                                diverData != []
-                                ? Text("Age: " +
-                                       (diverData[0][0].slice(from: " Age: ", to: " FINA") ?? ""))
-                                : Text("")
-                                diverData != []
-                                ? Text("FINA Age: " +
-                                       (diverData[0][0].slice(from: " FINA Age: ",
-                                                              to: " High") ?? ""))
-                                : Text("")
-                            }
-                            .font(.subheadline).foregroundColor(.white)
-                            .padding([.leading], 2)
-                            Divider()
-                        }
-                        .offset(y:-150)
-                    }
-                    .padding()
-                    
+            ZStack{
+                GeometryReader{ geometry in
+                    BackgroundSpheres()
+                    Rectangle()
+                        .fill(Custom.background)
+                        .mask(RoundedRectangle(cornerRadius: 40))
+                        .offset(y: geometry.size.height * 0.35)
                 }
-                MeetList(profileLink: profileLink)
-                    .offset(y: -160)
+                VStack {
+                    VStack {
+                        ZStack{
+                            Button("Logout", action: {
+                                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)){
+                                    loggedIn = false // add this
+                                    divemeetsID = ""
+                                    password = ""
+                                    searchSubmitted = false
+                                    loginSuccessful = false
+                                    loginSearchSubmitted = false
+                                    diverData = []
+                                    profileType = ""
+                                    searchSubmitted = false
+                                }
+                            })
+                            .buttonStyle(.bordered)
+                            .cornerRadius(30)
+                            .offset(x:-150, y:-215)
+                            ProfileImage(diverID: diverID)
+                                .offset(y:-100)
+                        }
+                        VStack {
+                            VStack(alignment: .leading) {
+                                HStack (alignment: .firstTextBaseline) {
+                                    let firstName = diverData[0][0].slice(from: "Name: ", to: " ") ?? ""
+                                    let lastName =
+                                    diverData[0][0].slice(from: firstName + " ", to: " ") ?? ""
+                                    
+                                    diverData != []
+                                    ? Text(firstName + " " + lastName) .font(.title).foregroundColor(.white)
+                                    : Text("")
+                                    
+                                    Text(diverID)
+                                        .font(.subheadline).foregroundColor(.secondary)
+                                }
+                                Divider()
+                                HStack (alignment: .firstTextBaseline) {
+                                    Image(systemName: "house.fill")
+                                    diverData != []
+                                    ? Text(
+                                        (diverData[0][0].slice(from: "State: ", to: " Country")  ?? "")
+                                        + ", "
+                                        + (diverData[0][0].slice(from: " Country: ",
+                                                                 to: " Gender") ?? ""))
+                                    : Text("")
+                                }
+                                .font(.subheadline).foregroundColor(.white)
+                                HStack (alignment: .firstTextBaseline) {
+                                    Image(systemName: "person.circle")
+                                    diverData != []
+                                    ? Text("Gender: " +
+                                           (diverData[0][0].slice(from: " Gender: ", to: " Age") ?? ""))
+                                    : Text("")
+                                    diverData != []
+                                    ? Text("Age: " +
+                                           (diverData[0][0].slice(from: " Age: ", to: " FINA") ?? ""))
+                                    : Text("")
+                                    diverData != []
+                                    ? Text("FINA Age: " +
+                                           (diverData[0][0].slice(from: " FINA Age: ",
+                                                                  to: " High") ?? ""))
+                                    : Text("")
+                                }
+                                .font(.subheadline).foregroundColor(.white)
+                                .padding([.leading], 2)
+                                Divider()
+                            }
+                            .offset(y:-150)
+                        }
+                        .padding()
+                        
+                    }
+                    MeetList(profileLink: profileLink)
+                        .offset(y: -160)
+                }
             }
             
         } else {
