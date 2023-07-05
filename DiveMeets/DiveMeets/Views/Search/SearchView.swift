@@ -699,7 +699,6 @@ struct MeetSearchView: View {
                               .padding(.trailing)
                               .onChange(of: meetYearIndex) { newValue in
                                   meetYear = meetIndexToString(newValue)
-                                  print(meetYear)
                               }
             }
             .offset(y: -10)
