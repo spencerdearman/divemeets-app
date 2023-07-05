@@ -433,15 +433,11 @@ struct JudgedList: View {
                             content: {
                                 VStack(spacing: 5){
                                     Divider()
-                                    HStack{
-                                        //let shape = RoundedRectangle(cornerSize: 30)
-                                        
-                                        ForEach(data[dropdownKey] ?? [], id: \.0) { tuple in
-                                            NavigationLink {
-                                                EventResultPage(meetLink: tuple.1)
-                                            } label: {
-                                                Text(tuple.0)
-                                            }
+                                    ForEach(data[dropdownKey] ?? [], id: \.0) { tuple in
+                                        NavigationLink {
+                                            EventResultPage(meetLink: tuple.1)
+                                        } label: {
+                                            Text(tuple.0)
                                         }
                                     }
                                 }
@@ -455,4 +451,3 @@ struct JudgedList: View {
         }
     }
 }
-
