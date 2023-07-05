@@ -284,7 +284,6 @@ struct ProfileView: View {
                             .frame(width: 375, height: 300)
                         }
                         JudgedList(data: $judgingHistory)
-                            .padding()
                     }
                 }
             }
@@ -422,12 +421,12 @@ struct JudgedList: View {
     var body: some View {
         
         VStack {
-            Text("Past Judging")
+            Text("Judging History")
                 .font(.title2)
                 .padding(.top)
             
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 10) {
+                VStack{
                     ForEach(data.keys.sorted(by: >), id: \.self) { dropdownKey in
                         ZStack {
                             RoundedRectangle(cornerRadius: 30)
@@ -435,32 +434,28 @@ struct JudgedList: View {
                                 .shadow(radius: 5)
                             DisclosureGroup(
                                 content: {
-                                    VStack(spacing: 5) {
-                                        Divider()
-                                            ForEach(data[dropdownKey] ?? [], id: \.0) { tuple in
-                                                let shape = RoundedRectangle(cornerRadius: 30)
-                                                ZStack {
-                                                    shape.fill(.thinMaterial)
-                                                    NavigationLink {
-                                                        EventResultPage(meetLink: tuple.1)
-                                                    } label: {
-                                                        HStack {
-                                                            Text(tuple.0)
-                                                            Spacer()
-                                                            Image(systemName: "chevron.right")
-                                                                .foregroundColor(.blue)
-                                                        }
+                                    VStack{
+                                        ForEach(data[dropdownKey] ?? [], id: \.0) { tuple in
+                                            let shape = RoundedRectangle(cornerRadius: 30)
+                                            ZStack {
+                                                shape.fill(.thinMaterial)
+                                                NavigationLink {
+                                                    EventResultPage(meetLink: tuple.1)
+                                                } label: {
+                                                    HStack {
+                                                        Text(tuple.0)
+                                                        Spacer()
+                                                        Image(systemName: "chevron.right")
+                                                            .foregroundColor(.blue)
                                                     }
-                                                    .foregroundColor(.primary)
-                                                    .padding()
-                                                    
                                                 }
-                                                .contentShape(shape)
+                                                .foregroundColor(.primary)
+                                                .padding()
+                                                
                                             }
-                                            Spacer()
-                
-                                        .padding(.bottom)
-                                        .padding(.top, 5)
+                                            .contentShape(shape)
+                                        }
+                                        .padding(2)
                                     }
                                 },
                                 label: {
@@ -475,6 +470,5 @@ struct JudgedList: View {
                 }
             }
         }
-        
     }
 }
