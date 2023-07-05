@@ -120,9 +120,9 @@ struct ProfileView: View {
                                     : Text("")
                                     
                                     Text(diverID)
-                                        .font(.subheadline).foregroundColor(.secondary)
+                                        .font(.subheadline).foregroundColor(Custom.secondaryColor)
                                 }
-                                Divider()
+                                WhiteDivider()
                                 HStack (alignment: .firstTextBaseline) {
                                     Image(systemName: "house.fill")
                                     diverData != []
@@ -152,7 +152,6 @@ struct ProfileView: View {
                                 }
                                 .font(.subheadline).foregroundColor(.white)
                                 .padding([.leading], 2)
-                                Divider()
                             }
                         }
                         .padding([.leading, .trailing, .top])
@@ -222,9 +221,9 @@ struct ProfileView: View {
                                         : Text("")
                                         
                                         Text(diverID)
-                                            .font(.subheadline).foregroundColor(.secondary)
+                                            .font(.subheadline).foregroundColor(Custom.secondaryColor)
                                     }
-                                    Divider()
+                                    WhiteDivider()
                                     HStack (alignment: .firstTextBaseline){
                                         Image(systemName: "house.fill")
                                         diverData != []
@@ -245,7 +244,6 @@ struct ProfileView: View {
                                     }
                                     .font(.subheadline).foregroundColor(.white)
                                     .padding([.leading], 2)
-                                    Divider()
                                 }
                             }
                             .padding()
@@ -256,7 +254,7 @@ struct ProfileView: View {
                                 .frame(width: 100, height: 50)
                                 .foregroundStyle(.white)
                                 .background(
-                                    bgColor.matchedGeometryEffect(id: "background", in: profilespace)
+                                    Custom.carouselColor.matchedGeometryEffect(id: "background", in: profilespace)
                                 )
                                 .mask(
                                     RoundedRectangle(cornerRadius: 40, style: .continuous)
@@ -269,6 +267,7 @@ struct ProfileView: View {
                                             .font(.title3).fontWeight(.semibold)
                                             .matchedGeometryEffect(id: "title", in: profilespace)
                                     })
+                                .padding(.top, 8)
                                 .onTapGesture{
                                     withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                                         diverTab.toggle()
@@ -287,10 +286,12 @@ struct ProfileView: View {
                                                 }
                                             }
                                         DiversList(diversAndLinks: $diversAndLinks)
+                                            .offset(y: -20)
                                     }
+                                    .padding(.top, 8)
                                 }
                                 .background(
-                                    bgColor.matchedGeometryEffect(id: "background", in: profilespace)
+                                    Custom.carouselColor.matchedGeometryEffect(id: "background", in: profilespace)
                                 )
                                 .mask(
                                     RoundedRectangle(cornerRadius: 40, style: .continuous)
@@ -407,9 +408,6 @@ struct DiverBubbleView: View {
     @State private var focusBool: Bool = false
     private let getTextModel = GetTextAsyncModel()
     
-    private var bubbleColor: Color {
-        currentMode == .light ? .white : .black
-    }
     private var elements: [String]
     
     init(elements: [String]) {
@@ -420,7 +418,7 @@ struct DiverBubbleView: View {
         var link = ""
         ZStack {
             Rectangle()
-                .foregroundColor(bubbleColor)
+                .foregroundColor(Custom.thinMaterialColor)
                 .cornerRadius(30)
                 .frame(width: 300, height: 100)
                 .shadow(radius: 5)
@@ -457,7 +455,7 @@ struct JudgedList: View {
                     ForEach(data.keys.sorted(by: >), id: \.self) { dropdownKey in
                         ZStack {
                             RoundedRectangle(cornerRadius: 30)
-                                .fill(.white)
+                                .fill(Custom.tileColor)
                                 .shadow(radius: 5)
                             DisclosureGroup(
                                 content: {

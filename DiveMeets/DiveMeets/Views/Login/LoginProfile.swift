@@ -109,9 +109,9 @@ struct LoginProfile: View {
                                     : Text("")
                                     
                                     Text(diverID)
-                                        .font(.subheadline).foregroundColor(.secondary)
+                                        .font(.subheadline).foregroundColor(Custom.secondaryColor)
                                 }
-                                Divider()
+                                WhiteDivider()
                                 HStack (alignment: .firstTextBaseline) {
                                     Image(systemName: "house.fill")
                                     diverData != []
@@ -141,7 +141,6 @@ struct LoginProfile: View {
                                 }
                                 .font(.subheadline).foregroundColor(.white)
                                 .padding([.leading], 2)
-                                Divider()
                             }
                             .offset(y:-150)
                         }
@@ -167,7 +166,7 @@ struct LoginProfile: View {
                                 : Text("")
                                 
                                 Text(diverID)
-                                    .font(.subheadline).foregroundColor(.secondary)
+                                    .font(.subheadline).foregroundColor(Custom.secondaryColor)
                             }
                             Divider()
                             HStack (alignment: .firstTextBaseline){
@@ -198,5 +197,14 @@ struct LoginProfile: View {
                 }
             }
         }
+    }
+}
+
+struct WhiteDivider: View{
+    var body: some View {
+            Rectangle()
+                .frame(height: 1)
+                .foregroundColor(.white)
+                .padding([.leading, .trailing], 3)
     }
 }
