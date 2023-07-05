@@ -466,7 +466,7 @@ struct JudgedList: View {
                                                             EventResultPage(meetLink: tuple.1))
                                             {
                                                 ZStack {
-                                                    shape.fill(.thinMaterial)
+                                                    shape.fill(Custom.thinMaterialColor)
                                                     
                                                     HStack {
                                                         Text(tuple.0)
@@ -475,7 +475,6 @@ struct JudgedList: View {
                                                             .foregroundColor(.blue)
                                                     }
                                                     .frame(height: 80)
-                                                    .contentShape(shape)
                                                     .padding()
                                                     
                                                 }
