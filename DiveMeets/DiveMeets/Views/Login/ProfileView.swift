@@ -417,37 +417,64 @@ struct DiverBubbleView: View {
 struct JudgedList: View {
     @Binding var data: [String: [(String, String)]]
     
+    let cornerRadius: CGFloat = 30
+    
     var body: some View {
-        Text("Judging History")
-            .font(.title2).fontWeight(.semibold)
         
-        
-        
-        ScrollView(showsIndicators: false){
-            VStack{
-                ForEach(data.keys.sorted(by: >), id: \.self) { dropdownKey in
-                    ZStack{
-                        RoundedRectangle(cornerRadius: 30)
-                            .fill(.white)
-                        DisclosureGroup(
-                            content: {
-                                VStack(spacing: 5){
-                                    Divider()
-                                    ForEach(data[dropdownKey] ?? [], id: \.0) { tuple in
-                                        NavigationLink {
-                                            EventResultPage(meetLink: tuple.1)
-                                        } label: {
-                                            Text(tuple.0)
-                                        }
+        VStack {
+            Text("Past Judging")
+                .font(.title2)
+                .padding(.top)
+            
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 10) {
+                    ForEach(data.keys.sorted(by: >), id: \.self) { dropdownKey in
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 30)
+                                .fill(.white)
+                                .shadow(radius: 5)
+                            DisclosureGroup(
+                                content: {
+                                    VStack(spacing: 5) {
+                                        Divider()
+                                            ForEach(data[dropdownKey] ?? [], id: \.0) { tuple in
+                                                let shape = RoundedRectangle(cornerRadius: 30)
+                                                ZStack {
+                                                    shape.fill(.thinMaterial)
+                                                    NavigationLink {
+                                                        EventResultPage(meetLink: tuple.1)
+                                                    } label: {
+                                                        HStack {
+                                                            Text(tuple.0)
+                                                            Spacer()
+                                                            Image(systemName: "chevron.right")
+                                                                .foregroundColor(.blue)
+                                                        }
+                                                    }
+                                                    .foregroundColor(.primary)
+                                                    .padding()
+                                                    
+                                                }
+                                                .contentShape(shape)
+                                            }
+                                            Spacer()
+                
+                                        .padding(.bottom)
+                                        .padding(.top, 5)
                                     }
+                                },
+                                label: {
+                                    Text(dropdownKey)
                                 }
-                            },
-                            label: {
-                                Text(dropdownKey)
-                            })
+                            )
+                            .padding([.leading, .trailing])
+                        }
+                        .padding([.leading, .trailing])
+                        .padding()
                     }
                 }
             }
         }
+        
     }
 }
