@@ -197,37 +197,40 @@ struct MeetPageView: View {
     }
     
     var body: some View {
-        VStack {
-            if let meetInfoData = meetInfoData {
-                getPageHeader()
-                    .padding([.leading, .trailing])
-                
-                MeetInfoPageView(meetInfoData: meetInfoData)
-                
-                Spacer()
-            } else if let meetResultsData = meetResultsData {
-                getPageHeader()
-                    .padding([.leading, .trailing])
-                
-                MeetResultsPageView(meetResultsData: meetResultsData)
-                
-                Spacer()
-            } else if meetLink != "" {
-                VStack {
-                    Text("Getting meet information...")
-                    ProgressView()
-                }
-            } else {
-                VStack {
-                    Text("There is not a results page available yet")
-                    Text("(Events may not have started yet)")
+        ZStack{
+            CurrentAndUpcomingColorful()
+            VStack {
+                if let meetInfoData = meetInfoData {
+                    getPageHeader()
+                        .padding([.leading, .trailing])
+                    
+                    MeetInfoPageView(meetInfoData: meetInfoData)
+                    
+                    Spacer()
+                } else if let meetResultsData = meetResultsData {
+                    getPageHeader()
+                        .padding([.leading, .trailing])
+                    
+                    MeetResultsPageView(meetResultsData: meetResultsData)
+                    
+                    Spacer()
+                } else if meetLink != "" {
+                    VStack {
+                        Text("Getting meet information...")
+                        ProgressView()
+                    }
+                } else {
+                    VStack {
+                        Text("There is not a results page available yet")
+                        Text("(Events may not have started yet)")
+                    }
                 }
             }
-        }
-        .padding(.bottom, maxHeightOffset)
-        .onAppear {
-            Task {
-                try await getMeetData(info: meetInfoData, results: meetResultsData)
+            .padding(.bottom, maxHeightOffset)
+            .onAppear {
+                Task {
+                    try await getMeetData(info: meetInfoData, results: meetResultsData)
+                }
             }
         }
     }

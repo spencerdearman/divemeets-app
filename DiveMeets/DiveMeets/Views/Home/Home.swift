@@ -92,7 +92,6 @@ struct Home: View {
     @StateObject var meetParser: MeetParser = MeetParser()
     @State private var meetsParsed: Bool = false
     @State private var selection: ViewType = .upcoming
-    @Namespace var homespace
     
     private let cornerRadius: CGFloat = 30
     private let textColor: Color = Color.primary
@@ -146,7 +145,7 @@ struct Home: View {
             ZStack {
 //                (currentMode == .light ? Color.white : Color.black)
 //                    .ignoresSafeArea()
-                HomeColorfulView(homespace: homespace)
+                HomeColorfulView()
                 VStack {
                     VStack {
                         ZStack{
@@ -217,10 +216,10 @@ struct Home: View {
                     }
                     Spacer()
                     if selection == .upcoming {
-                        UpcomingMeetsView(meetParser: meetParser, homespace: homespace)
+                        UpcomingMeetsView(meetParser: meetParser)
                             .ignoresSafeArea()
                     } else {
-                        CurrentMeetsView(meetParser: meetParser, homespace: homespace)
+                        CurrentMeetsView(meetParser: meetParser)
                             .ignoresSafeArea()
                     }
                     Spacer()
@@ -245,7 +244,6 @@ struct Home: View {
 struct UpcomingMeetsView: View {
     @Environment(\.meetsDB) var db
     @ObservedObject var meetParser: MeetParser
-    let homespace: Namespace.ID
     
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     
@@ -258,7 +256,7 @@ struct UpcomingMeetsView: View {
             if !meets.isEmpty {
                 let upcoming = tupleToList(tuples: db.dictToTuple(dict: meets))
                     ScalingScrollView(records: upcoming, bgColor: .clear, rowSpacing: 15, shadowRadius: 10) { (elem) in
-                        MeetBubbleView(elements: elem, homespace: homespace)
+                        MeetBubbleView(elements: elem)
                     }
             } else {
                 Text("No upcoming meets found")
@@ -274,7 +272,7 @@ struct UpcomingMeetsView: View {
 struct CurrentMeetsView: View {
     @Environment(\.meetsDB) var db
     @ObservedObject var meetParser: MeetParser
-    let homespace: Namespace.ID
+
 
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     
@@ -286,7 +284,7 @@ struct CurrentMeetsView: View {
         if meetParser.currentMeets != nil && !meetParser.currentMeets!.isEmpty {
             let current = tupleToList(tuples: dictToCurrentTuple(dict: meetParser.currentMeets ?? []))
             ScalingScrollView(records: current, bgColor: .clear, rowSpacing: 15, shadowRadius: 10) { (elem) in
-                MeetBubbleView(elements: elem, homespace: homespace)
+                MeetBubbleView(elements: elem)
             }
             .padding(.bottom, maxHeightOffset)
         } else if meetParser.currentMeets != nil {
@@ -302,7 +300,6 @@ struct CurrentMeetsPageView: View {
     @Environment(\.colorScheme) var currentMode
     var infoLink: String
     var resultsLink: String
-    let homespace: Namespace.ID
     
     @State private var selection: CurrentMeetPageType = .info
     private let cornerRadius: CGFloat = 40
@@ -325,8 +322,6 @@ struct CurrentMeetsPageView: View {
     
     @ViewBuilder
     var body: some View {
-        ZStack {
-            CurrentAndUpcomingColorful(homespace: homespace)
             VStack {
                 ZStack {
                     RoundedRectangle(cornerRadius: cornerRadius)
@@ -368,6 +363,7 @@ struct CurrentMeetsPageView: View {
                         .cornerRadius(cornerRadius)
                     }
                 }
+                .zIndex(2)
                 Spacer()
                 if selection == .info {
                     MeetPageView(meetLink: infoLink, showBackButton: false)
@@ -376,7 +372,7 @@ struct CurrentMeetsPageView: View {
                 }
                 Spacer()
             }
-        }
+            .zIndex(1)
         .onSwipeGesture(trigger: .onEnded) { direction in
             if direction == .left && selection == .info {
                 selection = .results
@@ -390,7 +386,6 @@ struct CurrentMeetsPageView: View {
 
 struct MeetBubbleView: View {
     @Environment(\.colorScheme) var currentMode
-    let homespace: Namespace.ID
     
     private var bubbleColor: Color {
         currentMode == .light ? .white : .black
@@ -400,16 +395,14 @@ struct MeetBubbleView: View {
     //  resultsLink is only for current meets and is "" if no link is available
     private var elements: [String]
     
-    init(elements: [String], homespace: Namespace.ID) {
+    init(elements: [String]) {
         self.elements = elements
-        self.homespace = homespace
     }
     
     var body: some View {
-        withAnimation (.easeInOut(duration: 0.5)) {
             NavigationLink(destination:
                             elements.count == 10
-                           ? AnyView(CurrentMeetsPageView(infoLink: elements[3], resultsLink: elements[9], homespace: homespace))
+                           ? AnyView(CurrentMeetsPageView(infoLink: elements[3], resultsLink: elements[9]))
                            :
                             AnyView(MeetPageView(meetLink: elements[3], showBackButton: false))) {
                 ZStack {
@@ -461,13 +454,11 @@ struct MeetBubbleView: View {
                     .padding()
                 }
             }
-        }
     }
 }
 
 struct HomeColorfulView: View{
     @Environment(\.colorScheme) var currentMode
-    let homespace: Namespace.ID
     private var bgColor: Color {
         currentMode == .light ? Custom.background : Custom.background
     }
@@ -480,19 +471,19 @@ struct HomeColorfulView: View{
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: 10)
                         .frame(width: 475, height: 475)
-                        .matchedGeometryEffect(id: "circle1", in: homespace)
+
                     Circle()
                         .stroke(Custom.coolBlue, lineWidth: 10)
                         .frame(width: 435, height: 435)
-                        .matchedGeometryEffect(id: "circle2", in: homespace)
+
                     Circle()
                         .stroke(Custom.medBlue, lineWidth: 10)
                         .frame(width: 395, height: 395)
-                        .matchedGeometryEffect(id: "circle3", in: homespace)
+    
                     Circle()
                         .stroke(Custom.lightBlue, lineWidth: 10)
                         .frame(width: 355, height: 355)
-                        .matchedGeometryEffect(id: "circle4", in: homespace)
+
                 }
                 .offset(x: geometry.size.width / 1.4, y: geometry.size.height / 15)
                 
@@ -500,38 +491,38 @@ struct HomeColorfulView: View{
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: 10)
                         .frame(width: 475, height: 475)
-                        .matchedGeometryEffect(id: "circle5", in: homespace)
+
                     Circle()
                         .stroke(Custom.coolBlue, lineWidth: 10)
                         .frame(width: 435, height: 435)
-                        .matchedGeometryEffect(id: "circle6", in: homespace)
+
                     Circle()
                         .stroke(Custom.medBlue, lineWidth: 10)
                         .frame(width: 395, height: 395)
-                        .matchedGeometryEffect(id: "circle7", in: homespace)
+
                     Circle()
                         .stroke(Custom.lightBlue, lineWidth: 10)
                         .frame(width: 355, height: 355)
-                        .matchedGeometryEffect(id: "circle8", in: homespace)
+
                 }
                 .offset(x: -geometry.size.width/2, y: geometry.size.height / 5)
                 ZStack{
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: 10)
                         .frame(width: 475, height: 475)
-                        .matchedGeometryEffect(id: "circle9", in: homespace)
+
                     Circle()
                         .stroke(Custom.coolBlue, lineWidth: 10)
                         .frame(width: 435, height: 435)
-                        .matchedGeometryEffect(id: "circle10", in: homespace)
+      
                     Circle()
                         .stroke(Custom.medBlue, lineWidth: 10)
                         .frame(width: 395, height: 395)
-                        .matchedGeometryEffect(id: "circle11", in: homespace)
+              
                     Circle()
                         .stroke(Custom.lightBlue, lineWidth: 10)
                         .frame(width: 355, height: 355)
-                        .matchedGeometryEffect(id: "circle12", in: homespace)
+                    
                 }
                 .offset(x: geometry.size.width/3, y: geometry.size.height / 1.5)
             }
@@ -541,7 +532,7 @@ struct HomeColorfulView: View{
 
 struct CurrentAndUpcomingColorful: View{
     @Environment(\.colorScheme) var currentMode
-    let homespace: Namespace.ID
+
     private var bgColor: Color {
         currentMode == .light ? Custom.background : Custom.background
     }
@@ -554,19 +545,18 @@ struct CurrentAndUpcomingColorful: View{
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: 10)
                         .frame(width: 475, height: 475)
-                        .matchedGeometryEffect(id: "circle1", in: homespace)
                     Circle()
                         .stroke(Custom.coolBlue, lineWidth: 10)
                         .frame(width: 435, height: 435)
-                        .matchedGeometryEffect(id: "circle2", in: homespace)
+
                     Circle()
                         .stroke(Custom.medBlue, lineWidth: 10)
                         .frame(width: 395, height: 395)
-                        .matchedGeometryEffect(id: "circle3", in: homespace)
+ 
                     Circle()
                         .stroke(Custom.lightBlue, lineWidth: 10)
                         .frame(width: 355, height: 355)
-                        .matchedGeometryEffect(id: "circle4", in: homespace)
+
                 }
                 .offset(x: geometry.size.width / 1.4, y: -geometry.size.height / 2 )
                 
@@ -574,38 +564,38 @@ struct CurrentAndUpcomingColorful: View{
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: 10)
                         .frame(width: 475, height: 475)
-                        .matchedGeometryEffect(id: "circle5", in: homespace)
+
                     Circle()
                         .stroke(Custom.coolBlue, lineWidth: 10)
                         .frame(width: 435, height: 435)
-                        .matchedGeometryEffect(id: "circle6", in: homespace)
+
                     Circle()
                         .stroke(Custom.medBlue, lineWidth: 10)
                         .frame(width: 395, height: 395)
-                        .matchedGeometryEffect(id: "circle7", in: homespace)
+
                     Circle()
                         .stroke(Custom.lightBlue, lineWidth: 10)
                         .frame(width: 355, height: 355)
-                        .matchedGeometryEffect(id: "circle8", in: homespace)
+    
                 }
-                .offset(x: -geometry.size.width/2, y: -geometry.size.height / 2)
+                .offset(x: -geometry.size.width/2, y: -geometry.size.height / 1.75)
                 ZStack{
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: 10)
                         .frame(width: 635, height: 635)
-                        .matchedGeometryEffect(id: "circle9", in: homespace)
+
                     Circle()
                         .stroke(Custom.coolBlue, lineWidth: 10)
                         .frame(width: 595, height: 595)
-                        .matchedGeometryEffect(id: "circle10", in: homespace)
+
                     Circle()
                         .stroke(Custom.medBlue, lineWidth: 10)
                         .frame(width: 555, height: 555)
-                        .matchedGeometryEffect(id: "circle11", in: homespace)
+  
                     Circle()
                         .stroke(Custom.lightBlue, lineWidth: 10)
                         .frame(width: 515, height: 515)
-                        .matchedGeometryEffect(id: "circle12", in: homespace)
+
                 }
                 .offset(x: geometry.size.width/5, y: geometry.size.height / 1.5)
             }
