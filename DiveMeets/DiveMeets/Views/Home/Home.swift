@@ -257,11 +257,27 @@ struct UpcomingMeetsView: View {
                         MeetBubbleView(elements: elem)
                     }
             } else {
-                Text("No upcoming meets found")
+                ZStack{
+                    Rectangle()
+                        .foregroundColor(Custom.thinMaterialColor)
+                        .frame(width: 275, height: 75)
+                        .mask(RoundedRectangle(cornerRadius: 40))
+                        .shadow(radius: 6)
+                    Text("No upcoming meets found")
+                }
             }
         } else {
-            Text("Getting upcoming meets")
-            ProgressView()
+            ZStack{
+                Rectangle()
+                    .foregroundColor(Custom.thinMaterialColor)
+                    .frame(width: 275, height: 100)
+                    .mask(RoundedRectangle(cornerRadius: 40))
+                    .shadow(radius: 6)
+                VStack{
+                    Text("Getting upcoming meets")
+                    ProgressView()
+                }
+            }
         }
     }
 }
@@ -286,10 +302,26 @@ struct CurrentMeetsView: View {
             }
             .padding(.bottom, maxHeightOffset)
         } else if meetParser.currentMeets != nil {
-            Text("No current meets found")
+            ZStack{
+                Rectangle()
+                    .foregroundColor(Custom.thinMaterialColor)
+                    .frame(width: 275, height: 75)
+                    .mask(RoundedRectangle(cornerRadius: 40))
+                    .shadow(radius: 6)
+                Text("No current meets found")
+            }
         } else {
-            Text("Getting current meets")
-            ProgressView()
+            ZStack{
+                Rectangle()
+                    .foregroundColor(Custom.thinMaterialColor)
+                    .frame(width: 275, height: 100)
+                    .mask(RoundedRectangle(cornerRadius: 40))
+                    .shadow(radius: 6)
+                VStack{
+                    Text("Getting current meets")
+                    ProgressView()
+                }
+            }
         }
     }
 }
