@@ -147,7 +147,7 @@ struct ProfileView: View {
                                     diverData != []
                                     ? Text("FINA Age: " +
                                            (diverData[0][0].slice(from: " FINA Age: ",
-                                                                  to: " High") ?? ""))
+                                                                  to: "DiveMeets") ?? "").prefix(2))
                                     : Text("")
                                 }
                                 .font(.subheadline).foregroundColor(.white)
