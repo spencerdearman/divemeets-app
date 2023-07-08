@@ -169,8 +169,7 @@ class MeetPageParser: ObservableObject {
                     let body = try SwiftSoup.parseBodyFragment(html).body()!
                     
                     let comps = try body.text().components(separatedBy: "***")
-                    let name = comps[0].components(separatedBy: "(").first!
-                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                    let name = comps[0].trimmingCharacters(in: .whitespacesAndNewlines)
                     
                     let ruleLink = try body.getElementsByTag("a").first()?.attr("href")
                     let ruleHtml = try await textLoader.getText(url: URL(
