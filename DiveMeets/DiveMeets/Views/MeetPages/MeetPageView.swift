@@ -608,6 +608,7 @@ struct DiverListView: View {
 }
 
 struct MeetEventListView: View {
+    @Environment(\.colorScheme) var currentMode
     @Binding var showingAlert: Bool
     @Binding var alertText: String
     var meetEventData: MeetEventData
@@ -644,30 +645,45 @@ struct MeetEventListView: View {
     
     var body: some View {
         let data = dateSorted(groupByDay(data: meetEventData))
-        List {
-            ForEach(data, id: \.key) { key, value in
-                Section {
-                    ForEach(value.indices, id: \.self) { index in
-                        HStack {
-                            NavigationLink(value[index].2) {
-                                EntryPageView(entriesLink: value[index].4)
+        
+        
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 10) {
+                ForEach(data, id: \.key) { key, value in
+                    Section {
+                        ForEach(value.indices, id: \.self) { index in
+                            GeometryReader { geometry in
+                                SwipeView {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 30)
+                                            .fill(Custom.tileColor)
+                                            .shadow(radius: 5)
+                                            .frame(width: geometry.size.width, height: geometry.size.height)
+                                        NavigationLink(value[index].2) {
+                                            EntryPageView(entriesLink: value[index].4)
+                                        }
+                                        .foregroundColor(.primary)
+                                    }
+                                } trailingActions: { context in
+                                    SwipeAction("Rule") {
+                                        showingAlert = true
+                                        alertText = value[index].3
+                                        context.state.wrappedValue = .closed
+                                    }
+                                    .background(currentMode == .light
+                                                ? Custom.lightBlue
+                                                : Custom.medBlue)
+                                }
                             }
-                            Spacer()
+                            .padding([.leading, .trailing])
+                            .frame(height: 50)
                         }
-                        .swipeActions(allowsFullSwipe: false) {
-                            Button("Rule") {
-                                showingAlert = true
-                                alertText = value[index].3
-                            }
-                            .tint(Custom.coolBlue)
-                        }
+                    } header: {
+                        Text(key)
+                            .font(.subheadline)
                     }
-                } header: {
-                    Text(key)
-                        .font(.subheadline)
                 }
             }
         }
-        .listStyle(.insetGrouped)
     }
 }
