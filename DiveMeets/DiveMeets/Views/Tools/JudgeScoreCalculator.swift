@@ -95,7 +95,7 @@ struct JudgeScoreCalculator: View {
                 Rectangle()
                     .foregroundColor(Custom.thinMaterialColor)
                     .mask(RoundedRectangle(cornerRadius: 30))
-                    .frame(width: screenWidth * 0.9, height: screenHeight * 0.55)
+                    .frame(width: screenWidth * 0.9, height: screenHeight * 0.42)
                     .shadow(radius: shadowRadius)
                 VStack(spacing: 20) {
                     Text("Judge Score Calculator")
@@ -104,17 +104,30 @@ struct JudgeScoreCalculator: View {
                         .bold()
                         .padding(.top, 30)
                     
-                    TextField("Number", text: $dive)
-                        .textInputAutocapitalization(.characters)
-                        .focused($focusedField, equals: .dive)
-                        .frame(width: 170, height: 70)
-                        .font(.title)
-                        .multilineTextAlignment(.center)
-                        .background(RoundedRectangle(cornerRadius: cornerRadius).fill(.thinMaterial))
-                        .shadow(radius: shadowRadius)
-                    
                     DiveHeightSelectView(height: $height)
                         .scaleEffect(0.9)
+                    
+                    HStack {
+                        Spacer()
+                        TextField("Number", text: $dive)
+                            .textInputAutocapitalization(.characters)
+                            .focused($focusedField, equals: .dive)
+                            .frame(width: 150, height: 50)
+                            .font(.title2)
+                            .multilineTextAlignment(.center)
+                            .background(RoundedRectangle(cornerRadius: cornerRadius).fill(.thinMaterial))
+                        .shadow(radius: shadowRadius)
+                        Spacer()
+                        TextField("Desired Score", text: $score)
+                            .keyboardType(.decimalPad)
+                            .focused($focusedField, equals: .score)
+                            .frame(width: 150, height: 50)
+                            .font(.title2)
+                            .multilineTextAlignment(.center)
+                            .background(RoundedRectangle(cornerRadius: cornerRadius).fill(.thinMaterial))
+                            .shadow(radius: shadowRadius)
+                        Spacer()
+                    }
                     
                     VStack(spacing: 5) {
                         if name != nil {
@@ -136,14 +149,6 @@ struct JudgeScoreCalculator: View {
                     }
                     .font(.title3)
                     
-                    TextField("Desired Score", text: $score)
-                        .keyboardType(.decimalPad)
-                        .focused($focusedField, equals: .score)
-                        .frame(width: 200, height: 70)
-                        .font(.title)
-                        .multilineTextAlignment(.center)
-                        .background(RoundedRectangle(cornerRadius: cornerRadius).fill(.thinMaterial))
-                        .shadow(radius: shadowRadius)
                     
                     if scoreDouble != nil {
                         VStack(spacing: 5) {
