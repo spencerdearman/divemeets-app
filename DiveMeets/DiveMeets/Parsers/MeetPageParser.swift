@@ -178,7 +178,14 @@ class MeetPageParser: ObservableObject {
                     let tds = try SwiftSoup.parse(ruleHtml).body()!.getElementsByTag("td")
                     let rule = try tds[tds.count - 2].text()
                     
-                    let entries = try leadingLink + (body.getElementsByTag("a").last()?.attr("href"))!
+                    // Assigns entries to empty string if there are no entries
+                    let entries: String
+                    if try body.getElementsByTag("a").last()?.text() == "Rule" {
+                        entries = ""
+                    } else {
+                        entries = try leadingLink +
+                        (body.getElementsByTag("a").last()?.attr("href") ?? "")
+                    }
                     
                     result.append((date, number, name, rule, entries))
                 }
