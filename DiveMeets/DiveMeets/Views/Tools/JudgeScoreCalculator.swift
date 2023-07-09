@@ -161,78 +161,77 @@ struct JudgeScoreCalculator: View {
                                 }
                             }
                         }
-                    }
-                    .font(.title3)
-                    
-                    if scoreDouble != nil {
-                        VStack(spacing: 5) {
-                            Text("Judges Scores")
-                                .bold()
-                                .underline()
-                            Text(judgesScores.joined(separator: " | "))
-                                .fontWeight(.semibold)
+                        
+                        if scoreDouble != nil {
+                            VStack(spacing: 5) {
+                                Text("Judges Scores")
+                                    .bold()
+                                    .underline()
+                                Text(judgesScores.joined(separator: " | "))
+                                    .fontWeight(.semibold)
+                            }
+                            .font(.title2)
                         }
-                        .font(.title2)
                     }
-                }
-                .onChange(of: dive) { newValue in
-                    name = getDiveName(data: tableData ?? [:], forKey: newValue)
-                    dd = getDiveDD(data: tableData ?? [:], forKey: newValue, height: heightDouble)
-                    judgesScores = computeJudgesScores()
-                }
-                .onChange(of: height) { _ in
-                    dd = getDiveDD(data: tableData ?? [:], forKey: dive, height: heightDouble)
-                    judgesScores = computeJudgesScores()
-                }
-                .onChange(of: score) { _ in
-                    judgesScores = computeJudgesScores()
-                }
-                .onAppear {
-                    tableData = getDiveTableData()
+                    .onChange(of: dive) { newValue in
+                        name = getDiveName(data: tableData ?? [:], forKey: newValue)
+                        dd = getDiveDD(data: tableData ?? [:], forKey: newValue, height: heightDouble)
+                        judgesScores = computeJudgesScores()
+                    }
+                    .onChange(of: height) { _ in
+                        dd = getDiveDD(data: tableData ?? [:], forKey: dive, height: heightDouble)
+                        judgesScores = computeJudgesScores()
+                    }
+                    .onChange(of: score) { _ in
+                        judgesScores = computeJudgesScores()
+                    }
+                    .onAppear {
+                        tableData = getDiveTableData()
+                    }
                 }
             }
         }
     }
-}
-
-struct DiveHeightSelectView: View {
-    @Binding var height: DiveHeight
     
-    private let cornerRadius: CGFloat = 30
-    private let selectedGray = Color(red: 0.85, green: 0.85, blue: 0.85, opacity: 0.4)
-    
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(Custom.selectionColorsDark)
-                .shadow(radius: 10)
-            HStack(spacing: 0) {
-                ForEach(DiveHeight.allCases, id: \.self) { h in
-                    ZStack {
-                        // Weird padding stuff to have end options rounded on the outside edge only
-                        // when selected
-                        // https://stackoverflow.com/a/72435691/22068672
-                        Rectangle()
-                            .fill(height == h ? selectedGray : .clear)
-                            .padding(.trailing, h == DiveHeight.allCases.first ? cornerRadius : 0)
-                            .padding(.leading, h == DiveHeight.allCases.last ? cornerRadius : 0)
-                            .cornerRadius(h == DiveHeight.allCases.first || h == DiveHeight.allCases.last
-                                          ? cornerRadius : 0)
-                            .padding(.trailing, h == DiveHeight.allCases.first ? -cornerRadius : 0)
-                            .padding(.leading, h == DiveHeight.allCases.last ? -cornerRadius : 0)
-                        Text(h.rawValue)
-                    }
-                    .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
-                    .onTapGesture {
-                        height = h
-                    }
-                    if h != DiveHeight.allCases.last {
-                        Divider()
+    struct DiveHeightSelectView: View {
+        @Binding var height: DiveHeight
+        
+        private let cornerRadius: CGFloat = 30
+        private let selectedGray = Color(red: 0.85, green: 0.85, blue: 0.85, opacity: 0.4)
+        
+        var body: some View {
+            ZStack {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(Custom.selectionColorsDark)
+                    .shadow(radius: 10)
+                HStack(spacing: 0) {
+                    ForEach(DiveHeight.allCases, id: \.self) { h in
+                        ZStack {
+                            // Weird padding stuff to have end options rounded on the outside edge only
+                            // when selected
+                            // https://stackoverflow.com/a/72435691/22068672
+                            Rectangle()
+                                .fill(height == h ? selectedGray : .clear)
+                                .padding(.trailing, h == DiveHeight.allCases.first ? cornerRadius : 0)
+                                .padding(.leading, h == DiveHeight.allCases.last ? cornerRadius : 0)
+                                .cornerRadius(h == DiveHeight.allCases.first || h == DiveHeight.allCases.last
+                                              ? cornerRadius : 0)
+                                .padding(.trailing, h == DiveHeight.allCases.first ? -cornerRadius : 0)
+                                .padding(.leading, h == DiveHeight.allCases.last ? -cornerRadius : 0)
+                            Text(h.rawValue)
+                        }
+                        .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
+                        .onTapGesture {
+                            height = h
+                        }
+                        if h != DiveHeight.allCases.last {
+                            Divider()
+                        }
                     }
                 }
             }
+            .frame(height: 50)
+            .padding([.leading, .trailing])
         }
-        .frame(height: 50)
-        .padding([.leading, .trailing])
     }
 }
