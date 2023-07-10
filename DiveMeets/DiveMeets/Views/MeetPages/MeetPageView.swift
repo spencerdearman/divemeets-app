@@ -654,16 +654,18 @@ struct MeetEventListView: View {
                         ForEach(value.indices, id: \.self) { index in
                             GeometryReader { geometry in
                                 SwipeView {
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 30)
-                                            .fill(Custom.tileColor)
-                                            .shadow(radius: 5)
-                                            .frame(width: geometry.size.width, height: geometry.size.height)
-                                        NavigationLink(value[index].2) {
-                                            EntryPageView(entriesLink: value[index].4)
-                                        }
+                                        NavigationLink(destination: EntryPageView(entriesLink: value[index].4)) {
+                                            ZStack {
+                                                RoundedRectangle(cornerRadius: 30)
+                                                    .fill(Custom.tileColor)
+                                                    .shadow(radius: 5)
+                                                    .frame(width: geometry.size.width, height: geometry.size.height)
+                                                Text(value[index].2)
+                                            }
                                         .foregroundColor(.primary)
+                                        .saturation(value[index].4 == "" ? 0.5 : 1.0)
                                     }
+                                        .disabled(value[index].4 == "")
                                 } trailingActions: { context in
                                     SwipeAction("Rule") {
                                         showingAlert = true

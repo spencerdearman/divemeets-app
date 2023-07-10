@@ -143,8 +143,6 @@ struct Home: View {
     var body: some View {
         NavigationView {
             ZStack {
-//                (currentMode == .light ? Color.white : Color.black)
-//                    .ignoresSafeArea()
                 HomeColorfulView()
                 VStack {
                     VStack {
@@ -253,11 +251,12 @@ struct UpcomingMeetsView: View {
         if let meets = meetParser.upcomingMeets {
             if !meets.isEmpty {
                 let upcoming = tupleToList(tuples: db.dictToTuple(dict: meets))
-                    ScalingScrollView(records: upcoming, bgColor: .clear, rowSpacing: 15, shadowRadius: 10) { (elem) in
+                    ScalingScrollView(records: upcoming, bgColor: .clear, rowSpacing: 15,
+                                      shadowRadius: 10) { (elem) in
                         MeetBubbleView(elements: elem)
                     }
             } else {
-                ZStack{
+                ZStack {
                     Rectangle()
                         .foregroundColor(Custom.thinMaterialColor)
                         .frame(width: 275, height: 75)
@@ -265,6 +264,7 @@ struct UpcomingMeetsView: View {
                         .shadow(radius: 6)
                     Text("No upcoming meets found")
                 }
+                
             }
         } else {
             ZStack{
