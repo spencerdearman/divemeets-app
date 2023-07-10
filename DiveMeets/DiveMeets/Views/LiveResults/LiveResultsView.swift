@@ -290,10 +290,6 @@ struct mainView: View {
     
     var colors: [Color] = [.blue, .green, .red, .orange]
     
-    private var bgColor: Color {
-        currentMode == .light ? Custom.background : Custom.background
-    }
-    
     func startTimer() {
         
         Timer.scheduledTimer(withTimeInterval: 10.0, repeats: false) { timer in
@@ -302,7 +298,7 @@ struct mainView: View {
     }
     
     var body: some View {
-        bgColor.ignoresSafeArea()
+        Custom.background.ignoresSafeArea()
         ZStack {
             ColorfulView()
             GeometryReader { geometry in

@@ -543,8 +543,14 @@ struct LiveResultsListView: View {
     //            [name, link]
     var elements: [String]
     
+    private func isFinishedEvent(_ link: String) -> Bool {
+        return link.suffix(8) == "Finished"
+    }
+    
     var body: some View {
-        NavigationLink(destination: LiveResultsView(request: elements[1])) {
+        NavigationLink(destination: isFinishedEvent(elements[1])
+                       ? AnyView(FinishedLiveResultsView(link: elements[1]))
+                       : AnyView(LiveResultsView(request: elements[1]))) {
             ZStack {
                 Rectangle()
                     .foregroundColor(bubbleColor)

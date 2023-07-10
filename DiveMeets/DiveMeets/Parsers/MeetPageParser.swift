@@ -253,8 +253,7 @@ class MeetPageParser: ObservableObject {
                     let linkElem = try elem.getElementsByTag("a").first()
                     
                     // Link must not be nil and not end in "Finished" to add to result
-                    if let linkElem = linkElem,
-                       try linkElem.attr("href").suffix(8) != "Finished" {
+                    if let linkElem = linkElem {
                         result[name] = try leadingLink + linkElem.attr("href")
                     }
                 }
