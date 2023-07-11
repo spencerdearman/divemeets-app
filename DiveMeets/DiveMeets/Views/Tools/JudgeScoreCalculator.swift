@@ -99,7 +99,7 @@ struct JudgeScoreCalculator: View {
             ZStack {
                 Rectangle()
                     .foregroundColor(Custom.thinMaterialColor)
-                    .mask(RoundedRectangle(cornerRadius: 30))
+                    .mask(RoundedRectangle(cornerRadius: 50))
                     .frame(width: screenWidth * 0.9, height: screenHeight * 0.42)
                     .shadow(radius: shadowRadius)
                 
@@ -163,14 +163,21 @@ struct JudgeScoreCalculator: View {
                         }
                         
                         if scoreDouble != nil {
-                            VStack(spacing: 5) {
-                                Text("Judges Scores")
-                                    .bold()
-                                    .underline()
-                                Text(judgesScores.joined(separator: " | "))
-                                    .fontWeight(.semibold)
+                            ZStack {
+                                Rectangle()
+                                    .foregroundColor(Custom.thinMaterialColor)
+                                    .mask(RoundedRectangle(cornerRadius: 30))
+                                    .frame(width: screenWidth * 0.5, height: screenHeight * 0.09)
+                                    .shadow(radius: shadowRadius)
+                                VStack(spacing: 5) {
+                                    Text("Judges Scores")
+                                        .bold()
+                                        .underline()
+                                    Text(judgesScores.joined(separator: " | "))
+                                        .fontWeight(.semibold)
+                                }
+                                .font(.title2)
                             }
-                            .font(.title2)
                         }
                     }
                     .onChange(of: dive) { newValue in
