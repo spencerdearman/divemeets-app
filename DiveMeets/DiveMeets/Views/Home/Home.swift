@@ -398,7 +398,7 @@ struct CurrentMeetsPageView: View {
                     .zIndex(2)
                     Spacer()
                 }
-               
+                
                 if selection == .info {
                     MeetPageView(meetLink: infoLink, showBackButton: false)
                         .offset(y: -40)
@@ -424,10 +424,12 @@ struct CurrentMeetsPageView: View {
 
 struct MeetBubbleView: View {
     @Environment(\.colorScheme) var currentMode
-    @State var isPhone: Bool = true
     
     private var bubbleColor: Color {
         currentMode == .light ? .white : .black
+    }
+    private var isPhone: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad ? false : true
     }
     
     //  (id, name, org, link, startDate, endDate, city, state, country, resultsLink?)
@@ -447,11 +449,6 @@ struct MeetBubbleView: View {
                 Rectangle()
                     .foregroundColor(Custom.homeTileColor)
                     .cornerRadius(40)
-                    .onAppear{
-                        if UIDevice.current.userInterfaceIdiom == .pad {
-                            isPhone = false
-                        }
-                    }
                 VStack {
                     VStack {
                         Text(elements[1]) // name
