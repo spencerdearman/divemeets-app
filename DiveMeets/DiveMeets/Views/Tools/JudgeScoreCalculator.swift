@@ -102,6 +102,9 @@ struct JudgeScoreCalculator: View {
                     .mask(RoundedRectangle(cornerRadius: 50))
                     .frame(width: screenWidth * 0.9, height: screenHeight * 0.42)
                     .shadow(radius: shadowRadius)
+                    .onTapGesture {
+                        focusedField = nil
+                    }
                 
                 VStack(spacing: 5) {
                     
