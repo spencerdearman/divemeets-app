@@ -68,10 +68,10 @@ struct ContentView: View {
                                     case .wrench:
                                         NavigationView {
 //                                            LiveResultsView(request: "debug")
-                                            FinishedLiveResultsView(link: "https://secure.meetcontrol.com/divemeets/system/livestats.php?event=stats-9050-770-9-Finished")
-                                        }
-                                        .navigationViewStyle(StackNavigationViewStyle())
-//                                        ToolsMenu()
+//                                            FinishedLiveResultsView(link: "https://secure.meetcontrol.com/divemeets/system/livestats.php?event=stats-9050-770-9-Finished")
+//                                        }
+//                                        .navigationViewStyle(StackNavigationViewStyle())
+                                        ToolsMenu()
                                     case .magnifyingglass:
                                         SearchView(isIndexingMeets: $isIndexingMeets)
                                     case .person:
