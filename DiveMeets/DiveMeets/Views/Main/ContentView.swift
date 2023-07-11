@@ -66,11 +66,11 @@ struct ContentView: View {
                                     case .house:
                                         Home()
                                     case .wrench:
-                                        NavigationView {
-                                            LiveResultsView(request: "debug")
-                                        }
+//                                        NavigationView {
+//                                            LiveResultsView(request: "debug")
+//                                        }
 //                                        .navigationViewStyle(StackNavigationViewStyle())
-                                        //ToolsMenu()
+                                        ToolsMenu()
                                     case .magnifyingglass:
                                         SearchView(isIndexingMeets: $isIndexingMeets)
                                     case .person:
