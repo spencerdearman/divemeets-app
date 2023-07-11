@@ -177,7 +177,14 @@ class MeetPageParser: ObservableObject {
                     let tds = try SwiftSoup.parse(ruleHtml).body()!.getElementsByTag("td")
                     let rule = try tds[tds.count - 2].text()
                     
-                    let entries = try leadingLink + (body.getElementsByTag("a").last()?.attr("href"))!
+                    // Assigns entries to empty string if there are no entries
+                    let entries: String
+                    if try body.getElementsByTag("a").last()?.text() == "Rule" {
+                        entries = ""
+                    } else {
+                        entries = try leadingLink +
+                        (body.getElementsByTag("a").last()?.attr("href") ?? "")
+                    }
                     
                     result.append((date, number, name, rule, entries))
                 }
@@ -218,7 +225,8 @@ class MeetPageParser: ObservableObject {
                     result.append((name, link, entries, date))
                 }
                 
-                return result
+                // Only returns result if there are items in it, otherwise returns nil
+                return result.count == 0 ? nil : result
             } catch {
                 print("Getting results event data failed")
             }
@@ -230,14 +238,10 @@ class MeetPageParser: ObservableObject {
     func getLiveResultsData(data: MeetPageData) -> MeetLiveResultsData? {
         var result: MeetLiveResultsData = [:]
         var name: String = ""
-        var link: String = ""
         
         if let live = data["live"] {
             do {
                 for elem in live {
-                    name = ""
-                    link = ""
-                    
                     let nameElem = try elem.getElementsByTag("strong").first()
                     if let nameElem = nameElem {
                         name = try nameElem.text()
@@ -247,17 +251,15 @@ class MeetPageParser: ObservableObject {
                     }
                     
                     let linkElem = try elem.getElementsByTag("a").first()
-                    if let linkElem = linkElem {
-                        link = try linkElem.attr("href")
-                    } else {
-                        print("Could not get link from element")
-                        continue
-                    }
                     
-                    result[name] = leadingLink + link
+                    // Link must not be nil and not end in "Finished" to add to result
+                    if let linkElem = linkElem {
+                        result[name] = try leadingLink + linkElem.attr("href")
+                    }
                 }
                 
-                return result
+                // Only returns result if there are items in it, otherwise returns nil
+                return result.count == 0 ? nil : result
             } catch {
                 print("Getting live results failed")
             }

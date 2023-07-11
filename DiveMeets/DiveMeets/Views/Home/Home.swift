@@ -143,8 +143,6 @@ struct Home: View {
     var body: some View {
         NavigationView {
             ZStack {
-//                (currentMode == .light ? Color.white : Color.black)
-//                    .ignoresSafeArea()
                 HomeColorfulView()
                 VStack {
                     VStack {
@@ -199,7 +197,7 @@ struct Home: View {
                                     .cornerRadius(cornerRadius)
                                 }
                             }
-
+                            
                             HStack {
                                 Spacer()
                                 Button(action: {
@@ -212,7 +210,7 @@ struct Home: View {
                             .padding(.trailing)
                         }
                         .dynamicTypeSize(.xSmall ... .xLarge)
-
+                        
                     }
                     Spacer()
                     if selection == .upcoming {
@@ -253,11 +251,12 @@ struct UpcomingMeetsView: View {
         if let meets = meetParser.upcomingMeets {
             if !meets.isEmpty {
                 let upcoming = tupleToList(tuples: db.dictToTuple(dict: meets))
-                    ScalingScrollView(records: upcoming, bgColor: .clear, rowSpacing: 15, shadowRadius: 10) { (elem) in
-                        MeetBubbleView(elements: elem)
-                    }
+                ScalingScrollView(records: upcoming, bgColor: .clear, rowSpacing: 15,
+                                  shadowRadius: 10) { (elem) in
+                    MeetBubbleView(elements: elem)
+                }
             } else {
-                ZStack{
+                ZStack {
                     Rectangle()
                         .foregroundColor(Custom.thinMaterialColor)
                         .frame(width: 275, height: 75)
@@ -265,6 +264,7 @@ struct UpcomingMeetsView: View {
                         .shadow(radius: 6)
                     Text("No upcoming meets found")
                 }
+                
             }
         } else {
             ZStack{
@@ -286,8 +286,6 @@ struct UpcomingMeetsView: View {
 struct CurrentMeetsView: View {
     @Environment(\.meetsDB) var db
     @ObservedObject var meetParser: MeetParser
-
-
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     
     private var maxHeightOffset: CGFloat {
@@ -297,7 +295,8 @@ struct CurrentMeetsView: View {
     var body: some View {
         if meetParser.currentMeets != nil && !meetParser.currentMeets!.isEmpty {
             let current = tupleToList(tuples: dictToCurrentTuple(dict: meetParser.currentMeets ?? []))
-            ScalingScrollView(records: current, bgColor: .clear, rowSpacing: 15, shadowRadius: 10) { (elem) in
+            ScalingScrollView(records: current, bgColor: .clear, rowSpacing: 15, shadowRadius: 10) {
+                (elem) in
                 MeetBubbleView(elements: elem)
             }
             .padding(.bottom, maxHeightOffset)
@@ -355,48 +354,51 @@ struct CurrentMeetsPageView: View {
         ZStack{
             Custom.background.ignoresSafeArea()
             VStack {
-                ZStack {
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .frame(width: typeBubbleWidth * 2 + 5,
-                               height: typeBGWidth)
-                        .foregroundColor(Custom.selectionColorsDark)
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .frame(width: typeBubbleWidth,
-                               height: typeBubbleHeight)
-                        .foregroundColor(Custom.selection)
-                        .offset(x: selection == .info
-                                ? -typeBubbleWidth / 2
-                                : typeBubbleWidth / 2)
-                        .animation(.spring(response: 0.2), value: selection)
-                    HStack(spacing: 0) {
-                        Button(action: {
-                            if selection == .results {
-                                selection = .info
-                            }
-                        }, label: {
-                            Text(CurrentMeetPageType.info.rawValue)
-                                .animation(nil, value: selection)
-                        })
-                        .frame(width: typeBubbleWidth,
-                               height: typeBubbleHeight)
-                        .foregroundColor(textColor)
-                        .cornerRadius(cornerRadius)
-                        Button(action: {
-                            if selection == .info {
-                                selection = .results
-                            }
-                        }, label: {
-                            Text(CurrentMeetPageType.results.rawValue)
-                                .animation(nil, value: selection)
-                        })
-                        .frame(width: typeBubbleWidth + 2,
-                               height: typeBubbleHeight)
-                        .foregroundColor(textColor)
-                        .cornerRadius(cornerRadius)
+                if resultsLink != "" {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .frame(width: typeBubbleWidth * 2 + 5,
+                                   height: typeBGWidth)
+                            .foregroundColor(Custom.selectionColorsDark)
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .frame(width: typeBubbleWidth,
+                                   height: typeBubbleHeight)
+                            .foregroundColor(Custom.selection)
+                            .offset(x: selection == .info
+                                    ? -typeBubbleWidth / 2
+                                    : typeBubbleWidth / 2)
+                            .animation(.spring(response: 0.2), value: selection)
+                        HStack(spacing: 0) {
+                            Button(action: {
+                                if selection == .results {
+                                    selection = .info
+                                }
+                            }, label: {
+                                Text(CurrentMeetPageType.info.rawValue)
+                                    .animation(nil, value: selection)
+                            })
+                            .frame(width: typeBubbleWidth,
+                                   height: typeBubbleHeight)
+                            .foregroundColor(textColor)
+                            .cornerRadius(cornerRadius)
+                            Button(action: {
+                                if selection == .info {
+                                    selection = .results
+                                }
+                            }, label: {
+                                Text(CurrentMeetPageType.results.rawValue)
+                                    .animation(nil, value: selection)
+                            })
+                            .frame(width: typeBubbleWidth + 2,
+                                   height: typeBubbleHeight)
+                            .foregroundColor(textColor)
+                            .cornerRadius(cornerRadius)
+                        }
                     }
+                    .zIndex(2)
+                    Spacer()
                 }
-                .zIndex(2)
-                Spacer()
+               
                 if selection == .info {
                     MeetPageView(meetLink: infoLink, showBackButton: false)
                         .offset(y: -40)
@@ -407,8 +409,8 @@ struct CurrentMeetsPageView: View {
                 Spacer()
             }
         }
-            .zIndex(1)
-            
+        .zIndex(1)
+        
         .onSwipeGesture(trigger: .onEnded) { direction in
             if direction == .left && selection == .info {
                 selection = .results
@@ -436,60 +438,58 @@ struct MeetBubbleView: View {
     }
     
     var body: some View {
-            NavigationLink(destination:
-                            elements.count == 10
-                           ? AnyView(CurrentMeetsPageView(infoLink: elements[3], resultsLink: elements[9]))
-                           :
-                            AnyView(MeetPageView(meetLink: elements[3], showBackButton: false))) {
-                ZStack {
-                    Rectangle()
-                        .foregroundColor(Custom.homeTileColor)
-                        .cornerRadius(40)
+        NavigationLink(destination:
+                        elements.count == 10
+                       ? AnyView(CurrentMeetsPageView(infoLink: elements[3], resultsLink: elements[9]))
+                       : AnyView(MeetPageView(meetLink: elements[3], showBackButton: false))) {
+            ZStack {
+                Rectangle()
+                    .foregroundColor(Custom.homeTileColor)
+                    .cornerRadius(40)
+                VStack {
                     VStack {
-                        VStack {
-                            Text(elements[1]) // name
-                            //.font(.title3)
-                                .bold()
-                                .scaledToFit()
-                                .minimumScaleFactor(0.5)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .lineLimit(1)
-                            
-                            Spacer()
-                            
-                            Text(elements[2]) // org
-                                .font(.subheadline)
-                        }
-                        .foregroundColor(.primary)
+                        Text(elements[1]) // name
+                            .bold()
+                            .scaledToFit()
+                            .minimumScaleFactor(0.5)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(1)
                         
                         Spacer()
                         
-                        HStack {
-                            ZStack{
-                                Text(elements[6] + ", " + elements[7]) // city, state
-                                    .padding(.leading)
-                            }
-                            
-                            Spacer()
-                            
-                            ZStack{
-                                Rectangle()
-                                    .fill(Custom.thinMaterialColor)
-                                    .frame(width: 190)
-                                    .mask(RoundedRectangle(cornerRadius: 30))
-                                    .shadow(radius: 3)
-                                Text(elements[4] + " - " + elements[5]) // startDate - endDate
-                            }
-                            .padding(.trailing)
-                        }
-                        .font(.subheadline)
-                        .scaledToFit()
-                        .minimumScaleFactor(0.5)
-                        .foregroundColor(.primary)
+                        Text(elements[2]) // org
+                            .font(.subheadline)
                     }
-                    .padding()
+                    .foregroundColor(.primary)
+                    
+                    Spacer()
+                    
+                    HStack {
+                        ZStack{
+                            Text(elements[6] + ", " + elements[7]) // city, state
+                                .padding(.leading)
+                        }
+                        
+                        Spacer()
+                        
+                        ZStack{
+                            Rectangle()
+                                .fill(Custom.thinMaterialColor)
+                                .frame(width: 190)
+                                .mask(RoundedRectangle(cornerRadius: 30))
+                                .shadow(radius: 3)
+                            Text(elements[4] + " - " + elements[5]) // startDate - endDate
+                        }
+                        .padding(.trailing)
+                    }
+                    .font(.subheadline)
+                    .scaledToFit()
+                    .minimumScaleFactor(0.5)
+                    .foregroundColor(.primary)
                 }
+                .padding()
             }
+        }
     }
 }
 
@@ -507,19 +507,19 @@ struct HomeColorfulView: View{
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: 10)
                         .frame(width: 475, height: 475)
-
+                    
                     Circle()
                         .stroke(Custom.coolBlue, lineWidth: 10)
                         .frame(width: 435, height: 435)
-
+                    
                     Circle()
                         .stroke(Custom.medBlue, lineWidth: 10)
                         .frame(width: 395, height: 395)
-    
+                    
                     Circle()
                         .stroke(Custom.lightBlue, lineWidth: 10)
                         .frame(width: 355, height: 355)
-
+                    
                 }
                 .offset(x: geometry.size.width / 1.4, y: geometry.size.height / 15)
                 
@@ -527,34 +527,34 @@ struct HomeColorfulView: View{
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: 10)
                         .frame(width: 475, height: 475)
-
+                    
                     Circle()
                         .stroke(Custom.coolBlue, lineWidth: 10)
                         .frame(width: 435, height: 435)
-
+                    
                     Circle()
                         .stroke(Custom.medBlue, lineWidth: 10)
                         .frame(width: 395, height: 395)
-
+                    
                     Circle()
                         .stroke(Custom.lightBlue, lineWidth: 10)
                         .frame(width: 355, height: 355)
-
+                    
                 }
                 .offset(x: -geometry.size.width/2, y: geometry.size.height / 5)
                 ZStack{
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: 10)
                         .frame(width: 475, height: 475)
-
+                    
                     Circle()
                         .stroke(Custom.coolBlue, lineWidth: 10)
                         .frame(width: 435, height: 435)
-      
+                    
                     Circle()
                         .stroke(Custom.medBlue, lineWidth: 10)
                         .frame(width: 395, height: 395)
-              
+                    
                     Circle()
                         .stroke(Custom.lightBlue, lineWidth: 10)
                         .frame(width: 355, height: 355)
