@@ -443,7 +443,7 @@ struct MeetBubbleView: View {
                             ZStack{
                                 Rectangle()
                                     .fill(Custom.thinMaterialColor)
-                                    .frame(width: 190)
+                                    .frame(idealWidth: 190, maxWidth: 250)
                                     .mask(RoundedRectangle(cornerRadius: 30))
                                     .shadow(radius: 3)
                                 Text(elements[4] + " - " + elements[5])
