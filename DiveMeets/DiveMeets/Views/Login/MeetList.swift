@@ -74,7 +74,7 @@ struct MeetList: View {
                 VStack {
                     Text("Meets")
                         .font(.title2).fontWeight(.semibold)
-                        .padding(.top)
+                        .padding(.top, 30)
                     
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: rowSpacing) {
