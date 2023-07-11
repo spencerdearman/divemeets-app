@@ -395,8 +395,12 @@ struct LastDiverView: View
                     .scaledToFill()
                     .minimumScaleFactor(0.5)
                     Spacer().frame(width: 75)
-                    MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
-                        .scaledToFit()
+                    NavigationLink {
+                        ProfileView(profileLink: lastInfo.1)
+                    } label: {
+                        MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
+                            .scaledToFit()
+                    }
                 }
                 
                 Spacer()
@@ -473,9 +477,12 @@ struct NextDiverView: View
                         Text("Last Round Total: " + String(nextInfo.3))
                             .fontWeight(.semibold)
                     }
-                    MiniProfileImage(diverID: String(nextInfo.1.utf16.dropFirst(67)) ?? "")
-                        .scaledToFit()
-                        .padding(.horizontal)
+                    NavigationLink {
+                        ProfileView(profileLink: nextInfo.1)
+                    } label: {
+                        MiniProfileImage(diverID: String(nextInfo.1.utf16.dropFirst(67)) ?? "")
+                            .scaledToFit()
+                    }
                 }
                 
                 Spacer()
