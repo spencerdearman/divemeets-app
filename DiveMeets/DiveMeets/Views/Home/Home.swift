@@ -471,17 +471,16 @@ struct MeetBubbleView: View {
                         }
                         
                         Spacer()
-                            
-                            ZStack{
-                                Rectangle()
-                                    .fill(Custom.thinMaterialColor)
-                                    .frame(idealWidth: 190, maxWidth: 250)
-                                    .mask(RoundedRectangle(cornerRadius: 30))
-                                    .shadow(radius: 3)
-                                Text(elements[4] + " - " + elements[5])
-                                    .padding(5)// startDate - endDate
-                            }
-                            .padding(.trailing)
+                        
+                        ZStack{
+                            Rectangle()
+                                .fill(Custom.thinMaterialColor)
+                                .frame(width: 190)
+                                .mask(RoundedRectangle(cornerRadius: 30))
+                                .shadow(radius: 3)
+                            Text(elements[4] + " - " + elements[5]) // startDate - endDate
+                        }
+                        .padding(.trailing)
                     }
                     .font(.subheadline)
                     .scaledToFit()
