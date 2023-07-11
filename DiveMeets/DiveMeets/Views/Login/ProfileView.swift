@@ -98,10 +98,6 @@ struct ProfileView: View {
                 ZStack{
                     GeometryReader{ geometry in
                         BackgroundSpheres()
-                        Rectangle()
-                            .fill(Custom.background)
-                            .mask(RoundedRectangle(cornerRadius: 40))
-                            .offset(y: geometry.size.height * 0.4)
                     }
                     VStack {
                         ProfileImage(diverID: diverID)
