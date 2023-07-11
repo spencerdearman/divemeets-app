@@ -57,6 +57,7 @@ final class EventHTMLParser: ObservableObject {
         
         for (i, t) in overall.enumerated(){
             let testString = try t.text()
+            print(testString)
             if i == 0 {
                 continue
             } else if try testString.contains(".") && t.getElementsByTag("td").count > 1 {
@@ -64,7 +65,6 @@ final class EventHTMLParser: ObservableObject {
                     .replacingOccurrences(of: "  ", with: "")
                 eventPlace = try t.getElementsByTag("td")[1].text()
                     .replacingOccurrences(of: " ", with: "")
-                
                 eventScore = Double(try t.getElementsByTag("td")[2].text())!
                 eventLinkAppend = try t.getElementsByTag("a").attr("href")
                 eventLink = "https://secure.meetcontrol.com/divemeets/system/" + eventLinkAppend
@@ -93,9 +93,19 @@ final class EventHTMLParser: ObservableObject {
                 }
                 meetName = try t.text()
                 counter += 1
+                break
             } else {
                 meetName = try t.text()
                 counter += 1
+            }
+        }
+        
+        if counter == 1 {
+            await MainActor.run { [meetName, counter] in
+                innerDictionary[meetName] = eventDictionary
+                mainDictionary[counter] = innerDictionary
+                innerDictionary = [:]
+                eventDictionary = [:]
             }
         }
         return mainDictionary
