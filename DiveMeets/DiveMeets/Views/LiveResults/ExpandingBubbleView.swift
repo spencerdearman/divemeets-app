@@ -213,7 +213,7 @@ struct OpenTileView: View {
                     NavigationLink {
                         ProfileView(profileLink: bubbleData[7])
                     } label: {
-                        MiniProfileImage(diverID: String(bubbleData[7].utf16.dropFirst(67)) ?? "", width: 150, height: 200)
+                        MiniProfileImage(diverID: String(bubbleData[7].components(separatedBy: "=").last ?? ""), width: 150, height: 200)
                             .scaledToFit()
                             .padding(.horizontal)
                             .shadow(radius: 10)
