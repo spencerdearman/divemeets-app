@@ -31,6 +31,7 @@ struct MeetList: View {
     private let cornerRadius: CGFloat = 30
     private let rowSpacing: CGFloat = 10
     private let fontSize: CGFloat = 20
+    var screenHeight = UIScreen.main.bounds.height
     
     private var customGray: Color {
         let gray = currentMode == .light ? 0.95 : 0.1
@@ -71,71 +72,78 @@ struct MeetList: View {
         ZStack {
             
             if meets != [] {
-                VStack {
-                    Text("Meets")
-                        .font(.title2).fontWeight(.semibold)
-                        .padding(.top, 30)
-                    
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: rowSpacing) {
-                            ForEach($meets, id: \.id) { $meet in
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: cornerRadius)
-                                        .fill(Custom.tileColor)
-                                        .shadow(radius: 5)
-                                    DisclosureGroup(
-                                        isExpanded: $meet.isExpanded,
-                                        content: {
-                                            VStack(spacing: 5) {
-                                                Divider()
-                                                
-                                                ChildrenView(children: meet.children)
-                                                
-                                                HStack {
-                                                    let shape = RoundedRectangle(cornerRadius: 30)
+                
+                ZStack {
+                    Rectangle()
+                        .fill(Custom.background)
+                        .mask(RoundedRectangle(cornerRadius: 40))
+                        //.offset(y: screenHeight * 0.45)
+                    VStack {
+                        Text("Meets")
+                            .font(.title2).fontWeight(.semibold)
+                            .padding(.top, 30)
+                        
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: rowSpacing) {
+                                ForEach($meets, id: \.id) { $meet in
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: cornerRadius)
+                                            .fill(Custom.tileColor)
+                                            .shadow(radius: 5)
+                                        DisclosureGroup(
+                                            isExpanded: $meet.isExpanded,
+                                            content: {
+                                                VStack(spacing: 5) {
+                                                    Divider()
                                                     
-                                                    NavigationLink(
-                                                        destination: MeetPageView(
-                                                            meetLink: meet.link ?? "")) {
-                                                                ZStack {
-                                                                    shape.fill(.thinMaterial)
-                                                                    Text("Full Meet")
+                                                    ChildrenView(children: meet.children)
+                                                    
+                                                    HStack {
+                                                        let shape = RoundedRectangle(cornerRadius: 30)
+                                                        
+                                                        NavigationLink(
+                                                            destination: MeetPageView(
+                                                                meetLink: meet.link ?? "")) {
+                                                                    ZStack {
+                                                                        shape.fill(.thinMaterial)
+                                                                        Text("Full Meet")
+                                                                    }
+                                                                    .frame(width: 130, height: 50)
+                                                                    .contentShape(shape)
                                                                 }
-                                                                .frame(width: 130, height: 50)
-                                                                .contentShape(shape)
-                                                            }
-                                                    
-                                                    Spacer()
+                                                        
+                                                        Spacer()
+                                                    }
+                                                    .padding(.bottom)
+                                                    .padding(.top, 5)
                                                 }
-                                                .padding(.bottom)
-                                                .padding(.top, 5)
+                                            },
+                                            label: {
+                                                ParentView(meet: $meet)
                                             }
-                                        },
-                                        label: {
-                                            ParentView(meet: $meet)
+                                        )
+                                        .padding([.leading, .trailing])
+                                        // This mechanism using lastExpanded stores the
+                                        // expansion state of all values in the list when you
+                                        // tap a NavigationLink, and when you return, it pulls
+                                        // the isExpanded state from lastExpanded into each meet
+                                        // and then removes that value from isExpanded. This
+                                        // keeps lastExpanded empty when in a ProfileView and
+                                        // populated when you press a NavigationLink
+                                        .onAppear {
+                                            if let val = lastExpanded[meet.name] {
+                                                meet.isExpanded = val
+                                                lastExpanded.removeValue(forKey: meet.name)
+                                            }
                                         }
-                                    )
+                                        .onDisappear {
+                                            lastExpanded[meet.name] = meet.isExpanded
+                                        }
+                                    }
                                     .padding([.leading, .trailing])
-                                    // This mechanism using lastExpanded stores the
-                                    // expansion state of all values in the list when you
-                                    // tap a NavigationLink, and when you return, it pulls
-                                    // the isExpanded state from lastExpanded into each meet
-                                    // and then removes that value from isExpanded. This
-                                    // keeps lastExpanded empty when in a ProfileView and
-                                    // populated when you press a NavigationLink
-                                    .onAppear {
-                                        if let val = lastExpanded[meet.name] {
-                                            meet.isExpanded = val
-                                            lastExpanded.removeValue(forKey: meet.name)
-                                        }
-                                    }
-                                    .onDisappear {
-                                        lastExpanded[meet.name] = meet.isExpanded
-                                    }
+                                    .padding(.top, meet == meets.first ? rowSpacing : 0)
+                                    .padding(.bottom, meet == meets.last ? rowSpacing : 0)
                                 }
-                                .padding([.leading, .trailing])
-                                .padding(.top, meet == meets.first ? rowSpacing : 0)
-                                .padding(.bottom, meet == meets.last ? rowSpacing : 0)
                             }
                         }
                     }
