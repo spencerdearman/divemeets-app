@@ -62,6 +62,13 @@ struct parseBody: View {
     
     let screenFrame = Color(.systemBackground)
     
+    private func startTimer() {
+        
+        Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { timer in
+            shiftingBool.toggle()
+        }
+    }
+    
     var body: some View {
         ZStack {
             // Only loads WebView if not in debug mode
@@ -70,11 +77,13 @@ struct parseBody: View {
                     LRWebView(request: request, html: $html)
                         .onChange(of: html) { newValue in
                             loaded = parseHelper(newValue: newValue)
+                            startTimer()
                         }
                 } else {
                     LRWebView(request: request, html: $html)
                         .onChange(of: html) { newValue in
                             loaded = parseHelper(newValue: newValue)
+                            startTimer()
                         }
                 }
             }
