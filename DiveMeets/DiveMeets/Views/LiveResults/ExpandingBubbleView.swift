@@ -184,8 +184,8 @@ struct OpenTileView: View {
             Spacer()
             VStack(alignment: .leading, spacing: 12){
                 HStack {
-                    VStack(alignment: .leading){
-                        VStack(alignment: .leading){
+                    VStack(alignment: .leading) {
+                        VStack(alignment: .leading) {
                             Text(bubbleData[6].components(separatedBy: " ").first ?? "")
                                 .matchedGeometryEffect(id: "firstname", in: namespace)
                             Text(bubbleData[6].components(separatedBy: " ").last ?? "")
@@ -210,10 +210,14 @@ struct OpenTileView: View {
                             .foregroundColor(txtColor)
                             .matchedGeometryEffect(id: "currentScore", in: namespace)
                     }
-                    MiniProfileImage(diverID: String(bubbleData[7].utf16.dropFirst(67)) ?? "", width: 150, height: 200)
-                        .scaledToFit()
-                        .padding(.horizontal)
-                        .shadow(radius: 10)
+                    NavigationLink {
+                        ProfileView(profileLink: bubbleData[7])
+                    } label: {
+                        MiniProfileImage(diverID: String(bubbleData[7].utf16.dropFirst(67)) ?? "", width: 150, height: 200)
+                            .scaledToFit()
+                            .padding(.horizontal)
+                            .shadow(radius: 10)
+                    }
                 }
                 ZStack{
                     Rectangle()

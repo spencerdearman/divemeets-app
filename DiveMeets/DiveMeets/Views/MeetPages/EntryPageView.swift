@@ -60,10 +60,11 @@ struct EntryPageView: View {
                     }
                     .padding(10)
                 }
-            } else {
+            }
+            else {
                 VStack {
-                    Text("No entries found for this event")
-                    Text("(This event may have already started)")
+                    Text("Getting event entries...")
+                    ProgressView()
                 }
             }
         }
