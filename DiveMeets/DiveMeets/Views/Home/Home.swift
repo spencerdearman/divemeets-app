@@ -479,7 +479,7 @@ struct MeetBubbleView: View {
                                     .mask(RoundedRectangle(cornerRadius: 30))
                                     .shadow(radius: 3)
                                 Text(elements[4] + " - " + elements[5])
-                                    .padding(5)// startDate - endDate
+                                    //.padding(5)// startDate - endDate
                             }
                             .padding(.trailing)
                     }
