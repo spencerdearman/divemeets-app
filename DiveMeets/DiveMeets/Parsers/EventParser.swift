@@ -57,7 +57,6 @@ final class EventHTMLParser: ObservableObject {
         
         for (i, t) in overall.enumerated(){
             let testString = try t.text()
-            print(testString)
             if i == 0 {
                 continue
             } else if try testString.contains(".") && t.getElementsByTag("td").count > 1 {
@@ -93,7 +92,6 @@ final class EventHTMLParser: ObservableObject {
                 }
                 meetName = try t.text()
                 counter += 1
-                break
             } else {
                 meetName = try t.text()
                 counter += 1
