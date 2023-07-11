@@ -20,7 +20,7 @@ struct ToolsMenu: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Custom.background.ignoresSafeArea()
+                ToolsColorfulView().ignoresSafeArea()
                 VStack {
                     ZStack {
                         Rectangle()
@@ -32,25 +32,26 @@ struct ToolsMenu: View {
                             .font(.title2).bold()
                     }
                     Spacer()
-                    JudgeScoreCalculator()
-                    Spacer()
-                    NavigationLink(destination: MeetScoreCalculator()) {
-                        ZStack {
-                            Rectangle()
-                                .foregroundColor(Custom.thinMaterialColor)
-                                .mask(RoundedRectangle(cornerRadius: 30))
-                                .frame(width: screenWidth * 0.8, height: screenHeight * 0.15)
-                                .shadow(radius: 10)
-                            
-                            Text("Meet Score Calculator")
-                                .foregroundColor(.primary)
-                                .font(.title2)
-                                .bold()
-                                .padding()
+                    VStack {
+                        NavigationLink(destination: MeetScoreCalculator()) {
+                            ZStack {
+                                Rectangle()
+                                    .foregroundColor(Custom.thinMaterialColor)
+                                    .mask(RoundedRectangle(cornerRadius: 40))
+                                    .frame(width: screenWidth * 0.9, height: screenHeight * 0.1)
+                                    .shadow(radius: 10)
+                                
+                                Text("Meet Score Calculator")
+                                    .foregroundColor(.primary)
+                                    .font(.title2)
+                                    .bold()
+                                    .padding()
+                            }
                         }
+                        JudgeScoreCalculator()
+                            .frame(height: screenHeight * 0.5)
                     }
-                    .contentShape(Rectangle())
-                    Spacer()
+                    .offset(y: -screenHeight * 0.13)
                 }
                 .padding(.bottom, maxHeightOffset)
             }
@@ -58,4 +59,117 @@ struct ToolsMenu: View {
     }
 }
 
+struct ToolsColorfulView: View{
+    @Environment(\.colorScheme) var currentMode
+    private var screenWidth = UIScreen.main.bounds.width
+    private var screenHeight = UIScreen.main.bounds.height
+    private var bgColor: Color {
+        currentMode == .light ? Custom.background : Custom.background
+    }
+    
+    var body: some View{
+        ZStack {
+            bgColor.ignoresSafeArea()
+            
+//            Group{
+//                Wave(graphWidth: 1.7, amplitude: -0.08)
+//                    .foregroundColor(Custom.darkBlue)
+//                Wave(graphWidth: 1.7, amplitude: -0.08)
+//                    .foregroundColor(Custom.background)
+//                    .offset(y: screenHeight * 0.01)
+//                Wave(graphWidth: 1.7, amplitude: -0.08)
+//                    .foregroundColor(Custom.coolBlue)
+//                    .offset(y: screenHeight * 0.02)
+//                Wave(graphWidth: 1.7, amplitude: -0.08)
+//                    .foregroundColor(Custom.background)
+//                    .offset(y: screenHeight * 0.03)
+//                Wave(graphWidth: 1.7, amplitude: -0.08)
+//                    .foregroundColor(Custom.medBlue)
+//                    .offset(y: screenHeight * 0.04)
+//                Wave(graphWidth: 1.7, amplitude: -0.08)
+//                    .foregroundColor(Custom.background)
+//                    .offset(y: screenHeight * 0.05)
+//                Wave(graphWidth: 1.7, amplitude: -0.08)
+//                    .foregroundColor(Custom.lightBlue)
+//                    .offset(y: screenHeight * 0.06)
+//                Wave(graphWidth: 1.7, amplitude: -0.08)
+//                    .foregroundColor(Custom.background)
+//                    .offset(y: screenHeight * 0.07)
+//            }
+//            .offset(y: -screenHeight * 0.3)
+            
+            
+//            Group {
+//                Wave(graphWidth: 1.2, amplitude: -0.08)
+//                    .foregroundColor(Custom.darkBlue)
+//                Wave(graphWidth: 1.2, amplitude: -0.08)
+//                    .foregroundColor(Custom.background)
+//                    .offset(y: screenHeight * 0.01)
+//                Wave(graphWidth: 1.2, amplitude: -0.08)
+//                    .foregroundColor(Custom.coolBlue)
+//                    .offset(y: screenHeight * 0.02)
+//                Wave(graphWidth: 1.2, amplitude: -0.08)
+//                    .foregroundColor(Custom.background)
+//                    .offset(y: screenHeight * 0.03)
+//                Wave(graphWidth: 1.2, amplitude: -0.08)
+//                    .foregroundColor(Custom.medBlue)
+//                    .offset(y: screenHeight * 0.04)
+//                Wave(graphWidth: 1.2, amplitude: -0.08)
+//                    .foregroundColor(Custom.background)
+//                    .offset(y: screenHeight * 0.05)
+//                Wave(graphWidth: 1.2, amplitude: -0.08)
+//                    .foregroundColor(Custom.lightBlue)
+//                    .offset(y: screenHeight * 0.06)
+//                Wave(graphWidth: 1.2, amplitude: -0.08)
+//                    .foregroundColor(Custom.background)
+//                    .offset(y: screenHeight * 0.07)
+//            }
+            //.offset(y: screenHeight * 0.3)
+            
+            Group {
+                Wave(graphWidth: 1.3, amplitude: 0.05)
+                    .foregroundColor(Custom.lightBlue)
+                Wave(graphWidth: 0.8, amplitude: -0.04)
+                    .foregroundColor(Custom.medBlue)
+                    .offset(y: screenHeight * 0.06)
+                Wave(graphWidth: 1.1, amplitude: 0.06)
+                    .foregroundColor(Custom.coolBlue)
+                    .offset(y: screenHeight * 0.18)
+                Wave(graphWidth: 1.3, amplitude: -0.08)
+                    .foregroundColor(Custom.darkBlue)
+                    .offset(y: screenHeight * 0.22)
+            }
+            .offset(y: screenHeight * 0.1)
+        }
+    }
+}
 
+struct Wave: Shape {
+    let graphWidth: CGFloat
+    let amplitude: CGFloat
+    
+    func path(in rect: CGRect) -> Path {
+            let width = rect.width
+            let height = rect.height
+
+            let origin = CGPoint(x: 0, y: height * 0.50)
+
+            var path = Path()
+            path.move(to: origin)
+
+            var endY: CGFloat = 0.0
+            let step = 5.0
+            for angle in stride(from: step, through: Double(width) * (step * step), by: step) {
+                let x = origin.x + CGFloat(angle/360.0) * width * graphWidth
+                let y = origin.y - CGFloat(sin(angle/180.0 * Double.pi)) * height * amplitude
+                path.addLine(to: CGPoint(x: x, y: y))
+                endY = y
+            }
+            path.addLine(to: CGPoint(x: width, y: endY))
+            path.addLine(to: CGPoint(x: width, y: height))
+            path.addLine(to: CGPoint(x: 0, y: height))
+            path.addLine(to: CGPoint(x: 0, y: origin.y))
+
+            return path
+    }
+}

@@ -95,7 +95,7 @@ struct JudgeScoreCalculator: View {
     
     var body: some View {
         ZStack {
-            Custom.background
+            Color.clear
             ZStack {
                 Rectangle()
                     .foregroundColor(Custom.thinMaterialColor)
