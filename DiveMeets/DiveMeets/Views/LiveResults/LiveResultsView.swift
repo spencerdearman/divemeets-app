@@ -398,7 +398,7 @@ struct LastDiverView: View
                         ProfileView(profileLink: lastInfo.1)
                     } label: {
                         MiniProfileImage(diverID: String(lastInfo.1.components(separatedBy: "=").last ?? ""))
-                            .scaledToFit()
+                            .scaledToFit() 
                     }
                 }
                 
