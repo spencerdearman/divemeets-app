@@ -522,18 +522,21 @@ struct BackgroundSpheres: View {
                                * 2.5, height: geometry.size.width * 2.5) // Adjust the size of the circle as desired
                         .position(x: geometry.size.width, y: -geometry.size.width * 0.55) // Center the circle
                         .shadow(radius: 15)
+                        .clipped().ignoresSafeArea()
                     Circle()
                         .fill(Custom.coolBlue) // Circle color
                         .frame(width:geometry.size.width
                                * 1.3, height:geometry.size.width * 1.3)
                         .position(x: geometry.size.width * 0.8, y: geometry.size.width * 0.6)
                         .shadow(radius: 15)
+                        .clipped().ignoresSafeArea()
                     Circle()
                         .fill(Custom.medBlue) // Circle color
                         .frame(width: geometry.size.width
                                * 1.1, height: geometry.size.width * 1.1)
                         .position(x: 0, y: geometry.size.width * 0.65)
                         .shadow(radius: 15)
+                        .clipped().ignoresSafeArea()
                 }
             }
         }
