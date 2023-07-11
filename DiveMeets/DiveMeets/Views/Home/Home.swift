@@ -398,7 +398,7 @@ struct CurrentMeetsPageView: View {
                     .zIndex(2)
                     Spacer()
                 }
-               
+                
                 if selection == .info {
                     MeetPageView(meetLink: infoLink, showBackButton: false)
                         .offset(y: -40)
@@ -427,6 +427,9 @@ struct MeetBubbleView: View {
     
     private var bubbleColor: Color {
         currentMode == .light ? .white : .black
+    }
+    private var isPhone: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad ? false : true
     }
     
     //  (id, name, org, link, startDate, endDate, city, state, country, resultsLink?)
@@ -475,10 +478,11 @@ struct MeetBubbleView: View {
                         ZStack{
                             Rectangle()
                                 .fill(Custom.thinMaterialColor)
-                                .frame(width: 190)
+                                .frame(width: isPhone ? getPhoneTextSizeForAccessibility() : getPadTextSizeForAccessibility())
                                 .mask(RoundedRectangle(cornerRadius: 30))
                                 .shadow(radius: 3)
                             Text(elements[4] + " - " + elements[5]) // startDate - endDate
+                                .padding([.leading, .trailing], 5)
                         }
                         .padding(.trailing)
                     }
@@ -489,6 +493,50 @@ struct MeetBubbleView: View {
                 }
                 .padding()
             }
+        }
+    }
+    
+    func getPhoneTextSizeForAccessibility() -> CGFloat {
+        let sizeCategory = UIApplication.shared.preferredContentSizeCategory
+        switch sizeCategory {
+        case .extraSmall:
+            return 170
+        case .small:
+            return 180
+        case .medium:
+            return 190
+        case .large:
+            return 200
+        case .extraLarge:
+            return 215
+        case .extraExtraLarge:
+            return 225
+        case .extraExtraExtraLarge:
+            return 235
+        default:
+            return 190
+        }
+    }
+    
+    func getPadTextSizeForAccessibility() -> CGFloat {
+        let sizeCategory = UIApplication.shared.preferredContentSizeCategory
+        switch sizeCategory {
+        case .extraSmall:
+            return 180
+        case .small:
+            return 190
+        case .medium:
+            return 200
+        case .large:
+            return 210
+        case .extraLarge:
+            return 220
+        case .extraExtraLarge:
+            return 240
+        case .extraExtraExtraLarge:
+            return 265
+        default:
+            return 190
         }
     }
 }
