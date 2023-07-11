@@ -424,6 +424,7 @@ struct CurrentMeetsPageView: View {
 
 struct MeetBubbleView: View {
     @Environment(\.colorScheme) var currentMode
+    @State var isPhone: Bool = true
     
     private var bubbleColor: Color {
         currentMode == .light ? .white : .black
@@ -446,6 +447,11 @@ struct MeetBubbleView: View {
                 Rectangle()
                     .foregroundColor(Custom.homeTileColor)
                     .cornerRadius(40)
+                    .onAppear{
+                        if UIDevice.current.userInterfaceIdiom == .pad {
+                            isPhone = false
+                        }
+                    }
                 VStack {
                     VStack {
                         Text(elements[1]) // name
@@ -471,17 +477,17 @@ struct MeetBubbleView: View {
                         }
                         
                         Spacer()
-                            
-                            ZStack{
-                                Rectangle()
-                                    .fill(Custom.thinMaterialColor)
-                                    .frame(idealWidth: 190, maxWidth: 250)
-                                    .mask(RoundedRectangle(cornerRadius: 30))
-                                    .shadow(radius: 3)
-                                Text(elements[4] + " - " + elements[5])
-                                    //.padding(5)// startDate - endDate
-                            }
-                            .padding(.trailing)
+                        
+                        ZStack{
+                            Rectangle()
+                                .fill(Custom.thinMaterialColor)
+                                .frame(width: isPhone ? getPhoneTextSizeForAccessibility() : getPadTextSizeForAccessibility())
+                                .mask(RoundedRectangle(cornerRadius: 30))
+                                .shadow(radius: 3)
+                            Text(elements[4] + " - " + elements[5]) // startDate - endDate
+                                .padding([.leading, .trailing], 5)
+                        }
+                        .padding(.trailing)
                     }
                     .font(.subheadline)
                     .scaledToFit()
@@ -490,6 +496,50 @@ struct MeetBubbleView: View {
                 }
                 .padding()
             }
+        }
+    }
+    
+    func getPhoneTextSizeForAccessibility() -> CGFloat {
+        let sizeCategory = UIApplication.shared.preferredContentSizeCategory
+        switch sizeCategory {
+        case .extraSmall:
+            return 170
+        case .small:
+            return 180
+        case .medium:
+            return 190
+        case .large:
+            return 200
+        case .extraLarge:
+            return 215
+        case .extraExtraLarge:
+            return 225
+        case .extraExtraExtraLarge:
+            return 235
+        default:
+            return 190
+        }
+    }
+    
+    func getPadTextSizeForAccessibility() -> CGFloat {
+        let sizeCategory = UIApplication.shared.preferredContentSizeCategory
+        switch sizeCategory {
+        case .extraSmall:
+            return 180
+        case .small:
+            return 190
+        case .medium:
+            return 200
+        case .large:
+            return 210
+        case .extraLarge:
+            return 220
+        case .extraExtraLarge:
+            return 240
+        case .extraExtraExtraLarge:
+            return 265
+        default:
+            return 190
         }
     }
 }
