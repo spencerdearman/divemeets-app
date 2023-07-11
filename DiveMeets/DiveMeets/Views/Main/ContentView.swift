@@ -66,7 +66,7 @@ struct ContentView: View {
                                     case .house:
                                         Home()
                                     case .wrench:
-                                        NavigationView {
+//                                        NavigationView {
 //                                            LiveResultsView(request: "debug")
 //                                            FinishedLiveResultsView(link: "https://secure.meetcontrol.com/divemeets/system/livestats.php?event=stats-9050-770-9-Finished")
 //                                        }
