@@ -83,6 +83,11 @@ struct JudgeScoreCalculator: View {
             result = [wholePlusHalf, wholePlusOne, wholePlusOne]
         }
         
+        // Last value will always be >= other values, so if it exceeds 10.0, then score is too big
+        if result.count > 2 && result.last! > 10.0 {
+            return ["Not possible"]
+        }
+        
         return result.map { String($0) }
     }
     
@@ -106,6 +111,10 @@ struct JudgeScoreCalculator: View {
                     .multilineTextAlignment(.center)
                     .background(RoundedRectangle(cornerRadius: cornerRadius).fill(.thinMaterial))
                     .shadow(radius: shadowRadius)
+                // Restricts field to five characters
+                    .onChange(of: dive) { _ in
+                        dive = String(dive.prefix(5))
+                    }
                 
                 DiveHeightSelectView(height: $height)
                 
@@ -137,6 +146,10 @@ struct JudgeScoreCalculator: View {
                     .multilineTextAlignment(.center)
                     .background(RoundedRectangle(cornerRadius: cornerRadius).fill(.thinMaterial))
                     .shadow(radius: shadowRadius)
+                // Restricts field to six characters
+                    .onChange(of: score) { _ in
+                        score = String(score.prefix(6))
+                    }
                 
                 if scoreDouble != nil {
                     VStack(spacing: 5) {

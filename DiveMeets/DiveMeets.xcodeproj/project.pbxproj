@@ -20,6 +20,9 @@
 		0037877C29D4F41800D3CD59 /* MeetParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877B29D4F41800D3CD59 /* MeetParser.swift */; };
 		0037878029D501F600D3CD59 /* ProfileParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0037877F29D501F600D3CD59 /* ProfileParser.swift */; };
 		0040A6B72A550C8E004C84BF /* NoStickPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0040A6B62A550C8E004C84BF /* NoStickPicker.swift */; };
+		0040A6B92A58E024004C84BF /* SwipeActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0040A6B82A58E024004C84BF /* SwipeActions.swift */; };
+		0040A6BB2A5BC54C004C84BF /* FinishedLiveResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0040A6BA2A5BC54C004C84BF /* FinishedLiveResultsView.swift */; };
+		0040A6BD2A5BC945004C84BF /* FinishedLiveResultsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0040A6BC2A5BC945004C84BF /* FinishedLiveResultsParser.swift */; };
 		0065C5AA2A426D9E0040600E /* TileSwapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0065C5A92A426D9E0040600E /* TileSwapView.swift */; };
 		0065C5AC2A4377920040600E /* SwipeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0065C5AB2A4377920040600E /* SwipeModifier.swift */; };
 		0069DC5B2A0DC5610096C04B /* ScalingScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0069DC5A2A0DC5610096C04B /* ScalingScrollView.swift */; };
@@ -80,6 +83,9 @@
 		0037877B29D4F41800D3CD59 /* MeetParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeetParser.swift; sourceTree = "<group>"; };
 		0037877F29D501F600D3CD59 /* ProfileParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileParser.swift; sourceTree = "<group>"; };
 		0040A6B62A550C8E004C84BF /* NoStickPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoStickPicker.swift; sourceTree = "<group>"; };
+		0040A6B82A58E024004C84BF /* SwipeActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeActions.swift; sourceTree = "<group>"; };
+		0040A6BA2A5BC54C004C84BF /* FinishedLiveResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinishedLiveResultsView.swift; sourceTree = "<group>"; };
+		0040A6BC2A5BC945004C84BF /* FinishedLiveResultsParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinishedLiveResultsParser.swift; sourceTree = "<group>"; };
 		0065C5A92A426D9E0040600E /* TileSwapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileSwapView.swift; sourceTree = "<group>"; };
 		0065C5AB2A4377920040600E /* SwipeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeModifier.swift; sourceTree = "<group>"; };
 		0069DC5A2A0DC5610096C04B /* ScalingScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScalingScrollView.swift; sourceTree = "<group>"; };
@@ -161,6 +167,7 @@
 				0037877B29D4F41800D3CD59 /* MeetParser.swift */,
 				0037877F29D501F600D3CD59 /* ProfileParser.swift */,
 				4D60E8F82A1737A90011A295 /* ScoringParser.swift */,
+				0040A6BC2A5BC945004C84BF /* FinishedLiveResultsParser.swift */,
 			);
 			path = Parsers;
 			sourceTree = "<group>";
@@ -307,6 +314,7 @@
 				000D28E029E122B700B184E9 /* LiveResultsView.swift */,
 				000D28DE29E1201200B184E9 /* LiveResultsWebView.swift */,
 				4D5220852A49D6EB00D59408 /* ExpandingBubbleView.swift */,
+				0040A6BA2A5BC54C004C84BF /* FinishedLiveResultsView.swift */,
 			);
 			path = LiveResults;
 			sourceTree = "<group>";
@@ -321,6 +329,7 @@
 				4D26F43B2A4FEC3200DA0E98 /* SwiftUIWheelPicker.swift */,
 				0065C5A92A426D9E0040600E /* TileSwapView.swift */,
 				0040A6B62A550C8E004C84BF /* NoStickPicker.swift */,
+				0040A6B82A58E024004C84BF /* SwipeActions.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -434,10 +443,13 @@
 				4D09308529D3A1B7003AAA90 /* LoginScreen.swift in Sources */,
 				002A1B3429DB7C4700A26FED /* ProfileHTMLCache.swift in Sources */,
 				4D26F43C2A4FEC3200DA0E98 /* SwiftUIWheelPicker.swift in Sources */,
+				0040A6B92A58E024004C84BF /* SwipeActions.swift in Sources */,
 				006CF0842A02340500E7C2A5 /* TextFieldClearButton.swift in Sources */,
 				4D74FEA529AE7C2B00401178 /* ProfileImage.swift in Sources */,
+				0040A6BD2A5BC945004C84BF /* FinishedLiveResultsParser.swift in Sources */,
 				0097478F2A24549A004E7C73 /* MeetPageParser.swift in Sources */,
 				0095BD2D29B1491D004D7EFD /* SearchView.swift in Sources */,
+				0040A6BB2A5BC54C004C84BF /* FinishedLiveResultsView.swift in Sources */,
 				0065C5AA2A426D9E0040600E /* TileSwapView.swift in Sources */,
 				4D8B9C1D29FB4EBD002B53AD /* LoginProfile.swift in Sources */,
 				007EAFED2A4B639600061113 /* MovingSplashView.swift in Sources */,

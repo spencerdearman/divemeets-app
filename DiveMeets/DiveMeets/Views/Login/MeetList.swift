@@ -74,7 +74,7 @@ struct MeetList: View {
                 VStack {
                     Text("Meets")
                         .font(.title2).fontWeight(.semibold)
-                        .padding(.top)
+                        .padding(.top, 30)
                     
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: rowSpacing) {
@@ -186,7 +186,7 @@ struct ChildrenView: View {
             ForEach(children ?? [], id: \.id) { event in
                 let shape = RoundedRectangle(cornerRadius: 30)
                 ZStack {
-                    shape.fill(.thinMaterial)
+                    shape.fill(Custom.thinMaterialColor)
                     ChildView(meet: event, navStatus: event.firstNavigation)
                 }
                 .contentShape(shape)

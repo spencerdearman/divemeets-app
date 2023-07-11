@@ -271,6 +271,8 @@ struct parseBody: View {
 
 struct mainView: View {
     @Environment(\.colorScheme) var currentMode
+    var screenWidth = UIScreen.main.bounds.width
+    var screenHeight = UIScreen.main.bounds.height
     @Binding var lastDiverInformation:
     (String, String, Int, Double, Int, Int, Double, String, String, Double, Double, String)
     @Binding var nextDiverInformation:
@@ -281,18 +283,12 @@ struct mainView: View {
     @Binding var shiftingBool: Bool
     @Binding var title: String
     @Binding var roundString: String
-    @State var screenWidth: CGFloat = 0
-    @State var screenHeight: CGFloat = 0
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
     }
     
     var colors: [Color] = [.blue, .green, .red, .orange]
-    
-    private var bgColor: Color {
-        currentMode == .light ? Custom.background : Custom.background
-    }
     
     func startTimer() {
         
@@ -302,7 +298,7 @@ struct mainView: View {
     }
     
     var body: some View {
-        bgColor.ignoresSafeArea()
+        Custom.background.ignoresSafeArea()
         ZStack {
             ColorfulView()
             GeometryReader { geometry in
@@ -327,7 +323,7 @@ struct mainView: View {
                             TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation),
                                          bottomView: NextDiverView(nextInfo: $nextDiverInformation),
                                          width: screenWidth * 0.95,
-                                         height: screenHeight * 0.32)
+                                         height: screenHeight * 0.28)
                             .dynamicTypeSize(.xSmall ... .xxxLarge)
                         }
                     }
@@ -338,8 +334,6 @@ struct mainView: View {
                 .padding(.top)
                 .animation(.easeOut(duration: 1), value: starSelected)
                 .onAppear {
-                    screenWidth = geometry.size.width
-                    screenHeight = geometry.size.height
                     startTimer()
                 }
             }
@@ -362,20 +356,28 @@ struct errorView: View {
 struct LastDiverView: View
 {
     @Environment(\.colorScheme) var currentMode
+    @State var tableData: [String: DiveData]?
     @Binding var lastInfo:
     //  name, link, last round place, last round total, order, place, total, dive, height, dd,
     //score total, [judges scores]
     (String, String, Int, Double, Int, Int, Double, String, String, Double, Double, String)
+    var diveName = ""
+    @State var diveNum: String = ""
+    var screenWidth = UIScreen.main.bounds.width
+    var screenHeight = UIScreen.main.bounds.height
     private var bgColor: Color {
         currentMode == .light ? Custom.carouselColor : Custom.carouselColor
     }
     
     var body: some View {
+        var diveNum = ""
         ZStack {
             Rectangle()
                 .fill(bgColor)
                 .cornerRadius(50)
                 .shadow(radius: 20)
+            
+            
             VStack(spacing: 5) {
                 HStack {
                     VStack(alignment: .leading) {
@@ -391,12 +393,13 @@ struct LastDiverView: View
                         Text("Current Total: " + String(lastInfo.6))
                             .font(.headline)
                     }
-                    .padding(.horizontal, 5)
-                    .scaledToFill()
-                    .minimumScaleFactor(0.5)
-                    Spacer().frame(width: 75)
-                    MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
-                        .scaledToFit()
+                    Spacer().frame(width: 55)
+                    NavigationLink {
+                        ProfileView(profileLink: lastInfo.1)
+                    } label: {
+                        MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
+                            .scaledToFit()
+                    }
                 }
                 
                 Spacer()
@@ -445,6 +448,9 @@ struct LastDiverView: View
 struct NextDiverView: View
 {
     @Environment(\.colorScheme) var currentMode
+    @State var tableData: [String: DiveData]?
+    var screenWidth = UIScreen.main.bounds.width
+    var screenHeight = UIScreen.main.bounds.height
     @Binding var nextInfo: NextDiverInfo
     private var bgColor: Color {
         currentMode == .light ? Custom.carouselColor : Custom.carouselColor
@@ -456,6 +462,7 @@ struct NextDiverView: View
                 .fill(bgColor)
                 .cornerRadius(50)
                 .shadow(radius: 20)
+            
             
             //Upper Part
             VStack(spacing: 5) {
@@ -473,9 +480,13 @@ struct NextDiverView: View
                         Text("Last Round Total: " + String(nextInfo.3))
                             .fontWeight(.semibold)
                     }
-                    MiniProfileImage(diverID: String(nextInfo.1.utf16.dropFirst(67)) ?? "")
-                        .scaledToFit()
-                        .padding(.horizontal)
+                    Spacer().frame(width: 35)
+                    NavigationLink {
+                        ProfileView(profileLink: nextInfo.1)
+                    } label: {
+                        MiniProfileImage(diverID: String(nextInfo.1.utf16.dropFirst(67)) ?? "")
+                            .scaledToFit()
+                    }
                 }
                 
                 Spacer()
@@ -483,6 +494,7 @@ struct NextDiverView: View
                 //Lower Part
                 ZStack {
                     Rectangle()
+                        .frame(height: screenHeight * 0.1)
                         .foregroundColor(Custom.thinMaterialColor)
                         .mask(RoundedRectangle(cornerRadius: 50))
                     HStack {
