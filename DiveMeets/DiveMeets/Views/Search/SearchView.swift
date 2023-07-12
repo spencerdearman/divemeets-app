@@ -301,6 +301,8 @@ struct SearchInputView: View {
     private let grayValue: CGFloat = 0.90
     private let grayValueDark: CGFloat = 0.10
     private let textColor: Color = Color.primary
+    private let screenWidth = UIScreen.main.bounds.width
+    private let screenHeight = UIScreen.main.bounds.height
     @ScaledMetric private var typeBubbleWidth: CGFloat = 100
     @ScaledMetric private var typeBubbleHeight: CGFloat = 35
     
@@ -346,53 +348,6 @@ struct SearchInputView: View {
 //                    .ignoresSafeArea()
                 // Allows the user to hide the keyboard when clicking on the background of the page
                 VStack {
-                    VStack {
-                        Text("Search")
-                            .font(.title)
-                            .bold()
-                        ZStack {
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .frame(width: typeBubbleWidth * 2 + 5,
-                                       height: typeBGWidth)
-                                .foregroundColor(typeBGColor)
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .frame(width: typeBubbleWidth,
-                                       height: typeBubbleHeight)
-                                .foregroundColor(typeBubbleColor)
-                                .offset(x: selection == .person
-                                        ? -typeBubbleWidth / 2
-                                        : typeBubbleWidth / 2)
-                                .animation(.spring(response: 0.2), value: selection)
-                            HStack(spacing: 0) {
-                                Button(action: {
-                                    if selection == .meet {
-                                        clearStateFlags()
-                                        debounceTabSelection(.person)
-                                    }
-                                }, label: {
-                                    Text(SearchType.person.rawValue)
-                                        .animation(nil, value: selection)
-                                })
-                                .frame(width: typeBubbleWidth,
-                                       height: typeBubbleHeight)
-                                .foregroundColor(textColor)
-                                .cornerRadius(cornerRadius)
-                                Button(action: {
-                                    if selection == .person {
-                                        clearStateFlags()
-                                        debounceTabSelection(.meet)
-                                    }
-                                }, label: {
-                                    Text(SearchType.meet.rawValue)
-                                        .animation(nil, value: selection)
-                                })
-                                .frame(width: typeBubbleWidth,
-                                       height: typeBubbleHeight)
-                                .foregroundColor(textColor)
-                                .cornerRadius(cornerRadius)
-                            }
-                        }
-                    }
                     
                     if selection == .meet {
                         MeetSearchView(meetName: $meetName, orgName: $orgName,
@@ -447,13 +402,65 @@ struct SearchInputView: View {
                         Text("")
                     }
                     
-                    Spacer()
-                    
                     if selection == .meet && isIndexingMeets {
                         IndexingCounterView()
                     }
-                    Spacer()
-                    Spacer()
+                }
+                .overlay {
+                    VStack {
+                        ZStack{
+                            Rectangle()
+                                .foregroundColor(Custom.thinMaterialColor)
+                                .mask(RoundedRectangle(cornerRadius: 40))
+                                .frame(width: 120, height: 40)
+                                .shadow(radius: 6)
+                            Text("Search")
+                                .font(.title2).bold()
+                        }
+                        ZStack {
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .frame(width: typeBubbleWidth * 2 + 5,
+                                       height: typeBGWidth)
+                                .foregroundColor(typeBGColor)
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .frame(width: typeBubbleWidth,
+                                       height: typeBubbleHeight)
+                                .foregroundColor(typeBubbleColor)
+                                .offset(x: selection == .person
+                                        ? -typeBubbleWidth / 2
+                                        : typeBubbleWidth / 2)
+                                .animation(.spring(response: 0.2), value: selection)
+                            HStack(spacing: 0) {
+                                Button(action: {
+                                    if selection == .meet {
+                                        clearStateFlags()
+                                        debounceTabSelection(.person)
+                                    }
+                                }, label: {
+                                    Text(SearchType.person.rawValue)
+                                        .animation(nil, value: selection)
+                                })
+                                .frame(width: typeBubbleWidth,
+                                       height: typeBubbleHeight)
+                                .foregroundColor(textColor)
+                                .cornerRadius(cornerRadius)
+                                Button(action: {
+                                    if selection == .person {
+                                        clearStateFlags()
+                                        debounceTabSelection(.meet)
+                                    }
+                                }, label: {
+                                    Text(SearchType.meet.rawValue)
+                                        .animation(nil, value: selection)
+                                })
+                                .frame(width: typeBubbleWidth,
+                                       height: typeBubbleHeight)
+                                .foregroundColor(textColor)
+                                .cornerRadius(cornerRadius)
+                            }
+                        }
+                    }
+                    .offset(y: -screenHeight * 0.4)
                 }
                 // Keyboard toolbar with up/down arrows and Done button
                 .toolbar {
