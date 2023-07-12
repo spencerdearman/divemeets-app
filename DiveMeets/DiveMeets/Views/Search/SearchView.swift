@@ -337,12 +337,14 @@ struct SearchInputView: View {
         
         NavigationView{
             ZStack {
-                (currentMode == .light ? Color.white : Color.black)
+                SearchColorfulView()
                     .ignoresSafeArea()
-                // Allows the user to hide the keyboard when clicking on the background of the page
                     .onTapGesture {
                         focusedField = nil
                     }
+//                (currentMode == .light ? Color.white : Color.black)
+//                    .ignoresSafeArea()
+                // Allows the user to hide the keyboard when clicking on the background of the page
                 VStack {
                     VStack {
                         Text("Search")
@@ -625,11 +627,6 @@ struct DiverSearchView: View {
                     .focused(focusedField, equals: .lastName)
                 
             }
-        }
-        .padding()
-        .onAppear {
-            firstName = ""
-            lastName = ""
         }
     }
 }

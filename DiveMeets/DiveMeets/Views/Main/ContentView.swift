@@ -72,8 +72,6 @@ struct ContentView: View {
 //                                        }
 //                                        .navigationViewStyle(StackNavigationViewStyle())
                                         ToolsMenu()
-                                        //MeetDBTestView()
-
                                     case .magnifyingglass:
                                         SearchView(isIndexingMeets: $isIndexingMeets)
                                     case .person:
