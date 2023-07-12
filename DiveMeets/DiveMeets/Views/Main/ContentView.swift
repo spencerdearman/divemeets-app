@@ -12,7 +12,7 @@ struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
     @Environment(\.meetsDB) var db
     @EnvironmentObject private var p: MeetParser
-    @State private var selectedTab: Tab = .magnifyingglass
+    @State private var selectedTab: Tab = .house
     @State var isIndexingMeets: Bool = false
     @State var showSplash: Bool = false
     @FetchRequest(sortDescriptors: []) private var meets: FetchedResults<DivingMeet>
