@@ -12,7 +12,7 @@ struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
     @Environment(\.meetsDB) var db
     @EnvironmentObject private var p: MeetParser
-    @State private var selectedTab: Tab = .house
+    @State private var selectedTab: Tab = .wrench
     @State var isIndexingMeets: Bool = false
     @State var showSplash: Bool = false
     @FetchRequest(sortDescriptors: []) private var meets: FetchedResults<DivingMeet>
@@ -71,7 +71,8 @@ struct ContentView: View {
 //                                            FinishedLiveResultsView(link: "https://secure.meetcontrol.com/divemeets/system/livestats.php?event=stats-9050-770-9-Finished")
 //                                        }
 //                                        .navigationViewStyle(StackNavigationViewStyle())
-                                        ToolsMenu()
+//                                        ToolsMenu()
+                                         HelixTestingView()
                                     case .magnifyingglass:
                                         SearchView(isIndexingMeets: $isIndexingMeets)
                                     case .person:
