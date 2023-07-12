@@ -127,26 +127,29 @@ class MeetPageParser: ObservableObject {
         
     }
     
-    private func getEventRule(link: String) async -> String? {
-        let textModel: GetTextAsyncModel = GetTextAsyncModel()
-        if let url = URL(string: link) {
-            await textModel.fetchText(url: url)
-            
-            if let text = textModel.text {
-                return text
+    func getEventRule(link: String) async -> String? {
+        let textLoader = GetTextAsyncLoader()
+        
+        do {
+            guard let url = URL(string: link) else { return nil }
+            guard let ruleHtml = try await textLoader.getText(url: url) else { return nil }
+            guard let tds = try SwiftSoup.parse(ruleHtml).body()?.getElementsByTag("td")
+            else { return nil }
+            if tds.count > 1 {
+                return try tds[tds.count - 2].text()
             }
+        } catch {
+            print("Failed to get event rule")
         }
         
         return nil
     }
     
     func getEventData(data: MeetPageData) async -> MeetEventData? {
-        let textLoader: GetTextAsyncLoader = GetTextAsyncLoader()
         var result: MeetEventData = []
         var date: String = ""
         var number: Int = 0
         var text: String = ""
-        
         do {
             if let events = data["events"] {
                 for e in events {
@@ -173,13 +176,8 @@ class MeetPageParser: ObservableObject {
                     let comps = try body.text().components(separatedBy: "***")
                     let name = comps[0].trimmingCharacters(in: .whitespacesAndNewlines)
                     
-                    guard let ruleLink = try body.getElementsByTag("a").first()?.attr("href")
+                    guard let ruleLinkTail = try body.getElementsByTag("a").first()?.attr("href")
                     else { return nil }
-                    guard let url = URL(string: leadingLink + ruleLink) else { return nil }
-                    guard let ruleHtml = try await textLoader.getText(url: url) else { return nil }
-                    guard let tds = try SwiftSoup.parse(ruleHtml).body()?.getElementsByTag("td")
-                    else { return nil }
-                    let rule = try tds[tds.count - 2].text()
                     
                     // Assigns entries to empty string if there are no entries
                     let entries: String
@@ -192,7 +190,7 @@ class MeetPageParser: ObservableObject {
                         entries = try leadingLink + lastLink.attr("href")
                     }
                     
-                    result.append((date, number, name, rule, entries))
+                    result.append((date, number, name, leadingLink + ruleLinkTail, entries))
                 }
                 
                 return result
