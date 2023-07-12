@@ -624,8 +624,10 @@ struct DiverListView: View {
 
 struct MeetEventListView: View {
     @Environment(\.colorScheme) var currentMode
+    @State var cachedEventRules: [String: String] = [:]
     @Binding var showingAlert: Bool
     @Binding var alertText: String
+    @ObservedObject private var mpp: MeetPageParser = MeetPageParser()
     var meetEventData: MeetEventData
     
     private func dateSorted(
@@ -690,9 +692,18 @@ struct MeetEventListView: View {
                                         .disabled(value[index].4 == "")
                                 } trailingActions: { context in
                                     SwipeAction("Rule") {
-                                        showingAlert = true
-                                        alertText = value[index].3
-                                        context.state.wrappedValue = .closed
+                                        Task {
+                                            if cachedEventRules.keys.contains(value[index].3) {
+                                                alertText = cachedEventRules[value[index].3]!
+                                            } else if let text =
+                                                        await mpp.getEventRule(link: value[index].3) {
+                                                alertText = text
+                                                cachedEventRules[value[index].3] = text
+                                            }
+                                            
+                                            showingAlert = true
+                                            context.state.wrappedValue = .closed
+                                        }
                                     }
                                     .background(currentMode == .light
                                                 ? Custom.lightBlue
