@@ -671,6 +671,7 @@ struct MeetEventListView: View {
                                                                  currentMode == .light
                                                                  ? .gray
                                                                  : .primary)
+                                                .padding()
                                         }
                                         .foregroundColor(.primary)
                                         .saturation(value[index].4 == "" ? 0.5 : 1.0)
