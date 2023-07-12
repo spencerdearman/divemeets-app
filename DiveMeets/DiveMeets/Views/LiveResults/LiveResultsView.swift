@@ -356,24 +356,17 @@ struct errorView: View {
 struct LastDiverView: View
 {
     @Environment(\.colorScheme) var currentMode
-    @State var tableData: [String: DiveData]?
     @Binding var lastInfo:
     //  name, link, last round place, last round total, order, place, total, dive, height, dd,
     //score total, [judges scores]
     (String, String, Int, Double, Int, Int, Double, String, String, Double, Double, String)
-    var diveName = ""
-    @State var diveNum: String = ""
-    var screenWidth = UIScreen.main.bounds.width
-    var screenHeight = UIScreen.main.bounds.height
-    private var bgColor: Color {
-        currentMode == .light ? Custom.carouselColor : Custom.carouselColor
-    }
+    private let screenWidth = UIScreen.main.bounds.width
+    private let screenHeight = UIScreen.main.bounds.height
     
     var body: some View {
-        var diveNum = ""
         ZStack {
             Rectangle()
-                .fill(bgColor)
+                .fill(Custom.carouselColor)
                 .cornerRadius(50)
                 .shadow(radius: 20)
             
@@ -449,17 +442,14 @@ struct NextDiverView: View
 {
     @Environment(\.colorScheme) var currentMode
     @State var tableData: [String: DiveData]?
-    var screenWidth = UIScreen.main.bounds.width
-    var screenHeight = UIScreen.main.bounds.height
+    private let screenWidth = UIScreen.main.bounds.width
+    private let screenHeight = UIScreen.main.bounds.height
     @Binding var nextInfo: NextDiverInfo
-    private var bgColor: Color {
-        currentMode == .light ? Custom.carouselColor : Custom.carouselColor
-    }
     
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(bgColor)
+                .fill(Custom.carouselColor)
                 .cornerRadius(50)
                 .shadow(radius: 20)
             
@@ -505,6 +495,12 @@ struct NextDiverView: View
                             .minimumScaleFactor(0.5)
                             .lineLimit(1)
                         VStack {
+                            Text(getDiveName(data: tableData ?? [:], forKey: nextInfo.5) ?? "")
+                                .font(.title3)
+                                .bold()
+                                .scaledToFill()
+                                .minimumScaleFactor(0.4)
+                                .lineLimit(1)
                             HStack {
                                 Text("Height: " + nextInfo.6)
                                 Text("DD: " + String(nextInfo.7))
@@ -523,6 +519,9 @@ struct NextDiverView: View
                 }
                 .fixedSize(horizontal: false, vertical: true)
             }
+        }
+        .onAppear {
+            tableData = getDiveTableData()
         }
     }
 }
