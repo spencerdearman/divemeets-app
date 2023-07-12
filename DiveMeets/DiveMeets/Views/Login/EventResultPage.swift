@@ -52,7 +52,7 @@ struct PersonBubbleView: View {
     private var bubbleColor: Color {
         currentMode == .light ? .white : .black
     }
-    //  (Place  Name   NameLink  Team  TeamLink Score ScoreLink Score Diff. MeetName)
+    //  (Place, Name, NameLink, Team, TeamLink, Score, ScoreLink, Score Diff., MeetName, SynchroName, SynchroLink)
     private var elements: [String]
     private var eventTitle: String
     @State var navStatus: Bool = false
