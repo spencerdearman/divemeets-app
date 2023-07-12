@@ -393,7 +393,7 @@ struct SearchInputView: View {
                                     ProgressView()
                                 }
                             }
-                            .offset(y: selection == .person ? -screenHeight * 0.26 : -screenHeight * 0.23)
+                            .offset(y: selection == .person ? -screenHeight * 0.27 : -screenHeight * 0.24)
                             if showError {
                                 Text("You must enter at least one field to search")
                                     .foregroundColor(Color.red)
@@ -523,10 +523,13 @@ struct SearchInputView: View {
                                 }
                             }
                         }
+                        .offset(y: 15)
                         .padding(EdgeInsets(top: 5, leading: 18, bottom: 10, trailing: 18))
                         .foregroundColor(.primary)
                         .font(.title)
                     }
+                    .cornerRadius(30)
+                    .shadow(radius: 10)
                     .offset(y: fullScreenResults ? 0 : resultsOffset)
                     .animation(.linear(duration: 0.2), value: fullScreenResults)
                 }
@@ -617,7 +620,7 @@ struct DiverSearchView: View {
                 .mask(RoundedRectangle(cornerRadius: 50))
                 .foregroundColor(Custom.carouselColor)
                 .shadow(radius: 10)
-                .frame(width: screenWidth * 0.9, height: screenHeight * 0.23)
+                .frame(width: screenWidth * 0.9, height: screenHeight * 0.24)
             VStack {
                     HStack {
                         Text("First Name:")
@@ -683,7 +686,7 @@ struct MeetSearchView: View {
                 .mask(RoundedRectangle(cornerRadius: 50))
                 .foregroundColor(Custom.carouselColor)
                 .shadow(radius: 10)
-                .frame(width: screenWidth * 0.9, height: screenHeight * 0.3)
+                .frame(width: screenWidth * 0.9, height: screenHeight * 0.31)
             VStack {
                 HStack {
                     Text("Meet Name:")
