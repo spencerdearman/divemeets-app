@@ -31,7 +31,7 @@ struct ProfileView: View {
     private let ep = EntriesParser()
     
     var diverID: String {
-        String(profileLink.suffix(5))
+        String(profileLink.components(separatedBy: "=").last ?? "")
     }
     
     private var bgColor: Color {
@@ -425,7 +425,7 @@ struct DiverBubbleView: View {
                     Text(elements[0])
                         .fontWeight(.semibold)
                 }
-                MiniProfileImage(diverID: String(elements[1].utf16.dropFirst(67)) ?? "", width: 80, height: 100)
+                MiniProfileImage(diverID: String(elements[1].components(separatedBy: "=").last ?? ""), width: 80, height: 100)
                     .padding(.leading)
                     .scaledToFit()
             }

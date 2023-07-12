@@ -64,7 +64,6 @@ final class EventHTMLParser: ObservableObject {
                     .replacingOccurrences(of: "  ", with: "")
                 eventPlace = try t.getElementsByTag("td")[1].text()
                     .replacingOccurrences(of: " ", with: "")
-                
                 eventScore = Double(try t.getElementsByTag("td")[2].text())!
                 eventLinkAppend = try t.getElementsByTag("a").attr("href")
                 eventLink = "https://secure.meetcontrol.com/divemeets/system/" + eventLinkAppend
@@ -96,6 +95,15 @@ final class EventHTMLParser: ObservableObject {
             } else {
                 meetName = try t.text()
                 counter += 1
+            }
+        }
+        
+        if counter == 1 {
+            await MainActor.run { [meetName, counter] in
+                innerDictionary[meetName] = eventDictionary
+                mainDictionary[counter] = innerDictionary
+                innerDictionary = [:]
+                eventDictionary = [:]
             }
         }
         return mainDictionary

@@ -397,8 +397,8 @@ struct LastDiverView: View
                     NavigationLink {
                         ProfileView(profileLink: lastInfo.1)
                     } label: {
-                        MiniProfileImage(diverID: String(lastInfo.1.utf16.dropFirst(67)) ?? "")
-                            .scaledToFit()
+                        MiniProfileImage(diverID: String(lastInfo.1.components(separatedBy: "=").last ?? ""))
+                            .scaledToFit() 
                     }
                 }
                 
@@ -484,7 +484,7 @@ struct NextDiverView: View
                     NavigationLink {
                         ProfileView(profileLink: nextInfo.1)
                     } label: {
-                        MiniProfileImage(diverID: String(nextInfo.1.utf16.dropFirst(67)) ?? "")
+                        MiniProfileImage(diverID: String(nextInfo.1.components(separatedBy: "=").last ?? ""))
                             .scaledToFit()
                     }
                 }

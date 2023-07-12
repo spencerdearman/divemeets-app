@@ -171,13 +171,14 @@ struct MeetList: View {
             // Keeps reparsing from being run when stepping back from NavigationLink
             if !createdMeets {
                 Task {
-                    if let links = profileMainMeetLinks[String(profileLink.suffix(5))] {
+                    if let links = profileMainMeetLinks[String(profileLink.components(separatedBy: "=").last ?? "")] {
                         parser.cachedMainMeetLinks = links
                     }
                     await parser.parse(urlString: profileLink)
-                    profileMainMeetLinks[String(profileLink.suffix(5))] = parser.cachedMainMeetLinks
+                    profileMainMeetLinks[String(profileLink.components(separatedBy: "=").last ?? "")] = parser.cachedMainMeetLinks
                     
                     diverData = parser.myData
+                    print(diverData)
                     meets = createMeets(data: diverData) ?? []
                     createdMeets = true
                 }
