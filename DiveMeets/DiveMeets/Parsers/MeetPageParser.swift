@@ -183,11 +183,13 @@ class MeetPageParser: ObservableObject {
                     
                     // Assigns entries to empty string if there are no entries
                     let entries: String
-                    if try body.getElementsByTag("a").last()?.text() == "Rule" {
+                    guard let lastLink = try body.getElementsByTag("a").last() else { return nil }
+                    let lastLinkText = try lastLink.text()
+                    
+                    if !lastLinkText.contains("Entries") {
                         entries = ""
                     } else {
-                        entries = try leadingLink +
-                        (body.getElementsByTag("a").last()?.attr("href") ?? "")
+                        entries = try leadingLink + lastLink.attr("href")
                     }
                     
                     result.append((date, number, name, rule, entries))

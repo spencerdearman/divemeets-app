@@ -243,6 +243,8 @@ struct MeetInfoPageView: View {
     @State private var showingAlert: Bool = false
     @State private var alertText: String = ""
     
+    private let screenHeight = UIScreen.main.bounds.height
+    
     private func keyToHStack(data: [String: String],
                              key: String) -> HStack<TupleView<(Text, Text)>>? {
         return data[key] != nil
@@ -295,25 +297,29 @@ struct MeetInfoPageView: View {
             DisclosureGroup(
                 isExpanded: $meetDetailsExpanded,
                 content: {
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(alignment: .top) {
-                            Text("Signup Deadline: ")
-                                .bold()
-                            Text(info["Online Signup Closes at"]!)
+                    ScrollView(showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack(alignment: .top) {
+                                Text("Signup Deadline: ")
+                                    .bold()
+                                Text(info["Online Signup Closes at"]!)
+                                    .multilineTextAlignment(.trailing)
+                            }
+                            keyToHStack(data: info, key: "Time Left Before Late Fee")
+                            keyToHStack(data: info, key: "Type")
+                            keyToHStack(data: info, key: "Rules")
+                            keyToHStack(data: info, key: "Pool")
+                            
+                            keyToHStack(data: info, key: "Fee per event")
+                            keyToHStack(data: info,
+                                        key: "USA Diving Per Event Insurance Surcharge Fee")
+                            keyToHStack(data: info, key: "Late Fee")
+                            keyToHStack(data: info, key: "Fee must be paid by")
                                 .multilineTextAlignment(.trailing)
+                            keyToHStack(data: info, key: "Warm up time prior to event")
                         }
-                        keyToHStack(data: info, key: "Time Left Before Late Fee")
-                        keyToHStack(data: info, key: "Type")
-                        keyToHStack(data: info, key: "Rules")
-                        keyToHStack(data: info, key: "Pool")
-                        
-                        keyToHStack(data: info, key: "Fee per event")
-                        keyToHStack(data: info, key: "USA Diving Per Event Insurance Surcharge Fee")
-                        keyToHStack(data: info, key: "Late Fee")
-                        keyToHStack(data: info, key: "Fee must be paid by")
-                            .multilineTextAlignment(.trailing)
-                        keyToHStack(data: info, key: "Warm up time prior to event")
                     }
+                    .frame(maxHeight: screenHeight * 0.5)
                 },
                 label: {
                     Text("Meet Details")
@@ -328,18 +334,21 @@ struct MeetInfoPageView: View {
             DisclosureGroup(
                 isExpanded: $warmupDetailsExpanded,
                 content: {
-                    VStack(alignment: .leading, spacing: 10) {
-                        ForEach(dateSorted(time), id: \.key) { key, value in
-                            Text(key)
-                                .bold()
-                            VStack(alignment: .leading) {
-                                keyToHStack(data: value, key: "Warmup Starts")
-                                keyToHStack(data: value, key: "Warmup Ends")
-                                keyToHStack(data: value, key: "Events Start")
+                    ScrollView(showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            ForEach(dateSorted(time), id: \.key) { key, value in
+                                Text(key)
+                                    .bold()
+                                VStack(alignment: .leading) {
+                                    keyToHStack(data: value, key: "Warmup Starts")
+                                    keyToHStack(data: value, key: "Warmup Ends")
+                                    keyToHStack(data: value, key: "Events Start")
+                                }
+                                .padding(.leading, 30)
                             }
-                            .padding(.leading, 30)
                         }
                     }
+                    .frame(maxHeight: screenHeight * 0.5)
                 },
                 label: {
                     Text("Warmup Details")
@@ -660,22 +669,25 @@ struct MeetEventListView: View {
                         ForEach(value.indices, id: \.self) { index in
                             GeometryReader { geometry in
                                 SwipeView {
-                                    NavigationLink(destination: EntryPageView(entriesLink: value[index].4)) {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 30)
-                                                .fill(Custom.tileColor)
-                                                .shadow(radius: 5)
-                                                .frame(width: geometry.size.width, height: geometry.size.height)
-                                            Text(value[index].2)
-                                                .foregroundColor(value[index].4 == "" &&
-                                                                 currentMode == .light
-                                                                 ? .gray
-                                                                 : .primary)
+                                    NavigationLink(
+                                        destination: EntryPageView(entriesLink: value[index].4)) {
+                                            ZStack {
+                                                RoundedRectangle(cornerRadius: 30)
+                                                    .fill(Custom.tileColor)
+                                                    .shadow(radius: 5)
+                                                    .frame(width: geometry.size.width,
+                                                           height: geometry.size.height)
+                                                Text(value[index].2)
+                                                    .foregroundColor(value[index].4 == "" &&
+                                                                     currentMode == .light
+                                                                     ? .gray
+                                                                     : .primary)
+                                                    .padding()
+                                            }
+                                            .foregroundColor(.primary)
+                                            .saturation(value[index].4 == "" ? 0.5 : 1.0)
                                         }
-                                        .foregroundColor(.primary)
-                                        .saturation(value[index].4 == "" ? 0.5 : 1.0)
-                                    }
-                                    .disabled(value[index].4 == "")
+                                        .disabled(value[index].4 == "")
                                 } trailingActions: { context in
                                     SwipeAction("Rule") {
                                         showingAlert = true
