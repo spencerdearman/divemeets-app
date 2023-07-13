@@ -55,9 +55,8 @@ struct LoginProfile: View {
         Group {
             if profileType == "Diver" {
                 ZStack {
-                    GeometryReader { geometry in
-                        BackgroundSpheres()
-                    }
+                    BackgroundSpheres()
+                    
                     VStack {
                         VStack {
                             ZStack {
