@@ -76,6 +76,7 @@ struct MeetList: View {
                 ZStack {
                     Rectangle()
                         .fill(Custom.background)
+                        //frame(height: screenHeight * 0.64)
                         .mask(RoundedRectangle(cornerRadius: 40))
                         //.offset(y: screenHeight * 0.45)
                     VStack {

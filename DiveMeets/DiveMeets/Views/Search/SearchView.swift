@@ -530,7 +530,7 @@ struct SearchInputView: View {
                     }
                     .cornerRadius(30)
                     .shadow(radius: 10)
-                    .offset(y: fullScreenResults ? 0 : resultsOffset)
+                    .offset(y: fullScreenResults ? screenHeight * 0.05 : resultsOffset)
                     .animation(.linear(duration: 0.2), value: fullScreenResults)
                 }
             }
