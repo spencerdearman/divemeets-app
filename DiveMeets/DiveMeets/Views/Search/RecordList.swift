@@ -43,7 +43,7 @@ struct RecordList: View {
     var body: some View {
         ZStack {
             // Background color for View
-            Custom.background
+            Custom.specialGray
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: rowSpacing) {
                     Text("Results")
@@ -65,7 +65,7 @@ struct RecordList: View {
                                     .foregroundColor(Color.gray)
                                     .padding()
                             }
-                            .background(Custom.homeTileColor)
+                            .background(Custom.darkGray)
                             .cornerRadius(cornerRadius)
                             .onDisappear {
                                 resultSelected = true

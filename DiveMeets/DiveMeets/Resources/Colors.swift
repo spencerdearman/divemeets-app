@@ -21,4 +21,7 @@ struct Custom {
     static let selection = Color("Selection")
     static let textColor = Color("TextColors")
     static let secondaryColor = Color("SecondaryColor")
+    static let grayThinMaterial = Color("GrayThinMaterial")
+    static let specialGray = Color("SpecialGray")
+    static let darkGray = Color("DarkGray")
 }

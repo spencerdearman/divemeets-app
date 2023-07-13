@@ -254,7 +254,7 @@ struct SearchInputView: View {
     @ScaledMetric private var resultsIconSizeScaled = 30.0
     
     var resultsOffset: CGFloat {
-        min(max(resultsOffsetScaled, 400.0), UIScreen.main.bounds.height - 400)
+        min(max(resultsOffsetScaled, 410.0), UIScreen.main.bounds.height - 410)
     }
     
     var resultsIconSize: CGFloat {
@@ -345,10 +345,9 @@ struct SearchInputView: View {
                     }
                 
                     VStack {
-                            
                             if selection == .meet {
                                 MeetSearchView(meetName: $meetName, orgName: $orgName,
-                                               meetYear: $meetYear, focusedField: $focusedField)
+                                               meetYear: $meetYear, isIndexingMeet: $isIndexingMeets, focusedField: $focusedField)
                                 .offset(y: -screenHeight * 0.15)
                             } else {
                                 DiverSearchView(firstName: $firstName, lastName: $lastName,
@@ -385,6 +384,7 @@ struct SearchInputView: View {
                                 }, label: {
                                     Text("Submit")
                                         .animation(nil, value: selection)
+                                        .foregroundColor(.primary)
                                 })
                                 .buttonStyle(.bordered)
                                 .cornerRadius(cornerRadius)
@@ -393,7 +393,7 @@ struct SearchInputView: View {
                                     ProgressView()
                                 }
                             }
-                            .offset(y: selection == .person ? -screenHeight * 0.27 : -screenHeight * 0.24)
+                            .offset(y: selection == .person ? -screenHeight * 0.27 : isIndexingMeets ? -screenHeight * 0.38 : -screenHeight * 0.24)
                             if showError {
                                 Text("You must enter at least one field to search")
                                     .foregroundColor(Color.red)
@@ -401,16 +401,12 @@ struct SearchInputView: View {
                             } else {
                                 Text("")
                             }
-                            
-                            if selection == .meet && isIndexingMeets {
-                                IndexingCounterView()
-                            }
                         }
                         .overlay {
                             VStack {
                                 ZStack{
                                     Rectangle()
-                                        .foregroundColor(Custom.thinMaterialColor)
+                                        .foregroundColor(Custom.grayThinMaterial)
                                         .mask(RoundedRectangle(cornerRadius: 40))
                                         .frame(width: 120, height: 40)
                                         .shadow(radius: 6)
@@ -421,11 +417,11 @@ struct SearchInputView: View {
                                     RoundedRectangle(cornerRadius: cornerRadius)
                                         .frame(width: typeBubbleWidth * 2 + 5,
                                                height: typeBGWidth)
-                                        .foregroundColor(typeBGColor)
+                                        .foregroundColor(Custom.grayThinMaterial)
                                     RoundedRectangle(cornerRadius: cornerRadius)
                                         .frame(width: typeBubbleWidth,
                                                height: typeBubbleHeight)
-                                        .foregroundColor(typeBubbleColor)
+                                        .foregroundColor(Custom.darkGray)
                                         .offset(x: selection == .person
                                                 ? -typeBubbleWidth / 2
                                                 : typeBubbleWidth / 2)
@@ -534,6 +530,12 @@ struct SearchInputView: View {
                     .animation(.linear(duration: 0.2), value: fullScreenResults)
                 }
             }
+            .overlay {
+                if selection == .meet && isIndexingMeets {
+                    IndexingCounterView()
+                        .offset(y: screenHeight * 0.5)
+                }
+            }
             .onSwipeGesture(trigger: .onEnded) { direction in
                 if direction == .left && selection == .person {
                     selection = .meet
@@ -618,7 +620,7 @@ struct DiverSearchView: View {
         ZStack {
             Rectangle()
                 .mask(RoundedRectangle(cornerRadius: 50))
-                .foregroundColor(Custom.carouselColor)
+                .foregroundColor(Custom.grayThinMaterial)
                 .shadow(radius: 10)
                 .frame(width: screenWidth * 0.9, height: screenHeight * 0.24)
             VStack {
@@ -660,6 +662,7 @@ struct MeetSearchView: View {
     @Binding var meetName: String
     @Binding var orgName: String
     @Binding var meetYear: String
+    @Binding var isIndexingMeet: Bool
     @State var meetYearIndex: Int = 0
     private let screenWidth = UIScreen.main.bounds.width
     private let screenHeight = UIScreen.main.bounds.height
@@ -673,10 +676,11 @@ struct MeetSearchView: View {
     }
     
     fileprivate init(meetName: Binding<String>, orgName: Binding<String>,
-                     meetYear: Binding<String>, focusedField: FocusState<SearchField?>.Binding) {
+                     meetYear: Binding<String>, isIndexingMeet: Binding<Bool>, focusedField: FocusState<SearchField?>.Binding) {
         self._meetName = meetName
         self._orgName = orgName
         self._meetYear = meetYear
+        self._isIndexingMeet = isIndexingMeet
         self.focusedField = focusedField
     }
     
@@ -684,9 +688,10 @@ struct MeetSearchView: View {
         ZStack {
             Rectangle()
                 .mask(RoundedRectangle(cornerRadius: 50))
-                .foregroundColor(Custom.carouselColor)
+                .foregroundColor(Custom.grayThinMaterial)
                 .shadow(radius: 10)
-                .frame(width: screenWidth * 0.9, height: screenHeight * 0.31)
+                .frame(width: screenWidth * 0.9, height: isIndexingMeet ? screenHeight * 0.6 : screenHeight * 0.31)
+                .offset(y: isIndexingMeet ? screenWidth * 0.33 : screenWidth * 0.015)
             VStack {
                 HStack {
                     Text("Meet Name:")
@@ -772,12 +777,9 @@ struct MeetResultsView : View {
     }
     
     var body: some View {
-        let gray = currentMode == .light ? grayValue : grayValueDark
         ZStack {
-            Color(red: gray, green: gray, blue: gray)
-                .ignoresSafeArea()
+            Custom.specialGray.ignoresSafeArea()
             VStack(alignment: .leading) {
-                
                 Text("Results")
                     .bold()
                     .font(.largeTitle)
@@ -786,11 +788,11 @@ struct MeetResultsView : View {
                     .padding(.top, 50)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 if !records.isEmpty {
-                    ScalingScrollView(records: records, rowSpacing: rowSpacing) { (e) in
+                    ScalingScrollView(records: records, bgColor: Custom.specialGray, rowSpacing: rowSpacing) { (e) in
                         NavigationLink(destination: MeetPageView(meetLink: e.link ?? "")) {
                             ZStack {
                                 Rectangle()
-                                    .foregroundColor(currentMode == .light ? .white : .black)
+                                    .foregroundColor(Custom.darkGray)
                                 VStack {
                                     if let name = e.name, let city = e.city, let state = e.state,
                                        let startDate = e.startDate, let endDate = e.endDate {
