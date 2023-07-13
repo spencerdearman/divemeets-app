@@ -200,7 +200,7 @@ struct ProfileView: View {
                     GeometryReader{ geometry in
                         BackgroundSpheres()
                         Rectangle()
-                            .fill(Custom.background)
+                            .fill(bgColor)
                             .mask(RoundedRectangle(cornerRadius: 40))
                             .offset(y: geometry.size.height * 0.4)
                     }

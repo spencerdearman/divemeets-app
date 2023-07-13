@@ -40,6 +40,7 @@ struct EntryPageView: View {
                                 Rectangle()
                                     .fill(Custom.darkGray)
                                     .cornerRadius(30)
+                                    .shadow(radius: 10)
                                 EntryView(entry: entry) {
                                     HStack {
                                         NavigationLink(destination: ProfileView(profileLink: entry.link ?? ""),

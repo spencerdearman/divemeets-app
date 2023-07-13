@@ -80,9 +80,7 @@ struct MeetList: View {
                 ZStack {
                     Rectangle()
                         .fill(bgColor)
-                        //frame(height: screenHeight * 0.64)
                         .mask(RoundedRectangle(cornerRadius: 40))
-                        //.offset(y: screenHeight * 0.45)
                     VStack {
                         Text("Meets")
                             .font(.title2).fontWeight(.semibold)
@@ -156,14 +154,25 @@ struct MeetList: View {
                 }
                 // Waiting for parse results to finish
             } else if !createdMeets {
-                VStack {
-                    Text("Getting meets list...")
-                    ProgressView()
+                
+                ZStack {
+                    Rectangle()
+                        .fill(bgColor)
+                        .mask(RoundedRectangle(cornerRadius: 40))
+                    VStack {
+                        Text("Getting meets list...")
+                        ProgressView()
+                    }
                 }
                 // Parse results have finished and meet list is empty
             } else {
-                VStack {
-                    Text("No meet data found")
+                ZStack {
+                    Rectangle()
+                        .fill(bgColor)
+                        .mask(RoundedRectangle(cornerRadius: 40))
+                    VStack {
+                        Text("No meet data found")
+                    }
                 }
             }
         }

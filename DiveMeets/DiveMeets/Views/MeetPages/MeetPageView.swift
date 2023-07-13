@@ -680,7 +680,7 @@ struct MeetEventListView: View {
                                         destination: EntryPageView(entriesLink: value[index].4)) {
                                             ZStack {
                                                 RoundedRectangle(cornerRadius: 30)
-                                                    .fill(Custom.specialGray)
+                                                    .fill(Custom.darkGray)
                                                     .shadow(radius: 5)
                                                     .frame(width: geometry.size.width,
                                                            height: geometry.size.height)
