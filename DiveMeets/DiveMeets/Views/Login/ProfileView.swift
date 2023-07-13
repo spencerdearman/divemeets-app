@@ -251,7 +251,7 @@ struct ProfileView: View {
                                 .frame(width: 100, height: 50)
                                 .foregroundStyle(.white)
                                 .background(
-                                    Custom.carouselColor.matchedGeometryEffect(id: "background", in: profilespace)
+                                    Custom.specialGray.matchedGeometryEffect(id: "background", in: profilespace)
                                 )
                                 .mask(
                                     RoundedRectangle(cornerRadius: 40, style: .continuous)
@@ -288,7 +288,7 @@ struct ProfileView: View {
                                     .padding(.top, 8)
                                 }
                                 .background(
-                                    Custom.carouselColor.matchedGeometryEffect(id: "background", in: profilespace)
+                                    Custom.specialGray.matchedGeometryEffect(id: "background", in: profilespace)
                                 )
                                 .mask(
                                     RoundedRectangle(cornerRadius: 40, style: .continuous)
@@ -415,7 +415,7 @@ struct DiverBubbleView: View {
         var link = ""
         ZStack {
             Rectangle()
-                .foregroundColor(Custom.thinMaterialColor)
+                .foregroundColor(Custom.accentThinMaterial)
                 .cornerRadius(30)
                 .frame(width: 300, height: 100)
                 .shadow(radius: 5)
@@ -424,6 +424,7 @@ struct DiverBubbleView: View {
                     ProfileView(profileLink: elements[1])
                 } label: {
                     Text(elements[0])
+                        .foregroundColor(.primary)
                         .fontWeight(.semibold)
                 }
                 MiniProfileImage(diverID: String(elements[1].components(separatedBy: "=").last ?? ""), width: 80, height: 100)
@@ -452,7 +453,7 @@ struct JudgedList: View {
                     ForEach(data.keys.sorted(by: >), id: \.self) { dropdownKey in
                         ZStack {
                             RoundedRectangle(cornerRadius: 30)
-                                .fill(Custom.tileColor)
+                                .fill(Custom.specialGray)
                                 .shadow(radius: 5)
                             DisclosureGroup(
                                 content: {
@@ -463,7 +464,7 @@ struct JudgedList: View {
                                                             EventResultPage(meetLink: tuple.1))
                                             {
                                                 ZStack {
-                                                    shape.fill(Custom.thinMaterialColor)
+                                                    shape.fill(Custom.accentThinMaterial)
                                                     
                                                     HStack {
                                                         Text(tuple.0)
