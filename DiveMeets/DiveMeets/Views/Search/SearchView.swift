@@ -193,6 +193,7 @@ struct SearchView: View {
     @State var parsedLinks: DiverProfileRecords = [:]
     @State var dmSearchSubmitted: Bool = false
     @State var linksParsed: Bool = false
+    @State var personTimedOut: Bool = false
     @Binding var isIndexingMeets: Bool
     
     private var personSearchSubmitted: Bool {
@@ -205,17 +206,17 @@ struct SearchView: View {
     @ViewBuilder
     var body: some View {
         ZStack {
-            if personSearchSubmitted {
+            if personSearchSubmitted && !personTimedOut {
                 SwiftUIWebView(firstName: $firstName, lastName: $lastName,
                                parsedLinks: $parsedLinks, dmSearchSubmitted: $dmSearchSubmitted,
-                               linksParsed: $linksParsed)
+                               linksParsed: $linksParsed, timedOut: $personTimedOut)
             }
             
             SearchInputView(selection: $selection, firstName: $firstName, lastName: $lastName,
                             meetName: $meetName, orgName: $orgName, meetYear: $meetYear,
                             searchSubmitted: $searchSubmitted, parsedLinks: $parsedLinks,
                             dmSearchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed,
-                            isIndexingMeets: $isIndexingMeets)
+                            isIndexingMeets: $isIndexingMeets, personTimedOut: $personTimedOut)
         }
         .dynamicTypeSize(.xSmall ... .xxxLarge)
         .onDisappear {
@@ -246,6 +247,7 @@ struct SearchInputView: View {
     @Binding var dmSearchSubmitted: Bool
     @Binding var linksParsed: Bool
     @Binding var isIndexingMeets: Bool
+    @Binding var personTimedOut: Bool
     
     @State var predicate: NSPredicate?
     @State private var filterType: FilterType = .name
@@ -433,7 +435,7 @@ struct SearchInputView: View {
                         .buttonStyle(.bordered)
                         .cornerRadius(cornerRadius)
                         .animation(nil, value: selection)
-                        if selection == .person && searchSubmitted && !linksParsed {
+                        if selection == .person, searchSubmitted, !linksParsed, !personTimedOut {
                             ProgressView()
                         }
                     }
@@ -441,6 +443,8 @@ struct SearchInputView: View {
                         Text("You must enter at least one field to search")
                             .foregroundColor(Color.red)
                         
+                    } else if personTimedOut {
+                        Text("Search failed, network timed out")
                     } else {
                         Text("")
                     }
