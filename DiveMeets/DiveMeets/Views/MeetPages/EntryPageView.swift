@@ -25,18 +25,21 @@ struct EntryPageView: View {
         min(maxHeightOffsetScaled, 90)
     }
     
+    private var bgColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    
     var body: some View {
         ZStack {
             if let entries = entries {
-                grayColor
-                
+                bgColor.ignoresSafeArea()
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 10) {
                         ForEach(entries, id: \.self) { entry in
                             ZStack {
                                 Rectangle()
-                                    .fill(currentMode == .light ? .white : .black)
-                                    .cornerRadius(15)
+                                    .fill(Custom.darkGray)
+                                    .cornerRadius(30)
                                 EntryView(entry: entry) {
                                     HStack {
                                         NavigationLink(destination: ProfileView(profileLink: entry.link ?? ""),
@@ -139,9 +142,10 @@ struct EntryView: View {
                     let diveNums = (entry.dives ?? []).map { $0.number }
                     NavigationLink(destination: MeetScoreCalculator(dives: diveNums)) {
                         Text("See in Meet Score Calculator")
+                            .foregroundColor(.primary)
                             .padding([.leading, .trailing])
                             .padding([.top, .bottom], 5)
-                            .background(RoundedRectangle(cornerRadius: 30).fill(.thinMaterial))
+                            .background(RoundedRectangle(cornerRadius: 30).fill(Custom.specialGray))
                     }
                 }
             },
