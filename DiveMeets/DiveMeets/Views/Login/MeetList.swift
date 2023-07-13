@@ -108,7 +108,7 @@ struct MeetList: View {
                                                             destination: MeetPageView(
                                                                 meetLink: meet.link ?? "")) {
                                                                     ZStack {
-                                                                        shape.fill(Custom.accentThinMaterial)
+                                                                        shape.fill(Custom.darkGray)
                                                                         Text("Full Meet")
                                                                             .foregroundColor(.primary)
                                                                     }
@@ -210,7 +210,7 @@ struct ChildrenView: View {
             ForEach(children ?? [], id: \.id) { event in
                 let shape = RoundedRectangle(cornerRadius: 30)
                 ZStack {
-                    shape.fill(Custom.accentThinMaterial)
+                    shape.fill(Custom.darkGray)
                     ChildView(meet: event, navStatus: event.firstNavigation)
                 }
                 .contentShape(shape)

@@ -23,6 +23,9 @@ struct Event: View {
         min(maxHeightOffsetScaled, 90)
     }
     
+    var screenWidth = UIScreen.main.bounds.width
+    var screenHeight = UIScreen.main.bounds.height
+    
     @StateObject private var parser = EventHTMLParser()
     @StateObject private var scoreParser = ScoreHTMLParser()
     
@@ -64,38 +67,51 @@ struct Event: View {
                             Text("Full Event Page")
                         })
                     }
+                }
+                .padding()
                     
-                    
-                    List {
-                        ForEach(diverTableData.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
-                            DisclosureGroup(
-                                isExpanded: isExpanded(key),
-                                content: {
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        Text("Height: \(value.1)")
-                                        Text("Scores: " + (scoreDictionary[value.0] ?? ""))
-                                        Text("Name: \(value.2)")
-                                        Text("Net Score: \(value.3, specifier: "%.2f")")
-                                        Text("DD: \(value.4, specifier: "%.1f")")
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 10) {
+                            ForEach(diverTableData.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+                                ZStack{
+                                    Rectangle()
+                                        .fill(Custom.darkGray)
+                                        .cornerRadius(30)
+                                        .shadow(radius: 5)
+                                        .frame(maxWidth: screenWidth * 0.9)
+                                    DisclosureGroup(
+                                        isExpanded: isExpanded(key),
+                                        content: {
+                                            VStack(alignment: .leading, spacing: 5) {
+                                                Text("Height: \(value.1)")
+                                                Text("Scores: " + (scoreDictionary[value.0] ?? ""))
+                                                Text("Name: \(value.2)")
+                                                Text("Net Score: \(value.3, specifier: "%.2f")")
+                                                Text("DD: \(value.4, specifier: "%.1f")")
+                                            }
+                                            .padding(.leading, 20)
+                                        },
+                                        label: {
+                                            Text(value.0 + " - " + String(value.5))
+                                                .font(.headline)
+                                        }
+                                    )
+                                    .frame(maxWidth: screenWidth * 0.85)
+                                    .padding()
+                                    .foregroundColor(.primary)
+                                    .onAppear{
+                                        Task {
+                                            scoreDictionary[value.0] = await scoreParser.parse(urlString: value.6)
+                                        }
                                     }
-                                    .padding(.leading, 20)
-                                },
-                                label: {
-                                    Text(value.0 + " - " + String(value.5))
-                                        .font(.headline)
                                 }
-                            )
-                            .onAppear{
-                                Task {
-                                    scoreDictionary[value.0] = await scoreParser.parse(urlString: value.6)
+                                .padding(.bottom)
                                 }
-                            }
                         }
                     }
                     .frame(height: 400)
+                    .background(Color.clear)
                     .ignoresSafeArea()
-                }
-                .padding()
             }
             .padding(.bottom, maxHeightOffset)
     }

@@ -18,7 +18,7 @@ struct HomeBubbleView: View{
         if starSelected{
             ZStack{
                 Rectangle()
-                    .foregroundColor(Color.red)
+                    .foregroundColor(Custom.grayThinMaterial)
                     .mask(RoundedRectangle(cornerRadius: 40))
                     .frame(width: 200, height: 50)
                     .shadow(radius: 6)
@@ -107,7 +107,7 @@ struct ClosedTileView: View {
         .frame(maxWidth: .infinity)
         .foregroundStyle(.white)
         .background(
-            bgColor.matchedGeometryEffect(id: "background", in: namespace)
+            Custom.specialGray.matchedGeometryEffect(id: "background", in: namespace)
         )
         .mask(
             RoundedRectangle(cornerRadius: 30, style: .continuous)
@@ -134,7 +134,7 @@ struct ClosedTileView: View {
                         }
                         ZStack {
                             Rectangle()
-                                .foregroundColor(Custom.thinMaterialColor)
+                                .foregroundColor(Custom.accentThinMaterial)
                                 .mask(RoundedRectangle(cornerRadius: 60, style: .continuous))
                                 .shadow(radius: 2)
                                 .frame(width: 200, height: 40)
@@ -221,7 +221,7 @@ struct OpenTileView: View {
                 }
                 ZStack{
                     Rectangle()
-                        .foregroundColor(Custom.thinMaterialColor)
+                        .foregroundColor(Custom.accentThinMaterial)
                         .mask(RoundedRectangle(cornerRadius: 30, style: .continuous))
                         .matchedGeometryEffect(id: "blur", in: namespace)
                         .shadow(radius: 10)
@@ -253,7 +253,7 @@ struct OpenTileView: View {
         }
         .foregroundStyle(.black)
         .background(
-            bgColor.matchedGeometryEffect(id: "background", in: namespace)
+            Custom.specialGray.matchedGeometryEffect(id: "background", in: namespace)
         )
         .mask(
             RoundedRectangle(cornerRadius: 40, style: .continuous)

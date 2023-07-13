@@ -453,7 +453,7 @@ struct NextDiverView: View
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(Custom.carouselColor)
+                .fill(Custom.specialGray)
                 .cornerRadius(50)
                 .shadow(radius: 20)
             
@@ -488,8 +488,8 @@ struct NextDiverView: View
                 //Lower Part
                 ZStack {
                     Rectangle()
-                        .frame(height: screenHeight * 0.1)
-                        .foregroundColor(Custom.thinMaterialColor)
+                        .frame(height: screenHeight * 0.105)
+                        .foregroundColor(Custom.darkGray)
                         .mask(RoundedRectangle(cornerRadius: 50))
                     HStack {
                         Text(nextInfo.5)
