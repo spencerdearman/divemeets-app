@@ -341,7 +341,6 @@ struct SearchInputView: View {
                     .onTapGesture {
                         focusedField = nil
                     }
-                
                     VStack {
                             if selection == .meet {
                                 MeetSearchView(meetName: $meetName, orgName: $orgName,
@@ -622,7 +621,6 @@ struct DiverSearchView: View {
     fileprivate var focusedField: FocusState<SearchField?>.Binding
     
     var body: some View {
-        
         ZStack {
             Rectangle()
                 .mask(RoundedRectangle(cornerRadius: 50))

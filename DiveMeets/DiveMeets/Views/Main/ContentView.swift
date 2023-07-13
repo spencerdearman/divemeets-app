@@ -72,6 +72,7 @@ struct ContentView: View {
 //                                        }
 //                                        .navigationViewStyle(StackNavigationViewStyle())
                                         ToolsMenu()
+                                         //SearchColorfulView()
                                     case .magnifyingglass:
                                         SearchView(isIndexingMeets: $isIndexingMeets)
                                     case .person:
