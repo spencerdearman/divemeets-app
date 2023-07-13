@@ -17,13 +17,15 @@ struct LoginUIWebView: View {
     @Binding var loginSearchSubmitted: Bool
     @Binding var loginSuccessful: Bool
     @Binding var loggedIn: Bool
+    @Binding var timedOut: Bool
 
     
     var body: some View {
         VStack {
             LoginWebView(request: $request, parsedUserHTML: $parsedUserHTML,
                     divemeetsID: $divemeetsID, password: $password,
-                         loginSuccessful: $loginSuccessful, loggedIn: $loggedIn)
+                         loginSuccessful: $loginSuccessful, loggedIn: $loggedIn,
+                         timedOut: $timedOut)
         }
     }
 }
@@ -36,6 +38,7 @@ struct LoginWebView: UIViewRepresentable {
     @Binding var password: String
     @Binding var loginSuccessful: Bool
     @Binding var loggedIn: Bool
+    @Binding var timedOut: Bool
     
     func makeUIView(context: Context) -> WKWebView {
         // Create a new web configuration with a new website data store to clear cache
@@ -76,11 +79,19 @@ struct LoginWebView: UIViewRepresentable {
         uiView.navigationDelegate = webView.navigationDelegate
         
         webView.load(URLRequest(url: url))
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + timeoutInterval) {
+            if !loggedIn {
+                timedOut = true
+            }
+        }
     }
     
     // From UIKit to SwiftUI
     func makeCoordinator() -> Coordinator {
-        return Coordinator(html: $parsedUserHTML, divemeetsID: $divemeetsID, password: $password, loginSuccessful: $loginSuccessful, loggedIn: $loggedIn)
+        return Coordinator(html: $parsedUserHTML, divemeetsID: $divemeetsID, password: $password,
+                           loginSuccessful: $loginSuccessful, loggedIn: $loggedIn,
+                           timedOut: $timedOut)
     }
     
     class Coordinator: NSObject, WKNavigationDelegate {
@@ -90,13 +101,16 @@ struct LoginWebView: UIViewRepresentable {
         @Binding var password: String
         @Binding var loginSuccessful: Bool
         @Binding var loggedIn: Bool
+        @Binding var timedOut: Bool
         
-        init(html: Binding<String>, divemeetsID: Binding<String>, password: Binding<String>,loginSuccessful: Binding<Bool>, loggedIn: Binding<Bool>) {
+        init(html: Binding<String>, divemeetsID: Binding<String>, password: Binding<String>,
+             loginSuccessful: Binding<Bool>, loggedIn: Binding<Bool>, timedOut: Binding<Bool>) {
             self._parsedUserHTML = html
             self._divemeetsID = divemeetsID
             self._password = password
             self._loginSuccessful = loginSuccessful
             self._loggedIn = loggedIn
+            self._timedOut = timedOut
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -134,12 +148,11 @@ struct LoginWebView: UIViewRepresentable {
                 self?.loginSuccessful = false
                 self?.parsedUserHTML = html
                 if html.contains("there is a countdown timer") {
-                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)){
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                         self?.loginSuccessful = true
                     }
                 } else {
                     print("Was not able to login")
-                    self?.loginSuccessful = false
                 }
             }
         }
