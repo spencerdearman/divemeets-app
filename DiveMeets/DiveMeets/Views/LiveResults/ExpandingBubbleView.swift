@@ -18,7 +18,7 @@ struct HomeBubbleView: View{
         if starSelected{
             ZStack{
                 Rectangle()
-                    .foregroundColor(Custom.thinMaterialColor)
+                    .foregroundColor(Color.red)
                     .mask(RoundedRectangle(cornerRadius: 40))
                     .frame(width: 200, height: 50)
                     .shadow(radius: 6)

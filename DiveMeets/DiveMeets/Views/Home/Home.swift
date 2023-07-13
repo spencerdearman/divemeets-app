@@ -97,6 +97,8 @@ struct Home: View {
     private let textColor: Color = Color.primary
     private let grayValue: CGFloat = 0.90
     private let grayValueDark: CGFloat = 0.10
+    private var screenWidth = UIScreen.main.bounds.width
+    private var screenHeight = UIScreen.main.bounds.height
     @ScaledMetric private var typeBubbleWidthScaled: CGFloat = 110
     @ScaledMetric private var typeBubbleHeightScaled: CGFloat = 35
     @ScaledMetric private var typeBGWidthScaled: CGFloat = 40
@@ -197,17 +199,23 @@ struct Home: View {
                                     .cornerRadius(cornerRadius)
                                 }
                             }
-                            
-                            HStack {
-                                Spacer()
-                                Button(action: {
-                                    getPresentMeets()
-                                }, label: {
-                                    Image(systemName: "arrow.clockwise")
-                                        .font(.title2)
-                                })
-                            }
-                            .padding(.trailing)
+                                HStack {
+                                    Spacer()
+                                    Button(action: {
+                                        getPresentMeets()
+                                    }, label: {
+                                        ZStack {
+                                            Circle()
+                                                .foregroundColor(Custom.grayThinMaterial)
+                                                .shadow(radius: 6)
+                                                .frame(width: typeBGWidth, height: typeBGWidth)
+                                            Image(systemName: "arrow.clockwise")
+                                                .foregroundColor(.primary)
+                                                .font(.title2)
+                                        }
+                                    })
+                                }
+                                .padding(.trailing)
                         }
                         .dynamicTypeSize(.xSmall ... .xLarge)
                         

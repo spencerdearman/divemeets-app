@@ -288,6 +288,10 @@ struct mainView: View {
         min(maxHeightOffsetScaled, 90)
     }
     
+    private var bgColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    
     var colors: [Color] = [.blue, .green, .red, .orange]
     
     func startTimer() {
@@ -298,7 +302,7 @@ struct mainView: View {
     }
     
     var body: some View {
-        Custom.background.ignoresSafeArea()
+        bgColor.ignoresSafeArea()
         ZStack {
             ColorfulView()
             GeometryReader { geometry in
@@ -307,7 +311,7 @@ struct mainView: View {
                         VStack {
                             ZStack {
                                 Rectangle()
-                                    .foregroundColor(Custom.thinMaterialColor)
+                                    .foregroundColor(Custom.grayThinMaterial)
                                     .mask(RoundedRectangle(cornerRadius: 40))
                                     .frame(width: 300, height: 70)
                                     .shadow(radius: 6)
@@ -366,7 +370,7 @@ struct LastDiverView: View
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(Custom.carouselColor)
+                .foregroundColor(Custom.specialGray)
                 .cornerRadius(50)
                 .shadow(radius: 20)
             
@@ -399,7 +403,7 @@ struct LastDiverView: View
                 
                 ZStack {
                     Rectangle()
-                        .foregroundColor(Custom.thinMaterialColor)
+                        .foregroundColor(Custom.darkGray)
                         .mask(RoundedRectangle(cornerRadius: 50))
                     HStack {
                         VStack {
@@ -566,7 +570,7 @@ struct DebugDataset {
 struct ColorfulView: View{
     @Environment(\.colorScheme) var currentMode
     private var bgColor: Color {
-        currentMode == .light ? Custom.background : Custom.background
+        currentMode == .light ? .white : .black
     }
     
     var body: some View{
