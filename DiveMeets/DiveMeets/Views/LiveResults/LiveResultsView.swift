@@ -59,6 +59,7 @@ struct parseBody: View {
     
     // Shows debug dataset, sets to true if "debug" is request string
     @State private var debugMode: Bool = false
+    @State private var timedOut: Bool = false
     
     let screenFrame = Color(.systemBackground)
     
@@ -69,12 +70,16 @@ struct parseBody: View {
                 if shiftingBool {
                     LRWebView(request: request, html: $html)
                         .onChange(of: html) { newValue in
-                            loaded = parseHelper(newValue: newValue)
+                            Task {
+                                loaded = await parseHelper(newValue: newValue)
+                            }
                         }
                 } else {
                     LRWebView(request: request, html: $html)
                         .onChange(of: html) { newValue in
-                            loaded = parseHelper(newValue: newValue)
+                            Task {
+                                loaded = await parseHelper(newValue: newValue)
+                            }
                         }
                 }
             }
@@ -84,6 +89,8 @@ struct parseBody: View {
                             $nextDiverInformation, diveTable: $diveTable, focusViewList: $focusViewList,
                          starSelected: $starSelected, shiftingBool: $shiftingBool, title: $title,
                          roundString: $roundString)
+            } else if timedOut {
+                TimedOutView()
             } else {
                 errorView()
             }
@@ -103,169 +110,187 @@ struct parseBody: View {
         }
     }
     
-    private func parseHelper(newValue: String) -> Bool{
-        do {
-            diveTable = []
-            var upperTables: Elements = Elements()
-            var individualTables: Elements = Elements()
-            let document: Document = try SwiftSoup.parse(newValue)
-            guard let body = document.body() else {
+    private func parseHelper(newValue: String) async -> Bool {
+        let parseTask = Task {
+            do {
+                diveTable = []
+                var upperTables: Elements = Elements()
+                var individualTables: Elements = Elements()
+                let document: Document = try SwiftSoup.parse(newValue)
+                guard let body = document.body() else { return false }
+                let table = try body.getElementById("Results")
+                guard let rows = try table?.getElementsByTag("tr") else { return false }
+                if rows.count < 9 { return false}
+                upperTables = try rows[1].getElementsByTag("tbody")
+                
+                if upperTables.isEmpty() { return false }
+                individualTables = try upperTables[0].getElementsByTag("table")
+                
+                let linkHead = "https://secure.meetcontrol.com/divemeets/system/"
+                
+                //Title
+                title = try rows[0].getElementsByTag("td")[0].text()
+                    .replacingOccurrences(of: "Unofficial Statistics ", with: "")
+                
+                //Last Diver
+                
+                var lastDiverName = ""
+                var lastDiverProfileLink = ""
+                var lastRoundPlace = 0
+                var lastRoundTotalScore = 0.0
+                var order = 0
+                var currentPlace = 0
+                var currentTotal = 0.0
+                var currentDive = ""
+                var height = ""
+                var dd = 0.0
+                var score = 0.0
+                var judgesScores = ""
+                
+                if individualTables.count < 3 { return false }
+                let lastDiverStr = try individualTables[0].text()
+                let lastDiver = try individualTables[0].getElementsByTag("a")
+                
+                if lastDiver.isEmpty() { return false }
+                lastDiverName = try lastDiver[0].text()
+                
+                // Adds space after name and before team
+                
+                if let idx = lastDiverName.firstIndex(of: "(") {
+                    lastDiverName.insert(" ", at: idx)
+                }
+                
+                var tempLink = try individualTables[0].getElementsByTag("a").attr("href")
+                lastDiverProfileLink = linkHead + tempLink
+                
+                lastRoundPlace = Int(lastDiverStr.slice(from: "Last Round Place: ",
+                                                        to: " Last Round") ?? "") ?? 0
+                lastRoundTotalScore = Double(lastDiverStr.slice(from: "Last Round Total Score: ",
+                                                                to: " Diver O") ?? "") ?? 0.0
+                order = Int(lastDiverStr.slice(from: "Diver Order: ", to: " Current") ?? "") ?? 0
+                currentPlace = Int(lastDiverStr.slice(from: "Current Place: ",
+                                                      to: " Current") ?? "") ?? 0
+                currentTotal = Double(lastDiverStr.slice(from: "Current Total Score: ",
+                                                         to: " Current") ?? "") ?? 0.0
+                currentDive = lastDiverStr.slice(from: "Current Dive:   ", to: " Height") ?? ""
+                height = lastDiverStr.slice(from: "Height: ", to: " DD:") ?? ""
+                dd = Double(lastDiverStr.slice(from: "DD: ", to: " Score") ?? "") ?? 0.0
+                score = Double(lastDiverStr.slice(from: String(dd) + " Score: ",
+                                                  to: " Judges") ?? "") ?? 0.0
+                if let lastIndex = lastDiverStr.lastIndex(of: ":") {
+                    let distance = lastDiverStr.distance(from: lastIndex,
+                                                         to: lastDiverStr.endIndex) - 1
+                    judgesScores = String(lastDiverStr.suffix(distance - 1))
+                }
+                lastDiverInformation = (lastDiverName, lastDiverProfileLink, lastRoundPlace,
+                                        lastRoundTotalScore, order, currentPlace, currentTotal,
+                                        currentDive, height, dd, score, judgesScores)
+                
+                //Upcoming Diver
+                
+                var nextDiverName = ""
+                var nextDiverProfileLink = ""
+                var nextDive = ""
+                var avgScore = 0.0
+                var maxScore = 0.0
+                var forFirstPlace = 0.0
+                
+                let upcomingDiverStr = try individualTables[2].text()
+                let nextDiver = try individualTables[2].getElementsByTag("a")
+                
+                if nextDiver.isEmpty() { return false }
+                nextDiverName = try nextDiver[0].text()
+                
+                // Adds space after name and before team
+                
+                if let idx = nextDiverName.firstIndex(of: "(") {
+                    nextDiverName.insert(" ", at: idx)
+                }
+                
+                tempLink = try individualTables[2].getElementsByTag("a").attr("href")
+                nextDiverProfileLink = linkHead + tempLink
+                
+                lastRoundPlace = Int(upcomingDiverStr.slice(from: "Last Round Place: ",
+                                                            to: " Last Round") ?? "") ?? 0
+                lastRoundTotalScore = Double(upcomingDiverStr.slice(from: "Last Round Total Score: ",
+                                                                    to: " Diver O") ?? "") ?? 0.0
+                order = Int(upcomingDiverStr.slice(from: "Order: ", to: " Next Dive") ?? "") ?? 0
+                nextDive = upcomingDiverStr.slice(from: "Next Dive:   ", to: " Height") ?? ""
+                height = upcomingDiverStr.slice(from: "Height: ", to: " DD:") ?? ""
+                dd = Double(upcomingDiverStr.slice(from: "DD: ", to: " History for") ?? "") ?? 0.0
+                avgScore = Double(upcomingDiverStr.slice(from: "Avg Score: ",
+                                                         to: "  Max Score") ?? "") ?? 0.0
+                maxScore = Double(upcomingDiverStr.slice(from: "Max Score Ever: ",
+                                                         to: " Needed") ?? "") ?? 0.0
+                var result = ""
+                for char in upcomingDiverStr.reversed() {
+                    if char == " " {
+                        break
+                    }
+                    result = String(char) + result
+                }
+                forFirstPlace = Double(result) ?? 999.99
+                nextDiverInformation = (nextDiverName, nextDiverProfileLink, lastRoundPlace,
+                                        lastRoundTotalScore, order, nextDive, height, dd,
+                                        avgScore, maxScore, forFirstPlace)
+                
+                //Current Round
+                
+                let currentRound = try rows[8].getElementsByTag("td")
+                
+                if currentRound.isEmpty() { return false }
+                roundString = try currentRound[0].text()
+                
+                //Diving Table
+                
+                for (i, t) in rows.enumerated(){
+                    if i < rows.count - 1 && i >= 10 {
+                        var tempList: [String] = []
+                        for (i, v) in try t.getElementsByTag("td").enumerated() {
+                            if i > 9 { break }
+                            if i == 0 {
+                                if try v.text() == "" {
+                                    tempList.append("true")
+                                } else {
+                                    tempList.append("false")
+                                }
+                            } else if i == 6 {
+                                focusViewList[try v.text()] = false
+                                tempList.append(try v.text())
+                                let halfLink = try v.getElementsByTag("a").attr("href")
+                                tempList.append(linkHead + halfLink)
+                            } else {
+                                tempList.append(try v.text())
+                            }
+                        }
+                        diveTable.append(tempList)
+                    }
+                }
+                
+            } catch {
+                print("Parsing finished live event failed")
+                try Task.checkCancellation()
                 return false
             }
-            let table = try body.getElementById("Results")
-            guard let rows = try table?.getElementsByTag("tr") else { return false }
-            if rows.count < 9 { return false}
-            upperTables = try rows[1].getElementsByTag("tbody")
             
-            if upperTables.isEmpty() { return false}
-            individualTables = try upperTables[0].getElementsByTag("table")
-            
-            let linkHead = "https://secure.meetcontrol.com/divemeets/system/"
-            
-            //Title
-            title = try rows[0].getElementsByTag("td")[0].text()
-                .replacingOccurrences(of: "Unofficial Statistics ", with: "")
-            
-            //Last Diver
-            
-            var lastDiverName = ""
-            var lastDiverProfileLink = ""
-            var lastRoundPlace = 0
-            var lastRoundTotalScore = 0.0
-            var order = 0
-            var currentPlace = 0
-            var currentTotal = 0.0
-            var currentDive = ""
-            var height = ""
-            var dd = 0.0
-            var score = 0.0
-            var judgesScores = ""
-            
-            if individualTables.count < 3 { return false }
-            let lastDiverStr = try individualTables[0].text()
-            let lastDiver = try individualTables[0].getElementsByTag("a")
-            
-            if lastDiver.isEmpty() { return false }
-            lastDiverName = try lastDiver[0].text()
-            
-            // Adds space after name and before team
-            
-            if let idx = lastDiverName.firstIndex(of: "(") {
-                lastDiverName.insert(" ", at: idx)
-            }
-            
-            var tempLink = try individualTables[0].getElementsByTag("a").attr("href")
-            lastDiverProfileLink = linkHead + tempLink
-            
-            lastRoundPlace = Int(lastDiverStr.slice(from: "Last Round Place: ",
-                                                    to: " Last Round") ?? "") ?? 0
-            lastRoundTotalScore = Double(lastDiverStr.slice(from: "Last Round Total Score: ",
-                                                            to: " Diver O") ?? "") ?? 0.0
-            order = Int(lastDiverStr.slice(from: "Diver Order: ", to: " Current") ?? "") ?? 0
-            currentPlace = Int(lastDiverStr.slice(from: "Current Place: ",
-                                                  to: " Current") ?? "") ?? 0
-            currentTotal = Double(lastDiverStr.slice(from: "Current Total Score: ",
-                                                     to: " Current") ?? "") ?? 0.0
-            currentDive = lastDiverStr.slice(from: "Current Dive:   ", to: " Height") ?? ""
-            height = lastDiverStr.slice(from: "Height: ", to: " DD:") ?? ""
-            dd = Double(lastDiverStr.slice(from: "DD: ", to: " Score") ?? "") ?? 0.0
-            score = Double(lastDiverStr.slice(from: String(dd) + " Score: ",
-                                              to: " Judges") ?? "") ?? 0.0
-            if let lastIndex = lastDiverStr.lastIndex(of: ":") {
-                let distance = lastDiverStr.distance(from: lastIndex,
-                                                     to: lastDiverStr.endIndex) - 1
-                judgesScores = String(lastDiverStr.suffix(distance - 1))
-            }
-            lastDiverInformation = (lastDiverName, lastDiverProfileLink, lastRoundPlace,
-                                    lastRoundTotalScore, order, currentPlace, currentTotal,
-                                    currentDive, height, dd, score, judgesScores)
-            
-            //Upcoming Diver
-            
-            var nextDiverName = ""
-            var nextDiverProfileLink = ""
-            var nextDive = ""
-            var avgScore = 0.0
-            var maxScore = 0.0
-            var forFirstPlace = 0.0
-            
-            let upcomingDiverStr = try individualTables[2].text()
-            let nextDiver = try individualTables[2].getElementsByTag("a")
-            
-            if nextDiver.isEmpty() { return false }
-            nextDiverName = try nextDiver[0].text()
-            
-            // Adds space after name and before team
-            
-            if let idx = nextDiverName.firstIndex(of: "(") {
-                nextDiverName.insert(" ", at: idx)
-            }
-            
-            tempLink = try individualTables[2].getElementsByTag("a").attr("href")
-            nextDiverProfileLink = linkHead + tempLink
-            
-            lastRoundPlace = Int(upcomingDiverStr.slice(from: "Last Round Place: ",
-                                                        to: " Last Round") ?? "") ?? 0
-            lastRoundTotalScore = Double(upcomingDiverStr.slice(from: "Last Round Total Score: ",
-                                                                to: " Diver O") ?? "") ?? 0.0
-            order = Int(upcomingDiverStr.slice(from: "Order: ", to: " Next Dive") ?? "") ?? 0
-            nextDive = upcomingDiverStr.slice(from: "Next Dive:   ", to: " Height") ?? ""
-            height = upcomingDiverStr.slice(from: "Height: ", to: " DD:") ?? ""
-            dd = Double(upcomingDiverStr.slice(from: "DD: ", to: " History for") ?? "") ?? 0.0
-            avgScore = Double(upcomingDiverStr.slice(from: "Avg Score: ",
-                                                     to: "  Max Score") ?? "") ?? 0.0
-            maxScore = Double(upcomingDiverStr.slice(from: "Max Score Ever: ",
-                                                     to: " Needed") ?? "") ?? 0.0
-            var result = ""
-            for char in upcomingDiverStr.reversed() {
-                if char == " " {
-                    break
-                }
-                result = String(char) + result
-            }
-            forFirstPlace = Double(result) ?? 999.99
-            nextDiverInformation = (nextDiverName, nextDiverProfileLink, lastRoundPlace,
-                                    lastRoundTotalScore, order, nextDive, height, dd,
-                                    avgScore, maxScore, forFirstPlace)
-            
-            //Current Round
-            
-            let currentRound = try rows[8].getElementsByTag("td")
-            
-            if currentRound.isEmpty() { return false }
-            roundString = try currentRound[0].text()
-            
-            //Diving Table
-            
-            for (i, t) in rows.enumerated(){
-                if i < rows.count - 1 && i >= 10 {
-                    var tempList: [String] = []
-                    for (i, v) in try t.getElementsByTag("td").enumerated() {
-                        if i > 9 { break }
-                        if i == 0 {
-                            if try v.text() == "" {
-                                tempList.append("true")
-                            } else {
-                                tempList.append("false")
-                            }
-                        } else if i == 6 {
-                            focusViewList[try v.text()] = false
-                            tempList.append(try v.text())
-                            let halfLink = try v.getElementsByTag("a").attr("href")
-                            tempList.append(linkHead + halfLink)
-                        } else {
-                            tempList.append(try v.text())
-                        }
-                    }
-                    diveTable.append(tempList)
-                }
-            }
-            
-        } catch  {
-            print("Parsing finished live event failed")
-            return false
+            try Task.checkCancellation()
+            return true
         }
-        return true
+        let timeoutTask = Task {
+            try await Task.sleep(nanoseconds: UInt64(timeoutInterval) * NSEC_PER_SEC)
+            parseTask.cancel()
+            timedOut = true
+        }
+        
+        do {
+            let result = try await parseTask.value
+            timeoutTask.cancel()
+            return result
+        } catch {
+            print("Unable to parse live results page, network timed out")
+        }
+        
+        return false
     }
 }
 
@@ -338,6 +363,18 @@ struct mainView: View {
                 }
             }
         }
+    }
+}
+
+struct TimedOutView: View {
+    @Environment(\.colorScheme) var currentMode
+    private var bgColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    
+    var body: some View {
+        bgColor.ignoresSafeArea()
+        Text("Unable to load live results, network timed out")
     }
 }
 
