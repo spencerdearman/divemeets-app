@@ -135,7 +135,7 @@ struct JudgeScoreCalculator: View {
                                 }
                                 .shadow(radius: shadowRadius)
                             Spacer()
-                            TextField("Desired Score", text: $score)
+                            TextField("Score", text: $score)
                                 .keyboardType(.decimalPad)
                                 .focused(focusedField, equals: .score)
                                 .frame(width: 150, height: 50)
@@ -181,6 +181,18 @@ struct JudgeScoreCalculator: View {
                                 }
                                 .font(.title2)
                             }
+                        } else if name != nil, dd == nil {
+                            ZStack {
+                                Rectangle()
+                                    .foregroundColor(Custom.thinMaterialColor)
+                                    .mask(RoundedRectangle(cornerRadius: 30))
+                                    .shadow(radius: shadowRadius)
+                                Text("Dive is not possible at the chosen height")
+                                    .multilineTextAlignment(.center)
+                                    .padding()
+                            }
+                            .frame(width: screenWidth * 0.5, height: screenHeight * 0.09)
+                            
                         }
                     }
                     .onAppear {

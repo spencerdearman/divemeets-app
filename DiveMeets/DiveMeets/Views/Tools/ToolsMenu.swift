@@ -26,7 +26,11 @@ struct ToolsMenu: View {
     var body: some View {
         NavigationView {
             ZStack {
-                ToolsColorfulView().ignoresSafeArea()
+                ToolsColorfulView()
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        focusedField = nil
+                    }
                 VStack {
                     ZStack {
                         Rectangle()
@@ -60,9 +64,6 @@ struct ToolsMenu: View {
                     .offset(y: -screenHeight * 0.13)
                 }
                 .padding(.bottom, maxHeightOffset)
-            }
-            .onTapGesture {
-                focusedField = nil
             }
         }
     }
