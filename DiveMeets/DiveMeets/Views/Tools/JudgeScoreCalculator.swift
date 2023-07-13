@@ -7,10 +7,7 @@
 
 import SwiftUI
 
-enum JudgeScoreField: Int, Hashable, CaseIterable {
-    case dive
-    case score
-}
+
 
 struct JudgeScoreCalculator: View {
     @Environment(\.colorScheme) var currentMode
@@ -18,10 +15,10 @@ struct JudgeScoreCalculator: View {
     @State var dive: String = ""
     @State var height: DiveHeight = .one
     @State var score: String = ""
-    @FocusState var focusedField: JudgeScoreField?
+    var focusedField: FocusState<JudgeScoreField?>.Binding
     
-    private var screenWidth = UIScreen.main.bounds.width
-    private var screenHeight = UIScreen.main.bounds.height
+    private let screenWidth = UIScreen.main.bounds.width
+    private let screenHeight = UIScreen.main.bounds.height
     private let cornerRadius: CGFloat = 30
     private let shadowRadius: CGFloat = 5
     private let selectedGray = Color(red: 0.85, green: 0.85, blue: 0.85, opacity: 0.4)
@@ -108,7 +105,7 @@ struct JudgeScoreCalculator: View {
                     .frame(width: screenWidth * 0.9, height: screenHeight * 0.42)
                     .shadow(radius: shadowRadius)
                     .onTapGesture {
-                        focusedField = nil
+                        focusedField.wrappedValue = nil
                     }
                 
                 VStack(spacing: 5) {
@@ -127,7 +124,7 @@ struct JudgeScoreCalculator: View {
                             Spacer()
                             TextField("Number", text: $dive)
                                 .textInputAutocapitalization(.characters)
-                                .focused($focusedField, equals: .dive)
+                                .focused(focusedField, equals: .dive)
                                 .frame(width: 150, height: 50)
                                 .font(.title2)
                                 .multilineTextAlignment(.center)
@@ -140,7 +137,7 @@ struct JudgeScoreCalculator: View {
                             Spacer()
                             TextField("Desired Score", text: $score)
                                 .keyboardType(.decimalPad)
-                                .focused($focusedField, equals: .score)
+                                .focused(focusedField, equals: .score)
                                 .frame(width: 150, height: 50)
                                 .font(.title2)
                                 .multilineTextAlignment(.center)

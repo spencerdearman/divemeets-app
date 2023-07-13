@@ -7,7 +7,13 @@
 
 import SwiftUI
 
+enum JudgeScoreField: Int, Hashable, CaseIterable {
+    case dive
+    case score
+}
+
 struct ToolsMenu: View {
+    @FocusState var focusedField: JudgeScoreField?
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 57
     
     private var screenWidth = UIScreen.main.bounds.width
@@ -48,12 +54,15 @@ struct ToolsMenu: View {
                                     .padding()
                             }
                         }
-                        JudgeScoreCalculator()
+                        JudgeScoreCalculator(focusedField: $focusedField)
                             .frame(height: screenHeight * 0.5)
                     }
                     .offset(y: -screenHeight * 0.13)
                 }
                 .padding(.bottom, maxHeightOffset)
+            }
+            .onTapGesture {
+                focusedField = nil
             }
         }
     }
