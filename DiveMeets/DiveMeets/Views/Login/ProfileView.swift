@@ -29,6 +29,9 @@ struct ProfileView: View {
     @State private var judgingHistory: [String: [(String, String)]] = [:]
     private let getTextModel = GetTextAsyncModel()
     private let ep = EntriesParser()
+    private let screenWidth = UIScreen.main.bounds.width
+    private let screenHeight = UIScreen.main.bounds.height
+    private let shadowRadius: CGFloat = 5
     
     var diverID: String {
         String(profileLink.components(separatedBy: "=").last ?? "")
@@ -153,37 +156,47 @@ struct ProfileView: View {
                         .padding([.leading, .trailing, .top])
                         
                         if let upcomingDiveSheetsEntries = upcomingDiveSheetsEntries {
-                            DisclosureGroup(isExpanded: $isExpanded) {
-                                ForEach(upcomingDiveSheetsEntries.sorted(by: { $0.key < $1.key }),
-                                        id: \.key) { meetName, events in
-                                    VStack(alignment: .leading, spacing: 0) {
-                                        Text(meetName)
-                                            .font(.title3)
-                                            .bold()
-                                        VStack(spacing: 5) {
-                                            ForEach(events.sorted(by: { $0.key < $1.key }),
-                                                    id: \.key) { eventName, entry in
-                                                EntryView(entry: entry) {
-                                                    Text(eventName)
-                                                        .font(.headline)
-                                                        .bold()
-                                                        .foregroundColor(Color.primary)
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 50)
+                                    .fill(.white)
+                                    .shadow(radius: 5)
+                                
+                                DisclosureGroup(isExpanded: $isExpanded) {
+                                    ForEach(upcomingDiveSheetsEntries.sorted(by: { $0.key < $1.key }),
+                                            id: \.key) { meetName, events in
+                                        VStack(alignment: .leading, spacing: 0) {
+                                            Text(meetName)
+                                                .font(.title3)
+                                                .bold()
+                                            VStack(spacing: 5) {
+                                                ForEach(events.sorted(by: { $0.key < $1.key }),
+                                                        id: \.key) { eventName, entry in
+                                                    EntryView(entry: entry) {
+                                                        Text(eventName)
+                                                            .font(.headline)
+                                                            .bold()
+                                                            .foregroundColor(Color.primary)
+                                                    }
                                                 }
                                             }
+                                            .padding(.leading)
+                                            .padding(.top, 5)
                                         }
-                                        .padding(.leading)
                                         .padding(.top, 5)
                                     }
-                                    .padding(.top, 5)
+                                            .padding()
+                                } label: {
+                                    Text("Upcoming Meets")
+                                        .font(.title2)
+                                        .bold()
+                                        .foregroundColor(Color.primary)
                                 }
-                            } label: {
-                                Text("Upcoming Meets")
-                                    .font(.title2)
-                                    .bold()
-                                    .foregroundColor(Color.primary)
+                                .padding([.leading, .trailing])
+                            .padding(.bottom, 5)
                             }
                             .padding([.leading, .trailing])
-                            .padding(.bottom, 5)
+                            
+                            Spacer()
                         }
                         
                         Spacer()
@@ -196,7 +209,7 @@ struct ProfileView: View {
                 }
             } else {
                 ZStack{
-                    GeometryReader{ geometry in
+                    GeometryReader { geometry in
                         BackgroundSpheres()
                         Rectangle()
                             .fill(Custom.background)
@@ -208,19 +221,21 @@ struct ProfileView: View {
                             ProfileImage(diverID: diverID)
                                 .frame(width: 200, height: 150)
                                 .padding()
-                            VStack{
+                            VStack {
                                 VStack(alignment: .leading) {
-                                    HStack (alignment: .firstTextBaseline){
+                                    HStack(alignment: .firstTextBaseline) {
                                         diverData != []
                                         ? Text(diverData[0][0].slice(from: "Name: ",
-                                                                     to: " City/State") ?? "").font(.title).foregroundColor(.white)
+                                                                     to: " City/State") ?? "")
+                                        .font(.title)
+                                        .foregroundColor(.white)
                                         : Text("")
                                         
                                         Text(diverID)
                                             .font(.subheadline).foregroundColor(Custom.secondaryColor)
                                     }
                                     WhiteDivider()
-                                    HStack (alignment: .firstTextBaseline){
+                                    HStack(alignment: .firstTextBaseline) {
                                         Image(systemName: "house.fill")
                                         diverData != []
                                         ? Text(
@@ -243,14 +258,15 @@ struct ProfileView: View {
                                 }
                             }
                             .padding()
-                            if !diverTab{
+                            if !diverTab {
                                 VStack{
                                     Spacer()
                                 }
                                 .frame(width: 100, height: 50)
                                 .foregroundStyle(.white)
                                 .background(
-                                    Custom.carouselColor.matchedGeometryEffect(id: "background", in: profilespace)
+                                    Custom.carouselColor.matchedGeometryEffect(id: "background",
+                                                                               in: profilespace)
                                 )
                                 .mask(
                                     RoundedRectangle(cornerRadius: 40, style: .continuous)
@@ -258,7 +274,7 @@ struct ProfileView: View {
                                 )
                                 .shadow(radius: 5)
                                 .overlay(
-                                    ZStack{
+                                    ZStack {
                                         Text("Divers")
                                             .font(.title3).fontWeight(.semibold)
                                             .matchedGeometryEffect(id: "title", in: profilespace)
@@ -270,14 +286,15 @@ struct ProfileView: View {
                                     }
                                 }
                             } else {
-                                ZStack{
-                                    VStack{
+                                ZStack {
+                                    VStack {
                                         Text("Divers")
                                             .padding(.top)
                                             .font(.title3).fontWeight(.semibold)
                                             .matchedGeometryEffect(id: "title", in: profilespace)
                                             .onTapGesture{
-                                                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                                withAnimation(.spring(response: 0.6,
+                                                                      dampingFraction: 0.8)) {
                                                     diverTab.toggle()
                                                 }
                                             }
@@ -287,7 +304,8 @@ struct ProfileView: View {
                                     .padding(.top, 8)
                                 }
                                 .background(
-                                    Custom.carouselColor.matchedGeometryEffect(id: "background", in: profilespace)
+                                    Custom.carouselColor.matchedGeometryEffect(id: "background",
+                                                                               in: profilespace)
                                 )
                                 .mask(
                                     RoundedRectangle(cornerRadius: 40, style: .continuous)
@@ -305,6 +323,11 @@ struct ProfileView: View {
         .onAppear {
             Task {
                 await fetchJudgingData()
+                let nameComps = getNameComponents() ?? []
+                let last = nameComps.last ?? ""
+                let first = nameComps.dropLast().joined(separator: "")
+                upcomingDiveSheetsEntries = await getUpcomingDiveSheetsEntries(
+                    name: last + ", " + first)
             }
         }
     }
@@ -333,7 +356,7 @@ struct ProfileView: View {
                 guard let body = document.body() else { return }
                 let td = try body.getElementsByTag("td")
                 let divers = try body.getElementsByTag("a")
-                for (i, diver) in divers.enumerated(){
+                for (i, diver) in divers.enumerated() {
                     if try diver.text() == "Coach Profile"{
                         continue
                     } else if try diver.text() == "Results" {

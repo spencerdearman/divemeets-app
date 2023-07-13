@@ -44,18 +44,19 @@ final class EventHTMLParser: ObservableObject {
         var meetName = ""
         var meetLink = ""
       
-        for (_, t) in overall.enumerated(){
+        for (_, t) in overall.enumerated() {
             let tester = try t.getElementsByTag("td")
-            if try tester.count >= 3 && tester[2].text().contains("Dive Sheet"){
+            if try tester.count >= 3 && tester[2].text().contains("Dive Sheet") {
                 hasUpcomingMeets = true
                 print("Has Upcoming Meets")
             }
         }
         if hasUpcomingMeets {
+            if main.count < 3 { return [:] }
             overall = try main[2].getElementsByTag("tr")
         }
         
-        for (i, t) in overall.enumerated(){
+        for (i, t) in overall.enumerated() {
             let testString = try t.text()
             if i == 0 {
                 continue
