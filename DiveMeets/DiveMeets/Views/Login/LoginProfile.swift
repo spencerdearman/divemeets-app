@@ -37,6 +37,8 @@ struct LoginProfile: View {
     @State var profileType : String = ""
     @State var isLoading: Bool = true
     @StateObject private var parser = HTMLParser()
+    private var screenWidth = UIScreen.main.bounds.width
+    private var screenHeight = UIScreen.main.bounds.height
     
     
     init(link: String, diverID: String = "00000", loggedIn: Binding<Bool>, divemeetsID: Binding<String>, password: Binding<String>, searchSubmitted: Binding<Bool>, loginSuccessful: Binding<Bool>, loginSearchSubmitted: Binding<Bool>) {
@@ -87,7 +89,7 @@ struct LoginProfile: View {
                             })
                             .buttonStyle(.bordered)
                             .cornerRadius(30)
-                            .offset(x:-150, y:-215)
+                            .offset(x: -screenWidth * 0.33, y: -screenHeight * 0.23)
                             ProfileImage(diverID: diverID)
                                 .offset(y:-100)
                         }
