@@ -344,8 +344,6 @@ struct ProfileView: View {
                         diversAndLinks.append([try diver.text(), link])
                     }
                 }
-                print(diversAndLinks)
-                
                 
                 var current = ""
                 var eventsList: [(String, String)] = []
