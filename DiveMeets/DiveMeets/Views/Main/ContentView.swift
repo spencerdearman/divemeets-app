@@ -8,7 +8,7 @@
 import SwiftUI
 
 // Global timeoutInterval to use for online loading pages
-let timeoutInterval: TimeInterval = 60
+let timeoutInterval: TimeInterval = 30
 
 struct ContentView: View {
     @Environment(\.colorScheme) var currentMode
