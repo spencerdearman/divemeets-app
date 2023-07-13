@@ -148,7 +148,7 @@ struct Home: View {
                     VStack {
                         ZStack{
                             Rectangle()
-                                .foregroundColor(Custom.thinMaterialColor)
+                                .foregroundColor(Custom.grayThinMaterial)
                                 .mask(RoundedRectangle(cornerRadius: 40))
                                 .frame(width: 120, height: 40)
                                 .shadow(radius: 6)
@@ -160,12 +160,12 @@ struct Home: View {
                                 RoundedRectangle(cornerRadius: cornerRadius)
                                     .frame(width: typeBubbleWidth * 2 + 5,
                                            height: typeBGWidth)
-                                    .foregroundColor(Custom.selectionColorsDark)
+                                    .foregroundColor(Custom.grayThinMaterial)
                                     .shadow(radius: 5)
                                 RoundedRectangle(cornerRadius: cornerRadius)
                                     .frame(width: typeBubbleWidth,
                                            height: typeBubbleHeight)
-                                    .foregroundColor(Custom.selection)
+                                    .foregroundColor(Custom.darkGray)
                                     .offset(x: selection == .upcoming
                                             ? -typeBubbleWidth / 2
                                             : typeBubbleWidth / 2)
@@ -258,7 +258,7 @@ struct UpcomingMeetsView: View {
             } else {
                 ZStack {
                     Rectangle()
-                        .foregroundColor(Custom.thinMaterialColor)
+                        .foregroundColor(Custom.grayThinMaterial)
                         .frame(width: 275, height: 75)
                         .mask(RoundedRectangle(cornerRadius: 40))
                         .shadow(radius: 6)
@@ -269,7 +269,7 @@ struct UpcomingMeetsView: View {
         } else {
             ZStack{
                 Rectangle()
-                    .foregroundColor(Custom.thinMaterialColor)
+                    .foregroundColor(Custom.grayThinMaterial)
                     .frame(width: 275, height: 100)
                     .mask(RoundedRectangle(cornerRadius: 40))
                     .shadow(radius: 6)
@@ -303,7 +303,7 @@ struct CurrentMeetsView: View {
         } else if meetParser.currentMeets != nil {
             ZStack{
                 Rectangle()
-                    .foregroundColor(Custom.thinMaterialColor)
+                    .foregroundColor(Custom.grayThinMaterial)
                     .frame(width: 275, height: 75)
                     .mask(RoundedRectangle(cornerRadius: 40))
                     .shadow(radius: 6)
@@ -312,7 +312,7 @@ struct CurrentMeetsView: View {
         } else {
             ZStack{
                 Rectangle()
-                    .foregroundColor(Custom.thinMaterialColor)
+                    .foregroundColor(Custom.grayThinMaterial)
                     .frame(width: 275, height: 100)
                     .mask(RoundedRectangle(cornerRadius: 40))
                     .shadow(radius: 6)
@@ -447,7 +447,7 @@ struct MeetBubbleView: View {
                        : AnyView(MeetPageView(meetLink: elements[3], showBackButton: false))) {
             ZStack {
                 Rectangle()
-                    .foregroundColor(Custom.homeTileColor)
+                    .foregroundColor(Custom.specialGray)
                     .cornerRadius(40)
                 VStack {
                     VStack {
@@ -477,7 +477,7 @@ struct MeetBubbleView: View {
                         
                         ZStack{
                             Rectangle()
-                                .fill(Custom.thinMaterialColor)
+                                .fill(Custom.accentThinMaterial)
                                 .frame(width: isPhone ? getPhoneTextSizeForAccessibility() : getPadTextSizeForAccessibility())
                                 .mask(RoundedRectangle(cornerRadius: 30))
                                 .shadow(radius: 3)
@@ -544,7 +544,7 @@ struct MeetBubbleView: View {
 struct HomeColorfulView: View{
     @Environment(\.colorScheme) var currentMode
     private var bgColor: Color {
-        currentMode == .light ? Custom.background : Custom.background
+        currentMode == .light ? Color.white : Color.black
     }
     
     var body: some View{
