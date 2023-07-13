@@ -15,6 +15,7 @@ struct LoginUIWebView: View {
     @State var request: String =
     "https://secure.meetcontrol.com/divemeets/system/login.php"
     @Binding var loginSearchSubmitted: Bool
+    @Binding var loginAttempted: Bool
     @Binding var loginSuccessful: Bool
     @Binding var loggedIn: Bool
     @Binding var timedOut: Bool
@@ -24,6 +25,7 @@ struct LoginUIWebView: View {
         VStack {
             LoginWebView(request: $request, parsedUserHTML: $parsedUserHTML,
                     divemeetsID: $divemeetsID, password: $password,
+                         loginAttempted: $loginAttempted,
                          loginSuccessful: $loginSuccessful, loggedIn: $loggedIn,
                          timedOut: $timedOut)
         }
@@ -32,10 +34,12 @@ struct LoginUIWebView: View {
 
 struct LoginWebView: UIViewRepresentable {
     let htmlParser: HTMLParser = HTMLParser()
+    @State var firstLoad: Bool = true
     @Binding var request: String
     @Binding var parsedUserHTML: String
     @Binding var divemeetsID: String
     @Binding var password: String
+    @Binding var loginAttempted: Bool
     @Binding var loginSuccessful: Bool
     @Binding var loggedIn: Bool
     @Binding var timedOut: Bool
@@ -90,8 +94,9 @@ struct LoginWebView: UIViewRepresentable {
     // From UIKit to SwiftUI
     func makeCoordinator() -> Coordinator {
         return Coordinator(html: $parsedUserHTML, divemeetsID: $divemeetsID, password: $password,
+                           loginAttempted: $loginAttempted,
                            loginSuccessful: $loginSuccessful, loggedIn: $loggedIn,
-                           timedOut: $timedOut)
+                           timedOut: $timedOut, firstLoad: $firstLoad)
     }
     
     class Coordinator: NSObject, WKNavigationDelegate {
@@ -99,18 +104,23 @@ struct LoginWebView: UIViewRepresentable {
         @Binding var parsedUserHTML: String
         @Binding var divemeetsID: String
         @Binding var password: String
+        @Binding var loginAttempted: Bool
         @Binding var loginSuccessful: Bool
         @Binding var loggedIn: Bool
         @Binding var timedOut: Bool
+        @Binding var firstLoad: Bool
         
         init(html: Binding<String>, divemeetsID: Binding<String>, password: Binding<String>,
-             loginSuccessful: Binding<Bool>, loggedIn: Binding<Bool>, timedOut: Binding<Bool>) {
+             loginAttempted: Binding<Bool>, loginSuccessful: Binding<Bool>, loggedIn: Binding<Bool>,
+             timedOut: Binding<Bool>, firstLoad: Binding<Bool>) {
             self._parsedUserHTML = html
             self._divemeetsID = divemeetsID
             self._password = password
+            self._loginAttempted = loginAttempted
             self._loginSuccessful = loginSuccessful
             self._loggedIn = loggedIn
             self._timedOut = timedOut
+            self._firstLoad = firstLoad
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -151,8 +161,16 @@ struct LoginWebView: UIViewRepresentable {
                     withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                         self?.loginSuccessful = true
                     }
-                } else {
+                } else if let firstLoad = self?.firstLoad, !firstLoad {
                     print("Was not able to login")
+                } else {
+                    print("Did not succeed on first load")
+                }
+                
+                if let firstLoad = self?.firstLoad, firstLoad {
+                    self?.firstLoad = false
+                } else {
+                    self?.loginAttempted = true
                 }
             }
         }

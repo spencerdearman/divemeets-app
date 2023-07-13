@@ -26,6 +26,7 @@ struct LoginSearchView: View {
     @State private var searchSubmitted: Bool = false
     @State var parsedUserHTML: String = ""
     @State var loginSearchSubmitted: Bool = false
+    @State var loginAttempted: Bool = false
     @State var loginSuccessful: Bool = false
     @State var createdKey: Bool = true
     @State private var isUnlocked = false
@@ -42,6 +43,7 @@ struct LoginSearchView: View {
                     LoginUIWebView(divemeetsID: $divemeetsID, password: $password,
                                    parsedUserHTML: $parsedUserHTML,
                                    loginSearchSubmitted: $loginSearchSubmitted,
+                                   loginAttempted: $loginAttempted,
                                    loginSuccessful: $loginSuccessful, loggedIn: $loggedIn,
                                    timedOut: $timedOut)
                 }
@@ -51,6 +53,7 @@ struct LoginSearchView: View {
                                      password: $password, searchSubmitted: $searchSubmitted,
                                      parsedUserHTML: $parsedUserHTML,
                                      loginSearchSubmitted: $loginSearchSubmitted,
+                                     loginAttempted: $loginAttempted,
                                      loginSuccessful: $loginSuccessful, loggedIn: $loggedIn,
                                      timedOut: $timedOut)
             }
@@ -64,7 +67,6 @@ struct LoginSearchInputView: View {
     @Environment(\.colorScheme) var currentMode
     @State var showError: Bool = false
     @FocusState private var focusedField: LoginField?
-    @State private var errorMessage: Bool = false
     @State var progressView = true
     @Binding var createdKey: Bool
     @Binding var divemeetsID: String
@@ -72,6 +74,7 @@ struct LoginSearchInputView: View {
     @Binding var searchSubmitted: Bool
     @Binding var parsedUserHTML: String
     @Binding var loginSearchSubmitted: Bool
+    @Binding var loginAttempted: Bool
     @Binding var loginSuccessful: Bool
     @Binding var loggedIn: Bool
     @Binding var timedOut: Bool
@@ -91,19 +94,22 @@ struct LoginSearchInputView: View {
                     VStack {
                         ZStack{
                             Circle()
-                                .fill(Custom.darkBlue) // Circle color
+                            // Circle color
+                                .fill(Custom.darkBlue)
+                            // Adjust the size of the circle as desired
                                 .frame(width: geometry.size.width * 2.5,
-                                       height: geometry.size.width * 2.5) // Adjust the size of the circle as desired
+                                       height: geometry.size.width * 2.5)
+                            // Center the circle
                                 .position(x: loginSuccessful
                                           ? geometry.size.width
                                           : geometry.size.width / 2,
                                           y: loginSuccessful
                                           ? -geometry.size.width * 0.55
-                                          : -geometry.size.width * 0.55) // Center the circle
+                                          : -geometry.size.width * 0.55)
                                 .shadow(radius: 15)
-                            //.matchedGeometryEffect(id: "sphere1", in: namespace)
                             Circle()
-                                .fill(Custom.coolBlue) // Circle color
+                            // Circle color
+                                .fill(Custom.coolBlue)
                                 .frame(width: loginSuccessful
                                        ? geometry.size.width * 1.3
                                        : geometry.size.width * 2.0,
@@ -117,9 +123,9 @@ struct LoginSearchInputView: View {
                                           ? geometry.size.width * 0.6
                                           : -geometry.size.width * 0.55)
                                 .shadow(radius: 15)
-                            //.matchedGeometryEffect(id: "sphere2", in: namespace)
                             Circle()
-                                .fill(Custom.medBlue) // Circle color
+                            // Circle color
+                                .fill(Custom.medBlue)
                                 .frame(width: loginSuccessful
                                        ? geometry.size.width * 1.1
                                        : geometry.size.width * 1.5,
@@ -131,7 +137,6 @@ struct LoginSearchInputView: View {
                                           ? geometry.size.width * 0.65
                                           : -geometry.size.width * 0.55)
                                 .shadow(radius: 15)
-                            //.matchedGeometryEffect(id: "sphere3", in: namespace)
                         }
                     }
                 }
@@ -148,28 +153,29 @@ struct LoginSearchInputView: View {
                     } else {
                         LoginPageSearchView(showError: $showError, divemeetsID: $divemeetsID,
                                             password: $password, searchSubmitted: $searchSubmitted,
+                                            loginAttempted: $loginAttempted,
                                             loginSuccessful: $loginSuccessful,
-                                            progressView: $progressView, errorMessage: $errorMessage,
+                                            progressView: $progressView,
                                             timedOut: $timedOut, focusedField: $focusedField)
-                            .toolbar {
-                                ToolbarItemGroup(placement: .keyboard) {
-                                    Button(action: previous) {
-                                        Image(systemName: "chevron.up")
-                                    }
-                                    .disabled(hasReachedStart)
-                                    
-                                    Button(action: next) {
-                                        Image(systemName: "chevron.down")
-                                    }
-                                    .disabled(hasReachedEnd)
-                                    
-                                    Spacer()
-                                    
-                                    Button(action: dismissKeyboard) {
-                                        Text("**Done**")
-                                    }
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Button(action: previous) {
+                                    Image(systemName: "chevron.up")
+                                }
+                                .disabled(hasReachedStart)
+                                
+                                Button(action: next) {
+                                    Image(systemName: "chevron.down")
+                                }
+                                .disabled(hasReachedEnd)
+                                
+                                Spacer()
+                                
+                                Button(action: dismissKeyboard) {
+                                    Text("**Done**")
                                 }
                             }
+                        }
                     }
                 }
             }
@@ -187,9 +193,9 @@ struct LoginPageSearchView: View {
     @Binding var divemeetsID: String
     @Binding var password: String
     @Binding var searchSubmitted: Bool
+    @Binding var loginAttempted: Bool
     @Binding var loginSuccessful: Bool
     @Binding var progressView: Bool
-    @Binding var errorMessage: Bool
     @Binding var timedOut: Bool
     @State private var isPasswordVisible = false
     fileprivate var focusedField: FocusState<LoginField?>.Binding
@@ -197,6 +203,10 @@ struct LoginPageSearchView: View {
     private let cornerRadius: CGFloat = 30
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
+    }
+    
+    private var errorMessage: Bool {
+        loginAttempted && !loginSuccessful && !timedOut
     }
     
     private let failTimeout: Double = 3
@@ -263,7 +273,7 @@ struct LoginPageSearchView: View {
             Button(action: {
                 // Need to initially set search to false so webView gets recreated
                 searchSubmitted = false
-                errorMessage = false
+                loginAttempted = false
                 timedOut = false
                 focusedField.wrappedValue = nil
                 // Only submits a search if one of the relevant fields is filled,
@@ -272,12 +282,6 @@ struct LoginPageSearchView: View {
                                password: password) {
                     showError = false
                     searchSubmitted = true
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + failTimeout) {
-                        if !loginSuccessful && !timedOut {
-                            errorMessage = true
-                        }
-                    }
                 } else {
                     showError = true
                     searchSubmitted = false

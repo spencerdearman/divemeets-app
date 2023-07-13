@@ -178,7 +178,7 @@ struct MeetList: View {
                     profileMainMeetLinks[String(profileLink.components(separatedBy: "=").last ?? "")] = parser.cachedMainMeetLinks
                     
                     diverData = parser.myData
-                    print(diverData)
+                    
                     meets = createMeets(data: diverData) ?? []
                     createdMeets = true
                 }
