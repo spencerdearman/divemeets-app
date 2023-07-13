@@ -16,11 +16,8 @@ struct JudgeScoreCalculator: View {
     @Environment(\.colorScheme) var currentMode
     @State var tableData: [String: DiveData]?
     @State var dive: String = ""
-    @State var name: String?
-    @State var dd: Double?
     @State var height: DiveHeight = .one
     @State var score: String = ""
-    @State var judgesScores: [String] = []
     @FocusState var focusedField: JudgeScoreField?
     
     private var screenWidth = UIScreen.main.bounds.width
@@ -45,7 +42,15 @@ struct JudgeScoreCalculator: View {
         currentMode == .light ? .white : .black
     }
     
-    private func computeJudgesScores() -> [String] {
+    private var name: String? {
+        getDiveName(data: tableData ?? [:], forKey: dive)
+    }
+    
+    private var dd: Double? {
+        getDiveDD(data: tableData ?? [:], forKey: dive, height: heightDouble)
+    }
+    
+    private var judgesScores: [String] {
         guard let total = scoreDouble else { return [] }
         guard let dd = dd else { return [] }
         let netRaw = total / dd
@@ -126,7 +131,8 @@ struct JudgeScoreCalculator: View {
                                 .frame(width: 150, height: 50)
                                 .font(.title2)
                                 .multilineTextAlignment(.center)
-                                .background(RoundedRectangle(cornerRadius: cornerRadius).fill(.thinMaterial))
+                                .background(RoundedRectangle(cornerRadius: cornerRadius)
+                                    .fill(.thinMaterial))
                                 .onChange(of: dive) { _ in
                                     dive = String(dive.prefix(5))
                                 }
@@ -138,7 +144,8 @@ struct JudgeScoreCalculator: View {
                                 .frame(width: 150, height: 50)
                                 .font(.title2)
                                 .multilineTextAlignment(.center)
-                                .background(RoundedRectangle(cornerRadius: cornerRadius).fill(.thinMaterial))
+                                .background(RoundedRectangle(cornerRadius: cornerRadius)
+                                    .fill(.thinMaterial))
                                 .shadow(radius: shadowRadius)
                                 .onChange(of: score) { _ in
                                     score = String(score.prefix(6))
@@ -146,26 +153,22 @@ struct JudgeScoreCalculator: View {
                             Spacer()
                         }
                         
-                        VStack(spacing: 5) {
-                            if name != nil {
+                        if let name = name, let dd = dd {
+                            VStack(spacing: 5) {
                                 HStack(spacing: 0) {
                                     Text("Name: ")
                                         .bold()
-                                    Text(getDiveName(data: tableData ?? [:], forKey: $dive.wrappedValue) ?? "")
+                                    Text(name)
                                 }
-                            }
-                            
-                            if dd != nil {
                                 HStack(spacing: 0) {
                                     Text("DD: ")
                                         .bold()
-                                    Text(String((getDiveDD(data: tableData ?? [:], forKey: $dive.wrappedValue,
-                                                           height: heightDouble) ?? 0.0)))
+                                    Text(String(dd))
                                 }
                             }
                         }
                         
-                        if scoreDouble != nil {
+                        if name != nil, dd != nil, scoreDouble != nil {
                             ZStack {
                                 Rectangle()
                                     .foregroundColor(Custom.thinMaterialColor)
@@ -182,18 +185,6 @@ struct JudgeScoreCalculator: View {
                                 .font(.title2)
                             }
                         }
-                    }
-                    .onChange(of: dive) { newValue in
-                        name = getDiveName(data: tableData ?? [:], forKey: newValue)
-                        dd = getDiveDD(data: tableData ?? [:], forKey: newValue, height: heightDouble)
-                        judgesScores = computeJudgesScores()
-                    }
-                    .onChange(of: height) { _ in
-                        dd = getDiveDD(data: tableData ?? [:], forKey: dive, height: heightDouble)
-                        judgesScores = computeJudgesScores()
-                    }
-                    .onChange(of: score) { _ in
-                        judgesScores = computeJudgesScores()
                     }
                     .onAppear {
                         tableData = getDiveTableData()
@@ -217,17 +208,27 @@ struct JudgeScoreCalculator: View {
                 HStack(spacing: 0) {
                     ForEach(DiveHeight.allCases, id: \.self) { h in
                         ZStack {
-                            // Weird padding stuff to have end options rounded on the outside edge only
-                            // when selected
+                            // Weird padding stuff to have end options rounded on the outside edge
+                            // only when selected
                             // https://stackoverflow.com/a/72435691/22068672
                             Rectangle()
                                 .fill(height == h ? selectedGray : .clear)
-                                .padding(.trailing, h == DiveHeight.allCases.first ? cornerRadius : 0)
-                                .padding(.leading, h == DiveHeight.allCases.last ? cornerRadius : 0)
-                                .cornerRadius(h == DiveHeight.allCases.first || h == DiveHeight.allCases.last
-                                              ? cornerRadius : 0)
-                                .padding(.trailing, h == DiveHeight.allCases.first ? -cornerRadius : 0)
-                                .padding(.leading, h == DiveHeight.allCases.last ? -cornerRadius : 0)
+                                .padding(.trailing, h == DiveHeight.allCases.first
+                                         ? cornerRadius
+                                         : 0)
+                                .padding(.leading, h == DiveHeight.allCases.last
+                                         ? cornerRadius
+                                         : 0)
+                                .cornerRadius(h == DiveHeight.allCases.first ||
+                                              h == DiveHeight.allCases.last
+                                              ? cornerRadius
+                                              : 0)
+                                .padding(.trailing, h == DiveHeight.allCases.first
+                                         ? -cornerRadius
+                                         : 0)
+                                .padding(.leading, h == DiveHeight.allCases.last
+                                         ? -cornerRadius
+                                         : 0)
                             Text(h.rawValue)
                         }
                         .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
