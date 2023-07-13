@@ -447,7 +447,7 @@ struct MeetBubbleView: View {
                        : AnyView(MeetPageView(meetLink: elements[3], showBackButton: false))) {
             ZStack {
                 Rectangle()
-                    .foregroundColor(Custom.specialGray)
+                    .foregroundColor(Custom.darkGray)
                     .cornerRadius(40)
                 VStack {
                     VStack {
