@@ -120,26 +120,32 @@ struct LoginSearchInputView: View {
                         .zIndex(1)
                         .offset(y: 90)
                     } else {
-                        LoginPageSearchView(showError: $showError, divemeetsID: $divemeetsID, password: $password, searchSubmitted: $searchSubmitted, loginSuccessful: $loginSuccessful, progressView: $progressView, errorMessage: $errorMessage, focusedField: $focusedField)
-                            .toolbar {
-                                ToolbarItemGroup(placement: .keyboard) {
-                                    Button(action: previous) {
-                                        Image(systemName: "chevron.up")
-                                    }
-                                    .disabled(hasReachedStart)
-                                    
-                                    Button(action: next) {
-                                        Image(systemName: "chevron.down")
-                                    }
-                                    .disabled(hasReachedEnd)
-                                    
-                                    Spacer()
-                                    
-                                    Button(action: dismissKeyboard) {
-                                        Text("**Done**")
-                                    }
+                        ZStack{
+                            LoginPageSearchView(showError: $showError, divemeetsID: $divemeetsID, password: $password, searchSubmitted: $searchSubmitted, loginSuccessful: $loginSuccessful, progressView: $progressView, errorMessage: $errorMessage, focusedField: $focusedField)
+                                .ignoresSafeArea(.keyboard)
+                                .overlay{
+                                    VStack{}
+                                        .toolbar {
+                                            ToolbarItemGroup(placement: .keyboard) {
+                                                Button(action: previous) {
+                                                    Image(systemName: "chevron.up")
+                                                }
+                                                .disabled(hasReachedStart)
+                                                
+                                                Button(action: next) {
+                                                    Image(systemName: "chevron.down")
+                                                }
+                                                .disabled(hasReachedEnd)
+                                                
+                                                Spacer()
+                                                
+                                                Button(action: dismissKeyboard) {
+                                                    Text("**Done**")
+                                                }
+                                            }
+                                        }
                                 }
-                            }
+                        }
                     }
                 }
             }
@@ -174,6 +180,7 @@ struct LoginPageSearchView: View {
             Spacer()
             VStack{
                 Text("Login")
+                    .foregroundColor(.primary)
             }
             .alignmentGuide(.leading) { _ in
                 -UIScreen.main.bounds.width / 2 // Align the text to the leading edge of the screen
@@ -244,6 +251,7 @@ struct LoginPageSearchView: View {
                 }
             }, label: {
                 Text("Submit")
+                    .foregroundColor(.primary)
                     .animation(nil)
             })
             .buttonStyle(.bordered)

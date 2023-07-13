@@ -92,7 +92,7 @@ struct ProfileView: View {
     var body: some View {
         
         ZStack {
-            Custom.background.ignoresSafeArea()
+            bgColor.ignoresSafeArea()
             
             if profileType == "Diver" {
                 ZStack{

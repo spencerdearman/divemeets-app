@@ -217,6 +217,7 @@ struct SearchView: View {
                             dmSearchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed,
                             isIndexingMeets: $isIndexingMeets)
         }
+        .ignoresSafeArea(.keyboard)
         .dynamicTypeSize(.xSmall ... .xxxLarge)
         .onDisappear {
             searchSubmitted = false
@@ -332,14 +333,11 @@ struct SearchInputView: View {
     }
     
     var body: some View {
-        let typeBGColor: Color = currentMode == .light
-        ? Color(red: grayValue, green: grayValue, blue: grayValue)
-        : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
-        let typeBubbleColor: Color = currentMode == .light ? Color.white : Color.black
-        
+      
         NavigationView{
             ZStack {
                 SearchColorfulView()
+                    .ignoresSafeArea(.keyboard)
                     .onTapGesture {
                         focusedField = nil
                     }
@@ -393,6 +391,7 @@ struct SearchInputView: View {
                                     ProgressView()
                                 }
                             }
+                            .ignoresSafeArea(.keyboard)
                             .offset(y: selection == .person ? -screenHeight * 0.27 : isIndexingMeets ? -screenHeight * 0.38 : -screenHeight * 0.24)
                             if showError {
                                 Text("You must enter at least one field to search")
@@ -402,84 +401,65 @@ struct SearchInputView: View {
                                 Text("")
                             }
                         }
-                        .overlay {
-                            VStack {
-                                ZStack{
-                                    Rectangle()
-                                        .foregroundColor(Custom.grayThinMaterial)
-                                        .mask(RoundedRectangle(cornerRadius: 40))
-                                        .frame(width: 120, height: 40)
-                                        .shadow(radius: 6)
-                                    Text("Search")
-                                        .font(.title2).bold()
-                                }
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: cornerRadius)
-                                        .frame(width: typeBubbleWidth * 2 + 5,
-                                               height: typeBGWidth)
-                                        .foregroundColor(Custom.grayThinMaterial)
-                                        .shadow(radius: 5)
-                                    RoundedRectangle(cornerRadius: cornerRadius)
-                                        .frame(width: typeBubbleWidth,
-                                               height: typeBubbleHeight)
-                                        .foregroundColor(Custom.darkGray)
-                                        .offset(x: selection == .person
-                                                ? -typeBubbleWidth / 2
-                                                : typeBubbleWidth / 2)
-                                        .animation(.spring(response: 0.2), value: selection)
-                                    HStack(spacing: 0) {
-                                        Button(action: {
-                                            if selection == .meet {
-                                                clearStateFlags()
-                                                debounceTabSelection(.person)
-                                            }
-                                        }, label: {
-                                            Text(SearchType.person.rawValue)
-                                                .animation(nil, value: selection)
-                                        })
-                                        .frame(width: typeBubbleWidth,
-                                               height: typeBubbleHeight)
-                                        .foregroundColor(textColor)
-                                        .cornerRadius(cornerRadius)
-                                        Button(action: {
-                                            if selection == .person {
-                                                clearStateFlags()
-                                                debounceTabSelection(.meet)
-                                            }
-                                        }, label: {
-                                            Text(SearchType.meet.rawValue)
-                                                .animation(nil, value: selection)
-                                        })
-                                        .frame(width: typeBubbleWidth,
-                                               height: typeBubbleHeight)
-                                        .foregroundColor(textColor)
-                                        .cornerRadius(cornerRadius)
-                                    }
+                    .ignoresSafeArea(.keyboard)
+                    .overlay {
+                        VStack {
+                            ZStack{
+                                Rectangle()
+                                    .foregroundColor(Custom.grayThinMaterial)
+                                    .mask(RoundedRectangle(cornerRadius: 40))
+                                    .frame(width: 120, height: 40)
+                                    .shadow(radius: 6)
+                                Text("Search")
+                                    .font(.title2).bold()
+                            }
+                            ZStack {
+                                RoundedRectangle(cornerRadius: cornerRadius)
+                                    .frame(width: typeBubbleWidth * 2 + 5,
+                                           height: typeBGWidth)
+                                    .foregroundColor(Custom.grayThinMaterial)
+                                    .shadow(radius: 5)
+                                RoundedRectangle(cornerRadius: cornerRadius)
+                                    .frame(width: typeBubbleWidth,
+                                           height: typeBubbleHeight)
+                                    .foregroundColor(Custom.darkGray)
+                                    .offset(x: selection == .person
+                                            ? -typeBubbleWidth / 2
+                                            : typeBubbleWidth / 2)
+                                    .animation(.spring(response: 0.2), value: selection)
+                                HStack(spacing: 0) {
+                                    Button(action: {
+                                        if selection == .meet {
+                                            clearStateFlags()
+                                            debounceTabSelection(.person)
+                                        }
+                                    }, label: {
+                                        Text(SearchType.person.rawValue)
+                                            .animation(nil, value: selection)
+                                    })
+                                    .frame(width: typeBubbleWidth,
+                                           height: typeBubbleHeight)
+                                    .foregroundColor(textColor)
+                                    .cornerRadius(cornerRadius)
+                                    Button(action: {
+                                        if selection == .person {
+                                            clearStateFlags()
+                                            debounceTabSelection(.meet)
+                                        }
+                                    }, label: {
+                                        Text(SearchType.meet.rawValue)
+                                            .animation(nil, value: selection)
+                                    })
+                                    .frame(width: typeBubbleWidth,
+                                           height: typeBubbleHeight)
+                                    .foregroundColor(textColor)
+                                    .cornerRadius(cornerRadius)
                                 }
                             }
-                            .offset(y: -screenHeight * 0.4)
                         }
-                        // Keyboard toolbar with up/down arrows and Done button
-                        .toolbar {
-                            ToolbarItemGroup(placement: .keyboard) {
-                                Button(action: previous) {
-                                    Image(systemName: "chevron.up")
-                                }
-                                .disabled(hasReachedPersonStart || hasReachedMeetStart)
-                                
-                                Button(action: next) {
-                                    Image(systemName: "chevron.down")
-                                }
-                                .disabled(hasReachedPersonEnd || hasReachedMeetEnd)
-                                
-                                Spacer()
-                                
-                                Button(action: dismissKeyboard) {
-                                    Text("**Done**")
-                                }
-                            }
+                        .offset(y: -screenHeight * 0.4)
                     }
-
+                    .ignoresSafeArea(.keyboard)
                 
                 if personResultsReady || meetResultsReady {
                     ZStack (alignment: .topLeading) {
@@ -531,6 +511,7 @@ struct SearchInputView: View {
                     .animation(.linear(duration: 0.2), value: fullScreenResults)
                 }
             }
+            .ignoresSafeArea(.keyboard)
             .overlay {
                 if selection == .meet && isIndexingMeets {
                     IndexingCounterView()
@@ -549,6 +530,30 @@ struct SearchInputView: View {
                 showError = false
             }
         }
+        // Keyboard toolbar with up/down arrows and Done button
+        .overlay{
+            VStack{}
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Button(action: previous) {
+                            Image(systemName: "chevron.up")
+                        }
+                        .disabled(hasReachedPersonStart || hasReachedMeetStart)
+                        
+                        Button(action: next) {
+                            Image(systemName: "chevron.down")
+                        }
+                        .disabled(hasReachedPersonEnd || hasReachedMeetEnd)
+                        
+                        Spacer()
+                        
+                        Button(action: dismissKeyboard) {
+                            Text("**Done**")
+                        }
+                    }
+        }
+    }
+        .ignoresSafeArea(.keyboard)
         .navigationViewStyle(StackNavigationViewStyle())
     }
     

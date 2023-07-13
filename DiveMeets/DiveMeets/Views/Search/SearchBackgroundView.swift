@@ -87,5 +87,6 @@ struct SearchColorfulView: View {
             .clipped()
         }
         .offset(y: (screenHeight * 0.15) / 2)
+        .ignoresSafeArea(.keyboard)
     }
 }
