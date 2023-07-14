@@ -35,7 +35,6 @@ struct LoginProfile: View {
     @Binding var loginSearchSubmitted: Bool
     @State var diverData : [[String]] = []
     @State var profileType : String = ""
-    @State var isLoading: Bool = true
     @StateObject private var parser = HTMLParser()
     private var screenWidth = UIScreen.main.bounds.width
     private var screenHeight = UIScreen.main.bounds.height
