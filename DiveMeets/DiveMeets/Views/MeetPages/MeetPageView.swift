@@ -14,7 +14,8 @@ var cachedMeetData: [String: (MeetInfoJointData?, MeetResultsData?)] = [:]
 
 struct MeetPageView: View {
     @Environment(\.colorScheme) var currentMode
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
+    
     @State private var meetData: MeetPageData?
     // Only meetEventData OR meetResultsEventData should be nil at a time (event is nil when passed
     //     a results link, and resultsEvent is nil when passed an info link)
@@ -29,9 +30,14 @@ struct MeetPageView: View {
     private let getTextModel = GetTextAsyncModel()
     
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
+    @ScaledMetric private var buttonHeightScaled: CGFloat = 37
     
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
+    }
+    
+    private var buttonHeight: CGFloat {
+        min(buttonHeightScaled, 55)
     }
     
     private var bgColor: Color {
@@ -39,7 +45,6 @@ struct MeetPageView: View {
     }
     
     var meetLink: String
-    var showBackButton: Bool = false
     
     private func tupleToList(data: MeetEventData) -> [[String]] {
         var result: [[String]] = []
@@ -135,19 +140,6 @@ struct MeetPageView: View {
         return result
     }
     
-    private func getBackButton() -> HStack<TupleView<(Button<some View>, Spacer)>> {
-        return HStack {
-            Button(action: {
-                presentationMode.wrappedValue.dismiss()
-            }) {
-                Image(systemName: "chevron.left")
-                    .font(.title)
-                    .foregroundColor(.blue)
-            }
-            Spacer()
-        }
-    }
-    
     private func getMeetData(info: MeetInfoJointData?, results: MeetResultsData?) async throws {
         let loadTask = Task {
             // Checks first for cached info and results data before parsing
@@ -178,7 +170,7 @@ struct MeetPageView: View {
             
             try Task.checkCancellation()
         }
-    
+        
         let timeoutTask = Task {
             try await Task.sleep(nanoseconds: UInt64(timeoutInterval) * NSEC_PER_SEC)
             loadTask.cancel()
@@ -199,13 +191,9 @@ struct MeetPageView: View {
         cachedMeetData.removeValue(forKey: meetLink)
     }
     
-    // Gets back button (if applicable) and refresh button HStack
-    private func getPageHeader() -> HStack<TupleView<((some View)?, Spacer, some View)>> {
+    // Gets refresh button HStack
+    private func getRefreshButton() -> HStack<TupleView<(Spacer, some View)>> {
         HStack {
-            if showBackButton {
-                getBackButton()
-                    .padding(.horizontal)
-            }
             Spacer()
             Button(action: {
                 clearMeetDataCache()
@@ -213,26 +201,33 @@ struct MeetPageView: View {
                     try await getMeetData(info: meetInfoData, results: meetResultsData)
                 }
             }, label: {
-                Image(systemName: "arrow.clockwise")
-                    .font(.title2)
+                ZStack {
+                    Circle()
+                        .foregroundColor(Custom.grayThinMaterial)
+                        .shadow(radius: 6)
+                        .frame(width: buttonHeight, height: buttonHeight)
+                    Image(systemName: "arrow.clockwise")
+                        .foregroundColor(.primary)
+                        .font(.title2)
+                }
             })
         }
     }
     
     var body: some View {
-        ZStack{
+        ZStack {
             bgColor.ignoresSafeArea()
             VStack {
                 if let meetInfoData = meetInfoData {
-                    getPageHeader()
-                        .padding([.leading, .trailing])
+//                    getRefreshButton()
+//                        .padding([.leading, .trailing])
                     
                     MeetInfoPageView(meetInfoData: meetInfoData)
                     
                     Spacer()
                 } else if let meetResultsData = meetResultsData {
-                    getPageHeader()
-                        .padding([.leading, .trailing])
+//                    getRefreshButton()
+//                        .padding([.leading, .trailing])
                     
                     MeetResultsPageView(meetResultsData: meetResultsData)
                     
@@ -255,6 +250,35 @@ struct MeetPageView: View {
             .onAppear {
                 Task {
                     try await getMeetData(info: meetInfoData, results: meetResultsData)
+                }
+            }
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    NavigationViewBackButton()
+                }
+            }
+            
+            if meetInfoData != nil || meetResultsData != nil {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    ZStack {
+                        Circle()
+                            .foregroundColor(Custom.grayThinMaterial)
+                            .shadow(radius: 4)
+                            .frame(width: buttonHeight, height: buttonHeight)
+                        Image(systemName: "arrow.clockwise")
+                            .foregroundColor(.primary)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                    }
+                    .onTapGesture {
+                        clearMeetDataCache()
+                        Task {
+                            try await getMeetData(info: meetInfoData, results: meetResultsData)
+                        }
+                    }
                 }
             }
         }

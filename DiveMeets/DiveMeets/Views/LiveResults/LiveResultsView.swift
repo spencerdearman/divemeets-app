@@ -23,6 +23,7 @@ typealias NextDiverInfo = (String, String, Int, Double, Int, String, String, Dou
 typealias DiveTable = [[String]]
 
 struct LiveResultsView: View {
+    @Environment(\.dismiss) private var dismiss
     var request: String
     @State var shiftingBool: Bool = false
     let screenFrame = Color(.systemBackground)
@@ -30,6 +31,14 @@ struct LiveResultsView: View {
     var body: some View {
         ZStack {
             ParseLoaderView(request: request, shiftingBool: $shiftingBool)
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    NavigationViewBackButton()
+                }
+            }
         }
     }
 }
@@ -308,8 +317,8 @@ struct ParseLoaderView: View {
             if loaded {
                 LoadedView(lastDiverInformation: $lastDiverInformation, nextDiverInformation:
                             $nextDiverInformation, diveTable: $diveTable, focusViewList: $focusViewList,
-                         starSelected: $starSelected, shiftingBool: $shiftingBool, title: $title,
-                         roundString: $roundString)
+                           starSelected: $starSelected, shiftingBool: $shiftingBool, title: $title,
+                           roundString: $roundString)
             } else if timedOut {
                 TimedOutView()
             } else {
