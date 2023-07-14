@@ -385,6 +385,7 @@ struct CurrentMeetsView: View {
 
 struct CurrentMeetsPageView: View {
     @Environment(\.colorScheme) var currentMode
+    @Environment(\.dismiss) private var dismiss
     var infoLink: String
     var resultsLink: String
     
@@ -409,7 +410,7 @@ struct CurrentMeetsPageView: View {
     
     @ViewBuilder
     var body: some View {
-        ZStack{
+        ZStack {
             Custom.background.ignoresSafeArea()
             VStack {
                 if resultsLink != "" {
@@ -458,24 +459,30 @@ struct CurrentMeetsPageView: View {
                 }
                 
                 if selection == .info {
-                    MeetPageView(meetLink: infoLink, showBackButton: false)
+                    MeetPageView(meetLink: infoLink)
                         .offset(y: -40)
                 } else {
-                    MeetPageView(meetLink: resultsLink, showBackButton: false)
+                    MeetPageView(meetLink: resultsLink)
                         .offset(y: -40)
                 }
                 Spacer()
             }
         }
         .zIndex(1)
-        
         .onSwipeGesture(trigger: .onEnded) { direction in
             if direction == .left && selection == .info {
                 selection = .results
             } else if direction == .right && selection == .results {
                 selection = .info
             }
-            
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    NavigationViewBackButton()
+                }
+            }
         }
     }
 }
@@ -502,7 +509,7 @@ struct MeetBubbleView: View {
         NavigationLink(destination:
                         elements.count == 10
                        ? AnyView(CurrentMeetsPageView(infoLink: elements[3], resultsLink: elements[9]))
-                       : AnyView(MeetPageView(meetLink: elements[3], showBackButton: false))) {
+                       : AnyView(MeetPageView(meetLink: elements[3]))) {
             ZStack {
                 Rectangle()
                     .foregroundColor(Custom.darkGray)
@@ -557,44 +564,44 @@ struct MeetBubbleView: View {
     func getPhoneTextSizeForAccessibility() -> CGFloat {
         let sizeCategory = UIApplication.shared.preferredContentSizeCategory
         switch sizeCategory {
-        case .extraSmall:
-            return 170
-        case .small:
-            return 180
-        case .medium:
-            return 190
-        case .large:
-            return 200
-        case .extraLarge:
-            return 215
-        case .extraExtraLarge:
-            return 225
-        case .extraExtraExtraLarge:
-            return 235
-        default:
-            return 190
+            case .extraSmall:
+                return 170
+            case .small:
+                return 180
+            case .medium:
+                return 190
+            case .large:
+                return 200
+            case .extraLarge:
+                return 215
+            case .extraExtraLarge:
+                return 225
+            case .extraExtraExtraLarge:
+                return 235
+            default:
+                return 190
         }
     }
     
     func getPadTextSizeForAccessibility() -> CGFloat {
         let sizeCategory = UIApplication.shared.preferredContentSizeCategory
         switch sizeCategory {
-        case .extraSmall:
-            return 180
-        case .small:
-            return 190
-        case .medium:
-            return 200
-        case .large:
-            return 210
-        case .extraLarge:
-            return 220
-        case .extraExtraLarge:
-            return 240
-        case .extraExtraExtraLarge:
-            return 265
-        default:
-            return 190
+            case .extraSmall:
+                return 180
+            case .small:
+                return 190
+            case .medium:
+                return 200
+            case .large:
+                return 210
+            case .extraLarge:
+                return 220
+            case .extraExtraLarge:
+                return 240
+            case .extraExtraExtraLarge:
+                return 265
+            default:
+                return 190
         }
     }
 }

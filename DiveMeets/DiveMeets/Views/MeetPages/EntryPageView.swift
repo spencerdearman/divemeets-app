@@ -9,6 +9,7 @@ import SwiftUI
 
 struct EntryPageView: View {
     @Environment(\.colorScheme) var currentMode
+    @Environment(\.dismiss) private var dismiss
     var entriesLink: String
     @State var entries: [EventEntry]?
     @ObservedObject var ep: EntriesParser = EntriesParser()
@@ -85,6 +86,14 @@ struct EntryPageView: View {
                     if let html = getTextModel.text {
                         entries = try await ep.parseEntries(html: html)
                     }
+                }
+            }
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    NavigationViewBackButton()
                 }
             }
         }

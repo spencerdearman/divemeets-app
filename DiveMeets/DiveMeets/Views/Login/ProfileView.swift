@@ -10,6 +10,7 @@ import SwiftSoup
 
 struct ProfileView: View {
     @Environment(\.colorScheme) var currentMode
+    @Environment(\.dismiss) private var dismiss
     
     var profileLink: String
     @Namespace var profilespace
@@ -423,6 +424,14 @@ struct ProfileView: View {
         .onAppear {
             Task {
                 await fetchUpcomingMeetsAndJudgingData()
+            }
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    NavigationViewBackButton()
+                }
             }
         }
     }
