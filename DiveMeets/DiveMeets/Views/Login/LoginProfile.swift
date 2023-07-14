@@ -132,7 +132,7 @@ struct LoginProfile: View {
                                     .font(.subheadline).foregroundColor(.white)
                                     .padding([.leading], 2)
                                 }
-                            })
+                            }
                             .buttonStyle(.bordered)
                             .cornerRadius(30)
                             .offset(x: -screenWidth * 0.33, y: -screenHeight * 0.23)

@@ -213,23 +213,25 @@ struct Home: View {
                                     .cornerRadius(cornerRadius)
                                 }
                             }
-                                HStack {
-                                    Spacer()
-                                    Button(action: {
-                                        getPresentMeets()
-                                    }, label: {
-                                        ZStack {
-                                            Circle()
-                                                .foregroundColor(Custom.grayThinMaterial)
-                                                .shadow(radius: 6)
-                                                .frame(width: typeBGWidth, height: typeBGWidth)
-                                            Image(systemName: "arrow.clockwise")
-                                                .foregroundColor(.primary)
-                                                .font(.title2)
-                                        }
-                                    })
-                                }
-                                .padding(.trailing)
+                            HStack {
+                                Spacer()
+                                Button(action: {
+                                    Task {
+                                        await getPresentMeets()
+                                    }
+                                }, label: {
+                                    ZStack {
+                                        Circle()
+                                            .foregroundColor(Custom.grayThinMaterial)
+                                            .shadow(radius: 6)
+                                            .frame(width: typeBGWidth, height: typeBGWidth)
+                                        Image(systemName: "arrow.clockwise")
+                                            .foregroundColor(.primary)
+                                            .font(.title2)
+                                    }
+                                })
+                            }
+                            .padding(.trailing)
                         }
                         .dynamicTypeSize(.xSmall ... .xLarge)
                         
