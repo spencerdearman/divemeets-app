@@ -91,6 +91,7 @@ struct Home: View {
     @Environment(\.meetsDB) var db
     @StateObject var meetParser: MeetParser = MeetParser()
     @State private var meetsParsed: Bool = false
+    @State private var timedOut: Bool = false
     @State private var selection: ViewType = .upcoming
     
     private let cornerRadius: CGFloat = 30
@@ -123,17 +124,30 @@ struct Home: View {
     }
     
     // Gets present meets from meet parser if false, else clears the fields and runs again
-    private func getPresentMeets() {
+    private func getPresentMeets() async {
         if !meetsParsed {
-            Task {
+            let parseTask = Task {
                 try await meetParser.parsePresentMeets()
+                try Task.checkCancellation()
                 meetsParsed = true
+            }
+            let timeoutTask = Task {
+                try await Task.sleep(nanoseconds: UInt64(timeoutInterval) * NSEC_PER_SEC)
+                parseTask.cancel()
+                timedOut = true
+            }
+            
+            do {
+                try await parseTask.value
+                timeoutTask.cancel()
+            } catch {
+                print("Failed to get present meets, network timed out")
             }
         } else {
             meetParser.upcomingMeets = nil
             meetParser.currentMeets = nil
             meetsParsed = false
-            getPresentMeets()
+            await getPresentMeets()
         }
     }
     
@@ -222,9 +236,9 @@ struct Home: View {
                     }
                     Spacer()
                     if selection == .upcoming {
-                        UpcomingMeetsView(meetParser: meetParser)
+                        UpcomingMeetsView(meetParser: meetParser, timedOut: $timedOut)
                     } else {
-                        CurrentMeetsView(meetParser: meetParser)
+                        CurrentMeetsView(meetParser: meetParser, timedOut: $timedOut)
                     }
                     Spacer()
                 }
@@ -240,7 +254,9 @@ struct Home: View {
             }
         }
         .onAppear {
-            getPresentMeets()
+            Task {
+                await getPresentMeets()
+            }
         }
     }
 }
@@ -248,6 +264,7 @@ struct Home: View {
 struct UpcomingMeetsView: View {
     @Environment(\.meetsDB) var db
     @ObservedObject var meetParser: MeetParser
+    @Binding var timedOut: Bool
     
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     
@@ -257,7 +274,7 @@ struct UpcomingMeetsView: View {
     
     var body: some View {
         if let meets = meetParser.upcomingMeets {
-            if !meets.isEmpty {
+            if !meets.isEmpty && !timedOut {
                 let upcoming = tupleToList(tuples: db.dictToTuple(dict: meets))
                 ScalingScrollView(records: upcoming, bgColor: .clear, rowSpacing: 15,
                                   shadowRadius: 10) { (elem) in
@@ -272,20 +289,34 @@ struct UpcomingMeetsView: View {
                         .shadow(radius: 6)
                     Text("No upcoming meets found")
                 }
-                
+                .frame(width: 275, height: 75)
             }
-        } else {
-            ZStack{
+        } else if !timedOut {
+            ZStack {
                 Rectangle()
                     .foregroundColor(Custom.grayThinMaterial)
                     .frame(width: 275, height: 100)
                     .mask(RoundedRectangle(cornerRadius: 40))
                     .shadow(radius: 6)
-                VStack{
+                VStack {
                     Text("Getting upcoming meets")
                     ProgressView()
                 }
             }
+            .frame(width: 275, height: 100)
+        } else {
+            ZStack {
+                Rectangle()
+                    .foregroundColor(Custom.thinMaterialColor)
+                    .mask(RoundedRectangle(cornerRadius: 40))
+                    .shadow(radius: 6)
+                VStack(alignment: .center) {
+                    Text("Unable to get upcoming meets, network timed out")
+                        .padding()
+                        .multilineTextAlignment(.center)
+                }
+            }
+            .frame(width: 275, height: 100)
         }
     }
 }
@@ -294,6 +325,8 @@ struct UpcomingMeetsView: View {
 struct CurrentMeetsView: View {
     @Environment(\.meetsDB) var db
     @ObservedObject var meetParser: MeetParser
+    @Binding var timedOut: Bool
+    
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     
     private var maxHeightOffset: CGFloat {
@@ -308,7 +341,7 @@ struct CurrentMeetsView: View {
                 MeetBubbleView(elements: elem)
             }
             .padding(.bottom, maxHeightOffset)
-        } else if meetParser.currentMeets != nil {
+        } else if meetParser.currentMeets != nil && !timedOut {
             ZStack{
                 Rectangle()
                     .foregroundColor(Custom.grayThinMaterial)
@@ -317,18 +350,33 @@ struct CurrentMeetsView: View {
                     .shadow(radius: 6)
                 Text("No current meets found")
             }
-        } else {
-            ZStack{
+            .frame(width: 275, height: 75)
+        } else if !timedOut {
+            ZStack {
                 Rectangle()
                     .foregroundColor(Custom.grayThinMaterial)
                     .frame(width: 275, height: 100)
                     .mask(RoundedRectangle(cornerRadius: 40))
                     .shadow(radius: 6)
-                VStack{
+                VStack {
                     Text("Getting current meets")
                     ProgressView()
                 }
             }
+            .frame(width: 275, height: 100)
+        } else {
+            ZStack {
+                Rectangle()
+                    .foregroundColor(Custom.thinMaterialColor)
+                    .mask(RoundedRectangle(cornerRadius: 40))
+                    .shadow(radius: 6)
+                VStack(alignment: .center) {
+                    Text("Unable to get current meets, network timed out")
+                        .padding()
+                        .multilineTextAlignment(.center)
+                }
+            }
+            .frame(width: 275, height: 100)
         }
     }
 }

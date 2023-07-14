@@ -24,6 +24,7 @@ struct MeetPageView: View {
     @State private var meetCoachData: MeetCoachData?
     @State private var meetInfoData: MeetInfoJointData?
     @State private var meetResultsData: MeetResultsData?
+    @State private var timedOut: Bool = false
     @ObservedObject private var mpp: MeetPageParser = MeetPageParser()
     private let getTextModel = GetTextAsyncModel()
     
@@ -148,30 +149,47 @@ struct MeetPageView: View {
     }
     
     private func getMeetData(info: MeetInfoJointData?, results: MeetResultsData?) async throws {
-        // Checks first for cached info and results data before parsing
-        if let (info, results) = cachedMeetData[meetLink] {
-            meetInfoData = info
-            meetResultsData = results
-        } else {
-            // Initialize meet parse from index page
-            let url = URL(string: meetLink)
-            
-            if let url = url {
-                // This sets getTextModel's text field equal to the HTML from url
-                await getTextModel.fetchText(url: url)
+        let loadTask = Task {
+            // Checks first for cached info and results data before parsing
+            if let (info, results) = cachedMeetData[meetLink] {
+                meetInfoData = info
+                meetResultsData = results
+            } else {
+                // Initialize meet parse from index page
+                let url = URL(string: meetLink)
                 
-                if let html = getTextModel.text {
-                    meetData = try await mpp.parseMeetPage(link: meetLink, html: html)
-                    if let meetData = meetData {
-                        meetInfoData = await mpp.getMeetInfoData(data: meetData)
-                        meetResultsData = await mpp.getMeetResultsData(data: meetData)
-                        
-                        cachedMeetData[meetLink] = (meetInfoData, meetResultsData)
-                    } else {
-                        print("Meet page failed to parse")
+                if let url = url {
+                    // This sets getTextModel's text field equal to the HTML from url
+                    await getTextModel.fetchText(url: url)
+                    
+                    if let html = getTextModel.text {
+                        meetData = try await mpp.parseMeetPage(link: meetLink, html: html)
+                        if let meetData = meetData {
+                            meetInfoData = await mpp.getMeetInfoData(data: meetData)
+                            meetResultsData = await mpp.getMeetResultsData(data: meetData)
+                            
+                            cachedMeetData[meetLink] = (meetInfoData, meetResultsData)
+                        } else {
+                            print("Meet page failed to parse")
+                        }
                     }
                 }
             }
+            
+            try Task.checkCancellation()
+        }
+    
+        let timeoutTask = Task {
+            try await Task.sleep(nanoseconds: UInt64(timeoutInterval) * NSEC_PER_SEC)
+            loadTask.cancel()
+            timedOut = true
+        }
+        
+        do {
+            try await loadTask.value
+            timeoutTask.cancel()
+        } catch {
+            print("Unable to get meet data, network timed out")
         }
     }
     
@@ -219,11 +237,13 @@ struct MeetPageView: View {
                     MeetResultsPageView(meetResultsData: meetResultsData)
                     
                     Spacer()
-                } else if meetLink != "" {
+                } else if meetLink != "" && !timedOut {
                     VStack {
                         Text("Getting meet information...")
                         ProgressView()
                     }
+                } else if timedOut {
+                    Text("Unable to get meet page, network timed out")
                 } else {
                     VStack {
                         Text("There is not a results page available yet")

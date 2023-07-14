@@ -29,12 +29,12 @@ struct LiveResultsView: View {
     
     var body: some View {
         ZStack {
-            parseBody(request: request, shiftingBool: $shiftingBool)
+            ParseLoaderView(request: request, shiftingBool: $shiftingBool)
         }
     }
 }
 
-struct parseBody: View {
+struct ParseLoaderView: View {
     var request: String
     @State var html: String = ""
     @State var rows: [[String: String]] = []
@@ -59,75 +59,13 @@ struct parseBody: View {
     
     // Shows debug dataset, sets to true if "debug" is request string
     @State private var debugMode: Bool = false
+    @State private var timedOut: Bool = false
     
     let screenFrame = Color(.systemBackground)
+    private let linkHead = "https://secure.meetcontrol.com/divemeets/system/"
     
-    var body: some View {
-        ZStack {
-            // Only loads WebView if not in debug mode
-            if !debugMode {
-                if shiftingBool {
-                    LRWebView(request: request, html: $html)
-                        .onChange(of: html) { newValue in
-                            loaded = parseHelper(newValue: newValue)
-                        }
-                } else {
-                    LRWebView(request: request, html: $html)
-                        .onChange(of: html) { newValue in
-                            loaded = parseHelper(newValue: newValue)
-                        }
-                }
-            }
-            
-            if loaded {
-                mainView(lastDiverInformation: $lastDiverInformation, nextDiverInformation:
-                            $nextDiverInformation, diveTable: $diveTable, focusViewList: $focusViewList,
-                         starSelected: $starSelected, shiftingBool: $shiftingBool, title: $title,
-                         roundString: $roundString)
-            } else {
-                errorView()
-            }
-        }
-        .onAppear {
-            if request == "debug" {
-                debugMode = true
-            }
-            if debugMode {
-                lastDiverInformation = DebugDataset.lastDiverInfo
-                nextDiverInformation = DebugDataset.nextDiverInfo
-                diveTable = DebugDataset.diveTable
-                focusViewList = DebugDataset.focusViewDict
-                title = DebugDataset.title
-                roundString = DebugDataset.roundString
-            }
-        }
-    }
-    
-    private func parseHelper(newValue: String) -> Bool{
+    private func parseLastDiverData(table: Element) -> Bool {
         do {
-            diveTable = []
-            var upperTables: Elements = Elements()
-            var individualTables: Elements = Elements()
-            let document: Document = try SwiftSoup.parse(newValue)
-            guard let body = document.body() else {
-                return false
-            }
-            let table = try body.getElementById("Results")
-            guard let rows = try table?.getElementsByTag("tr") else { return false }
-            if rows.count < 9 { return false}
-            upperTables = try rows[1].getElementsByTag("tbody")
-            
-            if upperTables.isEmpty() { return false}
-            individualTables = try upperTables[0].getElementsByTag("table")
-            
-            let linkHead = "https://secure.meetcontrol.com/divemeets/system/"
-            
-            //Title
-            title = try rows[0].getElementsByTag("td")[0].text()
-                .replacingOccurrences(of: "Unofficial Statistics ", with: "")
-            
-            //Last Diver
-            
             var lastDiverName = ""
             var lastDiverProfileLink = ""
             var lastRoundPlace = 0
@@ -141,9 +79,8 @@ struct parseBody: View {
             var score = 0.0
             var judgesScores = ""
             
-            if individualTables.count < 3 { return false }
-            let lastDiverStr = try individualTables[0].text()
-            let lastDiver = try individualTables[0].getElementsByTag("a")
+            let lastDiverStr = try table.text()
+            let lastDiver = try table.getElementsByTag("a")
             
             if lastDiver.isEmpty() { return false }
             lastDiverName = try lastDiver[0].text()
@@ -154,7 +91,7 @@ struct parseBody: View {
                 lastDiverName.insert(" ", at: idx)
             }
             
-            var tempLink = try individualTables[0].getElementsByTag("a").attr("href")
+            var tempLink = try table.getElementsByTag("a").attr("href")
             lastDiverProfileLink = linkHead + tempLink
             
             lastRoundPlace = Int(lastDiverStr.slice(from: "Last Round Place: ",
@@ -180,17 +117,32 @@ struct parseBody: View {
                                     lastRoundTotalScore, order, currentPlace, currentTotal,
                                     currentDive, height, dd, score, judgesScores)
             
-            //Upcoming Diver
-            
+            return true
+        } catch {
+            print("Failed to parse last diver data")
+        }
+        
+        return false
+    }
+    
+    private func parseNextDiverData(table: Element) -> Bool {
+        do {
+            var lastDiverName = ""
+            var lastDiverProfileLink = ""
+            var lastRoundPlace = 0
+            var lastRoundTotalScore = 0.0
             var nextDiverName = ""
             var nextDiverProfileLink = ""
             var nextDive = ""
             var avgScore = 0.0
             var maxScore = 0.0
             var forFirstPlace = 0.0
+            var order = 0
+            var height = ""
+            var dd = 0.0
             
-            let upcomingDiverStr = try individualTables[2].text()
-            let nextDiver = try individualTables[2].getElementsByTag("a")
+            let upcomingDiverStr = try table.text()
+            let nextDiver = try table.getElementsByTag("a")
             
             if nextDiver.isEmpty() { return false }
             nextDiverName = try nextDiver[0].text()
@@ -201,7 +153,7 @@ struct parseBody: View {
                 nextDiverName.insert(" ", at: idx)
             }
             
-            tempLink = try individualTables[2].getElementsByTag("a").attr("href")
+            var tempLink = try table.getElementsByTag("a").attr("href")
             nextDiverProfileLink = linkHead + tempLink
             
             lastRoundPlace = Int(upcomingDiverStr.slice(from: "Last Round Place: ",
@@ -228,6 +180,16 @@ struct parseBody: View {
                                     lastRoundTotalScore, order, nextDive, height, dd,
                                     avgScore, maxScore, forFirstPlace)
             
+            return true
+        } catch {
+            print("Failed to parse next diver data")
+        }
+        
+        return false
+    }
+    
+    private func parseCurrentRound(rows: Elements) -> Bool {
+        do {
             //Current Round
             
             let currentRound = try rows[8].getElementsByTag("td")
@@ -261,15 +223,116 @@ struct parseBody: View {
                 }
             }
             
-        } catch  {
-            print("Parsing finished live event failed")
-            return false
+            return true
+        } catch {
+            print("Failed to parse current round")
         }
-        return true
+        
+        return false
+    }
+    
+    private func parseLiveResultsData(newValue: String) async -> Bool {
+        let error = ParseError("Failed to parse")
+        let parseTask = Task {
+            do {
+                diveTable = []
+                var upperTables: Elements = Elements()
+                var individualTables: Elements = Elements()
+                let document: Document = try SwiftSoup.parse(newValue)
+                guard let body = document.body() else { throw error }
+                let table = try body.getElementById("Results")
+                guard let rows = try table?.getElementsByTag("tr") else { throw error }
+                if rows.count < 9 { throw error }
+                upperTables = try rows[1].getElementsByTag("tbody")
+                
+                if upperTables.isEmpty() { throw error }
+                individualTables = try upperTables[0].getElementsByTag("table")
+                
+                //Title
+                title = try rows[0].getElementsByTag("td")[0].text()
+                    .replacingOccurrences(of: "Unofficial Statistics ", with: "")
+                
+                // If not enough tables or last, next, or round parsing fails, throw error
+                if individualTables.count < 3 ||
+                    !parseLastDiverData(table: individualTables[0]) ||
+                    !parseNextDiverData(table: individualTables[2]) ||
+                    !parseCurrentRound(rows: rows) { throw error }
+                
+            } catch {
+                print("Parsing live event failed")
+                try Task.checkCancellation()
+                return false
+            }
+            
+            try Task.checkCancellation()
+            return true
+        }
+        let timeoutTask = Task {
+            try await Task.sleep(nanoseconds: UInt64(timeoutInterval) * NSEC_PER_SEC)
+            parseTask.cancel()
+            timedOut = true
+        }
+        
+        do {
+            let result = try await parseTask.value
+            timeoutTask.cancel()
+            return result
+        } catch {
+            print("Unable to parse live results page, network timed out")
+        }
+        
+        return false
+    }
+    
+    var body: some View {
+        ZStack {
+            // Only loads WebView if not in debug mode
+            if !debugMode {
+                if shiftingBool {
+                    LRWebView(request: request, html: $html)
+                        .onChange(of: html) { newValue in
+                            Task {
+                                loaded = await parseLiveResultsData(newValue: newValue)
+                            }
+                        }
+                } else {
+                    LRWebView(request: request, html: $html)
+                        .onChange(of: html) { newValue in
+                            Task {
+                                loaded = await parseLiveResultsData(newValue: newValue)
+                            }
+                        }
+                }
+            }
+            
+            if loaded {
+                LoadedView(lastDiverInformation: $lastDiverInformation, nextDiverInformation:
+                            $nextDiverInformation, diveTable: $diveTable, focusViewList: $focusViewList,
+                         starSelected: $starSelected, shiftingBool: $shiftingBool, title: $title,
+                         roundString: $roundString)
+            } else if timedOut {
+                TimedOutView()
+            } else {
+                ErrorView()
+            }
+        }
+        .onAppear {
+            if request == "debug" {
+                debugMode = true
+            }
+            if debugMode {
+                lastDiverInformation = DebugDataset.lastDiverInfo
+                nextDiverInformation = DebugDataset.nextDiverInfo
+                diveTable = DebugDataset.diveTable
+                focusViewList = DebugDataset.focusViewDict
+                title = DebugDataset.title
+                roundString = DebugDataset.roundString
+            }
+        }
     }
 }
 
-struct mainView: View {
+struct LoadedView: View {
     @Environment(\.colorScheme) var currentMode
     var screenWidth = UIScreen.main.bounds.width
     var screenHeight = UIScreen.main.bounds.height
@@ -345,7 +408,19 @@ struct mainView: View {
     }
 }
 
-struct errorView: View {
+struct TimedOutView: View {
+    @Environment(\.colorScheme) var currentMode
+    private var bgColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    
+    var body: some View {
+        bgColor.ignoresSafeArea()
+        Text("Unable to load live results, network timed out")
+    }
+}
+
+struct ErrorView: View {
     @Environment(\.colorScheme) var currentMode
     private var bgColor: Color {
         currentMode == .light ? .white : .black
