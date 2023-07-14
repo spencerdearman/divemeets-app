@@ -37,7 +37,7 @@ struct EventResultPage: View {
                 .padding()
                 .multilineTextAlignment(.center)
             Divider()
-            ScalingScrollView(records: resultData) { (elem) in
+            ScalingScrollView(records: resultData, bgColor: .clear, rowSpacing: 10, shadowRadius: 8) { (elem) in
                 PersonBubbleView(elements: elem, eventTitle: eventTitle)
             }
             .padding(.bottom, maxHeightOffset)
@@ -65,7 +65,8 @@ struct PersonBubbleView: View {
     var body: some View {
         ZStack {
             Rectangle()
-                .foregroundColor(bubbleColor)
+                .foregroundColor(Custom.darkGray)
+                .cornerRadius(35)
             VStack {
                 VStack {
                     HStack(alignment: .lastTextBaseline) {
@@ -75,6 +76,7 @@ struct PersonBubbleView: View {
                         } label: {
                             Text(elements[1])
                                 .font(.title3)
+                                .foregroundColor(.primary)
                                 .bold()
                                 .scaledToFit()
                                 .minimumScaleFactor(0.5)

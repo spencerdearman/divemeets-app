@@ -218,6 +218,7 @@ struct SearchView: View {
                             dmSearchSubmitted: $dmSearchSubmitted, linksParsed: $linksParsed,
                             isIndexingMeets: $isIndexingMeets, personTimedOut: $personTimedOut)
         }
+        .ignoresSafeArea(.keyboard)
         .dynamicTypeSize(.xSmall ... .xxxLarge)
         .onDisappear {
             searchSubmitted = false
@@ -256,7 +257,7 @@ struct SearchInputView: View {
     @ScaledMetric private var resultsIconSizeScaled = 30.0
     
     var resultsOffset: CGFloat {
-        min(max(resultsOffsetScaled, 350.0), UIScreen.main.bounds.height - 250)
+        min(max(resultsOffsetScaled, 410.0), UIScreen.main.bounds.height - 410)
     }
     
     var resultsIconSize: CGFloat {
@@ -303,6 +304,8 @@ struct SearchInputView: View {
     private let grayValue: CGFloat = 0.90
     private let grayValueDark: CGFloat = 0.10
     private let textColor: Color = Color.primary
+    private let screenWidth = UIScreen.main.bounds.width
+    private let screenHeight = UIScreen.main.bounds.height
     @ScaledMetric private var typeBubbleWidth: CGFloat = 100
     @ScaledMetric private var typeBubbleHeight: CGFloat = 35
     
@@ -332,151 +335,132 @@ struct SearchInputView: View {
     }
     
     var body: some View {
-        let typeBGColor: Color = currentMode == .light
-        ? Color(red: grayValue, green: grayValue, blue: grayValue)
-        : Color(red: grayValueDark, green: grayValueDark, blue: grayValueDark)
-        let typeBubbleColor: Color = currentMode == .light ? Color.white : Color.black
-        
+      
         NavigationView{
             ZStack {
-                (currentMode == .light ? Color.white : Color.black)
-                    .ignoresSafeArea()
-                // Allows the user to hide the keyboard when clicking on the background of the page
+                SearchColorfulView()
+                    .ignoresSafeArea(.keyboard)
                     .onTapGesture {
                         focusedField = nil
                     }
-                VStack {
                     VStack {
-                        Text("Search")
-                            .font(.title)
-                            .bold()
-                        ZStack {
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .frame(width: typeBubbleWidth * 2 + 5,
-                                       height: typeBGWidth)
-                                .foregroundColor(typeBGColor)
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .frame(width: typeBubbleWidth,
-                                       height: typeBubbleHeight)
-                                .foregroundColor(typeBubbleColor)
-                                .offset(x: selection == .person
-                                        ? -typeBubbleWidth / 2
-                                        : typeBubbleWidth / 2)
-                                .animation(.spring(response: 0.2), value: selection)
-                            HStack(spacing: 0) {
-                                Button(action: {
-                                    if selection == .meet {
-                                        clearStateFlags()
-                                        debounceTabSelection(.person)
-                                    }
-                                }, label: {
-                                    Text(SearchType.person.rawValue)
-                                        .animation(nil, value: selection)
-                                })
-                                .frame(width: typeBubbleWidth,
-                                       height: typeBubbleHeight)
-                                .foregroundColor(textColor)
-                                .cornerRadius(cornerRadius)
-                                Button(action: {
-                                    if selection == .person {
-                                        clearStateFlags()
-                                        debounceTabSelection(.meet)
-                                    }
-                                }, label: {
-                                    Text(SearchType.meet.rawValue)
-                                        .animation(nil, value: selection)
-                                })
-                                .frame(width: typeBubbleWidth,
-                                       height: typeBubbleHeight)
-                                .foregroundColor(textColor)
-                                .cornerRadius(cornerRadius)
-                            }
-                        }
-                    }
-                    
-                    if selection == .meet {
-                        MeetSearchView(meetName: $meetName, orgName: $orgName,
-                                       meetYear: $meetYear, focusedField: $focusedField)
-                    } else {
-                        DiverSearchView(firstName: $firstName, lastName: $lastName,
-                                        focusedField: $focusedField)
-                    }
-                    
-                    VStack {
-                        Button(action: {
-                            // Need to initially set search to false so webView gets recreated
-                            searchSubmitted = false
-                            
-                            // Resets focusedField so keyboard disappears
-                            focusedField = nil
-                            
-                            // Only submits a search if one of the relevant fields is filled,
-                            // otherwise toggles error
-                            if checkFields(selection: selection, firstName: firstName,
-                                           lastName: lastName, meetName: meetName,
-                                           orgName: orgName, meetYear: meetYear) {
-                                clearStateFlags()
-                                trimFields()
-                                
-                                searchSubmitted = true
-                                
-                                if selection == .meet {
-                                    predicate = getPredicate(name: meetName, org: orgName,
-                                                             year: meetYear)
-                                }
+                            if selection == .meet {
+                                MeetSearchView(meetName: $meetName, orgName: $orgName,
+                                               meetYear: $meetYear, isIndexingMeet: $isIndexingMeets, focusedField: $focusedField)
+                                .offset(y: -screenHeight * 0.15)
                             } else {
-                                clearStateFlags()
-                                showError = true
+                                DiverSearchView(firstName: $firstName, lastName: $lastName,
+                                                focusedField: $focusedField)
+                                .offset(y: -screenHeight * 0.15)
                             }
-                        }, label: {
-                            Text("Submit")
+                            
+                            VStack {
+                                Button(action: {
+                                    // Need to initially set search to false so webView gets recreated
+                                    searchSubmitted = false
+                                    
+                                    // Resets focusedField so keyboard disappears
+                                    focusedField = nil
+                                    
+                                    // Only submits a search if one of the relevant fields is filled,
+                                    // otherwise toggles error
+                                    if checkFields(selection: selection, firstName: firstName,
+                                                   lastName: lastName, meetName: meetName,
+                                                   orgName: orgName, meetYear: meetYear) {
+                                        clearStateFlags()
+                                        trimFields()
+                                        
+                                        searchSubmitted = true
+                                        
+                                        if selection == .meet {
+                                            predicate = getPredicate(name: meetName, org: orgName,
+                                                                     year: meetYear)
+                                        }
+                                    } else {
+                                        clearStateFlags()
+                                        showError = true
+                                    }
+                                }, label: {
+                                    Text("Submit")
+                                        .animation(nil, value: selection)
+                                        .foregroundColor(.primary)
+                                })
+                                .buttonStyle(.bordered)
+                                .cornerRadius(cornerRadius)
                                 .animation(nil, value: selection)
-                        })
-                        .buttonStyle(.bordered)
-                        .cornerRadius(cornerRadius)
-                        .animation(nil, value: selection)
-                        if selection == .person, searchSubmitted, !linksParsed, !personTimedOut {
-                            ProgressView()
+                                if selection == .person && searchSubmitted && !linksParsed {
+                                    ProgressView()
+                                }
+                            }
+                            .ignoresSafeArea(.keyboard)
+                            .offset(y: selection == .person ? -screenHeight * 0.27 : isIndexingMeets ? -screenHeight * 0.38 : -screenHeight * 0.24)
+                            if showError {
+                                Text("You must enter at least one field to search")
+                                    .foregroundColor(Color.red)
+                                
+                            } else {
+                                Text("")
+                            }
                         }
-                    }
-                    if showError {
-                        Text("You must enter at least one field to search")
-                            .foregroundColor(Color.red)
-                        
-                    } else if personTimedOut {
-                        Text("Search failed, network timed out")
-                    } else {
-                        Text("")
-                    }
-                    
-                    Spacer()
-                    
-                    if selection == .meet && isIndexingMeets {
-                        IndexingCounterView()
-                    }
-                    Spacer()
-                    Spacer()
-                }
-                // Keyboard toolbar with up/down arrows and Done button
-                .toolbar {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        Button(action: previous) {
-                            Image(systemName: "chevron.up")
+                    .ignoresSafeArea(.keyboard)
+                    .overlay {
+                        VStack {
+                            ZStack{
+                                Rectangle()
+                                    .foregroundColor(Custom.grayThinMaterial)
+                                    .mask(RoundedRectangle(cornerRadius: 40))
+                                    .frame(width: 120, height: 40)
+                                    .shadow(radius: 6)
+                                Text("Search")
+                                    .font(.title2).bold()
+                            }
+                            ZStack {
+                                RoundedRectangle(cornerRadius: cornerRadius)
+                                    .frame(width: typeBubbleWidth * 2 + 5,
+                                           height: typeBGWidth)
+                                    .foregroundColor(Custom.grayThinMaterial)
+                                    .shadow(radius: 5)
+                                RoundedRectangle(cornerRadius: cornerRadius)
+                                    .frame(width: typeBubbleWidth,
+                                           height: typeBubbleHeight)
+                                    .foregroundColor(Custom.darkGray)
+                                    .offset(x: selection == .person
+                                            ? -typeBubbleWidth / 2
+                                            : typeBubbleWidth / 2)
+                                    .animation(.spring(response: 0.2), value: selection)
+                                HStack(spacing: 0) {
+                                    Button(action: {
+                                        if selection == .meet {
+                                            clearStateFlags()
+                                            debounceTabSelection(.person)
+                                        }
+                                    }, label: {
+                                        Text(SearchType.person.rawValue)
+                                            .animation(nil, value: selection)
+                                    })
+                                    .frame(width: typeBubbleWidth,
+                                           height: typeBubbleHeight)
+                                    .foregroundColor(textColor)
+                                    .cornerRadius(cornerRadius)
+                                    Button(action: {
+                                        if selection == .person {
+                                            clearStateFlags()
+                                            debounceTabSelection(.meet)
+                                        }
+                                    }, label: {
+                                        Text(SearchType.meet.rawValue)
+                                            .animation(nil, value: selection)
+                                    })
+                                    .frame(width: typeBubbleWidth,
+                                           height: typeBubbleHeight)
+                                    .foregroundColor(textColor)
+                                    .cornerRadius(cornerRadius)
+                                }
+                            }
                         }
-                        .disabled(hasReachedPersonStart || hasReachedMeetStart)
-                        
-                        Button(action: next) {
-                            Image(systemName: "chevron.down")
-                        }
-                        .disabled(hasReachedPersonEnd || hasReachedMeetEnd)
-                        
-                        Spacer()
-                        
-                        Button(action: dismissKeyboard) {
-                            Text("**Done**")
-                        }
+                        .offset(y: -screenHeight * 0.4)
                     }
-                }
+                    .ignoresSafeArea(.keyboard)
                 
                 if personResultsReady || meetResultsReady {
                     ZStack (alignment: .topLeading) {
@@ -517,12 +501,22 @@ struct SearchInputView: View {
                                 }
                             }
                         }
+                        .offset(y: 15)
                         .padding(EdgeInsets(top: 5, leading: 18, bottom: 10, trailing: 18))
                         .foregroundColor(.primary)
                         .font(.title)
                     }
-                    .offset(y: fullScreenResults ? 0 : resultsOffset)
+                    .cornerRadius(30)
+                    .shadow(radius: 10)
+                    .offset(y: fullScreenResults ? screenHeight * 0.05 : resultsOffset)
                     .animation(.linear(duration: 0.2), value: fullScreenResults)
+                }
+            }
+            .ignoresSafeArea(.keyboard)
+            .overlay {
+                if selection == .meet && isIndexingMeets {
+                    IndexingCounterView()
+                        .offset(y: screenHeight * 0.5)
                 }
             }
             .onSwipeGesture(trigger: .onEnded) { direction in
@@ -537,6 +531,30 @@ struct SearchInputView: View {
                 showError = false
             }
         }
+        // Keyboard toolbar with up/down arrows and Done button
+        .overlay{
+            VStack{}
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Button(action: previous) {
+                            Image(systemName: "chevron.up")
+                        }
+                        .disabled(hasReachedPersonStart || hasReachedMeetStart)
+                        
+                        Button(action: next) {
+                            Image(systemName: "chevron.down")
+                        }
+                        .disabled(hasReachedPersonEnd || hasReachedMeetEnd)
+                        
+                        Spacer()
+                        
+                        Button(action: dismissKeyboard) {
+                            Text("**Done**")
+                        }
+                    }
+        }
+    }
+        .ignoresSafeArea(.keyboard)
         .navigationViewStyle(StackNavigationViewStyle())
     }
     
@@ -600,49 +618,60 @@ struct IndexingCounterView: View {
 struct DiverSearchView: View {
     @Binding var firstName: String
     @Binding var lastName: String
+    private let screenWidth = UIScreen.main.bounds.width
+    private let screenHeight = UIScreen.main.bounds.height
     fileprivate var focusedField: FocusState<SearchField?>.Binding
     
     var body: some View {
-        VStack {
-            HStack {
-                Text("First Name:")
-                    .padding(.leading)
-                TextField("First Name", text: $firstName)
-                    .modifier(TextFieldClearButton(text: $firstName,
-                                                   fieldType: .firstName,
-                                                   focusedField: focusedField))
-                    .multilineTextAlignment(.leading)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.trailing)
-                    .focused(focusedField, equals: .firstName)
-            }
-            HStack {
-                Text("Last Name:")
-                    .padding(.leading)
-                TextField("Last Name", text: $lastName)
-                    .modifier(TextFieldClearButton(text: $lastName,
-                                                   fieldType: .lastName,
-                                                   focusedField: focusedField))
-                    .multilineTextAlignment(.leading)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.trailing)
-                    .focused(focusedField, equals: .lastName)
-                
-            }
-        }
-        .padding()
-        .onAppear {
-            firstName = ""
-            lastName = ""
+        ZStack {
+            Rectangle()
+                .mask(RoundedRectangle(cornerRadius: 50))
+                .foregroundColor(Custom.grayThinMaterial)
+                .shadow(radius: 10)
+                .frame(width: screenWidth * 0.9, height: screenHeight * 0.24)
+            VStack {
+                    HStack {
+                        Text("First Name:")
+                            .padding([.leading, .bottom, .top])
+                        TextField("First Name", text: $firstName)
+                            .modifier(TextFieldClearButton(text: $firstName,
+                                                           fieldType: .firstName,
+                                                           focusedField: focusedField))
+                            .multilineTextAlignment(.leading)
+                            .textFieldStyle(.roundedBorder)
+                            .padding(.trailing)
+                            .focused(focusedField, equals: .firstName)
+                    }
+                    HStack {
+                        Text("Last Name:")
+                            .padding([.leading])
+                        TextField("Last Name", text: $lastName)
+                            .modifier(TextFieldClearButton(text: $lastName,
+                                                           fieldType: .lastName,
+                                                           focusedField: focusedField))
+                            .multilineTextAlignment(.leading)
+                            .textFieldStyle(.roundedBorder)
+                            .padding(.trailing)
+                            .focused(focusedField, equals: .lastName)
+                        
+                    }
+                    .padding(.bottom)
+                }
+            .offset(y: -screenHeight * 0.03)
+            .frame(width: screenWidth * 0.9, height: screenHeight * 0.3)
         }
     }
 }
+
 
 struct MeetSearchView: View {
     @Binding var meetName: String
     @Binding var orgName: String
     @Binding var meetYear: String
+    @Binding var isIndexingMeet: Bool
     @State var meetYearIndex: Int = 0
+    private let screenWidth = UIScreen.main.bounds.width
+    private let screenHeight = UIScreen.main.bounds.height
     private var focusedField: FocusState<SearchField?>.Binding
     private let currentYear: Int = Calendar.current.component(.year, from: Date())
     
@@ -653,68 +682,80 @@ struct MeetSearchView: View {
     }
     
     fileprivate init(meetName: Binding<String>, orgName: Binding<String>,
-                     meetYear: Binding<String>, focusedField: FocusState<SearchField?>.Binding) {
+                     meetYear: Binding<String>, isIndexingMeet: Binding<Bool>, focusedField: FocusState<SearchField?>.Binding) {
         self._meetName = meetName
         self._orgName = orgName
         self._meetYear = meetYear
+        self._isIndexingMeet = isIndexingMeet
         self.focusedField = focusedField
     }
     
     var body: some View {
-        VStack {
-            HStack {
-                Text("Meet Name:")
-                    .padding(.leading)
-                TextField("Meet Name", text: $meetName)
-                    .modifier(TextFieldClearButton(text: $meetName,
-                                                   fieldType: .meetName,
-                                                   focusedField: focusedField))
-                    .multilineTextAlignment(.leading)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.trailing)
-                    .focused(focusedField, equals: .meetName)
-            }
-            HStack {
-                Text("Organization Name:")
-                    .padding(.leading)
-                TextField("Organization Name", text: $orgName)
-                    .modifier(TextFieldClearButton(text: $orgName,
-                                                   fieldType: .meetOrg,
-                                                   focusedField: focusedField))
-                    .multilineTextAlignment(.leading)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.trailing)
-                    .focused(focusedField, equals: .meetOrg)
-            }
-            HStack {
-                Text("Meet Year:")
-                    .padding(.leading)
-                NoStickPicker(selection: $meetYearIndex,
-                              rowCount: (2004...currentYear).count + 1) { r in
-                    let label = UILabel()
-                    label.attributedText = NSMutableAttributedString(string: meetIndexToString(r))
-                    label.font = UIFont.systemFont(ofSize: pickerFontSize)
-                    label.sizeToFit()
-                    label.layer.masksToBounds = true
-                    return label
+        ZStack {
+            Rectangle()
+                .mask(RoundedRectangle(cornerRadius: 50))
+                .foregroundColor(Custom.grayThinMaterial)
+                .shadow(radius: 10)
+                .frame(width: screenWidth * 0.9, height: isIndexingMeet ? screenHeight * 0.6 : screenHeight * 0.31)
+                .offset(y: isIndexingMeet ? screenWidth * 0.33 : screenWidth * 0.015)
+            VStack {
+                HStack {
+                    Text("Meet Name:")
+                        .padding(.leading)
+                    TextField("Meet Name", text: $meetName)
+                        .modifier(TextFieldClearButton(text: $meetName,
+                                                       fieldType: .meetName,
+                                                       focusedField: focusedField))
+                        .multilineTextAlignment(.leading)
+                        .textFieldStyle(.roundedBorder)
+                        .padding(.trailing)
+                        .focused(focusedField, equals: .meetName)
                 }
-                              .pickerStyle(.wheel)
-                              .frame(width: 125, height: 85)
-                              .padding(.trailing)
-                              .onChange(of: meetYearIndex) { newValue in
-                                  meetYear = meetIndexToString(newValue)
-                              }
+                HStack {
+                    Text("Organization Name:")
+                        .padding(.leading)
+                    TextField("Organization Name", text: $orgName)
+                        .modifier(TextFieldClearButton(text: $orgName,
+                                                       fieldType: .meetOrg,
+                                                       focusedField: focusedField))
+                        .multilineTextAlignment(.leading)
+                        .textFieldStyle(.roundedBorder)
+                        .padding(.trailing)
+                        .focused(focusedField, equals: .meetOrg)
+                }
+                HStack {
+                    Text("Meet Year:")
+                        .padding(.leading)
+                    NoStickPicker(selection: $meetYearIndex,
+                                  rowCount: (2004...currentYear).count + 1) { r in
+                        let label = UILabel()
+                        label.attributedText = NSMutableAttributedString(string: meetIndexToString(r))
+                        label.font = UIFont.systemFont(ofSize: pickerFontSize)
+                        label.sizeToFit()
+                        label.layer.masksToBounds = true
+                        return label
+                    }
+                                  .pickerStyle(.wheel)
+                                  .frame(width: 125, height: 85)
+                                  .padding(.trailing)
+                                  .onChange(of: meetYearIndex) { newValue in
+                                      meetYear = meetIndexToString(newValue)
+                                  }
+                }
+                .offset(y: -10)
             }
-            .offset(y: -10)
+            .frame(width: screenWidth * 0.9, height: screenHeight * 0.3)
+            .offset(y: -screenHeight * 0.02)
+            .padding([.top, .leading, .trailing])
+            .onAppear {
+                meetName = ""
+                orgName = ""
+                meetYear = ""
         }
-        .padding([.top, .leading, .trailing])
-        .onAppear {
-            meetName = ""
-            orgName = ""
-            meetYear = ""
         }
     }
 }
+
 
 struct MeetResultsView : View {
     @Environment(\.colorScheme) var currentMode
@@ -742,12 +783,9 @@ struct MeetResultsView : View {
     }
     
     var body: some View {
-        let gray = currentMode == .light ? grayValue : grayValueDark
         ZStack {
-            Color(red: gray, green: gray, blue: gray)
-                .ignoresSafeArea()
+            Custom.specialGray.ignoresSafeArea()
             VStack(alignment: .leading) {
-                
                 Text("Results")
                     .bold()
                     .font(.largeTitle)
@@ -756,11 +794,11 @@ struct MeetResultsView : View {
                     .padding(.top, 50)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 if !records.isEmpty {
-                    ScalingScrollView(records: records, rowSpacing: rowSpacing) { (e) in
+                    ScalingScrollView(records: records, bgColor: Custom.specialGray, rowSpacing: rowSpacing) { (e) in
                         NavigationLink(destination: MeetPageView(meetLink: e.link ?? "")) {
                             ZStack {
                                 Rectangle()
-                                    .foregroundColor(currentMode == .light ? .white : .black)
+                                    .foregroundColor(Custom.darkGray)
                                 VStack {
                                     if let name = e.name, let city = e.city, let state = e.state,
                                        let startDate = e.startDate, let endDate = e.endDate {

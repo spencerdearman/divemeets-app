@@ -7,7 +7,13 @@
 
 import SwiftUI
 
+enum JudgeScoreField: Int, Hashable, CaseIterable {
+    case dive
+    case score
+}
+
 struct ToolsMenu: View {
+    @FocusState var focusedField: JudgeScoreField?
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 57
     
     private var screenWidth = UIScreen.main.bounds.width
@@ -20,11 +26,15 @@ struct ToolsMenu: View {
     var body: some View {
         NavigationView {
             ZStack {
-                ToolsColorfulView().ignoresSafeArea()
+                ToolsColorfulView()
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        focusedField = nil
+                    }
                 VStack {
                     ZStack {
                         Rectangle()
-                            .foregroundColor(Custom.thinMaterialColor)
+                            .foregroundColor(Custom.grayThinMaterial)
                             .mask(RoundedRectangle(cornerRadius: 40))
                             .frame(width: 120, height: 40)
                             .shadow(radius: 6)
@@ -36,7 +46,7 @@ struct ToolsMenu: View {
                         NavigationLink(destination: MeetScoreCalculator()) {
                             ZStack {
                                 Rectangle()
-                                    .foregroundColor(Custom.thinMaterialColor)
+                                    .foregroundColor(Custom.grayThinMaterial)
                                     .mask(RoundedRectangle(cornerRadius: 40))
                                     .frame(width: screenWidth * 0.9, height: screenHeight * 0.1)
                                     .shadow(radius: 10)
@@ -48,7 +58,7 @@ struct ToolsMenu: View {
                                     .padding()
                             }
                         }
-                        JudgeScoreCalculator()
+                        JudgeScoreCalculator(focusedField: $focusedField)
                             .frame(height: screenHeight * 0.5)
                     }
                     .offset(y: -screenHeight * 0.13)
@@ -64,7 +74,7 @@ struct ToolsColorfulView: View {
     private var screenWidth = UIScreen.main.bounds.width
     private var screenHeight = UIScreen.main.bounds.height
     private var bgColor: Color {
-        currentMode == .light ? Custom.background : Custom.background
+        currentMode == .light ? Color.white : Color.black
     }
     
     var body: some View {

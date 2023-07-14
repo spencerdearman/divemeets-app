@@ -157,25 +157,29 @@ struct LoginSearchInputView: View {
                                             loginSuccessful: $loginSuccessful,
                                             progressView: $progressView,
                                             timedOut: $timedOut, focusedField: $focusedField)
-                        .toolbar {
-                            ToolbarItemGroup(placement: .keyboard) {
-                                Button(action: previous) {
-                                    Image(systemName: "chevron.up")
+                        .ignoresSafeArea(.keyboard)
+                                .overlay{
+                                    VStack{}
+                                        .toolbar {
+                                            ToolbarItemGroup(placement: .keyboard) {
+                                                Button(action: previous) {
+                                                    Image(systemName: "chevron.up")
+                                                }
+                                                .disabled(hasReachedStart)
+                                                
+                                                Button(action: next) {
+                                                    Image(systemName: "chevron.down")
+                                                }
+                                                .disabled(hasReachedEnd)
+                                                
+                                                Spacer()
+                                                
+                                                Button(action: dismissKeyboard) {
+                                                    Text("**Done**")
+                                                }
+                                            }
+                                        }
                                 }
-                                .disabled(hasReachedStart)
-                                
-                                Button(action: next) {
-                                    Image(systemName: "chevron.down")
-                                }
-                                .disabled(hasReachedEnd)
-                                
-                                Spacer()
-                                
-                                Button(action: dismissKeyboard) {
-                                    Text("**Done**")
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -217,6 +221,7 @@ struct LoginPageSearchView: View {
             Spacer()
             VStack{
                 Text("Login")
+                    .foregroundColor(.primary)
             }
             .alignmentGuide(.leading) { _ in
                 -UIScreen.main.bounds.width / 2 // Align the text to the leading edge of the screen
@@ -288,6 +293,7 @@ struct LoginPageSearchView: View {
                 }
             }, label: {
                 Text("Submit")
+                    .foregroundColor(.primary)
                     .animation(nil)
             })
             .buttonStyle(.bordered)

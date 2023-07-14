@@ -13,6 +13,7 @@ import SwiftUI
 var cachedMeetData: [String: (MeetInfoJointData?, MeetResultsData?)] = [:]
 
 struct MeetPageView: View {
+    @Environment(\.colorScheme) var currentMode
     @Environment(\.presentationMode) var presentationMode
     @State private var meetData: MeetPageData?
     // Only meetEventData OR meetResultsEventData should be nil at a time (event is nil when passed
@@ -31,6 +32,10 @@ struct MeetPageView: View {
     
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
+    }
+    
+    private var bgColor: Color {
+        currentMode == .light ? Color.white : Color.black
     }
     
     var meetLink: String
@@ -215,8 +220,8 @@ struct MeetPageView: View {
     }
     
     var body: some View {
-        ZStack {
-            Custom.background.ignoresSafeArea()
+        ZStack{
+            bgColor.ignoresSafeArea()
             VStack {
                 if let meetInfoData = meetInfoData {
                     getPageHeader()
@@ -695,7 +700,7 @@ struct MeetEventListView: View {
                                         destination: EntryPageView(entriesLink: value[index].4)) {
                                             ZStack {
                                                 RoundedRectangle(cornerRadius: 30)
-                                                    .fill(Custom.tileColor)
+                                                    .fill(Custom.darkGray)
                                                     .shadow(radius: 5)
                                                     .frame(width: geometry.size.width,
                                                            height: geometry.size.height)
@@ -727,7 +732,7 @@ struct MeetEventListView: View {
                                     }
                                     .background(currentMode == .light
                                                 ? Custom.lightBlue
-                                                : Custom.medBlue)
+                                                : Custom.darkBlue)
                                 }
                             }
                             .padding([.leading, .trailing])

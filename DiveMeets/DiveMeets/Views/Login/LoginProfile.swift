@@ -36,6 +36,8 @@ struct LoginProfile: View {
     @State var diverData : [[String]] = []
     @State var profileType : String = ""
     @StateObject private var parser = HTMLParser()
+    private var screenWidth = UIScreen.main.bounds.width
+    private var screenHeight = UIScreen.main.bounds.height
     
     
     init(link: String, diverID: String = "00000", loggedIn: Binding<Bool>,
@@ -55,8 +57,6 @@ struct LoginProfile: View {
         Group {
             if profileType == "Diver" {
                 ZStack {
-                    BackgroundSpheres()
-                    
                     VStack {
                         VStack {
                             ZStack {
@@ -132,10 +132,12 @@ struct LoginProfile: View {
                                     .font(.subheadline).foregroundColor(.white)
                                     .padding([.leading], 2)
                                 }
-                                .offset(y:-150)
                             }
-                            .padding()
-                            
+                            .buttonStyle(.bordered)
+                            .cornerRadius(30)
+                            .offset(x: -screenWidth * 0.33, y: -screenHeight * 0.23)
+                            ProfileImage(diverID: diverID)
+                                .offset(y:-100)
                         }
                         MeetList(profileLink: profileLink)
                             .offset(y: -160)

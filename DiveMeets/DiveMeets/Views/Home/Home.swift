@@ -98,6 +98,8 @@ struct Home: View {
     private let textColor: Color = Color.primary
     private let grayValue: CGFloat = 0.90
     private let grayValueDark: CGFloat = 0.10
+    private var screenWidth = UIScreen.main.bounds.width
+    private var screenHeight = UIScreen.main.bounds.height
     @ScaledMetric private var typeBubbleWidthScaled: CGFloat = 110
     @ScaledMetric private var typeBubbleHeightScaled: CGFloat = 35
     @ScaledMetric private var typeBGWidthScaled: CGFloat = 40
@@ -162,7 +164,7 @@ struct Home: View {
                     VStack {
                         ZStack{
                             Rectangle()
-                                .foregroundColor(Custom.thinMaterialColor)
+                                .foregroundColor(Custom.grayThinMaterial)
                                 .mask(RoundedRectangle(cornerRadius: 40))
                                 .frame(width: 120, height: 40)
                                 .shadow(radius: 6)
@@ -174,12 +176,12 @@ struct Home: View {
                                 RoundedRectangle(cornerRadius: cornerRadius)
                                     .frame(width: typeBubbleWidth * 2 + 5,
                                            height: typeBGWidth)
-                                    .foregroundColor(Custom.selectionColorsDark)
+                                    .foregroundColor(Custom.grayThinMaterial)
                                     .shadow(radius: 5)
                                 RoundedRectangle(cornerRadius: cornerRadius)
                                     .frame(width: typeBubbleWidth,
                                            height: typeBubbleHeight)
-                                    .foregroundColor(Custom.selection)
+                                    .foregroundColor(Custom.darkGray)
                                     .offset(x: selection == .upcoming
                                             ? -typeBubbleWidth / 2
                                             : typeBubbleWidth / 2)
@@ -211,7 +213,6 @@ struct Home: View {
                                     .cornerRadius(cornerRadius)
                                 }
                             }
-                            
                             HStack {
                                 Spacer()
                                 Button(action: {
@@ -219,8 +220,15 @@ struct Home: View {
                                         await getPresentMeets()
                                     }
                                 }, label: {
-                                    Image(systemName: "arrow.clockwise")
-                                        .font(.title2)
+                                    ZStack {
+                                        Circle()
+                                            .foregroundColor(Custom.grayThinMaterial)
+                                            .shadow(radius: 6)
+                                            .frame(width: typeBGWidth, height: typeBGWidth)
+                                        Image(systemName: "arrow.clockwise")
+                                            .foregroundColor(.primary)
+                                            .font(.title2)
+                                    }
                                 })
                             }
                             .padding(.trailing)
@@ -277,7 +285,8 @@ struct UpcomingMeetsView: View {
             } else {
                 ZStack {
                     Rectangle()
-                        .foregroundColor(Custom.thinMaterialColor)
+                        .foregroundColor(Custom.grayThinMaterial)
+                        .frame(width: 275, height: 75)
                         .mask(RoundedRectangle(cornerRadius: 40))
                         .shadow(radius: 6)
                     Text("No upcoming meets found")
@@ -287,7 +296,8 @@ struct UpcomingMeetsView: View {
         } else if !timedOut {
             ZStack {
                 Rectangle()
-                    .foregroundColor(Custom.thinMaterialColor)
+                    .foregroundColor(Custom.grayThinMaterial)
+                    .frame(width: 275, height: 100)
                     .mask(RoundedRectangle(cornerRadius: 40))
                     .shadow(radius: 6)
                 VStack {
@@ -336,7 +346,8 @@ struct CurrentMeetsView: View {
         } else if meetParser.currentMeets != nil && !timedOut {
             ZStack{
                 Rectangle()
-                    .foregroundColor(Custom.thinMaterialColor)
+                    .foregroundColor(Custom.grayThinMaterial)
+                    .frame(width: 275, height: 75)
                     .mask(RoundedRectangle(cornerRadius: 40))
                     .shadow(radius: 6)
                 Text("No current meets found")
@@ -345,7 +356,8 @@ struct CurrentMeetsView: View {
         } else if !timedOut {
             ZStack {
                 Rectangle()
-                    .foregroundColor(Custom.thinMaterialColor)
+                    .foregroundColor(Custom.grayThinMaterial)
+                    .frame(width: 275, height: 100)
                     .mask(RoundedRectangle(cornerRadius: 40))
                     .shadow(radius: 6)
                 VStack {
@@ -493,7 +505,7 @@ struct MeetBubbleView: View {
                        : AnyView(MeetPageView(meetLink: elements[3], showBackButton: false))) {
             ZStack {
                 Rectangle()
-                    .foregroundColor(Custom.homeTileColor)
+                    .foregroundColor(Custom.darkGray)
                     .cornerRadius(40)
                 VStack {
                     VStack {
@@ -523,7 +535,7 @@ struct MeetBubbleView: View {
                         
                         ZStack{
                             Rectangle()
-                                .fill(Custom.thinMaterialColor)
+                                .fill(Custom.accentThinMaterial)
                                 .frame(width: isPhone ? getPhoneTextSizeForAccessibility() : getPadTextSizeForAccessibility())
                                 .mask(RoundedRectangle(cornerRadius: 30))
                                 .shadow(radius: 3)
@@ -590,7 +602,7 @@ struct MeetBubbleView: View {
 struct HomeColorfulView: View{
     @Environment(\.colorScheme) var currentMode
     private var bgColor: Color {
-        currentMode == .light ? Custom.background : Custom.background
+        currentMode == .light ? Color.white : Color.black
     }
     
     var body: some View{
