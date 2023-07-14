@@ -41,6 +41,10 @@ struct ProfileView: View {
         currentMode == .light ? .white : .black
     }
     
+    private var diverDataInBounds: Bool {
+        diverData.count > 0 && diverData[0].count > 0
+    }
+    
     private func getUpcomingDiveSheetsEntries(name: String) async -> [String: [String: EventEntry]]? {
         var result: [String: [String: EventEntry]] = [:]
         guard let sheetsLinks = upcomingDiveSheetsLinks else { return nil }
@@ -69,6 +73,8 @@ struct ProfileView: View {
     }
     
     private func getNameComponents() -> [String]? {
+        if !diverDataInBounds { return nil }
+        
         // Case where only State label is provided
         var comps = diverData[0][0].slice(from: "Name: ", to: " State:")
         if comps == nil {
@@ -90,7 +96,88 @@ struct ProfileView: View {
         let mirror = Mirror(reflecting: object)
         return mirror.displayStyle == .dictionary
     }
-
+    
+    // Gets upcoming meets and judging data from profile link
+    func fetchUpcomingMeetsAndJudgingData() async {
+        do {
+            await parser.parse(urlString: profileLink)
+            diverData = parser.myData
+            
+            if !diverDataInBounds { return }
+            let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
+            
+            if divers != "" {
+                profileType = "Coach"
+            } else {
+                profileType = "Diver"
+            }
+            
+            guard let url = URL(string: profileLink) else { return }
+            await getTextModel.fetchText(url: url)
+            if let text = getTextModel.text {
+                upcomingDiveSheetsLinks = try await ep.parseProfileUpcomingMeets(html: text)
+                
+                let nameText = diverData[0][0].slice(from: "Name: ", to: " State:")
+                let comps = nameText?.split(separator: " ")
+                let last = String(comps?.last ?? "")
+                let first = String(comps?.dropLast().joined(separator: " ") ?? "")
+                
+                upcomingDiveSheetsEntries =
+                await getUpcomingDiveSheetsEntries(name: last + ", " + first)
+                
+                let document: Document = try SwiftSoup.parse(text)
+                guard let body = document.body() else { return }
+                let td = try body.getElementsByTag("td")
+                let divers = try body.getElementsByTag("a")
+                for diver in divers {
+                    if try diver.text() == "Coach Profile"{
+                        continue
+                    } else if try diver.text() == "Results" {
+                        break
+                    } else {
+                        let link = try "https://secure.meetcontrol.com/divemeets/system/"
+                        + diver.attr("href")
+                        diversAndLinks.append([try diver.text(), link])
+                    }
+                }
+                
+                var current = ""
+                var eventsList: [(String, String)] = []
+                
+                if td.isEmpty() { return }
+                let judgingHistoryTable = try td[0].getElementsByTag("table")
+                
+                if !judgingHistoryTable.isEmpty {
+                    let tr = try judgingHistoryTable[0].getElementsByTag("tr")
+                    for (i, t) in tr.enumerated() {
+                        if i == 0 {
+                            continue
+                        } else if try t.text().contains("Results") {
+                            let event = try t.getElementsByTag("td")[0].text()
+                                .replacingOccurrences(of: "  ", with: "")
+                            let resultsLink = try "https://secure.meetcontrol.com/divemeets/system/"
+                            + t.getElementsByTag("a").attr("href")
+                            eventsList.append((event, resultsLink))
+                        } else {
+                            if i > 1 {
+                                judgingHistory[current] = eventsList
+                                eventsList = []
+                                current = try t.text()
+                            } else {
+                                current = try t.text()
+                            }
+                        }
+                    }
+                    if !current.isEmpty {
+                        judgingHistory[current] = eventsList
+                    }
+                }
+            }
+        } catch {
+            print("Error: \(error)")
+        }
+    }
+    
     
     var body: some View {
         
@@ -116,18 +203,22 @@ struct ProfileView: View {
                                     let lastName = nameComps?.last ?? ""
                                     
                                     diverData != []
-                                    ? Text(firstName + " " + lastName) .font(.title).foregroundColor(.white)
+                                    ? Text(firstName + " " + lastName)
+                                        .font(.title)
+                                        .foregroundColor(.white)
                                     : Text("")
                                     
                                     Text(diverID)
-                                        .font(.subheadline).foregroundColor(Custom.secondaryColor)
+                                        .font(.subheadline)
+                                        .foregroundColor(Custom.secondaryColor)
                                 }
                                 WhiteDivider()
                                 HStack (alignment: .firstTextBaseline) {
                                     Image(systemName: "house.fill")
-                                    diverData != []
+                                    diverDataInBounds
                                     ? Text(
-                                        (diverData[0][0].slice(from: "State: ", to: " Country")  ?? "")
+                                        (diverData[0][0].slice(from: "State: ",
+                                                               to: " Country")  ?? "")
                                         + ", "
                                         + (diverData[0][0].slice(from: " Country: ",
                                                                  to: " Gender") ?? ""))
@@ -136,18 +227,21 @@ struct ProfileView: View {
                                 .font(.subheadline).foregroundColor(.white)
                                 HStack (alignment: .firstTextBaseline) {
                                     Image(systemName: "person.circle")
-                                    diverData != []
+                                    diverDataInBounds
                                     ? Text("Gender: " +
-                                           (diverData[0][0].slice(from: " Gender: ", to: " Age") ?? ""))
+                                           (diverData[0][0].slice(from: " Gender: ",
+                                                                  to: " Age") ?? ""))
                                     : Text("")
-                                    diverData != []
+                                    diverDataInBounds
                                     ? Text("Age: " +
-                                           (diverData[0][0].slice(from: " Age: ", to: " FINA") ?? ""))
+                                           (diverData[0][0].slice(from: " Age: ",
+                                                                  to: " FINA") ?? ""))
                                     : Text("")
-                                    diverData != []
+                                    diverDataInBounds
                                     ? Text("FINA Age: " +
                                            (diverData[0][0].slice(from: " FINA Age: ",
-                                                                  to: "DiveMeets") ?? "").prefix(2))
+                                                                  to: "DiveMeets") ?? "")
+                                            .prefix(2))
                                     : Text("")
                                 }
                                 .font(.subheadline).foregroundColor(.white)
@@ -193,7 +287,7 @@ struct ProfileView: View {
                                         .foregroundColor(Color.primary)
                                 }
                                 .padding([.leading, .trailing])
-                            .padding(.bottom, 5)
+                                .padding(.bottom, 5)
                             }
                             .padding([.leading, .trailing])
                             
@@ -225,7 +319,7 @@ struct ProfileView: View {
                             VStack {
                                 VStack(alignment: .leading) {
                                     HStack(alignment: .firstTextBaseline) {
-                                        diverData != []
+                                        diverDataInBounds
                                         ? Text(diverData[0][0].slice(from: "Name: ",
                                                                      to: " City/State") ?? "")
                                         .font(.title)
@@ -233,28 +327,33 @@ struct ProfileView: View {
                                         : Text("")
                                         
                                         Text(diverID)
-                                            .font(.subheadline).foregroundColor(Custom.secondaryColor)
+                                            .font(.subheadline)
+                                            .foregroundColor(Custom.secondaryColor)
                                     }
                                     WhiteDivider()
                                     HStack(alignment: .firstTextBaseline) {
                                         Image(systemName: "house.fill")
-                                        diverData != []
+                                        diverDataInBounds
                                         ? Text(
                                             (diverData[0][0].slice(from: " City/State: ",
                                                                    to: " Country")  ?? "")
                                             + ", "
                                             + (diverData[0][0].slice(from: " Country: ",
-                                                                     to: " Gender") ?? "")): Text("")
-                                    }
-                                    .font(.subheadline).foregroundColor(.white)
-                                    HStack (alignment: .firstTextBaseline) {
-                                        Image(systemName: "person.circle")
-                                        diverData != []
-                                        ? Text("Gender: " + (diverData[0][0].slice(from: " Gender: ",
-                                                                                   to: " DiveMeets") ?? ""))
+                                                                     to: " Gender") ?? ""))
                                         : Text("")
                                     }
-                                    .font(.subheadline).foregroundColor(.white)
+                                    .font(.subheadline)
+                                    .foregroundColor(.white)
+                                    HStack (alignment: .firstTextBaseline) {
+                                        Image(systemName: "person.circle")
+                                        diverDataInBounds
+                                        ? Text("Gender: " + (diverData[0][0]
+                                            .slice(from: " Gender: ",
+                                                   to: " DiveMeets") ?? ""))
+                                        : Text("")
+                                    }
+                                    .font(.subheadline)
+                                    .foregroundColor(.white)
                                     .padding([.leading], 2)
                                 }
                             }
@@ -266,7 +365,8 @@ struct ProfileView: View {
                                 .frame(width: 100, height: 50)
                                 .foregroundStyle(.white)
                                 .background(
-                                    Custom.specialGray.matchedGeometryEffect(id: "background", in: profilespace)
+                                    Custom.specialGray.matchedGeometryEffect(id: "background",
+                                                                             in: profilespace)
                                 )
                                 .mask(
                                     RoundedRectangle(cornerRadius: 40, style: .continuous)
@@ -304,7 +404,8 @@ struct ProfileView: View {
                                     .padding(.top, 8)
                                 }
                                 .background(
-                                    Custom.specialGray.matchedGeometryEffect(id: "background", in: profilespace)
+                                    Custom.specialGray.matchedGeometryEffect(id: "background",
+                                                                             in: profilespace)
                                 )
                                 .mask(
                                     RoundedRectangle(cornerRadius: 40, style: .continuous)
@@ -321,83 +422,8 @@ struct ProfileView: View {
         }
         .onAppear {
             Task {
-                await fetchJudgingData()
-                let nameComps = getNameComponents() ?? []
-                let last = nameComps.last ?? ""
-                let first = nameComps.dropLast().joined(separator: "")
-                upcomingDiveSheetsEntries = await getUpcomingDiveSheetsEntries(
-                    name: last + ", " + first)
+                await fetchUpcomingMeetsAndJudgingData()
             }
-        }
-    }
-    
-    func fetchJudgingData() async {
-        do {
-            await parser.parse(urlString: profileLink)
-            diverData = parser.myData
-            let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
-            
-            if divers != "" {
-                profileType = "Coach"
-            } else {
-                profileType = "Diver"
-            }
-            
-            guard let url = URL(string: profileLink) else { return }
-            await getTextModel.fetchText(url: url)
-            if let text = getTextModel.text {
-                upcomingDiveSheetsLinks = try await ep.parseProfileUpcomingMeets(html: text)
-                let nameText = diverData[0][0].slice(from: "Name: ", to: " State:")
-                let comps = nameText?.split(separator: " ")
-                let last = String(comps?.last ?? "")
-                let first = String(comps?.dropLast().joined(separator: " ") ?? "")
-                let document: Document = try SwiftSoup.parse(text)
-                guard let body = document.body() else { return }
-                let td = try body.getElementsByTag("td")
-                let divers = try body.getElementsByTag("a")
-                for (i, diver) in divers.enumerated() {
-                    if try diver.text() == "Coach Profile"{
-                        continue
-                    } else if try diver.text() == "Results" {
-                        break
-                    } else {
-                        let link = try "https://secure.meetcontrol.com/divemeets/system/"
-                        + diver.attr("href")
-                        diversAndLinks.append([try diver.text(), link])
-                    }
-                }
-                
-                var current = ""
-                var eventsList: [(String, String)] = []
-                let judgingHistoryTable = try td[0].getElementsByTag("table")
-                if !judgingHistoryTable.isEmpty {
-                    let tr = try judgingHistoryTable[0].getElementsByTag("tr")
-                    for (i, t) in tr.enumerated() {
-                        if i == 0 {
-                            continue
-                        } else if try t.text().contains("Results") {
-                            let event = try t.getElementsByTag("td")[0].text()
-                                .replacingOccurrences(of: "  ", with: "")
-                            let resultsLink = try "https://secure.meetcontrol.com/divemeets/system/"
-                            + t.getElementsByTag("a").attr("href")
-                            eventsList.append((event, resultsLink))
-                        } else {
-                            if i > 1 {
-                                judgingHistory[current] = eventsList
-                                eventsList = []
-                                current = try t.text()
-                            } else {
-                                current = try t.text()
-                            }
-                        }
-                    }
-                    if !current.isEmpty {
-                        judgingHistory[current] = eventsList
-                    }
-                }
-            }
-        } catch {
-            print("Error: \(error)")
         }
     }
 }
@@ -431,7 +457,6 @@ struct DiverBubbleView: View {
     }
     
     var body: some View {
-        var link = ""
         ZStack {
             Rectangle()
                 .foregroundColor(Custom.accentThinMaterial)
@@ -446,9 +471,10 @@ struct DiverBubbleView: View {
                         .foregroundColor(.primary)
                         .fontWeight(.semibold)
                 }
-                MiniProfileImage(diverID: String(elements[1].components(separatedBy: "=").last ?? ""), width: 80, height: 100)
-                    .padding(.leading)
-                    .scaledToFit()
+                MiniProfileImage(diverID: String(elements[1].components(separatedBy: "=").last ?? ""),
+                                 width: 80, height: 100)
+                .padding(.leading)
+                .scaledToFit()
             }
             
         }
@@ -534,26 +560,30 @@ struct BackgroundSpheres: View {
             VStack {
                 ZStack{
                     Circle()
-                        .fill(Custom.darkBlue) // Circle color
-                        .frame(width: geometry.size.width
-                               * 2.5, height: geometry.size.width * 2.5) // Adjust the size of the circle as desired
-                        .position(x: geometry.size.width, y: -geometry.size.width * 0.55) // Center the circle
+                    // Circle color
+                        .fill(Custom.darkBlue)
+                    // Adjust the size of the circle as desired
+                        .frame(width: geometry.size.width * 2.5,
+                               height: geometry.size.width * 2.5)
+                    // Center the circle
+                        .position(x: geometry.size.width, y: -geometry.size.width * 0.55)
                         .shadow(radius: 15)
-                        .clipped().ignoresSafeArea()
+                        .clipped()
+                        .ignoresSafeArea()
                     Circle()
                         .fill(Custom.coolBlue) // Circle color
-                        .frame(width:geometry.size.width
-                               * 1.3, height:geometry.size.width * 1.3)
+                        .frame(width:geometry.size.width * 1.3, height:geometry.size.width * 1.3)
                         .position(x: geometry.size.width * 0.8, y: geometry.size.width * 0.6)
                         .shadow(radius: 15)
-                        .clipped().ignoresSafeArea()
+                        .clipped()
+                        .ignoresSafeArea()
                     Circle()
                         .fill(Custom.medBlue) // Circle color
-                        .frame(width: geometry.size.width
-                               * 1.1, height: geometry.size.width * 1.1)
+                        .frame(width: geometry.size.width * 1.1, height: geometry.size.width * 1.1)
                         .position(x: 0, y: geometry.size.width * 0.65)
                         .shadow(radius: 15)
-                        .clipped().ignoresSafeArea()
+                        .clipped()
+                        .ignoresSafeArea()
                 }
             }
         }

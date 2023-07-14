@@ -39,6 +39,10 @@ struct LoginProfile: View {
     private var screenWidth = UIScreen.main.bounds.width
     private var screenHeight = UIScreen.main.bounds.height
     
+    private var diverDataInBounds: Bool {
+        diverData.count > 0 && diverData[0].count > 0
+    }
+    
     
     init(link: String, diverID: String = "00000", loggedIn: Binding<Bool>,
          divemeetsID: Binding<String>, password: Binding<String>, searchSubmitted: Binding<Bool>,
@@ -56,12 +60,12 @@ struct LoginProfile: View {
     var body: some View {
         Group {
             if profileType == "Diver" {
-                ZStack{
+                ZStack {
                     VStack {
                         VStack {
-                            ZStack{
+                            ZStack {
                                 Button("Logout", action: {
-                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)){
+                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                                         loggedIn = false // add this
                                         divemeetsID = ""
                                         password = ""
@@ -82,23 +86,30 @@ struct LoginProfile: View {
                             VStack {
                                 VStack(alignment: .leading) {
                                     HStack (alignment: .firstTextBaseline) {
-                                        let firstName = diverData[0][0].slice(from: "Name: ", to: " ") ?? ""
-                                        let lastName =
-                                        diverData[0][0].slice(from: firstName + " ", to: " ") ?? ""
-                                        
-                                        diverData != []
-                                        ? Text(firstName + " " + lastName) .font(.title).foregroundColor(.white)
-                                        : Text("")
+                                        if diverDataInBounds {
+                                            let firstName = diverData[0][0]
+                                                .slice(from: "Name: ", to: " ") ?? ""
+                                            let lastName = diverData[0][0]
+                                                .slice(from: firstName + " ", to: " ") ?? ""
+                                            
+                                            Text(firstName + " " + lastName)
+                                                .font(.title)
+                                                .foregroundColor(.white)
+                                        } else {
+                                            Text("")
+                                        }
                                         
                                         Text(diverID)
-                                            .font(.subheadline).foregroundColor(Custom.secondaryColor)
+                                            .font(.subheadline)
+                                            .foregroundColor(Custom.secondaryColor)
                                     }
                                     WhiteDivider()
                                     HStack (alignment: .firstTextBaseline) {
                                         Image(systemName: "house.fill")
-                                        diverData != []
+                                        diverDataInBounds
                                         ? Text(
-                                            (diverData[0][0].slice(from: "State: ", to: " Country")  ?? "")
+                                            (diverData[0][0].slice(from: "State: ",
+                                                                   to: " Country")  ?? "")
                                             + ", "
                                             + (diverData[0][0].slice(from: " Country: ",
                                                                      to: " Gender") ?? ""))
@@ -107,18 +118,21 @@ struct LoginProfile: View {
                                     .font(.subheadline).foregroundColor(.white)
                                     HStack (alignment: .firstTextBaseline) {
                                         Image(systemName: "person.circle")
-                                        diverData != []
+                                        diverDataInBounds
                                         ? Text("Gender: " +
-                                               (diverData[0][0].slice(from: " Gender: ", to: " Age") ?? ""))
+                                               (diverData[0][0].slice(from: " Gender: ",
+                                                                      to: " Age") ?? ""))
                                         : Text("")
-                                        diverData != []
+                                        diverDataInBounds
                                         ? Text("Age: " +
-                                               (diverData[0][0].slice(from: " Age: ", to: " FINA") ?? ""))
+                                               (diverData[0][0].slice(from: " Age: ",
+                                                                      to: " FINA") ?? ""))
                                         : Text("")
-                                        diverData != []
+                                        diverDataInBounds
                                         ? Text("FINA Age: " +
                                                (diverData[0][0].slice(from: " FINA Age: ",
-                                                                      to: "DiveMeets") ?? "").prefix(2))
+                                                                      to: "DiveMeets") ?? "")
+                                                .prefix(2))
                                         : Text("")
                                     }
                                     .font(.subheadline).foregroundColor(.white)
@@ -142,7 +156,7 @@ struct LoginProfile: View {
                         VStack{
                             VStack(alignment: .leading) {
                                 HStack (alignment: .firstTextBaseline){
-                                    diverData != []
+                                    diverDataInBounds
                                     ? Text(diverData[0][0].slice(from: "Name: ",
                                                                  to: " City/State") ?? "")
                                     .font(.title)
@@ -154,18 +168,19 @@ struct LoginProfile: View {
                                 Divider()
                                 HStack (alignment: .firstTextBaseline){
                                     Image(systemName: "house.fill")
-                                    diverData != []
+                                    diverDataInBounds
                                     ? Text(
                                         (diverData[0][0].slice(from: " City/State: ",
                                                                to: " Country")  ?? "")
                                         + ", "
                                         + (diverData[0][0].slice(from: " Country: ",
-                                                                 to: " Gender") ?? "")): Text("")
+                                                                 to: " Gender") ?? ""))
+                                    : Text("")
                                 }
                                 .font(.subheadline)
                                 HStack (alignment: .firstTextBaseline) {
                                     Image(systemName: "person.circle")
-                                    diverData != []
+                                    diverDataInBounds
                                     ? Text("Gender: " + (diverData[0][0]
                                         .slice(from: " Gender: ", to: " DiveMeets") ?? ""))
                                     : Text("")
@@ -185,12 +200,14 @@ struct LoginProfile: View {
             Task {
                 await parser.parse(urlString: profileLink)
                 diverData = parser.myData
-                let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
-                
-                if divers != "" {
-                    profileType = "Coach"
-                } else {
-                    profileType = "Diver"
+                if diverDataInBounds {
+                    let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
+                    
+                    if divers != "" {
+                        profileType = "Coach"
+                    } else {
+                        profileType = "Diver"
+                    }
                 }
             }
         }
