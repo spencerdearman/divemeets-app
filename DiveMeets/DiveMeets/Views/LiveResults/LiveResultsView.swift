@@ -351,6 +351,10 @@ struct LoadedView: View {
         min(maxHeightOffsetScaled, 90)
     }
     
+    private var bgColor: Color {
+        currentMode == .light ? .white : .black
+    }
+    
     var colors: [Color] = [.blue, .green, .red, .orange]
     
     func startTimer() {
@@ -361,7 +365,7 @@ struct LoadedView: View {
     }
     
     var body: some View {
-        Custom.background.ignoresSafeArea()
+        bgColor.ignoresSafeArea()
         ZStack {
             ColorfulView()
             GeometryReader { geometry in
@@ -370,7 +374,7 @@ struct LoadedView: View {
                         VStack {
                             ZStack {
                                 Rectangle()
-                                    .foregroundColor(Custom.thinMaterialColor)
+                                    .foregroundColor(Custom.grayThinMaterial)
                                     .mask(RoundedRectangle(cornerRadius: 40))
                                     .frame(width: 300, height: 70)
                                     .shadow(radius: 6)
@@ -441,7 +445,7 @@ struct LastDiverView: View
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(Custom.carouselColor)
+                .foregroundColor(Custom.specialGray)
                 .cornerRadius(50)
                 .shadow(radius: 20)
             
@@ -474,7 +478,7 @@ struct LastDiverView: View
                 
                 ZStack {
                     Rectangle()
-                        .foregroundColor(Custom.thinMaterialColor)
+                        .foregroundColor(Custom.darkGray)
                         .mask(RoundedRectangle(cornerRadius: 50))
                     HStack {
                         VStack {
@@ -524,7 +528,7 @@ struct NextDiverView: View
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(Custom.carouselColor)
+                .fill(Custom.specialGray)
                 .cornerRadius(50)
                 .shadow(radius: 20)
             
@@ -559,8 +563,8 @@ struct NextDiverView: View
                 //Lower Part
                 ZStack {
                     Rectangle()
-                        .frame(height: screenHeight * 0.1)
-                        .foregroundColor(Custom.thinMaterialColor)
+                        .frame(height: screenHeight * 0.105)
+                        .foregroundColor(Custom.darkGray)
                         .mask(RoundedRectangle(cornerRadius: 50))
                     HStack {
                         Text(nextInfo.5)
@@ -641,7 +645,7 @@ struct DebugDataset {
 struct ColorfulView: View{
     @Environment(\.colorScheme) var currentMode
     private var bgColor: Color {
-        currentMode == .light ? Custom.background : Custom.background
+        currentMode == .light ? .white : .black
     }
     
     var body: some View{

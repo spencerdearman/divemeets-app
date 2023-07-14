@@ -282,7 +282,7 @@ struct CalculatorRowView: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 30)
-                .fill(bubbleColor)
+                .fill(Custom.darkGray)
                 .shadow(radius: 5)
             
             VStack {

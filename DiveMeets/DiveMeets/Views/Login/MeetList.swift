@@ -38,6 +38,10 @@ struct MeetList: View {
         return Color(red: gray, green: gray, blue: gray)
     }
     
+    private var bgColor: Color {
+        currentMode == .light ? Color.white : Color.black
+    }
+    
     func createMeets(data: [Int:[String:[String:(String, Double, String, String)]]]) -> [MeetEvent]? {
         var mainMeetLink: String = ""
         
@@ -75,9 +79,8 @@ struct MeetList: View {
                 
                 ZStack {
                     Rectangle()
-                        .fill(Custom.background)
+                        .fill(bgColor)
                         .mask(RoundedRectangle(cornerRadius: 40))
-                        //.offset(y: screenHeight * 0.45)
                     VStack {
                         Text("Meets")
                             .font(.title2).fontWeight(.semibold)
@@ -88,7 +91,7 @@ struct MeetList: View {
                                 ForEach($meets, id: \.id) { $meet in
                                     ZStack {
                                         RoundedRectangle(cornerRadius: cornerRadius)
-                                            .fill(Custom.tileColor)
+                                            .fill(Custom.specialGray)
                                             .shadow(radius: 5)
                                         DisclosureGroup(
                                             isExpanded: $meet.isExpanded,
@@ -105,8 +108,9 @@ struct MeetList: View {
                                                             destination: MeetPageView(
                                                                 meetLink: meet.link ?? "")) {
                                                                     ZStack {
-                                                                        shape.fill(.thinMaterial)
+                                                                        shape.fill(Custom.darkGray)
                                                                         Text("Full Meet")
+                                                                            .foregroundColor(.primary)
                                                                     }
                                                                     .frame(width: 130, height: 50)
                                                                     .contentShape(shape)
@@ -150,14 +154,25 @@ struct MeetList: View {
                 }
                 // Waiting for parse results to finish
             } else if !createdMeets {
-                VStack {
-                    Text("Getting meets list...")
-                    ProgressView()
+                
+                ZStack {
+                    Rectangle()
+                        .fill(bgColor)
+                        .mask(RoundedRectangle(cornerRadius: 40))
+                    VStack {
+                        Text("Getting meets list...")
+                        ProgressView()
+                    }
                 }
                 // Parse results have finished and meet list is empty
             } else {
-                VStack {
-                    Text("No meet data found")
+                ZStack {
+                    Rectangle()
+                        .fill(bgColor)
+                        .mask(RoundedRectangle(cornerRadius: 40))
+                    VStack {
+                        Text("No meet data found")
+                    }
                 }
             }
         }
@@ -195,7 +210,7 @@ struct ChildrenView: View {
             ForEach(children ?? [], id: \.id) { event in
                 let shape = RoundedRectangle(cornerRadius: 30)
                 ZStack {
-                    shape.fill(Custom.thinMaterialColor)
+                    shape.fill(Custom.darkGray)
                     ChildView(meet: event, navStatus: event.firstNavigation)
                 }
                 .contentShape(shape)

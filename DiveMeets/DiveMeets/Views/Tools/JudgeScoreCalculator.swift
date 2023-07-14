@@ -100,7 +100,7 @@ struct JudgeScoreCalculator: View {
             Color.clear
             ZStack {
                 Rectangle()
-                    .foregroundColor(Custom.thinMaterialColor)
+                    .foregroundColor(Custom.grayThinMaterial)
                     .mask(RoundedRectangle(cornerRadius: 50))
                     .frame(width: screenWidth * 0.9, height: screenHeight * 0.42)
                     .shadow(radius: shadowRadius)
@@ -212,7 +212,7 @@ struct JudgeScoreCalculator: View {
         var body: some View {
             ZStack {
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(Custom.selectionColorsDark)
+                    .fill(Custom.grayThinMaterial)
                     .shadow(radius: 10)
                 HStack(spacing: 0) {
                     ForEach(DiveHeight.allCases, id: \.self) { h in
