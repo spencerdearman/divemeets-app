@@ -97,6 +97,87 @@ struct ProfileView: View {
         return mirror.displayStyle == .dictionary
     }
     
+    // Gets upcoming meets and judging data from profile link
+    func fetchUpcomingMeetsAndJudgingData() async {
+        do {
+            await parser.parse(urlString: profileLink)
+            diverData = parser.myData
+            
+            if !diverDataInBounds { return }
+            let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
+            
+            if divers != "" {
+                profileType = "Coach"
+            } else {
+                profileType = "Diver"
+            }
+            
+            guard let url = URL(string: profileLink) else { return }
+            await getTextModel.fetchText(url: url)
+            if let text = getTextModel.text {
+                upcomingDiveSheetsLinks = try await ep.parseProfileUpcomingMeets(html: text)
+                
+                let nameText = diverData[0][0].slice(from: "Name: ", to: " State:")
+                let comps = nameText?.split(separator: " ")
+                let last = String(comps?.last ?? "")
+                let first = String(comps?.dropLast().joined(separator: " ") ?? "")
+                
+                upcomingDiveSheetsEntries =
+                await getUpcomingDiveSheetsEntries(name: last + ", " + first)
+                
+                let document: Document = try SwiftSoup.parse(text)
+                guard let body = document.body() else { return }
+                let td = try body.getElementsByTag("td")
+                let divers = try body.getElementsByTag("a")
+                for diver in divers {
+                    if try diver.text() == "Coach Profile"{
+                        continue
+                    } else if try diver.text() == "Results" {
+                        break
+                    } else {
+                        let link = try "https://secure.meetcontrol.com/divemeets/system/"
+                        + diver.attr("href")
+                        diversAndLinks.append([try diver.text(), link])
+                    }
+                }
+                
+                var current = ""
+                var eventsList: [(String, String)] = []
+                
+                if td.isEmpty() { return }
+                let judgingHistoryTable = try td[0].getElementsByTag("table")
+                
+                if !judgingHistoryTable.isEmpty {
+                    let tr = try judgingHistoryTable[0].getElementsByTag("tr")
+                    for (i, t) in tr.enumerated() {
+                        if i == 0 {
+                            continue
+                        } else if try t.text().contains("Results") {
+                            let event = try t.getElementsByTag("td")[0].text()
+                                .replacingOccurrences(of: "  ", with: "")
+                            let resultsLink = try "https://secure.meetcontrol.com/divemeets/system/"
+                            + t.getElementsByTag("a").attr("href")
+                            eventsList.append((event, resultsLink))
+                        } else {
+                            if i > 1 {
+                                judgingHistory[current] = eventsList
+                                eventsList = []
+                                current = try t.text()
+                            } else {
+                                current = try t.text()
+                            }
+                        }
+                    }
+                    if !current.isEmpty {
+                        judgingHistory[current] = eventsList
+                    }
+                }
+            }
+        } catch {
+            print("Error: \(error)")
+        }
+    }
+    
     
     var body: some View {
         
@@ -343,87 +424,6 @@ struct ProfileView: View {
             Task {
                 await fetchUpcomingMeetsAndJudgingData()
             }
-        }
-    }
-    
-    // Gets upcoming meets and judging data from profile link
-    func fetchUpcomingMeetsAndJudgingData() async {
-        do {
-            await parser.parse(urlString: profileLink)
-            diverData = parser.myData
-            
-            if !diverDataInBounds { return }
-            let divers = diverData[0][0].slice(from: "Divers:", to: "Judging") ?? ""
-            
-            if divers != "" {
-                profileType = "Coach"
-            } else {
-                profileType = "Diver"
-            }
-            
-            guard let url = URL(string: profileLink) else { return }
-            await getTextModel.fetchText(url: url)
-            if let text = getTextModel.text {
-                upcomingDiveSheetsLinks = try await ep.parseProfileUpcomingMeets(html: text)
-                
-                let nameText = diverData[0][0].slice(from: "Name: ", to: " State:")
-                let comps = nameText?.split(separator: " ")
-                let last = String(comps?.last ?? "")
-                let first = String(comps?.dropLast().joined(separator: " ") ?? "")
-                
-                upcomingDiveSheetsEntries =
-                await getUpcomingDiveSheetsEntries(name: last + ", " + first)
-                
-                let document: Document = try SwiftSoup.parse(text)
-                guard let body = document.body() else { return }
-                let td = try body.getElementsByTag("td")
-                let divers = try body.getElementsByTag("a")
-                for diver in divers {
-                    if try diver.text() == "Coach Profile"{
-                        continue
-                    } else if try diver.text() == "Results" {
-                        break
-                    } else {
-                        let link = try "https://secure.meetcontrol.com/divemeets/system/"
-                        + diver.attr("href")
-                        diversAndLinks.append([try diver.text(), link])
-                    }
-                }
-                
-                var current = ""
-                var eventsList: [(String, String)] = []
-                
-                if td.isEmpty() { return }
-                let judgingHistoryTable = try td[0].getElementsByTag("table")
-                
-                if !judgingHistoryTable.isEmpty {
-                    let tr = try judgingHistoryTable[0].getElementsByTag("tr")
-                    for (i, t) in tr.enumerated() {
-                        if i == 0 {
-                            continue
-                        } else if try t.text().contains("Results") {
-                            let event = try t.getElementsByTag("td")[0].text()
-                                .replacingOccurrences(of: "  ", with: "")
-                            let resultsLink = try "https://secure.meetcontrol.com/divemeets/system/"
-                            + t.getElementsByTag("a").attr("href")
-                            eventsList.append((event, resultsLink))
-                        } else {
-                            if i > 1 {
-                                judgingHistory[current] = eventsList
-                                eventsList = []
-                                current = try t.text()
-                            } else {
-                                current = try t.text()
-                            }
-                        }
-                    }
-                    if !current.isEmpty {
-                        judgingHistory[current] = eventsList
-                    }
-                }
-            }
-        } catch {
-            print("Error: \(error)")
         }
     }
 }
