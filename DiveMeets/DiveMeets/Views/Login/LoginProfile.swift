@@ -56,12 +56,12 @@ struct LoginProfile: View {
     var body: some View {
         Group {
             if profileType == "Diver" {
-                ZStack {
+                ZStack{
                     VStack {
                         VStack {
-                            ZStack {
+                            ZStack{
                                 Button("Logout", action: {
-                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)){
                                         loggedIn = false // add this
                                         divemeetsID = ""
                                         password = ""
@@ -75,35 +75,30 @@ struct LoginProfile: View {
                                 })
                                 .buttonStyle(.bordered)
                                 .cornerRadius(30)
-                                .offset(x:-150, y:-215)
+                                .offset(x: -screenWidth * 0.33, y: -screenHeight * 0.23)
                                 ProfileImage(diverID: diverID)
                                     .offset(y:-100)
                             }
                             VStack {
                                 VStack(alignment: .leading) {
                                     HStack (alignment: .firstTextBaseline) {
-                                        let firstName = diverData[0][0]
-                                            .slice(from: "Name: ", to: " ") ?? ""
+                                        let firstName = diverData[0][0].slice(from: "Name: ", to: " ") ?? ""
                                         let lastName =
                                         diverData[0][0].slice(from: firstName + " ", to: " ") ?? ""
                                         
                                         diverData != []
-                                        ? Text(firstName + " " + lastName)
-                                            .font(.title)
-                                            .foregroundColor(.white)
+                                        ? Text(firstName + " " + lastName) .font(.title).foregroundColor(.white)
                                         : Text("")
                                         
                                         Text(diverID)
-                                            .font(.subheadline)
-                                            .foregroundColor(Custom.secondaryColor)
+                                            .font(.subheadline).foregroundColor(Custom.secondaryColor)
                                     }
                                     WhiteDivider()
                                     HStack (alignment: .firstTextBaseline) {
                                         Image(systemName: "house.fill")
                                         diverData != []
                                         ? Text(
-                                            (diverData[0][0]
-                                                .slice(from: "State: ", to: " Country")  ?? "")
+                                            (diverData[0][0].slice(from: "State: ", to: " Country")  ?? "")
                                             + ", "
                                             + (diverData[0][0].slice(from: " Country: ",
                                                                      to: " Gender") ?? ""))
@@ -114,30 +109,25 @@ struct LoginProfile: View {
                                         Image(systemName: "person.circle")
                                         diverData != []
                                         ? Text("Gender: " +
-                                               (diverData[0][0]
-                                                .slice(from: " Gender: ", to: " Age") ?? ""))
+                                               (diverData[0][0].slice(from: " Gender: ", to: " Age") ?? ""))
                                         : Text("")
                                         diverData != []
                                         ? Text("Age: " +
-                                               (diverData[0][0]
-                                                .slice(from: " Age: ", to: " FINA") ?? ""))
+                                               (diverData[0][0].slice(from: " Age: ", to: " FINA") ?? ""))
                                         : Text("")
                                         diverData != []
                                         ? Text("FINA Age: " +
-                                               (diverData[0][0]
-                                                .slice(from: " FINA Age: ", to: "DiveMeets") ?? "")
-                                                .prefix(2))
+                                               (diverData[0][0].slice(from: " FINA Age: ",
+                                                                      to: "DiveMeets") ?? "").prefix(2))
                                         : Text("")
                                     }
                                     .font(.subheadline).foregroundColor(.white)
                                     .padding([.leading], 2)
                                 }
+                                .offset(y:-150)
                             }
-                            .buttonStyle(.bordered)
-                            .cornerRadius(30)
-                            .offset(x: -screenWidth * 0.33, y: -screenHeight * 0.23)
-                            ProfileImage(diverID: diverID)
-                                .offset(y:-100)
+                            .padding()
+                            
                         }
                         MeetList(profileLink: profileLink)
                             .offset(y: -160)
@@ -209,9 +199,9 @@ struct LoginProfile: View {
 
 struct WhiteDivider: View{
     var body: some View {
-            Rectangle()
-                .frame(height: 1)
-                .foregroundColor(.white)
-                .padding([.leading, .trailing], 3)
+        Rectangle()
+            .frame(height: 1)
+            .foregroundColor(.white)
+            .padding([.leading, .trailing], 3)
     }
 }
