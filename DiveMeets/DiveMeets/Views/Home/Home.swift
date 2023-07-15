@@ -274,6 +274,7 @@ struct UpcomingMeetsView: View {
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
     }
+
     private var isPhone: Bool {
         UIDevice.current.userInterfaceIdiom != .pad
     }
@@ -351,7 +352,7 @@ struct CurrentMeetsView: View {
         min(maxHeightOffsetScaled, 90)
     }
     private var isPhone: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad ? false : true
+        UIDevice.current.userInterfaceIdiom != .pad
     }
     
     var body: some View {
