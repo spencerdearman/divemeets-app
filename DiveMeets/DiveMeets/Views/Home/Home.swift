@@ -325,7 +325,7 @@ struct UpcomingMeetsView: View {
         } else {
             ZStack {
                 Rectangle()
-                    .foregroundColor(Custom.thinMaterialColor)
+                    .foregroundColor(Custom.grayThinMaterial)
                     .mask(RoundedRectangle(cornerRadius: 40))
                     .shadow(radius: 6)
                 VStack(alignment: .center) {
@@ -436,24 +436,24 @@ struct CurrentMeetsPageView: View {
         currentMode == .light ? Color.white : Color.black
     }
     private var bgColor: Color {
-        currentMode == .light ? Custom.background : Custom.background
+        currentMode == .light ? .white : .black
     }
     
     @ViewBuilder
     var body: some View {
         ZStack {
-            Custom.background.ignoresSafeArea()
+            bgColor.ignoresSafeArea()
             VStack {
                 if resultsLink != "" {
                     ZStack {
                         RoundedRectangle(cornerRadius: cornerRadius)
                             .frame(width: typeBubbleWidth * 2 + 5,
                                    height: typeBGWidth)
-                            .foregroundColor(Custom.selectionColorsDark)
+                            .foregroundColor(Custom.grayThinMaterial)
                         RoundedRectangle(cornerRadius: cornerRadius)
                             .frame(width: typeBubbleWidth,
                                    height: typeBubbleHeight)
-                            .foregroundColor(Custom.selection)
+                            .foregroundColor(Custom.darkGray)
                             .offset(x: selection == .info
                                     ? -typeBubbleWidth / 2
                                     : typeBubbleWidth / 2)
@@ -491,10 +491,8 @@ struct CurrentMeetsPageView: View {
                 
                 if selection == .info {
                     MeetPageView(meetLink: infoLink)
-                        .offset(y: -40)
                 } else {
                     MeetPageView(meetLink: resultsLink)
-                        .offset(y: -40)
                 }
                 Spacer()
             }
@@ -508,13 +506,6 @@ struct CurrentMeetsPageView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: { dismiss() }) {
-                    NavigationViewBackButton()
-                }
-            }
-        }
     }
 }
 
