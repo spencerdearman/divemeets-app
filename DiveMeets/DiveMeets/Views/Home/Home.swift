@@ -284,7 +284,7 @@ struct UpcomingMeetsView: View {
             if !meets.isEmpty && !timedOut {
                 let upcoming = tupleToList(tuples: db.dictToTuple(dict: meets))
                 if isPhone {
-                    ScalingScrollView(records: upcoming, bgColor: .clear, rowSpacing: 15)
+                    ScalingScrollView(records: upcoming, bgColor: .clear, rowSpacing: 15, shadowRadius: 10)
                     { (elem) in
                         MeetBubbleView(elements: elem)
                     }
@@ -359,7 +359,7 @@ struct CurrentMeetsView: View {
         if meetParser.currentMeets != nil && !meetParser.currentMeets!.isEmpty {
             let current = tupleToList(tuples: dictToCurrentTuple(dict: meetParser.currentMeets ?? []))
             if isPhone {
-                ScalingScrollView(records: current, bgColor: .clear, rowSpacing: 15) {
+                ScalingScrollView(records: current, bgColor: .clear, rowSpacing: 15, shadowRadius: 10) {
                     (elem) in
                     MeetBubbleView(elements: elem)
                 }
@@ -536,7 +536,7 @@ struct MeetBubbleView: View {
                 Rectangle()
                     .foregroundColor(Custom.darkGray)
                     .cornerRadius(40)
-                    .shadow(radius: 10)
+                    .shadow(radius: isPhone ? 0 : 10)
                 VStack {
                     VStack {
                         Text(elements[1]) // name
