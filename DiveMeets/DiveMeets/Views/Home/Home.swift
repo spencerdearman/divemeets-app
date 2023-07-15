@@ -267,20 +267,36 @@ struct UpcomingMeetsView: View {
     @Environment(\.meetsDB) var db
     @ObservedObject var meetParser: MeetParser
     @Binding var timedOut: Bool
+    let gridItems = [GridItem(.adaptive(minimum: 300))]
     
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
     
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
     }
+
+    private var isPhone: Bool {
+        UIDevice.current.userInterfaceIdiom != .pad
+    }
     
     var body: some View {
         if let meets = meetParser.upcomingMeets {
             if !meets.isEmpty && !timedOut {
                 let upcoming = tupleToList(tuples: db.dictToTuple(dict: meets))
-                ScalingScrollView(records: upcoming, bgColor: .clear, rowSpacing: 15,
-                                  shadowRadius: 10) { (elem) in
-                    MeetBubbleView(elements: elem)
+                if isPhone {
+                    ScalingScrollView(records: upcoming, bgColor: .clear, rowSpacing: 15)
+                    { (elem) in
+                        MeetBubbleView(elements: elem)
+                    }
+                } else {
+                    ScrollView {
+                        LazyVGrid(columns: gridItems, spacing: 10) {
+                            ForEach(upcoming, id: \.self) { elem in
+                                MeetBubbleView(elements: elem)
+                            }
+                        }
+                        .padding(20)
+                    }
                 }
             } else {
                 ZStack {
@@ -327,6 +343,7 @@ struct UpcomingMeetsView: View {
 struct CurrentMeetsView: View {
     @Environment(\.meetsDB) var db
     @ObservedObject var meetParser: MeetParser
+    let gridItems = [GridItem(.adaptive(minimum: 300))]
     @Binding var timedOut: Bool
     
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
@@ -334,15 +351,29 @@ struct CurrentMeetsView: View {
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
     }
+    private var isPhone: Bool {
+        UIDevice.current.userInterfaceIdiom != .pad
+    }
     
     var body: some View {
         if meetParser.currentMeets != nil && !meetParser.currentMeets!.isEmpty {
             let current = tupleToList(tuples: dictToCurrentTuple(dict: meetParser.currentMeets ?? []))
-            ScalingScrollView(records: current, bgColor: .clear, rowSpacing: 15, shadowRadius: 10) {
-                (elem) in
-                MeetBubbleView(elements: elem)
+            if isPhone {
+                ScalingScrollView(records: current, bgColor: .clear, rowSpacing: 15) {
+                    (elem) in
+                    MeetBubbleView(elements: elem)
+                }
+                .padding(.bottom, maxHeightOffset)
+            } else {
+                ScrollView {
+                    LazyVGrid(columns: gridItems, spacing: 10) {
+                        ForEach(current, id: \.self) { elem in
+                            MeetBubbleView(elements: elem)
+                        }
+                    }
+                    .padding(20)
+                }
             }
-            .padding(.bottom, maxHeightOffset)
         } else if meetParser.currentMeets != nil && !timedOut {
             ZStack{
                 Rectangle()
@@ -514,6 +545,7 @@ struct MeetBubbleView: View {
                 Rectangle()
                     .foregroundColor(Custom.darkGray)
                     .cornerRadius(40)
+                    .shadow(radius: 10)
                 VStack {
                     VStack {
                         Text(elements[1]) // name
@@ -564,44 +596,44 @@ struct MeetBubbleView: View {
     func getPhoneTextSizeForAccessibility() -> CGFloat {
         let sizeCategory = UIApplication.shared.preferredContentSizeCategory
         switch sizeCategory {
-            case .extraSmall:
-                return 170
-            case .small:
-                return 180
-            case .medium:
-                return 190
-            case .large:
-                return 200
-            case .extraLarge:
-                return 215
-            case .extraExtraLarge:
-                return 225
-            case .extraExtraExtraLarge:
-                return 235
-            default:
-                return 190
+        case .extraSmall:
+            return 170
+        case .small:
+            return 180
+        case .medium:
+            return 190
+        case .large:
+            return 200
+        case .extraLarge:
+            return 215
+        case .extraExtraLarge:
+            return 225
+        case .extraExtraExtraLarge:
+            return 235
+        default:
+            return 190
         }
     }
     
     func getPadTextSizeForAccessibility() -> CGFloat {
         let sizeCategory = UIApplication.shared.preferredContentSizeCategory
         switch sizeCategory {
-            case .extraSmall:
-                return 180
-            case .small:
-                return 190
-            case .medium:
-                return 200
-            case .large:
-                return 210
-            case .extraLarge:
-                return 220
-            case .extraExtraLarge:
-                return 240
-            case .extraExtraExtraLarge:
-                return 265
-            default:
-                return 190
+        case .extraSmall:
+            return 180
+        case .small:
+            return 190
+        case .medium:
+            return 200
+        case .large:
+            return 210
+        case .extraLarge:
+            return 220
+        case .extraExtraLarge:
+            return 240
+        case .extraExtraExtraLarge:
+            return 265
+        default:
+            return 190
         }
     }
 }

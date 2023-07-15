@@ -66,6 +66,7 @@ struct ToolsMenu: View {
                 .padding(.bottom, maxHeightOffset)
             }
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
