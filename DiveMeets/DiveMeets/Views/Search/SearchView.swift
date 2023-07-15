@@ -257,7 +257,7 @@ struct SearchInputView: View {
     @ScaledMetric private var resultsIconSizeScaled = 30.0
     
     var resultsOffset: CGFloat {
-        min(max(resultsOffsetScaled, 410.0), UIScreen.main.bounds.height - 410)
+        screenHeight * 0.45
     }
     
     var resultsIconSize: CGFloat {
