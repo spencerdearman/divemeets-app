@@ -21,63 +21,63 @@ struct SearchColorfulView: View {
                 // CENTER ELLIPSE
                 Group {
                     Ellipse()
-                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: 3)
+                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: screenWidth * 0.007)
                         .frame(width: screenWidth * 2, height: screenHeight/1.4)
                     //.rotationEffect(Angle(degrees: 180))
                         .offset(x: screenWidth, y: screenHeight / 4)
                     
                     // FIRST ELLIPSE TO LEFT
                     Ellipse()
-                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: 3)
+                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: screenWidth * 0.007)
                         .frame(width: screenWidth * 2.1, height: screenHeight/1.35)
                     //.rotationEffect(Angle(degrees: 180))
                         .offset(x: screenWidth, y: screenHeight / 4 + ((screenHeight/1.4 - screenHeight/1.35) / 2))
                     
                     // SECOND ELLIPSE TO LEFT
                     Ellipse()
-                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: 3)
+                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: screenWidth * 0.007)
                         .frame(width: screenWidth * 2.2, height: screenHeight/1.3)
                     //.rotationEffect(Angle(degrees: 180))
                         .offset(x: screenWidth, y: screenHeight / 4 + ((screenHeight/1.4 - screenHeight/1.3) / 2))
                     
                     // THIRD ELLIPSE TO LEFT
                     Ellipse()
-                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: 3)
+                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: screenWidth * 0.007)
                         .frame(width: screenWidth * 2.3, height: screenHeight/1.25)
                     //.rotationEffect(Angle(degrees: 180))
                         .offset(x: screenWidth, y: screenHeight / 4 + ((screenHeight/1.4 - screenHeight/1.25) / 2))
                     
                     // FOURTH ELLIPSE TO LEFT
                     Ellipse()
-                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: 3)
+                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: screenWidth * 0.007)
                         .frame(width: screenWidth * 2.4, height: screenHeight/1.2)
                     //.rotationEffect(Angle(degrees: 180))
                         .offset(x: screenWidth, y: screenHeight / 4 + ((screenHeight/1.4 - screenHeight/1.2) / 2))
                     
                     // FIFTH ELLIPSE TO LEFT
                     Ellipse()
-                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: 3)
+                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: screenWidth * 0.007)
                         .frame(width: screenWidth * 2.5, height: screenHeight/1.15)
                     //.rotationEffect(Angle(degrees: 180))
                         .offset(x: screenWidth, y: screenHeight / 4 + ((screenHeight/1.4 - screenHeight/1.15) / 2))
                     
                     // SIXTH ELLIPSE TO LEFT
                     Ellipse()
-                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: 3)
+                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: screenWidth * 0.007)
                         .frame(width: screenWidth * 2.6, height: screenHeight/1.1)
                     //.rotationEffect(Angle(degrees: 180))
                         .offset(x: screenWidth, y: screenHeight / 4 + ((screenHeight/1.4 - screenHeight/1.1) / 2))
                     
                     // SEVENTH ELLIPSE TO LEFT
                     Ellipse()
-                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: 3)
+                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: screenWidth * 0.007)
                         .frame(width: screenWidth * 2.7, height: screenHeight/1.05)
                     //.rotationEffect(Angle(degrees: 180))
                         .offset(x: screenWidth, y: screenHeight / 4 + ((screenHeight/1.4 - screenHeight/1.05) / 2))
                     
                     // EIGHTH ELLIPSE TO LEFT
                     Ellipse()
-                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: 3)
+                        .stroke(LinearGradient(colors: colors, startPoint: .bottom, endPoint: .top), lineWidth: screenWidth * 0.007)
                         .frame(width: screenWidth * 2.8, height: screenHeight/1)
                     //.rotationEffect(Angle(degrees: 180))
                         .offset(x: screenWidth, y: screenHeight / 4 + ((screenHeight/1.4 - screenHeight/1) / 2))

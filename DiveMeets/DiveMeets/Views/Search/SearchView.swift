@@ -318,6 +318,14 @@ struct SearchInputView: View {
         selection == .meet && predicate != nil
     }
     
+    private var isPhone: Bool {
+        UIDevice.current.userInterfaceIdiom != .pad
+    }
+    private var isLandscape: Bool {
+        let deviceOrientation = UIDevice.current.orientation
+        return deviceOrientation.isLandscape
+    }
+    
     private func clearStateFlags() {
         showError = false
         searchSubmitted = false
@@ -701,7 +709,7 @@ struct MeetSearchView: View {
             VStack {
                 HStack {
                     Text("Meet Name:")
-                        .padding(.leading)
+                        .padding([.leading, .top])
                     TextField("Meet Name", text: $meetName)
                         .modifier(TextFieldClearButton(text: $meetName,
                                                        fieldType: .meetName,
