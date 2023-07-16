@@ -714,9 +714,10 @@ struct MeetSearchView: View {
                 .frame(width: screenWidth * 0.9, height: isIndexingMeet ? screenHeight * 0.6 : screenHeight * 0.31)
                 .offset(y: isPhone ? (isIndexingMeet ? screenWidth * 0.33 : screenWidth * 0.015) : isIndexingMeet ? screenHeight * 0.15 : screenWidth * 0.015)
             VStack {
+                Spacer()
                 HStack {
                     Text("Meet Name:")
-                        .padding([.leading, .top])
+                        .padding(.leading)
                     TextField("Meet Name", text: $meetName)
                         .modifier(TextFieldClearButton(text: $meetName,
                                                        fieldType: .meetName,
@@ -757,7 +758,8 @@ struct MeetSearchView: View {
                                       meetYear = meetIndexToString(newValue)
                                   }
                 }
-                .offset(y: -10)
+                .offset(y: -20)
+                Spacer()
             }
             .frame(width: screenWidth * 0.9, height: screenHeight * 0.3)
             .offset(y: -screenHeight * 0.02)
