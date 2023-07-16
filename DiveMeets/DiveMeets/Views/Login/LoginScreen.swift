@@ -80,6 +80,14 @@ struct LoginSearchInputView: View {
     @Binding var timedOut: Bool
     private let cornerRadius: CGFloat = 30
     
+    private var isPhone: Bool {
+        UIDevice.current.userInterfaceIdiom != .pad
+    }
+    private var isLandscape: Bool {
+        let deviceOrientation = UIDevice.current.orientation
+        return deviceOrientation.isLandscape
+    }
+    
     var body: some View {
         ZStack {
             (currentMode == .light ? Color.white : Color.black)
@@ -105,7 +113,10 @@ struct LoginSearchInputView: View {
                                           : geometry.size.width / 2,
                                           y: loginSuccessful
                                           ? -geometry.size.width * 0.55
-                                          : -geometry.size.width * 0.55)
+                                          : isPhone ? -geometry.size.width * 0.55 : isLandscape ? -geometry.size.width * 0.85 : -geometry.size.width * 0.55)
+                                .onAppear {
+                                    print(isLandscape)
+                                }
                                 .shadow(radius: 15)
                             Circle()
                             // Circle color
@@ -121,7 +132,7 @@ struct LoginSearchInputView: View {
                                           : geometry.size.width / 2,
                                           y: loginSuccessful
                                           ? geometry.size.width * 0.6
-                                          : -geometry.size.width * 0.55)
+                                          : isPhone ? -geometry.size.width * 0.55 : isLandscape ? -geometry.size.width * 0.75 : -geometry.size.width * 0.55)
                                 .shadow(radius: 15)
                             Circle()
                             // Circle color
@@ -135,7 +146,7 @@ struct LoginSearchInputView: View {
                                 .position(x: loginSuccessful ? 0 : geometry.size.width / 2,
                                           y: loginSuccessful
                                           ? geometry.size.width * 0.65
-                                          : -geometry.size.width * 0.55)
+                                          : isPhone ? -geometry.size.width * 0.55 : isLandscape ? -geometry.size.width * 0.65 : -geometry.size.width * 0.55)
                                 .shadow(radius: 15)
                         }
                     }

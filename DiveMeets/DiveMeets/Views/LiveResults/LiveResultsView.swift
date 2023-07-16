@@ -653,67 +653,53 @@ struct DebugDataset {
 
 struct ColorfulView: View{
     @Environment(\.colorScheme) var currentMode
+    private var screenWidth = UIScreen.main.bounds.width
+    private var screenHeight = UIScreen.main.bounds.height
     private var bgColor: Color {
         currentMode == .light ? .white : .black
     }
+    private var isPhone: Bool {
+        UIDevice.current.userInterfaceIdiom != .pad
+    }
+    private var isLandscape: Bool {
+        let deviceOrientation = UIDevice.current.orientation
+        return deviceOrientation.isLandscape
+    }
+    
     
     var body: some View{
         GeometryReader { geometry in
             ZStack{
                 Circle()
-                    .foregroundColor(Custom.darkBlue)
-                    .frame(width: 475, height: 475)
+                    .stroke(Custom.darkBlue, lineWidth: screenWidth * 0.023)
+                    .frame(width: screenWidth * 1.1, height: screenWidth * 1.1)
                 Circle()
-                    .foregroundColor(bgColor)
-                    .frame(width: 455, height: 455)
+                    .stroke(Custom.coolBlue, lineWidth: screenWidth * 0.023)
+                    .frame(width: screenWidth, height: screenWidth)
                 Circle()
-                    .foregroundColor(Custom.coolBlue)
-                    .frame(width: 435, height: 435)
+                    .stroke(Custom.medBlue, lineWidth: screenWidth * 0.023)
+                    .frame(width: screenWidth * 0.9, height: screenWidth * 0.9)
                 Circle()
-                    .foregroundColor(bgColor)
-                    .frame(width: 415, height: 415)
-                Circle()
-                    .foregroundColor(Custom.medBlue)
-                    .frame(width: 395, height: 395)
-                Circle()
-                    .foregroundColor(bgColor)
-                    .frame(width: 375, height: 375)
-                Circle()
-                    .foregroundColor(Custom.lightBlue)
-                    .frame(width: 355, height: 355)
-                Circle()
-                    .foregroundColor(bgColor)
-                    .frame(width: 335, height: 335)
+                    .stroke(Custom.lightBlue, lineWidth: screenWidth * 0.023)
+                    .frame(width: screenWidth * 0.8, height: screenWidth * 0.8)
             }
-            .offset(x: geometry.size.width/2, y: -geometry.size.height / 10)
+            .offset(x: isPhone ? screenWidth / 1.9 : !isLandscape ? screenWidth / 1.9 : screenWidth * 0.5, y: isPhone ? -screenHeight / 10 : !isLandscape ? screenHeight * 0.4 : screenHeight * 0.3)
             
             ZStack{
                 Circle()
-                    .foregroundColor(Custom.darkBlue)
-                    .frame(width: 475, height: 475)
+                    .stroke(Custom.darkBlue, lineWidth: screenWidth * 0.023)
+                    .frame(width: screenWidth * 1.1, height: screenWidth * 1.1)
                 Circle()
-                    .foregroundColor(bgColor)
-                    .frame(width: 455, height: 455)
+                    .stroke(Custom.coolBlue, lineWidth: screenWidth * 0.023)
+                    .frame(width: screenWidth, height: screenWidth)
                 Circle()
-                    .foregroundColor(Custom.coolBlue)
-                    .frame(width: 435, height: 435)
+                    .stroke(Custom.medBlue, lineWidth: screenWidth * 0.023)
+                    .frame(width: screenWidth * 0.9, height: screenWidth * 0.9)
                 Circle()
-                    .foregroundColor(bgColor)
-                    .frame(width: 415, height: 415)
-                Circle()
-                    .foregroundColor(Custom.medBlue)
-                    .frame(width: 395, height: 395)
-                Circle()
-                    .foregroundColor(bgColor)
-                    .frame(width: 375, height: 375)
-                Circle()
-                    .foregroundColor(Custom.lightBlue)
-                    .frame(width: 355, height: 355)
-                Circle()
-                    .foregroundColor(bgColor)
-                    .frame(width: 335, height: 335)
+                    .stroke(Custom.lightBlue, lineWidth: screenWidth * 0.023)
+                    .frame(width: screenWidth * 0.8, height: screenWidth * 0.8)
             }
-            .offset(x: -geometry.size.width/2, y: -geometry.size.height / 2.5)
+            .offset(x: isPhone ? -screenWidth / 2 : !isLandscape ? -screenWidth / 2 : -screenWidth / 2, y: isPhone ? -screenHeight / 2.5 : !isLandscape ? -screenHeight * 0.3 : -screenHeight * 0.8 )
         }
     }
 }

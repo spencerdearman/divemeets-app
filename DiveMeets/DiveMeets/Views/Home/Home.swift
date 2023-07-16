@@ -639,6 +639,10 @@ struct HomeColorfulView: View{
     private var isPhone: Bool {
         UIDevice.current.userInterfaceIdiom != .pad
     }
+    private var isLandscape: Bool {
+        let deviceOrientation = UIDevice.current.orientation
+        return deviceOrientation.isLandscape
+    }
     
     var body: some View{
         ZStack{
@@ -662,7 +666,7 @@ struct HomeColorfulView: View{
                         .frame(width: screenWidth * 0.8, height: screenWidth * 0.8)
                     
                 }
-                .offset(x: screenWidth / 1.4, y: isPhone ? screenHeight / 15 : -screenHeight / 5)
+                .offset(x: screenWidth / 1.4, y: isPhone ? screenHeight / 15 : !isLandscape ? -screenHeight / 5 : -screenHeight )
                 
                 ZStack{
                     Circle()
@@ -682,7 +686,7 @@ struct HomeColorfulView: View{
                         .frame(width: screenWidth * 0.8, height: screenWidth * 0.8)
                     
                 }
-                .offset(x: -screenWidth / 2, y: isPhone ? screenHeight / 5 : screenHeight / 20)
+                .offset(x: -screenWidth / 2, y: isPhone ? screenHeight / 5 : !isLandscape ? screenHeight / 20 : -screenHeight / 1.5)
                 ZStack{
                     Circle()
                         .stroke(Custom.darkBlue, lineWidth: screenWidth * 0.023)

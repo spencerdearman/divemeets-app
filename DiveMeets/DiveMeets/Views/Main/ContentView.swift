@@ -69,12 +69,12 @@ struct ContentView: View {
                                     case .house:
                                         Home()
                                     case .wrench:
-                                        //NavigationView {
-                                            //LiveResultsView(request: "debug")
+                                        NavigationView {
+                                            LiveResultsView(request: "debug")
 //                                            FinishedLiveResultsView(link: "https://secure.meetcontrol.com/divemeets/system/livestats.php?event=stats-9050-770-9-Finished")
-                                        //}
-                                        //.navigationViewStyle(StackNavigationViewStyle())
-                                        ToolsMenu()
+                                        }
+                                        .navigationViewStyle(StackNavigationViewStyle())
+//                                        ToolsMenu()
                                          //SearchColorfulView()
                                     case .magnifyingglass:
                                         SearchView(isIndexingMeets: $isIndexingMeets)
