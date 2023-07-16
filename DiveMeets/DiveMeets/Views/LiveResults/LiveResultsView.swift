@@ -363,6 +363,9 @@ struct LoadedView: View {
     private var bgColor: Color {
         currentMode == .light ? .white : .black
     }
+    private var isPhone: Bool {
+        UIDevice.current.userInterfaceIdiom != .pad
+    }
     
     var colors: [Color] = [.blue, .green, .red, .orange]
     
@@ -396,15 +399,29 @@ struct LoadedView: View {
                                     Text(roundString)
                                 }
                             }
-                            TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation),
-                                         bottomView: NextDiverView(nextInfo: $nextDiverInformation),
-                                         width: screenWidth * 0.95,
-                                         height: screenHeight * 0.28)
-                            .dynamicTypeSize(.xSmall ... .xxxLarge)
+                            if isPhone {
+                                TileSwapView(topView: LastDiverView(lastInfo: $lastDiverInformation),
+                                             bottomView: NextDiverView(nextInfo: $nextDiverInformation),
+                                             width: screenWidth * 0.95,
+                                             height: screenHeight * 0.28)
+                                .dynamicTypeSize(.xSmall ... .xxxLarge)
+                            } else {
+                                HStack {
+                                    Spacer()
+                                    LastDiverView(lastInfo: $lastDiverInformation)
+                                        .frame(width: screenWidth * 0.45, height: screenHeight * 0.2)
+                                    Spacer()
+                                    NextDiverView(nextInfo: $nextDiverInformation)
+                                        .frame(width: screenWidth * 0.45, height: screenHeight * 0.2)
+                                    Spacer()
+                                }
+                                .offset(y: screenWidth * 0.05)
+                            }
                         }
                     }
+                    Spacer()
                     HomeBubbleView(diveTable: $diveTable, starSelected: $starSelected)
-                        .offset(y: 30)
+                        .offset(y: screenWidth * 0.1)
                 }
                 .padding(.bottom, maxHeightOffset)
                 .padding(.top)
