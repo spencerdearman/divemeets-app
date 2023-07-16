@@ -488,6 +488,7 @@ struct LastDiverView: View
                 ZStack {
                     Rectangle()
                         .foregroundColor(Custom.darkGray)
+                        .frame(height: screenHeight * 0.1)
                         .mask(RoundedRectangle(cornerRadius: 50))
                     HStack {
                         VStack {
@@ -518,6 +519,7 @@ struct LastDiverView: View
                                 .font(.headline)
                         }
                     }
+                    .scaledToFit()
                     .padding()
                 }
                 .fixedSize(horizontal: false, vertical: true)
@@ -572,7 +574,7 @@ struct NextDiverView: View
                 //Lower Part
                 ZStack {
                     Rectangle()
-                        .frame(height: screenHeight * 0.105)
+                        .frame(height: screenHeight * 0.1)
                         .foregroundColor(Custom.darkGray)
                         .mask(RoundedRectangle(cornerRadius: 50))
                     HStack {
@@ -603,6 +605,7 @@ struct NextDiverView: View
                             .lineLimit(1)
                         }
                     }
+                    .scaledToFit()
                     .padding()
                 }
                 .fixedSize(horizontal: false, vertical: true)
