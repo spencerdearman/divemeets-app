@@ -673,8 +673,8 @@ struct DebugDataset {
 
 struct ColorfulView: View{
     @Environment(\.colorScheme) var currentMode
-    private var screenWidth = UIScreen.main.bounds.width
-    private var screenHeight = UIScreen.main.bounds.height
+    private let screenWidth = UIScreen.main.bounds.width
+    private let screenHeight = UIScreen.main.bounds.height
     private var bgColor: Color {
         currentMode == .light ? .white : .black
     }
