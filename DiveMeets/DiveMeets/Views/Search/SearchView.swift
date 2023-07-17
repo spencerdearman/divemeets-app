@@ -318,14 +318,6 @@ struct SearchInputView: View {
         selection == .meet && predicate != nil
     }
     
-    private var isPhone: Bool {
-        UIDevice.current.userInterfaceIdiom != .pad
-    }
-    private var isLandscape: Bool {
-        let deviceOrientation = UIDevice.current.orientation
-        return deviceOrientation.isLandscape
-    }
-    
     private func clearStateFlags() {
         showError = false
         searchSubmitted = false
