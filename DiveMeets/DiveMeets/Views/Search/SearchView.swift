@@ -688,10 +688,6 @@ struct MeetSearchView: View {
     private func meetIndexToString(_ index: Int) -> String {
         return index == 0 ? "" : String(currentYear - index + 1)
     }
-    private var isLandscape: Bool {
-        let deviceOrientation = UIDevice.current.orientation
-        return deviceOrientation.isLandscape
-    }
     private var isPhone: Bool {
         UIDevice.current.userInterfaceIdiom != .pad
     }
