@@ -645,15 +645,15 @@ struct DebugDataset {
     //nextDiverName, nextDiverProfileLink, lastRoundPlace, lastRoundTotalScore, order, nextDive,
     //height, dd, avgScore, maxScore, forFirstPlace
     static let nextDiverInfo: NextDiverInfo =
-    ("Diver 2", "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961", 3,
+    ("Diver 2", "https://secure.meetcontrol.com/divemeets/system/profile.php?number=51197", 3,
      155.75, 2, "307C", "3M", 3.5, 55.0, 105.0, 69.25)
     
     //                    [[Left to dive, order, last round place, last round score, current place,
     //                      current score, name, link, last dive average, event average score, avg round score]]
-    static let diver1: [String] = ["true", "1", "1", "175.00", "1", "225.00", "Logan Sherwin",
-                                   "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961",
+    static let diver1: [String] = ["true", "1", "1", "175.00", "1", "225.00", "Spencer Dearman",
+                                   "https://secure.meetcontrol.com/divemeets/system/profile.php?number=51197",
                                    "7.0", "6.5", "55.5"]
-    static let diver2: [String] = ["false", "2", "3", "155.75", "3", "155.75", "Spencer Dearman",
+    static let diver2: [String] = ["false", "2", "3", "155.75", "3", "155.75", "Diver 2",
                                    "https://secure.meetcontrol.com/divemeets/system/profile.php?number=56961",
                                    "6.0", "5.7", "41.7"]
     static let diver3: [String] = ["false", "3", "2", "158.20", "2", "158.20", "Diver 3",
