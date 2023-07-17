@@ -631,8 +631,8 @@ struct MeetBubbleView: View {
 
 struct HomeColorfulView: View{
     @Environment(\.colorScheme) var currentMode
-    private var screenWidth = UIScreen.main.bounds.width
-    private var screenHeight = UIScreen.main.bounds.height
+    private let screenWidth = UIScreen.main.bounds.width
+    private let screenHeight = UIScreen.main.bounds.height
     private var bgColor: Color {
         currentMode == .light ? Color.white : Color.black
     }
