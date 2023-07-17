@@ -221,8 +221,8 @@ struct LoginPageSearchView: View {
     @State private var isPasswordVisible = false
     fileprivate var focusedField: FocusState<LoginField?>.Binding
     @ScaledMetric private var maxHeightOffsetScaled: CGFloat = 50
-    var screenWidth = UIScreen.main.bounds.width
-    var screenHeight = UIScreen.main.bounds.height
+    private let screenWidth = UIScreen.main.bounds.width
+    private let screenHeight = UIScreen.main.bounds.height
     private let cornerRadius: CGFloat = 50
     private var maxHeightOffset: CGFloat {
         min(maxHeightOffsetScaled, 90)
