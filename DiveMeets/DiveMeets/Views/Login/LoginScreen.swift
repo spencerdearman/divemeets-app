@@ -252,7 +252,7 @@ struct LoginPageSearchView: View {
                         .padding(.top)
                 }
                 .alignmentGuide(.leading) { _ in
-                    -UIScreen.main.bounds.width / 2 // Align the text to the leading edge of the screen
+                    -screenWidth / 2 // Align the text to the leading edge of the screen
                 }
                 .bold()
                 .font(.title)
